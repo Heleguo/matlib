@@ -101,6 +101,23 @@ public class ReflectUtils {
         fieldList.addAll(getAllFieldsRecursively(clazz.getSuperclass()));
         return fieldList;
     }
+    public static List<Method> getAllMethodsRecursively(Class clazz){
+        List<Method> fieldList=new ArrayList<>();
+        if(clazz==null){
+            return fieldList;
+        }
+        Method[] fields=clazz.getDeclaredMethods();
+        for(Method f:fields){
+            fieldList.add(f);
+            try{
+                f.setAccessible(true);
+            }catch (Throwable e){
+                continue;
+            }
+        }
+        fieldList.addAll(getAllMethodsRecursively(clazz.getSuperclass()));
+        return fieldList;
+    }
     public static Pair<Method,Class> getMethodsRecursively(Class clazz, String fieldName, Class[] parameterTypes){
         try{
             Method field=clazz.getDeclaredMethod(fieldName,parameterTypes);
