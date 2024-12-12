@@ -32,7 +32,7 @@ public class AddonInitialization {
         AddUtils.init(name,displayName==null?name:displayName,plugin);
         PdcTypes.init();
 
-        this.dataManager=new BlockDataCache();
+        this.dataManager=new BlockDataCache().init(plugin);
         return this;
     }
     public AddonInitialization onDisable(){

@@ -5,7 +5,7 @@
 ### 使用方法
 
 1. 在依赖仓库中加入jitpack
-2. 按照jitpack的标准加入依赖 <br>maven配置项如下<br>
+2. 按照jitpack的标准加入依赖 <br>maven配置项如下<br>记得启动maven的always-update-snapshot功能
 ```
 <dependency>
    <groupId>com.github.m1919810</groupId>
