@@ -31,6 +31,12 @@
         </executions>
         <configuration>
           <minimizeJar>true</minimizeJar>
+          <relocations>
+            <relocation>
+              <pattern>com.jeff_media.morepersistentdatatypes</pattern>
+              <shadedPattern>me.matl114.matlib.morepersistentdatatypes</shadedPattern>
+            </relocation>
+          </relocations>
           <filters>
             <filter>
               <artifact>*:*</artifact>
