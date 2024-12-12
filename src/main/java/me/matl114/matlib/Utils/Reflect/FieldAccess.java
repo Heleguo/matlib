@@ -5,6 +5,7 @@ import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -39,15 +40,21 @@ public class FieldAccess {
         this.printError = printError;
         return this;
     }
+    private Field getFieldInternal(Object obj) throws Throwable {
+        Field field=lazilyInitializationFunction.apply(obj);
+        Preconditions.checkArgument(field!=null,"FieldAccess init field failed: field is null! using argument: "+(obj==null?"null":obj.toString()));
+        field.setAccessible(true);
+        return field;
+    }
     private FieldAccess init(Object obj){
-        try{
-            field=lazilyInitializationFunction.apply(obj);
-            Preconditions.checkArgument(field!=null,"FieldAccess init field failed: field is null! using argument: "+(obj==null?"null":obj.toString()));
-            field.setAccessible(true);
-        }catch (Throwable e){
-            failInitialization=true;
-            if(printError){
-                e.printStackTrace();
+        if(this.field==null&&!failInitialization){
+            try{
+                field=getFieldInternal(obj);
+            }catch (Throwable e){
+                failInitialization=true;
+                if(printError){
+                    e.printStackTrace();
+                }
             }
         }
         return this;

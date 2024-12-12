@@ -35,15 +35,21 @@ public class MethodAccess {
         this.printError = printError;
         return this;
     }
-    private MethodAccess init(Object obj){
-        try{
-            field=lazilyInitializationFunction.apply(obj);
-            Preconditions.checkArgument(field!=null,"MehodAccess init field failed: method is null! using argument: "+(obj==null?"null":obj.toString()));
-            field.setAccessible(true);
-        }catch (Throwable e){
-            failInitialization=true;
-            if(printError){
-                e.printStackTrace();
+    private Method getFieldInternal(Object obj) throws Throwable {
+        Method field=lazilyInitializationFunction.apply(obj);
+        Preconditions.checkArgument(field!=null,"MethodAccess init field failed: method is null! using argument: "+(obj==null?"null":obj.toString()));
+        field.setAccessible(true);
+        return field;
+    }
+    private MethodAccess init(Object obj) {
+        if(this.field==null&&!failInitialization){
+            try{
+                field=getFieldInternal(obj);
+            }catch (Throwable e){
+                failInitialization=true;
+                if(printError){
+                    e.printStackTrace();
+                }
             }
         }
         return this;
@@ -66,6 +72,18 @@ public class MethodAccess {
         init(obj);
         return field.invoke(tar,obj);
     }
+    public Object invokeIgnoreFailure(Object tar,Object... obj) throws Throwable{
+        if(field==null){
+            try{
+                field=getFieldInternal(tar);
+            }catch (Throwable e){
+                if(printError){
+                    e.printStackTrace();
+                }
+            }
+        }
+        return field.invoke(tar,obj);
+    }
     public MethodAccess invokeCallback(Consumer<Object> callback,Runnable failedCallback, Object tar, Object... obj) {
         if(this.failInitialization){
             failedCallback.run();
@@ -77,6 +95,9 @@ public class MethodAccess {
         }catch (Throwable e){
             failedCallback.run();
         }return this;
+    }
+    public MethodAccess invokeCallback(Consumer<Object> callback, Object tar, Object... obj) {
+       return invokeCallback(callback, ()->{},tar,obj);
     }
 
 }
