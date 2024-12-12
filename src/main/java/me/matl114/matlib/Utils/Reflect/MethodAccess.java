@@ -69,7 +69,7 @@ public class MethodAccess {
         return this;
     }
     public Object invoke(Object tar,Object... obj) throws Throwable{
-        init(obj);
+        init(tar);
         return field.invoke(tar,obj);
     }
     public Object invokeIgnoreFailure(Object tar,Object... obj) throws Throwable{
