@@ -35,5 +35,6 @@ public class AddonInitialization {
     }
     public AddonInitialization onDisable(){
         Manager.onDisable();
+        return this;
     }
 }

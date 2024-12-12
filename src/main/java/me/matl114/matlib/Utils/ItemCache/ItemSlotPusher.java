@@ -1,8 +1,6 @@
 package me.matl114.matlib.Utils.ItemCache;
 
-import me.matl114.logitech.Utils.DataCache;
-import me.matl114.logitech.Utils.Debug;
-import me.matl114.logitech.Utils.MenuUtils;
+import me.matl114.matlib.Utils.Menu.MenuUtils;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

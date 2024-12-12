@@ -1,8 +1,8 @@
 package me.matl114.matlib.Utils.ItemCache;
 
 import io.github.thebusybiscuit.slimefun4.libraries.commons.lang.NotImplementedException;
-import me.matl114.logitech.Utils.Debug;
-import me.matl114.logitech.Utils.Settings;
+
+import me.matl114.matlib.Utils.Settings;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -84,7 +84,7 @@ public class ItemConsumer extends ItemCounter {
             targetConsumers.clear();
         }
     }
-    public void updateItems(BlockMenu inv ,Settings mod){
+    public void updateItems(BlockMenu inv , Settings mod){
         if(targetConsumers==null){
             return;
         }

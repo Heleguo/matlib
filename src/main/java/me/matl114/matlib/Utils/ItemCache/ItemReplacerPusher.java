@@ -1,7 +1,5 @@
 package me.matl114.matlib.Utils.ItemCache;
 
-import me.matl114.logitech.SlimefunItem.Cargo.StorageMachines.AbstractIOPort;
-import me.matl114.logitech.Utils.MenuUtils;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Location;
 import org.bukkit.Material;

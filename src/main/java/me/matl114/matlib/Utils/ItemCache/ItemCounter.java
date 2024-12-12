@@ -1,7 +1,5 @@
 package me.matl114.matlib.Utils.ItemCache;
 
-import me.matl114.logitech.Utils.CraftUtils;
-import me.matl114.logitech.Utils.Debug;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;

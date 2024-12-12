@@ -5,6 +5,7 @@ import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -65,17 +66,34 @@ public class FieldAccess {
         init(null);
         return this;
     }
-    private Object getValue(Object obj) throws Throwable{
+    public Object getValue(Object obj) throws Throwable{
         init(obj);
         return field.get(obj);
     }
-    public AccessWithObject ofAccess(Object obj){
-        AccessWithObject ob=new AccessWithObject();
+    public <W extends Object> AccessWithObject<W> ofAccess(Object obj,Supplier<AccessWithObject<W>> supplier){
+        init(obj);
+        AccessWithObject<W> ob=supplier.get();
         ob.value=obj;
         if(FieldAccess.this.failInitialization){
             ob.failed=true;
         }
         return ob;
+    }
+    public <W extends Object> AccessWithObject<W> ofAccess(Object obj){
+        return ofAccess(obj,AccessWithObject<W>::new);
+    }
+    public boolean compareFieldOrDefault(Object a1,Object a2,Supplier<Boolean> defaultVal){
+        if(failInitialization){
+            return defaultVal.get();
+        }
+        try{
+            Object x1=getValue(a1);
+            Object x2=getValue(a2);
+            return Objects.equals(x1,x2);
+        }catch (Throwable e){
+
+            return defaultVal.get();
+        }
     }
     public class AccessWithObject<T>{
         private boolean failed=false;
@@ -105,6 +123,9 @@ public class FieldAccess {
             }
             return re;
         }
+        public T getRawOrDefault(T defaultValue){
+            return  getRawOrDefault(()->defaultValue);
+        }
         public T getRawOrDefault(Supplier<T> supplier){
             if(!hasTried){
                 get((e)->{});
@@ -113,6 +134,15 @@ public class FieldAccess {
                 return supplier.get();
             }
             return re;
+        }
+        public <W extends Object> W computeIf(Function<T,W> map,Supplier<W> supplier){
+            if(!hasTried){
+                get((e)->{});
+            }
+            if(failed){
+                return supplier.get();
+            }
+            return map.apply(re);
         }
         public AccessWithObject<T> ifFailed(Consumer<Object> callback){
             if(failed){
