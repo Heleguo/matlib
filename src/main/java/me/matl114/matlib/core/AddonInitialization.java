@@ -3,6 +3,7 @@ package me.matl114.matlib.core;
 import lombok.Getter;
 import me.matl114.matlib.Implements.Managers.BlockDataCache;
 import me.matl114.matlib.Utils.AddUtils;
+import me.matl114.matlib.Utils.ConfigLoader;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.PersistentDataContainer.PdcTypes;
 import org.bukkit.block.data.BlockData;
@@ -27,6 +28,7 @@ public class AddonInitialization {
     public AddonInitialization onEnable(){
         Manager.onEnable();
         Debug.init(name);
+        ConfigLoader.init(plugin);
         AddUtils.init(name,displayName==null?name:displayName,plugin);
         PdcTypes.init();
 
