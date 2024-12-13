@@ -286,7 +286,7 @@ public class BlockDataCache implements Manager {
         });
         return count.get();
     }
-    private SlimefunBlockData safeGetBlockDataFromCache(Location loc){
+    public SlimefunBlockData safeGetBlockDataFromCache(Location loc){
         var loadedChunkData= this.loadChunkDataAccess.getRaw();
         if(loadedChunkData!=null){
             String chunkKey=getChunkKey(loc);

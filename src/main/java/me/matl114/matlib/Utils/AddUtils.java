@@ -586,7 +586,7 @@ public class AddUtils {
         return sb.toString();
     }
     public static void damageGeneric(Damageable e, double f){
-        e.setHealth(Math.max( e.getHealth()-f,0.0));
+        e.setHealth(Math.min( Math.max( e.getHealth()-f,0.0),e.getMaxHealth()));
     }
     public static ItemMeta setName(String name,ItemMeta meta){
         meta.setDisplayName(AddUtils.resolveColor(name));
