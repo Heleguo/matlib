@@ -92,7 +92,7 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor {
     }
     public abstract String permissionRequired();
 
-    void showHelpCommand(CommandSender sender){
+    public void showHelpCommand(CommandSender sender){
         sendMessage(sender,"&a/%s 全部指令大全".formatted(getMainName()));
         for(SubCommand cmd:subCommands){
             for (String help:cmd.getHelp()){
