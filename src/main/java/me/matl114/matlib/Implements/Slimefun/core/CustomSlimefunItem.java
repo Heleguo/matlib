@@ -67,6 +67,10 @@ public class CustomSlimefunItem extends SlimefunItem {
             this.recipeOutput= new ItemStack(obj);
         return this;
     }
+    public void register(@Nonnull SlimefunAddon addon){
+        super.register(addon);
+        CustomRegistries.getManager().registerInternal(getId(),this);
+    }
     public CustomSlimefunItem registerThis(SlimefunAddon plugin){
         if(plugin!=null){
             register(plugin);

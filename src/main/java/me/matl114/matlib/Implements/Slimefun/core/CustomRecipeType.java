@@ -20,6 +20,7 @@ public class CustomRecipeType extends RecipeType {
     public CustomRecipeType(NamespacedKey key, ItemStack item) {
         super(key, item);
         recipeTypeMap.put(key, this);
+        CustomRegistries.getManager().registerInternal(key,this);
     }
 
     public void register(ItemStack[] recipe, ItemStack result) {

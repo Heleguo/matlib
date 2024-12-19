@@ -60,6 +60,7 @@ public class AddUtils {
         }
         else return b;
     }
+    public static final String C="§";
     public static NamespacedKey getNameKey(String str) {
         return new NamespacedKey(ADDON_INSTANCE,str);
     }
