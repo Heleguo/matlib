@@ -53,6 +53,10 @@ public class CustomMenuGroup {
         this.title=title;
         this.sizePerPage=PageSize;
         this.pages=pages;
+        init();
+    }
+    public void init(){
+
     }
     public void validSlot(int slot){
         assert slot >= 0&&slot<this.sizePerPage;

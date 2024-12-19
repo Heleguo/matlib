@@ -13,8 +13,13 @@ public class CustomRecipeType extends RecipeType {
     private final HashMap<ItemStack[], ItemStack> recipes = new LinkedHashMap();
     private final List<BiConsumer<ItemStack[], ItemStack>> registerCallback = new ArrayList();
     private final List<BiConsumer<ItemStack[], ItemStack>> unregisterCallback = new ArrayList();
+    private static final HashMap<NamespacedKey,CustomRecipeType> recipeTypeMap = new HashMap();
+    public static Collection<CustomRecipeType> getCustomRecipeTypes() {
+        return recipeTypeMap.values();
+    }
     public CustomRecipeType(NamespacedKey key, ItemStack item) {
         super(key, item);
+        recipeTypeMap.put(key, this);
     }
 
     public void register(ItemStack[] recipe, ItemStack result) {

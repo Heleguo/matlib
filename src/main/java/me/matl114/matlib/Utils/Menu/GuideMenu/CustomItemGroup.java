@@ -17,6 +17,7 @@ import io.github.thebusybiscuit.slimefun4.libraries.dough.chat.ChatInput;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.ItemUtils;
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
+import lombok.Getter;
 import lombok.Setter;
 import me.matl114.matlib.Utils.AddUtils;
 import me.matl114.matlib.Utils.Menu.MenuGroup.CustomMenuGroup;
@@ -32,22 +33,17 @@ import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class CustomItemGroup extends FlexItemGroup  {
     protected static final ItemStack INVOKE_ERROR=new CustomItemStack(Material.BARRIER,"&c","","&c获取物品组物品展示失败");
-    protected int pages;
-    protected int size;
-    protected int contentPerPage;
-    protected int[] contents;
     protected boolean isVisible;
     protected CustomMenuGroup group;
-    protected HashMap<Integer,ItemGroup> subGroups;
-    protected HashMap<Integer,SlimefunItem> items;
+    protected Supplier< HashMap<Integer,ItemGroup>> subGroups;
+    protected Supplier< HashMap<Integer,SlimefunItem>> items;
     boolean loaded=false;
     @Override
     public ItemStack getItem(Player p){
@@ -62,21 +58,38 @@ public class CustomItemGroup extends FlexItemGroup  {
     public CustomItemGroup(NamespacedKey key,ItemStack item,boolean hide){
         super(key,item);
         this.isVisible=!hide    ;
+
     }
     public CustomItemGroup setLoader(CustomMenuGroup group,
                                      HashMap<Integer,ItemGroup> subGroup,
                                      HashMap<Integer, SlimefunItem> researches){
+        return setLoader(group,subGroup,()->researches);
+    }
+    public CustomItemGroup setLoader(CustomMenuGroup group,
+                                     HashMap<Integer,ItemGroup> subGroup,
+                                     Supplier<HashMap<Integer, SlimefunItem>> researches){
+        return setLoader(group,()->subGroup,researches);
+    }
+    public CustomItemGroup setLoader(CustomMenuGroup group,
+                                     Supplier<HashMap<Integer,ItemGroup>> subGroup,
+                                     HashMap<Integer, SlimefunItem> researches){
+        return setLoader(group,subGroup,()->researches);
+    }
+    public CustomItemGroup setLoader(CustomMenuGroup group,
+                                     Supplier<HashMap<Integer,ItemGroup>> subGroup,
+                                     Supplier<HashMap<Integer, SlimefunItem>> researches){
         this.group=group;
         assert group.isPlaceItems();
-        this.pages=group.getPages();
-        this.size=group.getSizePerPage();
-        this.contentPerPage=group.getContents().length;
-        this.contents=group.getContents();
         this.subGroups=subGroup;
         this.items=researches;
         this.loaded=true;
+        postLoad();
         return this;
     }
+    public void postLoad(){
+        //left
+    }
+
 
     public boolean isVisible(Player var1, PlayerProfile var2, SlimefunGuideMode var3){
         return isVisible;
@@ -87,14 +100,28 @@ public class CustomItemGroup extends FlexItemGroup  {
     public void open(Player var1, PlayerProfile var2, SlimefunGuideMode var3){
         assert loaded;
         int page=getLastPage(var1,var2,var3);
-        if(page<=0||page>this.pages){
+        if(page<=0||page>group.getPages()){
             page=1;
         }
         openPage(var1,var2,var3,page);
     }
-    @Setter
+    public CustomItemGroup setSearchButton(int... buttons){
+        return setSearchButton( Arrays.stream(buttons).mapToObj(i->(Integer)i).collect(Collectors.toSet()));
+    }
+    public CustomItemGroup setSearchButton(Collection<Integer> buttons){
+        this.searchButton=new HashSet<>(buttons);
+        return this;
+    }
+    @Getter
     private HashSet<Integer> searchButton=new HashSet<>();
-    @Setter
+    public CustomItemGroup setBackButton(int... buttons){
+        return setBackButton( Arrays.stream(buttons).mapToObj(i->(Integer)i).collect(Collectors.toSet()));
+    }
+    public CustomItemGroup setBackButton(Collection<Integer> buttons){
+        this.backButton=new HashSet<>(buttons);
+        return this;
+    }
+    @Getter
     private HashSet<Integer> backButton=new HashSet<>();
     private static FieldAccess iconAccess=FieldAccess.ofName(ItemGroup.class,"item");
     public static ItemStack getItemGroupIcon(ItemGroup group){
@@ -122,6 +149,7 @@ public class CustomItemGroup extends FlexItemGroup  {
 
     }
     public void openPage(Player var1, PlayerProfile var2, SlimefunGuideMode var3,int page){
+        int pages=group.getPages();
         assert page>=1&&page<=pages;
         var2.getGuideHistory().add(this,page);
         ChestMenu menu=this.group.buildPage(page).getMenu();
@@ -133,7 +161,7 @@ public class CustomItemGroup extends FlexItemGroup  {
         }));
         //next键
         menu.addMenuClickHandler(this.group.getNext(),((player, i, itemStack, clickAction) -> {
-            if(page<this.pages){
+            if(page<pages){
                 this.openPage(var1,var2,var3,page+1);
             }return false;
         }));
@@ -157,12 +185,15 @@ public class CustomItemGroup extends FlexItemGroup  {
                 return false;
             }));
         }
-        int startIndex=Math.max(0,this.contentPerPage*(page-1));
-        int endIndex=Math.min(this.contentPerPage*page,this.contentPerPage*this.pages);
-        for (Map.Entry<Integer,ItemGroup> entry:this.subGroups.entrySet()){
+        int[] contents=this.group.getContents();
+        int contentPerPage=contents.length;
+        int startIndex=Math.max(0,contentPerPage*(page-1));
+        int endIndex=Math.min(contentPerPage*page,contentPerPage*pages);
+        HashMap<Integer,ItemGroup> displayedSubGroups=this.subGroups.get();
+        for (Map.Entry<Integer,ItemGroup> entry:displayedSubGroups.entrySet()){
             int index=entry.getKey();
             if(index>=startIndex&&index<endIndex){
-                int realIndex=contents[ (index-startIndex)%this.contentPerPage];
+                int realIndex=contents[ (index-startIndex)%contentPerPage];
                 final ItemGroup group=entry.getValue();
                 menu.replaceExistingItem(realIndex,this.getItemGroupIcon(group));
                 menu.addMenuClickHandler(realIndex,((player, i, itemStack, clickAction) -> {
@@ -171,10 +202,11 @@ public class CustomItemGroup extends FlexItemGroup  {
                 }));
             }
         }
-        for (Map.Entry<Integer,SlimefunItem> entry:this.items.entrySet()){
+        HashMap<Integer,SlimefunItem> displayedItems=this.items.get();
+        for (Map.Entry<Integer,SlimefunItem> entry:displayedItems.entrySet()){
             int index=entry.getKey();
             if(index>=startIndex&&index<endIndex){
-                int realIndex=contents[ (index-startIndex)%this.contentPerPage];
+                int realIndex=contents[ (index-startIndex)%contentPerPage];
                 displaySlimefunItem(menu,this,var1,var2,entry.getValue(),var3,page,realIndex);
             }
         }
