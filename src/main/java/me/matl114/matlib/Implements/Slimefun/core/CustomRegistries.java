@@ -15,9 +15,8 @@ public class CustomRegistries implements   Manager {
     Plugin plugin;
     @Getter
     static CustomRegistries manager;
-    public CustomRegistries(Plugin plugin) {
+    public CustomRegistries() {
         manager = this;
-        this.plugin = plugin;
     }
     HashSet<Registry<?>> registries=new HashSet<>();
     private class Registry<T extends Object>{
@@ -84,6 +83,7 @@ public class CustomRegistries implements   Manager {
 
     @Override
     public CustomRegistries init(Plugin pl, String... path) {
+        this.plugin=pl;
         return this;
     }
 
