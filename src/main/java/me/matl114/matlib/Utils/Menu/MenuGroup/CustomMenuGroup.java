@@ -1,5 +1,6 @@
 package me.matl114.matlib.Utils.Menu.MenuGroup;
 
+import com.google.common.base.Preconditions;
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
 import lombok.Getter;
 import me.matl114.matlib.Utils.Menu.MenuUtils;
@@ -7,11 +8,10 @@ import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.function.IntFunction;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class CustomMenuGroup {
     public interface CustomMenuClickHandler{
@@ -24,32 +24,43 @@ public class CustomMenuGroup {
         public ChestMenu.MenuClickHandler getHandler(CustomMenu menu);
         // public ChestMenu.MenuClickHandler getHandler(ChestMenu menu);
     }
+    public interface CustomMenuHandler{
+        static CustomMenuHandler of(ChestMenu.MenuOpeningHandler handler){
+            return (cm)->handler;
+        }
+
+        public ChestMenu.MenuOpeningHandler getHandler(CustomMenu menu);
+    }
     @Getter
-    String title;
+    private String title;
     @Getter
-    int sizePerPage;
+    private int sizePerPage;
     @Getter
-    int pages;
+    private int pages;
     @Getter
-    int[] contents=null;
+    private int[] contents=null;
     @Getter
-    boolean placeItems=false;
-    boolean placeOverrides=false;
-    boolean placePresets=false;
-    boolean placeBackHandlers=false;
+    private boolean placeItems=false;
+    private boolean placeOverrides=false;
+    private boolean placePresets=false;
+    //private boolean placeBackHandlers=false;
     @Getter
-    int prev;
+    private HashSet<Integer> prev=new HashSet<>();
     @Getter
-    int next;
-    boolean enablePageChangeSlot;
-    //todo changed to suppilers
-    List<ItemStack> items=new ArrayList<>();
-    List<CustomMenuClickHandler> handlers=new ArrayList<>();
-    HashMap<Integer,ItemStack> overrideItem=new HashMap<>();
-    HashMap<Integer,CustomMenuClickHandler> overrideHandler=new HashMap<>();
-    IntFunction<ChestMenu> presetGenerator=null;
+    private HashSet<Integer> next=new HashSet<>();
+//    @Getter
+//    private HashSet<Integer> back=new HashSet<>();
+    private boolean enablePageChangeSlot;
+    //
+    private ArrayList<Supplier<ItemStack>> items=new ArrayList<>();
+    private ArrayList<CustomMenuClickHandler> handlers=new ArrayList<>();
+    private HashMap<Integer,ItemStack> overrideItem=new HashMap<>();
+    private HashMap<Integer,CustomMenuClickHandler> overrideHandler=new HashMap<>();
+    private IntFunction<ChestMenu> presetGenerator=null;
+    //why do we need this?
+    private CustomMenuClickHandler backHandlers=null;
     public CustomMenuGroup(String title,int PageSize,int pages){
-        assert pages > 0;
+        Preconditions.checkArgument(pages>0,"MenuGroup page should be above 0");
         this.title=title;
         this.sizePerPage=PageSize;
         this.pages=pages;
@@ -59,10 +70,10 @@ public class CustomMenuGroup {
 
     }
     public void validSlot(int slot){
-        assert slot >= 0&&slot<this.sizePerPage;
+        Preconditions.checkArgument( slot >= 0&&slot<this.sizePerPage,"Not a valid slot %d for %d",slot,this.sizePerPage);
     }
     public CustomMenuGroup enableContentPlace(int[] contents){
-        assert contents != null;
+        Preconditions.checkNotNull(contents ,"Content should not be null") ;
         this.placeItems=true;
         for(int i=0;i<contents.length;i++){
             validSlot(contents[i]);
@@ -75,7 +86,7 @@ public class CustomMenuGroup {
         return this;
     }
     public CustomMenuGroup enablePresets(IntFunction<ChestMenu> presetGenerator){
-        assert presetGenerator != null;
+        Preconditions.checkNotNull(presetGenerator ,"Preset should not be null") ;
         this.placePresets=true;
         this.presetGenerator=presetGenerator;
         return this;
@@ -84,28 +95,48 @@ public class CustomMenuGroup {
         validSlot(prev);
         validSlot(next);
         this.enablePageChangeSlot = true;
-        this.prev=prev;
-        this.next=next;
+        this.prev.add(prev);
+        this.next.add(next);
         return this;
     }
+    public CustomMenuGroup setPagePrevSlots(int... prev){
+        Arrays.stream(prev).peek(this::validSlot).forEach(this.prev::add);
+        this.enablePageChangeSlot = true;
+        return this;
+    }
+    public CustomMenuGroup setPageNextSlots(int... next){
+        Arrays.stream(next).peek(this::validSlot).forEach(this.next::add);
+        this.enablePageChangeSlot = true;
+        return this;
+    }
+//    public CustomMenuGroup setBackHandler(CustomMenuClickHandler handler,int... backSlot){
+//        Arrays.stream(backSlot).peek(this::validSlot).forEach(this.back::add);
+//        this.placeBackHandlers=true;
+//    }
+    private void checkOverride(){
+        Preconditions.checkArgument(this.placeOverrides,"MenuGroup should toggle placeOverride flag on before adding Overrides");
+    }
     public CustomMenuGroup setOverrideItem(int slot,ItemStack stack){
-        assert this.placeOverrides;
+        checkOverride();
         validSlot(slot);
         this.overrideItem.put(slot,stack);
         return this;
     }
     public CustomMenuGroup setOverrideHandler(int slot,CustomMenuClickHandler handler){
-        assert this.placeOverrides;
+        checkOverride();
         validSlot(slot);
         this.overrideHandler.put(slot,handler);
         return this;
     }
     public CustomMenuGroup setOverrideItem(int slot,ItemStack stack,CustomMenuClickHandler handler){
-        assert this.placeOverrides;
+        checkOverride();
         validSlot(slot);
         setOverrideItem(slot,stack);
         setOverrideHandler(slot,handler);
         return this;
+    }
+    private void checkPlace(){
+        Preconditions.checkArgument(this.placeItems,"MenuGroup should toggle placeItem flag on before adding Item List");
     }
     //return if expand
     private <T extends Object> boolean addInternal(List<? super T>  list,int slot,T value){
@@ -120,14 +151,21 @@ public class CustomMenuGroup {
         return true;
     }
     public CustomMenuGroup addItem(int slot,ItemStack item){
-        assert this.placeItems;
+        checkPlace();
+        if(addInternal(items,slot,()->item)){
+            resetPageSize();
+        }
+        return this;
+    }
+    public CustomMenuGroup addItem(int slot,Supplier<ItemStack> item){
+        checkPlace();
         if(addInternal(items,slot,item)){
             resetPageSize();
         }
         return this;
     }
     public CustomMenuGroup resetPageSize(){
-        assert this.placeItems;
+        checkPlace();
         int should=(this.items.size()-1)/this.contents.length+1;
         if(this.pages<should){
             this.pages=should;
@@ -135,26 +173,36 @@ public class CustomMenuGroup {
         return this;
     }
     public CustomMenuGroup resetItems(List<ItemStack> items){
-        assert  this.placeItems;
-        this.items=items;
-
+        checkPlace();
+        this.items=items.stream().map(i->((Supplier<ItemStack>)()->i)).collect(Collectors.toCollection(ArrayList::new));
+        resetPageSize();
+        return this;
+    }
+    public CustomMenuGroup resetItemSupplier(List< Supplier<ItemStack>> items){
+        checkPlace();
+        this.items=new ArrayList<>(items);
         resetPageSize();
         return this;
     }
     public CustomMenuGroup resetHandlers(List<CustomMenuClickHandler> handlers){
-        assert this.placeItems;
-        this.handlers=handlers;
+        checkPlace();
+        this.handlers=new ArrayList<>( handlers);
         resetPageSize();
         return this;
     }
     public CustomMenuGroup addHandler(int slot,CustomMenuClickHandler handler){
-        assert this.placeItems;
+        checkPlace();
         if(addInternal(handlers,slot,handler)){
             resetPageSize();
         }
         return this;
     }
     public CustomMenuGroup addItem(int slot,ItemStack item,CustomMenuClickHandler handler){
+        addItem(slot,item);
+        addHandler(slot,handler);
+        return this;
+    }
+    public CustomMenuGroup addItem(int slot,Supplier<ItemStack> item,CustomMenuClickHandler handler){
         addItem(slot,item);
         addHandler(slot,handler);
         return this;
@@ -187,9 +235,8 @@ public class CustomMenuGroup {
         return this;
     }
     public CustomMenuGroup loadPage(CustomMenu menu){
-        assert menu != null;
-        assert menu.getPage()>=1&&menu.getPage()<=this.pages;
-
+        Preconditions.checkNotNull(menu,"menu should not be null");
+        Preconditions.checkArgument(menu.getPage()>=1&&menu.getPage()<=this.pages,"Page of menu out of range! expect %d found %d",this.pages,menu.getPage());
         menu.loadInternal();
         if(this.placeItems){
             int len=this.contents.length;
@@ -197,7 +244,8 @@ public class CustomMenuGroup {
             int endIndex=Math.min(len*(menu.getPage()),this.items.size());
             int i=0;
             for(;i<endIndex-startIndex;i++){
-                menu.getMenu().replaceExistingItem(contents[i],this.items.get(startIndex+i));
+                Supplier<ItemStack> stackSupplier=this.items.get(startIndex+i);
+                menu.getMenu().replaceExistingItem(contents[i],stackSupplier==null?null:stackSupplier.get());
                 menu.getMenu().addMenuClickHandler(contents[i],getHandler(this.handlers.get(startIndex+i),menu));
             }
             for(;i<len;i++){
@@ -216,24 +264,28 @@ public class CustomMenuGroup {
             }
         }
         if(this.enablePageChangeSlot){
-            menu.getMenu().replaceExistingItem(this.prev, MenuUtils.getPreviousButton(menu.getPage(),this.pages));
-            menu.getMenu().replaceExistingItem(this.next, MenuUtils.getNextButton(menu.getPage(),this.pages));
-            menu.getMenu().addMenuClickHandler(this.prev,((player, i, itemStack, clickAction) -> {
-                if(menu.getPage()>1){
-                    this.openPage(player,menu.getPage()-1);
-                }
-                return false;
-            }));
-            menu.getMenu().addMenuClickHandler(this.next,((player, i, itemStack, clickAction) -> {
-                if(menu.getPage()<pages){
-                    this.openPage(player,menu.getPage()+1);
-                }
-                return false;
-            }));
+            this.prev.forEach(i-> {
+                menu.getMenu().replaceExistingItem(i, MenuUtils.getPreviousButton(menu.getPage(),this.pages));
+                menu.getMenu().addMenuClickHandler(i,((player, i1, itemStack, clickAction) -> {
+                    if(menu.getPage()>1){
+                        this.openPage(player,menu.getPage()-1);
+                    }
+                    return false;
+                }));
+            });
+            this.prev.forEach(i->{
+                menu.getMenu().replaceExistingItem(i, MenuUtils.getNextButton(menu.getPage(),this.pages));
+                menu.getMenu().addMenuClickHandler(i,((player, i1, itemStack, clickAction) -> {
+                    if(menu.getPage()<pages){
+                        this.openPage(player,menu.getPage()+1);
+                    }
+                    return false;
+                }));
+            });
         }
-        if(this.placeBackHandlers){
-            //remain not completed
-        }
+//        if(this.placeBackHandlers){
+//            //remain not completed
+//        }
         //
         return  null;
     }
