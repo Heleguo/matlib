@@ -154,17 +154,17 @@ public class CustomItemGroup extends FlexItemGroup  {
         var2.getGuideHistory().add(this,page);
         ChestMenu menu=this.group.buildPage(page).getMenu();
         //prev键
-        menu.addMenuClickHandler(this.group.getPrev(),((player, i, itemStack, clickAction) -> {
+        this.group.getPrev().forEach(i1->menu.addMenuClickHandler(i1,((player, i, itemStack, clickAction) -> {
             if(page>1){
                 this.openPage(var1,var2,var3,page-1);
             }return false;
-        }));
+        })));
         //next键
-        menu.addMenuClickHandler(this.group.getNext(),((player, i, itemStack, clickAction) -> {
+        this.group.getNext().forEach(i2->menu.addMenuClickHandler(i2,((player, i, itemStack, clickAction) -> {
             if(page<pages){
                 this.openPage(var1,var2,var3,page+1);
             }return false;
-        }));
+        })));
         //搜索键
         for(Integer i:this.searchButton){
             menu.replaceExistingItem(i,ChestMenuUtils.getSearchButton(var1));
