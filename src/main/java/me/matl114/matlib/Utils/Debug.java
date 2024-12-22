@@ -7,11 +7,13 @@ import java.util.logging.Logger;
 public class Debug {
     public static void init(String name){
         log= Logger.getLogger(name);
+
     }
     public  static Logger log ;
     public static Logger testlog=Logger.getLogger("TEST");
     public static boolean start=false;
     public static boolean pos=false;
+
     public static AtomicBoolean[] breakPoints=null;
     public static Object[] breakValues=null;
     public static AtomicBoolean[] setValues=null;
@@ -57,16 +59,25 @@ public class Debug {
     public static  void logger(String message) {
         log.info(s(message));
     }
-
+    public static void warn(String... message) {
+        log.warning(s(message));
+    }
+    public static void severe(String... message) {
+        log.severe(s(message));
+    }
     public static  void logger(int message) {
         logger(Integer.toString(message));
     }
     public static void debug(int message) {
         debug(Integer.toString(message));
     }
+    public static void debug(String message) {
+        //not in debug mode ,do not invoke this method
+    }
     public static String s(Object o) {
         return o!=null?o.toString():"null";
     }
+
     public static void logger(Object ... msgs){
         String msg="";
         for(Object m : msgs){

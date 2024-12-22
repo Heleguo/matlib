@@ -7,10 +7,11 @@ import java.util.HashSet;
 public interface Manager {
     static HashSet<Manager> managers = new HashSet<>();
     static void onEnable(){
-
+        managers.clear();
     }
     static void onDisable(){
         new HashSet<>(managers).forEach(Manager::deconstruct);
+        managers.clear();
     }
     default Manager addToRegistry() {
         //must called in init

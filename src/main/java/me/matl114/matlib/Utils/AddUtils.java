@@ -39,9 +39,11 @@ import java.util.regex.Pattern;
 
 public class AddUtils {
     public static void init(String id,String addonName,Plugin pl){
+        Debug.logger("Initializing Utils...");
         ADDON_ID=id;
         ADDON_NAME=addonName;
         ADDON_INSTANCE=pl;
+
     }
     public static String ADDON_NAME;
     public static String ADDON_ID;

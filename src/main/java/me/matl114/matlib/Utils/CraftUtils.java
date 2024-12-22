@@ -68,20 +68,19 @@ public class CraftUtils {
     //public static Field ITEMSTACKMETA;
 
     static{
+        Debug.logger("Initializing CraftUtils...");
         try{
             var CRAFTLORE=CRAFTMETAITEMCLASS.getDeclaredField("lore");
             CRAFTLORE.setAccessible(true);
             loreAccess=FieldAccess.of(CRAFTLORE);
-
             var CRAFTDISPLAYNAME=CRAFTMETAITEMCLASS.getDeclaredField("displayName");
             CRAFTDISPLAYNAME.setAccessible(true);
             displayNameAccess=FieldAccess.of(CRAFTDISPLAYNAME);
 
         }catch (Throwable e){
-            Debug.logger("INVOKE META FAILED,PLEASE CHECK LOGGER!!!!!!");
-
-            e.printStackTrace();
-            Debug.logger("DISABLING RELEVENT FEATURE");
+            Debug.logger("Stack reflection failed,please check the error");
+            Debug.logger(e);
+            Debug.logger("disabling the relavent features");
 
         }
         try{
@@ -106,9 +105,9 @@ public class CraftUtils {
             //INVOKE_STACK_SUCCESS=true;
            // INVOKE_STACK_SUCCESS=false;
         }catch (Throwable e){
-            Debug.logger("INVOKE STACK FAILED,PLEASE CHECK LOGGER!!!!!!");
+            Debug.logger("Stack reflection failed,please check the error");
             Debug.logger(e);
-            Debug.logger("DISABLING RELEVENT FEATURE");
+            Debug.logger("disabling the relavent features");
 
         }
     }

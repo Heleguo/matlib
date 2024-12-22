@@ -2,6 +2,7 @@ package me.matl114.matlib.core;
 
 import lombok.Getter;
 import me.matl114.matlib.Implements.Managers.BlockDataCache;
+import me.matl114.matlib.Implements.Managers.ScheduleManager;
 import me.matl114.matlib.Implements.Slimefun.core.CustomRegistries;
 import me.matl114.matlib.Utils.AddUtils;
 import me.matl114.matlib.Utils.ConfigLoader;
@@ -18,6 +19,8 @@ public class AddonInitialization {
     private BlockDataCache dataManager=null;
     @Getter
     private CustomRegistries registries=null;
+    @Getter
+    private ScheduleManager scheduleManager=null;
     public AddonInitialization(Plugin plugin,String addonName) {
         this.plugin = plugin;
         this.name = addonName;
@@ -33,12 +36,12 @@ public class AddonInitialization {
         Debug.init(name);
         ConfigLoader.init(plugin);
         AddUtils.init(name,displayName==null?name:displayName,plugin);
-        PdcTypes.init();
         //core
         this.registries=new CustomRegistries().init(plugin);
         //datas
         this.dataManager=new BlockDataCache().init(plugin);
-
+        //tasks
+        this.scheduleManager=new ScheduleManager().init(plugin);
         return this;
     }
     public AddonInitialization onDisable(){
