@@ -1,28 +1,27 @@
 package me.matl114.matlib.Utils.Algorithm;
 
 import me.matl114.matlib.Utils.Reflect.ReflectUtils;
-import me.matl114.matlib.Utils.Settings;
+import me.matl114.matlib.Utils.Flags;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.annotation.Nonnull;
-import java.security.MessageDigest;
 import java.util.function.Supplier;
 
 public class MathUtils {
     protected static final boolean isCompacted=((Supplier<Boolean>)(()->{
-        Boolean obj=   (Boolean) ReflectUtils.invokeGetRecursively("草", Settings.METHOD,"coder");
+        Boolean obj=   (Boolean) ReflectUtils.invokeGetRecursively("草", Flags.METHOD,"coder");
         if(obj==null) {
             return true;
         }
         return obj;
     })).get();
     static final int HI_BYTE_SHIFT=((Supplier<Integer>)(()->{
-        Integer obj=   (Integer) ReflectUtils.invokeGetRecursively("草",Settings.FIELD,"HI_BYTE_SHIFT");
+        Integer obj=   (Integer) ReflectUtils.invokeGetRecursively("草", Flags.FIELD,"HI_BYTE_SHIFT");
         if(obj==null) return 0;
         return obj;
     })).get();
     static final int LO_BYTE_SHIFT=((Supplier<Integer>)(()->{
-        Integer obj=   (Integer) ReflectUtils.invokeGetRecursively("草",Settings.FIELD,"LO_BYTE_SHIFT");
+        Integer obj=   (Integer) ReflectUtils.invokeGetRecursively("草", Flags.FIELD,"LO_BYTE_SHIFT");
         if(obj==null) return 8;
         return obj;
     })).get();

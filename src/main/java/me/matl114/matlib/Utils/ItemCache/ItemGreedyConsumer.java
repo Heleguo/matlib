@@ -1,11 +1,10 @@
 package me.matl114.matlib.Utils.ItemCache;
 
 import me.matl114.matlib.Utils.Algorithm.MathUtils;
-import me.matl114.matlib.Utils.Settings;
+import me.matl114.matlib.Utils.Flags;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -147,7 +146,7 @@ public class ItemGreedyConsumer extends ItemCounter implements Comparable<ItemGr
      * @param inv
      * @param mod
      */
-    public void updateItems(BlockMenu inv ,Settings mod){
+    public void updateItems(BlockMenu inv , Flags mod){
         if(targetConsumers==null){
             return;
         }
@@ -172,7 +171,7 @@ public class ItemGreedyConsumer extends ItemCounter implements Comparable<ItemGr
      * @param inv
      * @param mod
      */
-    public void updateItemsPlus(BlockMenu inv , Settings mod){
+    public void updateItemsPlus(BlockMenu inv , Flags mod){
         //preserver
         if(targetConsumers==null){
             return;

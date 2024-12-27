@@ -1,6 +1,6 @@
 package me.matl114.matlib.Utils;
 
-public enum  Settings {
+public enum Flags {
     USE_SEC_EXP(),
     USE_TICK_EXP(),
     //顺序搜索
@@ -20,7 +20,11 @@ public enum  Settings {
     OUTPUT(),
     INPUT(),
     METHOD(),
-    FIELD();
+    FIELD(),
+    //match result
+    REJECT(),
+    IGNORED(),
+    ACCEPT();
 
     private static int cnt=0;
     private static int get(){

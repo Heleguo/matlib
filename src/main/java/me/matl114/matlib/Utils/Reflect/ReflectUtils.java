@@ -1,8 +1,7 @@
 package me.matl114.matlib.Utils.Reflect;
 
 import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
-import me.matl114.matlib.Utils.Debug;
-import me.matl114.matlib.Utils.Settings;
+import me.matl114.matlib.Utils.Flags;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Constructor;
@@ -14,10 +13,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ReflectUtils {
-    public static  Object invokeGetRecursively(Object target, Settings mod, String declared){
+    public static  Object invokeGetRecursively(Object target, Flags mod, String declared){
         return invokeGetRecursively(target,target.getClass(),mod,declared);
     }
-    public static  Object invokeGetRecursively(Object target, Class clazz, Settings mod, String decleared){
+    public static  Object invokeGetRecursively(Object target, Class clazz, Flags mod, String decleared){
 //        if(Debug.debug){
 //            Debug.debug("try invoke ",clazz);
 //        }

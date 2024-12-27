@@ -9,6 +9,7 @@ import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.common.ChatColors;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
 import io.github.thebusybiscuit.slimefun4.utils.LoreBuilder;
+import me.matl114.matlib.Utils.Inventory.CleanItemStack;
 import me.matl114.matlib.core.EnvironmentManager;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
 import net.md_5.bungee.api.ChatColor;
@@ -52,7 +53,7 @@ public class AddUtils {
     private static final double SF_TPS = 20.0 / (double) Slimefun.getTickerTask().getTickRate();
     private static final DecimalFormat FORMAT = new DecimalFormat("###,###,###,###,###,###.#");
     private static Random random=new Random();
-    protected static ItemStack RESOLVE_FAILED=new CustomItemStack(Material.COBBLESTONE,"&c解析物品失败");
+    protected static ItemStack RESOLVE_FAILED=AddUtils.addGlow( new CustomItemStack(Material.BARRIER,"&c解析物品失败"));
     public static String formatDouble(double s){
         return FORMAT.format(s);
     }
@@ -191,9 +192,13 @@ public class AddUtils {
         if((result=resolveRandomizedItemStack(stack))!=null){
             return result;
         }else {
-            return new ItemStack(stack);
+            return getCleaned(stack);
         }
     }
+    public static ItemStack getCleaned(ItemStack stack){
+        return stack==null?new ItemStack(Material.AIR): new CleanItemStack(stack);
+    }
+
     public static ItemStack resolveItem(Object a){
         if(a==null)return null;
         if(a instanceof ItemStack item){
@@ -220,14 +225,14 @@ public class AddUtils {
                 id=(String) a;
             }
             try{
-                ItemStack b=new ItemStack(SlimefunItem.getById(id).getItem());
+                ItemStack b=getCopy(SlimefunItem.getById(id).getItem());
                 if(cnt>0&&cnt!=b.getAmount()){
                     b.setAmount(cnt);
                 }
                 return b;
             }catch (Exception e){
                 try{
-                    ItemStack b=new ItemStack(EnvironmentManager.getManager().getVersioned().getMaterial(id));
+                    ItemStack b=new ItemStack( EnvironmentManager.getManager().getVersioned().getMaterial(id));
                     if(cnt>0&&cnt!=b.getAmount()){
                         b=b.clone();
                         b.setAmount(cnt);
@@ -243,13 +248,6 @@ public class AddUtils {
             return RESOLVE_FAILED;
         }
 
-    }
-    public static boolean copyItem(ItemStack from,ItemStack to){
-        if(from==null||to==null)return false;
-        to.setAmount(from.getAmount());
-        to.setType(from.getType());
-        to.setData(from.getData());
-        return to.setItemMeta(from.getItemMeta());
     }
     public static Pair<ItemStack[], ItemStack[]> buildRecipes(Pair<Object[],Object[]> itemStacks){
         return buildRecipes(itemStacks.getFirstValue(),itemStacks.getSecondValue());
@@ -282,38 +280,45 @@ public class AddUtils {
         b=b_.toArray(new ItemStack[b_.size()]);
         return new Pair<>(a,b);
     }
-    public static MachineRecipe buildMachineRecipes(int time, Pair<Object[],Object[]> itemStacks){
+    public static MachineRecipe buildMachineRecipes(int time,Pair<Object[],Object[]> itemStacks){
         Pair<ItemStack[],ItemStack[]> b=buildRecipes(itemStacks);
         return new MachineRecipe(time,b.getFirstValue(),b.getSecondValue());
     }
-    public static <T extends Object> LinkedHashMap<Pair<ItemStack[],ItemStack[]>,Integer> buildRecipeMap(LinkedHashMap<T,Integer> rawDataMap){
-        if(rawDataMap==null)return new LinkedHashMap<>();
-        LinkedHashMap<Pair<ItemStack[],ItemStack[]>,Integer> map = new LinkedHashMap<>();
-        rawDataMap.forEach((k,v)->{
+    public static <T extends Object> List<Pair<Pair<ItemStack[],ItemStack[]>,Integer>> buildRecipeMap(List<Pair<T,Integer>> rawDataMap){
+        if(rawDataMap==null)return new ArrayList<>();
+        List<Pair<Pair<ItemStack[],ItemStack[]>,Integer>> map = new ArrayList<>();
+        rawDataMap.forEach((p)->{
+            var k=p.getFirstValue();
+            var v=p.getSecondValue();
             if(k instanceof Object[]){
 
-                map.put(AddUtils.buildRecipes(
-                        Arrays.copyOfRange((Object[])k,0,2),Arrays.copyOfRange((Object[])k,2,4)),v);
+                map.add(new Pair<>(AddUtils.buildRecipes(
+                        Arrays.copyOfRange((Object[])k,0,2),Arrays.copyOfRange((Object[])k,2,4)),v));
             }
             else if (k instanceof Pair){
-                try{
 
-                    Object[] input=(Object[])((Pair)k).getFirstValue();
-                    if(input==null){
-                        input=new Object[]{};
-                    }
-                    Object[] output=(Object[])((Pair)k).getSecondValue();
-                    if(output==null){
-                        output=new Object[]{};
-                    }
-                    map.put(AddUtils.buildRecipes(input,output),v);
-                }catch (Exception a){
-                    throw new IllegalArgumentException("illegalArguments in recipe Pair, Pair val must be <T extends Object>T[]");
+
+                Object[] input=(Object[])((Pair)k).getFirstValue();
+                if(input==null){
+                    input=new Object[]{};
                 }
+                Object[] output=(Object[])((Pair)k).getSecondValue();
+                if(output==null){
+                    output=new Object[]{};
+                }
+                map.add(new Pair<>(AddUtils.buildRecipes(input,output),v));
             }
         });
         return map;
     }
+    public static boolean copyItem(ItemStack from,ItemStack to){
+        if(from==null||to==null)return false;
+        to.setAmount(from.getAmount());
+        to.setType(from.getType());
+        to.setData(from.getData());
+        return to.setItemMeta(from.getItemMeta());
+    }
+
     public static ItemStack addLore(ItemStack item,String... lores){
 
         ItemStack item2=item.clone();
@@ -376,13 +381,13 @@ public class AddUtils {
         return AddUtils.addLore(item, LoreBuilder.powerBuffer(energyBuffer));
     }
     public static  ItemStack machineInfoAdd(ItemStack item,int energyBuffer,int energyConsumption){
-        return machineInfoAdd(item,energyBuffer,energyConsumption,Settings.USE_SEC_EXP);
+        return machineInfoAdd(item,energyBuffer,energyConsumption, Flags.USE_SEC_EXP);
     }
-    public static ItemStack machineInfoAdd(ItemStack item,int energyBuffer,int energyConsumption,Settings type){
-        if(type==Settings.USE_SEC_EXP) {
+    public static ItemStack machineInfoAdd(ItemStack item, int energyBuffer, int energyConsumption, Flags type){
+        if(type== Flags.USE_SEC_EXP) {
             return AddUtils.addLore(item, LoreBuilder.powerBuffer(energyBuffer), AddUtils.energyPerSecond(energyConsumption));
         }
-        else if(type==Settings.USE_TICK_EXP) {
+        else if(type== Flags.USE_TICK_EXP) {
             return  AddUtils.addLore( item, LoreBuilder.powerBuffer(energyBuffer), AddUtils.energyPerTick(energyConsumption));
         }
         else return null;

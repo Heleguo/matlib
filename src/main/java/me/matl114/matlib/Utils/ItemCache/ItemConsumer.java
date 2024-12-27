@@ -2,14 +2,12 @@ package me.matl114.matlib.Utils.ItemCache;
 
 import io.github.thebusybiscuit.slimefun4.libraries.commons.lang.NotImplementedException;
 
-import me.matl114.matlib.Utils.Settings;
+import me.matl114.matlib.Utils.Flags;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class ItemConsumer extends ItemCounter {
@@ -84,7 +82,7 @@ public class ItemConsumer extends ItemCounter {
             targetConsumers.clear();
         }
     }
-    public void updateItems(BlockMenu inv , Settings mod){
+    public void updateItems(BlockMenu inv , Flags mod){
         if(targetConsumers==null){
             return;
         }

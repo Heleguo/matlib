@@ -22,6 +22,8 @@ import org.bukkit.inventory.meta.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.IntFunction;
 
 public class CraftUtils {
@@ -173,8 +175,8 @@ public class CraftUtils {
      * use .get(mod,inv,slot) to get ItemPusher
      * mod should be in {Settings.INPUT,Settings.OUTPUT}
      */
-    public static final  ItemPusherProvider getpusher=(Settings mod,ItemStack it,int slot)->{
-        if(mod==Settings.INPUT||it!=null){
+    public static final  ItemPusherProvider getpusher=(Flags mod, ItemStack it, int slot)->{
+        if(mod== Flags.INPUT||it!=null){
             return ItemPusher.get(it);
         }else{
             return ItemSlotPusher.get(it,slot);
@@ -307,7 +309,7 @@ public class CraftUtils {
         ItemStack[] recipeInput = recipe.getOutput();
         int cnt = recipeInput.length;
         ItemConsumer[] result = new ItemConsumer[cnt];
-        DynamicArray<ItemPusher> slotCounters=new DynamicArray<>(ItemPusher[]::new,len2,pusher.getMenuInstance(Settings.OUTPUT,inv,output));
+        DynamicArray<ItemPusher> slotCounters=new DynamicArray<>(ItemPusher[]::new,len2,pusher.getMenuInstance(Flags.OUTPUT,inv,output));
         for(int i=0;i<cnt;++i) {
             result[i]=getConsumer(recipeInput[i]);
             for(int j=0;j<len2;++j) {
@@ -347,7 +349,7 @@ public class CraftUtils {
         int len=input.length;
         ItemStack[] recipeIn=recipe.getInput();
         int cnt=recipeIn.length;
-        DynamicArray<ItemPusher> inputs=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Settings.INPUT,inv,input));
+        DynamicArray<ItemPusher> inputs=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,input));
 
         ItemConsumer[] inputInfo=matchRecipe(inputs,recipe);
         if(inputInfo!=null){
@@ -374,7 +376,7 @@ public class CraftUtils {
     public static Pair<ItemGreedyConsumer[],ItemGreedyConsumer[]> countMultiRecipe( BlockMenu inv,int[] input,int[] output, MachineRecipe recipe, int limit,ItemPusherProvider pusher){
         int len=input.length;
         ItemStack[] recipeInput = recipe.getInput();
-        DynamicArray<ItemPusher> inputCounters=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Settings.INPUT,inv,input));
+        DynamicArray<ItemPusher> inputCounters=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,input));
         int cnt=recipeInput.length;
 
         ItemGreedyConsumer[] recipeCounter=new ItemGreedyConsumer[cnt];
@@ -439,7 +441,7 @@ public class CraftUtils {
     public static  ItemGreedyConsumer[] countMultiOutput(ItemGreedyConsumer[] inputInfo, BlockMenu inv, int[] output, MachineRecipe recipe, int limit,ItemPusherProvider pusher){
 
         int len2=output.length;
-        DynamicArray<ItemPusher> outputCounters=new DynamicArray<>(ItemPusher[]::new,len2,pusher.getMenuInstance(Settings.OUTPUT,inv,output));
+        DynamicArray<ItemPusher> outputCounters=new DynamicArray<>(ItemPusher[]::new,len2,pusher.getMenuInstance(Flags.OUTPUT,inv,output));
         ItemStack[] recipeOutput = recipe.getOutput();
         int cnt2=recipeOutput.length;
         ItemGreedyConsumer[] recipeCounter2=new ItemGreedyConsumer[cnt2];
@@ -676,7 +678,7 @@ public class CraftUtils {
     }
     public static boolean forcePush( ItemConsumer[] slotCounters, BlockMenu inv,int[] slots,ItemPusherProvider pusher){
         // ItemPusher[] slotCounters2=new ItemPusher[slots.length];
-        DynamicArray<ItemPusher> slotCounters2=new DynamicArray<>(ItemPusher[]::new,slots.length,pusher.getMenuInstance(Settings.OUTPUT,inv,slots));
+        DynamicArray<ItemPusher> slotCounters2=new DynamicArray<>(ItemPusher[]::new,slots.length,pusher.getMenuInstance(Flags.OUTPUT,inv,slots));
         ItemConsumer outputItem;
         ItemPusher itemCounter;
         boolean hasChanged=false;
@@ -770,7 +772,7 @@ public class CraftUtils {
         return multiForcePush(slotCounters,inv,slots,getpusher);
     }
     public static boolean multiForcePush(ItemGreedyConsumer[] slotCounters, BlockMenu inv,int[] slots,ItemPusherProvider pusher){
-        DynamicArray<ItemPusher> slotCounters2=new DynamicArray<>(ItemPusher[]::new,slots.length,pusher.getMenuInstance(Settings.OUTPUT,inv,slots));
+        DynamicArray<ItemPusher> slotCounters2=new DynamicArray<>(ItemPusher[]::new,slots.length,pusher.getMenuInstance(Flags.OUTPUT,inv,slots));
         int len= slotCounters.length;
         ItemPusher itp=null;
         ItemGreedyConsumer outputItem;
@@ -830,25 +832,25 @@ public class CraftUtils {
      */
     public static void updateInputMenu(ItemConsumer[] itemCounters,BlockMenu inv){
         for(int i = 0; i< itemCounters.length; ++i){
-            itemCounters[i].updateItems(inv,Settings.GRAB);
+            itemCounters[i].updateItems(inv, Flags.GRAB);
         }
     }
 
     public static void updateOutputMenu(ItemConsumer[] itemCounters,BlockMenu inv){
         for(int i = 0; i< itemCounters.length; ++i){
-            itemCounters[i].updateItems(inv,Settings.PUSH);
+            itemCounters[i].updateItems(inv, Flags.PUSH);
         }
     }
 
     public static void multiUpdateInputMenu(ItemGreedyConsumer[] recipeGreedyCounters,BlockMenu inv){
         for(int i = 0; i< recipeGreedyCounters.length; ++i){
-            recipeGreedyCounters[i].updateItemsPlus(inv,Settings.GRAB);
+            recipeGreedyCounters[i].updateItemsPlus(inv, Flags.GRAB);
         }
     }
 
     public static void multiUpdateOutputMenu(ItemGreedyConsumer[] recipeGreedyCounters,BlockMenu inv){
         for(int i = 0; i< recipeGreedyCounters.length; ++i){
-            recipeGreedyCounters[i].updateItemsPlus(inv,Settings.PUSH);
+            recipeGreedyCounters[i].updateItemsPlus(inv, Flags.PUSH);
         }
     }
 
@@ -881,10 +883,10 @@ public class CraftUtils {
      * @return
      */
     public static Pair<MachineRecipe,ItemConsumer[] > findNextRecipe(BlockMenu inv, int[] slots,int[] outs, List<MachineRecipe> recipes,boolean useHistory) {
-        return findNextRecipe(inv,slots,outs,recipes,useHistory,Settings.SEQUNTIAL);
+        return findNextRecipe(inv,slots,outs,recipes,useHistory, Flags.SEQUNTIAL);
     }
-    public static Pair<MachineRecipe,ItemConsumer[]> findNextRecipe(BlockMenu inv ,int[] slots,int[] outs,List<MachineRecipe> recipes,boolean useHistory,Settings order){
-        return findNextRecipe(inv,slots,outs,recipes,useHistory,Settings.SEQUNTIAL,getpusher);
+    public static Pair<MachineRecipe,ItemConsumer[]> findNextRecipe(BlockMenu inv , int[] slots, int[] outs, List<MachineRecipe> recipes, boolean useHistory, Flags order){
+        return findNextRecipe(inv,slots,outs,recipes,useHistory, Flags.SEQUNTIAL,getpusher);
     }
     /**
      * general findNextRecipe but modified by meeeeeee to adapt ItemCounter
@@ -896,7 +898,7 @@ public class CraftUtils {
      * @param order
      * @return
      */
-    public static Pair<MachineRecipe,ItemConsumer[]> findNextRecipe(BlockMenu inv ,int[] slots,int[] outs,List<MachineRecipe> recipes,boolean useHistory,Settings order,ItemPusherProvider pusher){
+    public static Pair<MachineRecipe,ItemConsumer[]> findNextRecipe(BlockMenu inv , int[] slots, int[] outs, List<MachineRecipe> recipes, boolean useHistory, Flags order, ItemPusherProvider pusher){
         int delta;
         switch(order){
             case REVERSE:delta=-1;break;
@@ -904,7 +906,7 @@ public class CraftUtils {
             default: delta=1;break;
         }
         int len = slots.length;
-        final DynamicArray<ItemPusher> slotCounter=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Settings.INPUT,inv,slots));
+        final DynamicArray<ItemPusher> slotCounter=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,slots));
         int recipeAmount=recipes.size();
         if(recipeAmount<=0){
             return null;
@@ -977,10 +979,10 @@ public class CraftUtils {
      * @return
      *
      */
-    public static MachineRecipe matchNextRecipe(BlockMenu inv ,int[] slots,List<MachineRecipe> recipes,boolean useHistory,Settings order){
+    public static MachineRecipe matchNextRecipe(BlockMenu inv , int[] slots, List<MachineRecipe> recipes, boolean useHistory, Flags order){
         return  matchNextRecipe(inv,slots,recipes,useHistory,order,getpusher);
     }
-    public static MachineRecipe matchNextRecipe(BlockMenu inv ,int[] slots,List<MachineRecipe> recipes,boolean useHistory,Settings order,ItemPusherProvider pusher){
+    public static MachineRecipe matchNextRecipe(BlockMenu inv , int[] slots, List<MachineRecipe> recipes, boolean useHistory, Flags order, ItemPusherProvider pusher){
         int delta;
         switch(order){
             case REVERSE:delta=-1;break;
@@ -989,7 +991,7 @@ public class CraftUtils {
         }
         int len = slots.length;
         //final ArrayList<ItemPusher> slotCounter=new ArrayList<>(len);
-        final DynamicArray<ItemPusher> slotCounter=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Settings.INPUT,inv,slots));
+        final DynamicArray<ItemPusher> slotCounter=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,slots));
         int recipeAmount=recipes.size();
         if(recipeAmount<=0){
             return null;
@@ -1042,7 +1044,7 @@ public class CraftUtils {
         int len = slots.length;
         List<Integer> result=new ArrayList<>(matchAmount+1);
         //final ArrayList<ItemPusher> slotCounter=new ArrayList<>(len);
-        final DynamicArray<ItemPusher> slotCounter=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Settings.INPUT,inv,slots));
+        final DynamicArray<ItemPusher> slotCounter=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,slots));
         int recipeAmount=recipes.size();
         if(recipeAmount<=0){
             return result;
@@ -1075,7 +1077,7 @@ public class CraftUtils {
      * @param order
      * @return
      */
-    public static Pair<MachineRecipe,ItemGreedyConsumer[]> matchNextMultiRecipe(BlockMenu inv ,int[] slots,List<MachineRecipe> recipes,boolean useHistory,int limit,Settings order,ItemPusherProvider pusher){
+    public static Pair<MachineRecipe,ItemGreedyConsumer[]> matchNextMultiRecipe(BlockMenu inv , int[] slots, List<MachineRecipe> recipes, boolean useHistory, int limit, Flags order, ItemPusherProvider pusher){
 
         int delta;
         switch(order){
@@ -1092,7 +1094,7 @@ public class CraftUtils {
                 slotNotNull.add(it);
             }
         }
-        DynamicArray<ItemPusher> slotCounter=new DynamicArray<>(ItemPusher[]::new,slotNotNull.size(),pusher.getMenuInstance(Settings.INPUT,inv,slotNotNull));
+        DynamicArray<ItemPusher> slotCounter=new DynamicArray<>(ItemPusher[]::new,slotNotNull.size(),pusher.getMenuInstance(Flags.INPUT,inv,slotNotNull));
         int recipeAmount=recipes.size();
         if(recipeAmount<=0){
             return null;
@@ -1272,8 +1274,8 @@ public class CraftUtils {
 //        return findNextShapedRecipe(inv,inputs,outputs,recipes,limit,useHistory,Settings.SEQUNTIAL);
 //    }
 
-    public static Pair<MachineRecipe,ItemGreedyConsumer[]> findNextShapedRecipe(BlockMenu inv,int[] inputs,int[] outputs,
-                                                                                List<MachineRecipe> recipes,int limit,boolean useHistory,Settings order,ItemPusherProvider pusher){
+    public static Pair<MachineRecipe,ItemGreedyConsumer[]> findNextShapedRecipe(BlockMenu inv, int[] inputs, int[] outputs,
+                                                                                List<MachineRecipe> recipes, int limit, boolean useHistory, Flags order, ItemPusherProvider pusher){
         int delta;
         switch(order){
             case REVERSE:delta=-1;break;
@@ -1282,7 +1284,7 @@ public class CraftUtils {
         }
         int len = inputs.length;
         ItemPusher[] inputItem=new ItemPusher[len];
-        IntFunction<ItemPusher> inputSlotInstance=pusher.getMenuInstance(Settings.INPUT,inv,inputs);
+        IntFunction<ItemPusher> inputSlotInstance=pusher.getMenuInstance(Flags.INPUT,inv,inputs);
         for(int i=0;i<len;++i){
             inputItem[i]=inputSlotInstance.apply(i);
         }
@@ -1406,7 +1408,7 @@ public class CraftUtils {
     /**
      * sequence CRAFT, match itemstack with the first
      */
-    public static Pair<MachineRecipe, ItemConsumer> findNextSequenceRecipe(BlockMenu inv, int[] inputs, List<MachineRecipe> recipes, boolean useHistory, Settings order, ItemPusherProvider pusher, boolean clearInput){
+    public static Pair<MachineRecipe, ItemConsumer> findNextSequenceRecipe(BlockMenu inv, int[] inputs, List<MachineRecipe> recipes, boolean useHistory, Flags order, ItemPusherProvider pusher, boolean clearInput){
         int delta;
         switch(order){
             case REVERSE:delta=-1;break;
@@ -1415,7 +1417,7 @@ public class CraftUtils {
         }
         int len=inputs.length;
         ItemPusher[] inputCounters=new ItemPusher[len];
-        IntFunction<ItemPusher> pusherFunc=pusher.getMenuInstance(Settings.INPUT,inv,inputs);
+        IntFunction<ItemPusher> pusherFunc=pusher.getMenuInstance(Flags.INPUT,inv,inputs);
         for(int i=0;i<len;++i){
             inputCounters[i]=pusherFunc.apply(i);
         }
@@ -1475,14 +1477,28 @@ public class CraftUtils {
      * @param strictCheck
      * @return
      */
-    public static boolean matchItemCounter_test(ItemCounter counter1, ItemCounter counter2, boolean strictCheck){
-        return matchItemCounter_test(counter1, counter2, strictCheck);
-    }
+
     public static boolean matchItemCounter(ItemCounter counter1, ItemCounter counter2, boolean strictCheck){
         return matchItemCore(counter1,counter2,strictCheck);
     }
     //
-
+    private static final List<ItemMatcher> registeredMatchers=new ArrayList<>();
+    public static interface ItemMatcher{
+        public Flags doMatch(ItemStack stack1,ItemStack stack2,boolean strictCheck);
+    }
+    public static void registerCustomMatcher(ItemMatcher runs){
+        registeredMatchers.add(runs);
+    }
+    static{
+        CraftUtils.registerCustomMatcher((stack1,stack2,strictCheck)->{
+            if(stack1 instanceof MultiItemStack) {
+                return ((MultiItemStack) stack1).matchItem(stack2,strictCheck)? Flags.ACCEPT:Flags.REJECT;
+            }else if (stack2 instanceof MultiItemStack) {
+                return ((MultiItemStack) stack2).matchItem(stack1,strictCheck)? Flags.ACCEPT:Flags.REJECT;
+            }
+            return Flags.IGNORED;
+        });
+    }
     public static boolean matchItemCore(ItemCounter counter1, ItemCounter counter2, boolean strictCheck) {
 
         ItemStack stack1=counter1.getItem();
@@ -1490,11 +1506,17 @@ public class CraftUtils {
         if (stack1 == null || stack2 == null) {
             return stack1 == stack2;
         }
-        if(stack1 instanceof MultiItemStack) {
-            return ((MultiItemStack) stack1).matchItem(stack2,strictCheck);
-        }else if (stack2 instanceof MultiItemStack) {
-            return ((MultiItemStack) stack2).matchItem(stack1,strictCheck);
+        Flags flag;
+        for (var matcher:registeredMatchers){
+            flag=matcher.doMatch(stack1,stack2,strictCheck);
+            if(flag==Flags.ACCEPT){
+                return true;
+            }else if(flag==Flags.REJECT){
+                return false;
+            }
         }
+
+
         //match material
         if (stack1.getType() != stack2.getType()) {
             return false;
