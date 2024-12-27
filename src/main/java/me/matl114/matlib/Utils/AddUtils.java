@@ -1,7 +1,6 @@
 package me.matl114.matlib.Utils;
 
 import com.google.common.base.Preconditions;
-import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
@@ -10,6 +9,7 @@ import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.common.ChatColors;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
 import io.github.thebusybiscuit.slimefun4.utils.LoreBuilder;
+import me.matl114.matlib.core.EnvironmentManager;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -227,7 +227,7 @@ public class AddUtils {
                 return b;
             }catch (Exception e){
                 try{
-                    ItemStack b=new ItemStack( Material.getMaterial(id));
+                    ItemStack b=new ItemStack(EnvironmentManager.getManager().getVersioned().getMaterial(id));
                     if(cnt>0&&cnt!=b.getAmount()){
                         b=b.clone();
                         b.setAmount(cnt);
@@ -434,35 +434,28 @@ public class AddUtils {
      * no clone in this method
      * @param stack
      */
+    private static Enchantment GLOW_EFFECT=Enchantment.getByName("infinity");
     public static ItemStack addGlow(ItemStack stack){
         //stack.addEnchantment(Enchantment.ARROW_INFINITE, 1);
         ItemMeta meta=stack.getItemMeta();
-        meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
+        meta.addEnchant(GLOW_EFFECT, 1, true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         stack.setItemMeta(meta);
         return stack;
     }
     public static ItemStack hideAllFlags(ItemStack stack){
         ItemMeta meta=stack.getItemMeta();
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        meta.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
-        meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
-        meta.addItemFlags(ItemFlag.HIDE_DYE);
-        meta.addItemFlags(ItemFlag.HIDE_PLACED_ON);
-        meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+        for (ItemFlag flag:ItemFlag.values()){
+            meta.addItemFlags(flag);
+        }
         stack.setItemMeta(meta);
         return stack;
     }
     public static ItemStack showAllFlags(ItemStack stack){
         ItemMeta meta=stack.getItemMeta();
-        meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
-        meta.removeItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        meta.removeItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
-        meta.removeItemFlags(ItemFlag.HIDE_DESTROYS);
-        meta.removeItemFlags(ItemFlag.HIDE_DYE);
-        meta.removeItemFlags(ItemFlag.HIDE_PLACED_ON);
-        meta.removeItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+        for (ItemFlag flag:ItemFlag.values()){
+            meta.removeItemFlags(flag);
+        }
         stack.setItemMeta(meta);
         return stack;
     }

@@ -260,45 +260,24 @@ public class CustomItemGroup extends FlexItemGroup  {
                 return false;
             });
         }
-
     }
-    private MethodAccess lastEntryAccess =MethodAccess.ofName(GuideHistory.class,"getLastEntry",boolean.class);
-    private MethodAccess getIndexedObjectAccess =MethodAccess.ofName("getIndexedObject");
-    private MethodAccess getPageAcess =MethodAccess.ofName("getPage");
+    private final MethodAccess lastEntryAccess =MethodAccess.ofName(GuideHistory.class,"getLastEntry",boolean.class);
+    private final MethodAccess getIndexedObjectAccess =MethodAccess.ofName("getIndexedObject");
+    private final MethodAccess getPageAcess =MethodAccess.ofName("getPage");
     //modified from guizhan Infinity Expansion 2
     private int getLastPage(Player var1, PlayerProfile var2, SlimefunGuideMode var3){
         AtomicInteger result=new AtomicInteger(1);
         lastEntryAccess.invokeCallback((entry)->{
-            getIndexedObjectAccess.invokeCallback((obj)->{
-                if(obj instanceof CustomItemGroup){
-                    getPageAcess.invokeCallback((res)->{
-                        result.set((Integer)res);
-                    },()->{},entry);
-                }
-            },()->{},entry);
+            if(entry!=null){
+                getIndexedObjectAccess.invokeCallback((obj)->{
+                    if(obj instanceof CustomItemGroup){
+                        getPageAcess.invokeCallback((res)->{
+                            result.set((Integer)res);
+                        },()->{},entry);
+                    }
+                },()->{},entry);
+            }
         },()->{},var2.getGuideHistory(),false);
         return result.get();
-//        try{
-//            lastEntryAccess.invokeCallback()
-//            Class clazz= GuideHistory.class;
-//            Method getEntryMethod=clazz.getDeclaredMethod("getLastEntry",boolean.class);
-//            getEntryMethod.setAccessible(true);
-//            Object entry=getEntryMethod.invoke(var2.getGuideHistory(),false);
-//            Class entryClass= Class.forName("io.github.thebusybiscuit.slimefun4.core.guide.GuideEntry");
-//            Method entryGetObjMethod=entryClass.getDeclaredMethod("getIndexedObject");
-//            entryGetObjMethod.setAccessible(true);
-//            Object obj=entryGetObjMethod.invoke(entry);
-//            if(obj instanceof CustomItemGroup){
-//                Method entryGetPageMethod=entryClass.getDeclaredMethod("getPage");
-//                entryGetPageMethod.setAccessible(true);
-//                return (Integer)entryGetPageMethod.invoke(entry);
-//            }else{
-//                return 1;
-//            }
-//
-//        }catch (Throwable e){
-//            return 1;
-//        }
-
     }
 }

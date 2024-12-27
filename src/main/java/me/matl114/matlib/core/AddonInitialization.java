@@ -16,11 +16,14 @@ public class AddonInitialization {
     private String name = null;
     private String displayName = null;
     @Getter
+    private EnvironmentManager environment=null;
+    @Getter
     private BlockDataCache dataManager=null;
     @Getter
     private CustomRegistries registries=null;
     @Getter
     private ScheduleManager scheduleManager=null;
+
     public AddonInitialization(Plugin plugin,String addonName) {
         this.plugin = plugin;
         this.name = addonName;
@@ -35,6 +38,7 @@ public class AddonInitialization {
         Manager.onEnable();
         Debug.init(name);
         ConfigLoader.init(plugin);
+        this.environment=new EnvironmentManager().init(plugin);
         AddUtils.init(name,displayName==null?name:displayName,plugin);
         //core
         this.registries=new CustomRegistries().init(plugin);

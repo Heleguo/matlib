@@ -1,20 +1,17 @@
 package me.matl114.matlib.Utils.Config;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import me.matl114.matlib.Utils.Debug;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public abstract class Config {
     //for load when startup
@@ -26,8 +23,8 @@ public abstract class Config {
     @Setter
     private boolean saveDataWhenModified = false;
     HashMap<String,Object> data;
-    @Getter
-    Logger logger;
+//    @Getter
+//    Logger logger;
     RootNode root;
     public Config(HashMap<String,Object> data) {
         this.data = data;
@@ -50,27 +47,31 @@ public abstract class Config {
         return value;
       // value.put(path[path.length-1],val);
     }
-    private void updateFromNode(){
+    protected void updateRawData(){
         if(!this.isUpdateDataWhenModified()){
-            this.data=buildMapFromNode(this.root);
+            this.data= dumpToMap(this.root);
         }
     }
-    private HashMap<String,Object> buildMapFromNode(InnerNode node){
+    private HashMap<String,Object> dumpToMap(InnerNode node){
         Collection<String> keys=node.getKeys();
         HashMap<String,Object> value=new LinkedHashMap<>();
         for(String key:keys){
             Node childe=node.getChild(key);
             if(childe instanceof InnerNode inner){
-                value.put(key,buildMapFromNode(inner));
+                value.put(key, dumpToMap(inner));
             }else if(childe instanceof LeafNode inner){
-                value.put(key,inner.getData().get());
+                value.put(key,castWhenDump( inner.getData().get()));
             }
         }
         return value;
     }
     //for save
-    protected final Map<String,Object> getRawData(){
+    protected final HashMap<String,Object> getRawData(){
         return data;
+    }
+    public Map<String,Object> getData(){
+        updateRawData();
+        return Collections.unmodifiableMap(this.data);
     }
     //配置文件节点
     protected abstract class Node{
@@ -99,8 +100,16 @@ public abstract class Config {
             super();
         }
         private final HashMap<String,Node> children = new HashMap<>();
+
+        /**
+         * no copy
+         * @return
+         */
         public Collection<String> getKeys(){
             return  children.keySet();
+        }
+        public Collection<String> getKeysCopy(){
+            return  new HashSet<>(getKeys());
         }
         public Node getChild(String key) {
             return children.get(key);
@@ -148,7 +157,7 @@ public abstract class Config {
                     loadInternal(node,(HashMap<String, Object>) map);
                     nowNode.addChild(entry.getKey(),node);
                 }else {
-                    LeafNode<?> node=new LeafNode<>(entry.getValue());
+                    LeafNode<?> node=new LeafNode<>(Config.this.castWhenLoad( entry.getValue()));
                     nowNode.addChild(entry.getKey(),node);
                 }
             }
@@ -178,7 +187,7 @@ public abstract class Config {
                     String[] path=modifiedPath.toArray(String[]::new);
                     HashMap<String,Object> parentNode= getOrCreateParentPathInRawData(path);
                     if(modifiedNode instanceof LeafNode<?> leaf){
-                        parentNode.put(path[path.length-1],leaf.getData().get());
+                        parentNode.put(path[path.length-1],castWhenDump( leaf.getData().get()));
                     }else if(modifiedNode instanceof InnerNode inner){
                         var iter=parentNode.keySet().iterator();
                         HashSet<String> newPaths=new HashSet<>( inner.getKeys());
@@ -195,9 +204,9 @@ public abstract class Config {
                         for(String left:newPaths){
                             Node child=inner.getChild(left);
                             if(child instanceof InnerNode leaf){
-                                parentNode.put(left,buildMapFromNode(leaf));
+                                parentNode.put(left, dumpToMap(leaf));
                             }else if(child instanceof LeafNode<?> leaf){
-                                parentNode.put(left,leaf.getData().get());
+                                parentNode.put(left,castWhenDump( leaf.getData().get()));
                             }
                         }
                     }
@@ -231,6 +240,7 @@ public abstract class Config {
     private InnerNode getOrCreateParentNode(String[] path){
         return getOrCreateNode(Arrays.copyOfRange(path,0,path.length-1));
     }
+
     public ConfigReference get(String... path){
         InnerNode parentNode= getOrCreateParentNode(path);
         if(parentNode.getChild(path[path.length-1]) instanceof LeafNode<?> leaf){
@@ -239,11 +249,35 @@ public abstract class Config {
             return null;
         }
     }
-    public <T extends Object> ConfigReference<T> getOrDefault(T value,String... path){
+    public ConfigReference<Integer> getInt(String... path){
+        return getWithIdentifier(Integer.class,path);
+    }
+    public ConfigReference<String> getString(String... path){
+        return getWithIdentifier(String.class,path);
+    }
+    public ConfigReference<Boolean> getBool(String... path){
+        return getWithIdentifier(Boolean.class,path);
+    }
+    public ConfigReference<Double> getDouble(String... path ){
+        return getWithIdentifier(Double.class,path);
+    }
+    public ConfigReference<Float> getFloat(String... path){
+        return getWithIdentifier(Float.class);
+    }
+
+
+    /**
+     * use value.getClass check the recorded value
+     * @param value
+     * @param path
+     * @return
+     * @param <T>
+     */
+    public  <T extends Object> ConfigReference<T> getOrDefault(@Nullable T value, String... path){
         InnerNode parentNode= getOrCreateParentNode(path);
         if(parentNode.getChild(path[path.length-1]) instanceof LeafNode<?> leaf){
             var re=leaf.getData().get();
-            if(value.getClass().isInstance(re)){
+            if(value==null|| value.getClass().isInstance(re)){
                 return (ConfigReference<T>) leaf.getData();
             }
         }
@@ -251,19 +285,125 @@ public abstract class Config {
         parentNode.addChild(path[path.length-1],newNodeToReplace);
         return newNodeToReplace.getData();
     }
-    public void setValue(Object value,String... path){
+    /**
+     * use identfier check the recorded value and mark the record' identifier as this identifier
+     * @param
+     * @param path
+     * @return
+     * @param <T>
+     */
+    public  <T extends Object> ConfigReference<T> getWithIdentifier(@Nonnull Class<T> identifier,String... path){
+        return getWithIdentifier(null,identifier,path);
+    }
+    /**
+     * use identfier check the recorded value and mark the record' identifier as this identifier
+     * @param
+     * @param path
+     * @return
+     * @param <T>
+     */
+    public  <T extends Object> ConfigReference<T> getWithIdentifier(@Nullable T value,@Nonnull Class<T> identifier,String... path){
+        InnerNode parentNode= getOrCreateParentNode(path);
+        if(parentNode.getChild(path[path.length-1]) instanceof LeafNode<?> leaf){
+            var re=leaf.getData().get();
+            if(identifier.isInstance(re)){
+                var returned=(ConfigReference<T>) leaf.getData();
+                returned.setIdentifier(identifier);
+                return returned;
+            }
+        }
+        LeafNode<T> newNodeToReplace=new LeafNode<>(value);
+        parentNode.addChild(path[path.length-1],newNodeToReplace);
+        var returned=newNodeToReplace.getData();
+        returned.setIdentifier(identifier);
+        return returned;
+    }
+
+    /**
+     * set the config's default value(null->value)
+     * @param defaultVal
+     * @param path
+     * @return
+     * @param <T>
+     * @param <W>
+     */
+    public <T extends Object,W extends Config> W defaultValue(@Nullable T defaultVal,String... path){
+        var re= getOrDefault(defaultVal,path);
+        if(re.get()==null){
+            re.set(defaultVal);
+        }
+        return (W)this;
+    }
+    /**
+     * set the config's default value(null->value) (id->identifier)
+     * @param defaultVal
+     * @param path
+     * @return
+     * @param <T>
+     * @param <W>
+     */
+    public <T extends Object,W extends Config> W defaultValue(@Nullable T defaultVal,Class<T> identifier,String... path){
+        var re= getWithIdentifier(defaultVal,identifier,path);
+        if(re.get()==null){
+            re.set(defaultVal);
+        }
+        return (W)this;
+    }
+    public <T extends Object> void setValue(T value,String... path){
+        InnerNode parentNode= getOrCreateParentNode(path);
+        if(parentNode.getChild(path[path.length-1]) instanceof LeafNode leaf){
+            Class clazz=leaf.getData().getIdentifier();
+            if(clazz.isInstance(value)){
+                leaf.getData().set(value);
+                return;
+            }
+        }
+        parentNode.addChild(path[path.length-1],new LeafNode<>(value));
+    }
+    public final void createLeaf(Object value,String... path){
         getOrCreateParentNode(path).addChild(path[path.length-1],new LeafNode<>(value));
     }
-    public void clear(){
+    public final void clear(){
         this.root.clearChild();
     }
-    protected void reloadInternal(HashMap<String,Object> data){
-        this.root.setValid(false);
-        this.root=null;
-        this.data=data;
-        this.root=new RootNode();
+    private final void reloadNode(InnerNode parentNode,HashMap<String,Object> data){
+        Collection<String> oldKeys=parentNode.getKeysCopy();
+        for(Map.Entry<String,Object> entry:data.entrySet()){
+            String key=entry.getKey();
+            Object value=entry.getValue();
+            Node sonNode=parentNode.getChild(key);
+            oldKeys.remove(key);
+            if(value instanceof HashMap map){
+                InnerNode next;
+                if((sonNode instanceof InnerNode in)){
+                    next=in;
+                }
+                else{
+                    next=new InnerNode();
+                    parentNode.addChild(key,next);
+                }
+                reloadNode(next,(HashMap<String, Object>) map);
+            }else{
+                if(sonNode instanceof LeafNode lea){
+                    lea.getData().set(value);
+                }else {
+                    LeafNode leaf=new LeafNode(value);
+                    parentNode.addChild(key,leaf);
+                }
+            }
+        }
+        oldKeys.forEach(parentNode::removeChild);
+
     }
-    public <T extends Config> T save(){
+    protected final void reloadInternal(HashMap<String,Object> data){
+        //todo laod new value into olds
+        reloadNode(this.root,data);
+//        this.root.setValid(false);
+//        this.root=null;
+//        this.data=data;
+//        this.root=new RootNode();
+    }
+    public final  <T extends Config> T save(){
         if(this.getFile()!=null){
             save(this.getFile());
         }
@@ -271,15 +411,30 @@ public abstract class Config {
     }
     public abstract File getFile();
     public abstract void save(File file);
+
+    /**
+     * cast from hashmap to internal config tree: will cast non-map value to leaf-node value
+     * @param val
+     * @return
+     */
+    public abstract Object castWhenLoad(Object val);
+
+    /**
+     * cast from internal config tree to hashmap: will cast leaf node value to this
+     * @param val
+     * @return
+     */
+    public abstract Object castWhenDump(Object val);
     //todo reload logic
+
     public abstract void reload();
 
     public boolean contains(@Nonnull String... path) {
         return get(path)!=null;
     }
-    public boolean createFile() {
+    public static boolean createFile(File file) {
         try {
-            return this.getFile().createNewFile();
+            return file.createNewFile();
         } catch (IOException var2) {
             IOException e = var2;
             Debug.severe("Exception while creating a Config file",e.getMessage());
@@ -287,14 +442,14 @@ public abstract class Config {
             return false;
         }
     }
-    public Collection<String> getKeys() {
+    public final Collection<String> getKeys() {
         return this.root.getKeys();
     }
     @Nonnull
-    public Collection<String> getKeys(@Nonnull String... path) {
+    public final Collection<String> getKeys(@Nonnull String... path) {
         return getOrCreateNode(path).getKeys();
     }
-    public HashSet<String> getPaths(){
+    public final HashSet<String> getPaths(){
         HashSet<String> paths=new HashSet<>();
         for(String val:this.root.getKeys()){
             if(this.root.getChild(val) instanceof InnerNode map2){
