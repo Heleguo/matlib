@@ -124,7 +124,9 @@ public class CleanItemStack extends ItemStack {
         this(item, (String)list.get(0), (String[])list.subList(1, list.size()).toArray(String[]::new ));
     }
 
-
+    public CleanItemStack(ItemStack item){
+        this(item.getType(),item.getAmount(),item::getItemMeta);
+    }
     public CleanItemStack(ItemStack item, int amount) {
         this(item.getType(),amount,item::getItemMeta);
     }
