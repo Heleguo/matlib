@@ -17,9 +17,7 @@ public class WorldUtils {
     protected static FieldAccess weakWorldFieldAccess;
     static {
         try{
-            Debug.debug( Bukkit.getBukkitVersion());
             World sampleWorld= Bukkit.getWorlds().get(0);
-            Debug.debug(sampleWorld.getName());
             BlockState blockstate=sampleWorld.getBlockAt(0, 0, 0).getState();
             var result= ReflectUtils.getFieldsRecursively(blockstate.getClass(),"data");
             var IBlockDataField=result.getFirstValue();
@@ -35,7 +33,6 @@ public class WorldUtils {
             var WeakWorldField=ReflectUtils.getFieldsRecursively(CraftBlockStateClass,"weakWorld").getFirstValue();
             WeakWorldField.setAccessible(true);
             weakWorldFieldAccess=FieldAccess.of(WeakWorldField);
-            Debug.debug("CraftBlockStateClass: "+CraftBlockStateClass.getName());
             invokeBlockStateSuccess=true;
         }catch (Throwable e){
             Debug.logger(e);

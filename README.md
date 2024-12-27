@@ -15,7 +15,7 @@
 </dependency>
 ```
 
-3. 最好执行relocation,因为初始化时会在类的static变量中存入你的addon信息
+3. 最好执行relocation,因为初始化时会在类的static成员中存入你的plugin信息
 ```
 <build>
     <plugins>

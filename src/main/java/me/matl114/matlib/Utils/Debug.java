@@ -1,5 +1,6 @@
 package me.matl114.matlib.Utils;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -68,22 +69,13 @@ public class Debug {
     public static  void logger(int message) {
         logger(Integer.toString(message));
     }
-    public static void debug(int message) {
-        debug(Integer.toString(message));
-    }
-    public static void debug(String message) {
-        //not in debug mode ,do not invoke this method
-    }
-    public static String s(Object o) {
+    private static String s(Object o) {
         return o!=null?o.toString():"null";
     }
 
     public static void logger(Object ... msgs){
         String msg="";
-        for(Object m : msgs){
-            msg+=" "+s(m);
-        }
-        logger(msg);
+        logger(String.join(" ", Arrays.stream(msgs).map(Debug::s).toArray(String[]::new)));
     }
     public static void logger(Throwable t) {
 
@@ -93,14 +85,6 @@ public class Debug {
     public static void logger(Supplier<String> str){
         logger(s(str.get()));
     }
-    public static void debug(Object ...msgs) {
-        String msg="";
-        for(Object m : msgs){
-            msg+=" "+s(m);
-        }
-        debug(msg);
-    }
-
 
     public static void test(Object ...msgs) {
         if(start){

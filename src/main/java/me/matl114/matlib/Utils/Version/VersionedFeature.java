@@ -9,6 +9,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 
 public interface VersionedFeature {
+    public Version getVersion();
     public Enchantment getEnchantment(String name);
     public Material getMaterial(String name);
     public boolean comparePotionMeta(PotionMeta meta1,PotionMeta meta2);

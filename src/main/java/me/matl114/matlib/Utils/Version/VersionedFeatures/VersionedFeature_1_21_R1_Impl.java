@@ -1,6 +1,7 @@
 package me.matl114.matlib.Utils.Version.VersionedFeatures;
 
 import me.matl114.matlib.Utils.Version.Version;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.OminousBottleMeta;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -41,4 +42,128 @@ public class VersionedFeature_1_21_R1_Impl extends VersionedFeature_1_20_R4_Impl
         }
         return false;
     }
+
+    //this is shit
+
+//    public boolean isSpecial(ItemType itemType){
+//
+//        if (itemType == ItemType.WRITTEN_BOOK) {
+//            return true;
+//        }
+//        if (itemType == ItemType.WRITABLE_BOOK) {
+//            return true;
+//        }
+//        if (itemType == ItemType.CREEPER_HEAD || itemType == ItemType.DRAGON_HEAD
+//                || itemType == ItemType.PIGLIN_HEAD || itemType == ItemType.PLAYER_HEAD
+//                || itemType == ItemType.SKELETON_SKULL || itemType == ItemType.WITHER_SKELETON_SKULL
+//                || itemType == ItemType.ZOMBIE_HEAD) {
+//            return true;
+//        }
+//        if (itemType == ItemType.CHAINMAIL_HELMET || itemType == ItemType.CHAINMAIL_CHESTPLATE
+//                || itemType == ItemType.CHAINMAIL_LEGGINGS || itemType == ItemType.CHAINMAIL_BOOTS
+//                || itemType == ItemType.DIAMOND_HELMET || itemType == ItemType.DIAMOND_CHESTPLATE
+//                || itemType == ItemType.DIAMOND_LEGGINGS || itemType == ItemType.DIAMOND_BOOTS
+//                || itemType == ItemType.GOLDEN_HELMET || itemType == ItemType.GOLDEN_CHESTPLATE
+//                || itemType == ItemType.GOLDEN_LEGGINGS || itemType == ItemType.GOLDEN_BOOTS
+//                || itemType == ItemType.IRON_HELMET || itemType == ItemType.IRON_CHESTPLATE
+//                || itemType == ItemType.IRON_LEGGINGS || itemType == ItemType.IRON_BOOTS
+//                || itemType == ItemType.NETHERITE_HELMET || itemType == ItemType.NETHERITE_CHESTPLATE
+//                || itemType == ItemType.NETHERITE_LEGGINGS || itemType == ItemType.NETHERITE_BOOTS
+//                || itemType == ItemType.TURTLE_HELMET) {
+//            return true;
+//        }
+//        if (itemType == ItemType.LEATHER_HELMET || itemType == ItemType.LEATHER_CHESTPLATE
+//                || itemType == ItemType.LEATHER_LEGGINGS || itemType == ItemType.LEATHER_BOOTS
+//                || itemType == ItemType.WOLF_ARMOR) {
+//            return true;
+//        }
+//        if (itemType == ItemType.LEATHER_HORSE_ARMOR) {
+//            return true;
+//        }
+//        if (itemType == ItemType.POTION || itemType == ItemType.SPLASH_POTION
+//                || itemType == ItemType.LINGERING_POTION || itemType == ItemType.TIPPED_ARROW) {
+//            return true;
+//        }
+//        if (itemType == ItemType.FILLED_MAP) {
+//            return true;
+//        }
+//        if (itemType == ItemType.FIREWORK_ROCKET) {
+//            return true;
+//        }
+//        if (itemType == ItemType.FIREWORK_STAR) {
+//            return true;
+//        }
+//        if (itemType == ItemType.ENCHANTED_BOOK) {
+//            return true;
+//        }
+//        if (itemHandle instanceof ItemBanner) {
+//            return true;
+//        }
+//        if (itemHandle instanceof ItemMonsterEgg) {
+//            return true;
+//        }
+//        if (itemType == ItemType.ARMOR_STAND) {
+//            return true;
+//        }
+//        if (itemType == ItemType.KNOWLEDGE_BOOK) {
+//            return true;
+//        }
+//        if (itemType == ItemType.FURNACE || itemType == ItemType.CHEST
+//                || itemType == ItemType.TRAPPED_CHEST || itemType == ItemType.JUKEBOX
+//                || itemType == ItemType.DISPENSER || itemType == ItemType.DROPPER
+//                || itemHandle instanceof ItemSign || itemType == ItemType.SPAWNER
+//                || itemType == ItemType.BREWING_STAND || itemType == ItemType.ENCHANTING_TABLE
+//                || itemType == ItemType.COMMAND_BLOCK || itemType == ItemType.REPEATING_COMMAND_BLOCK
+//                || itemType == ItemType.CHAIN_COMMAND_BLOCK || itemType == ItemType.BEACON
+//                || itemType == ItemType.DAYLIGHT_DETECTOR || itemType == ItemType.HOPPER
+//                || itemType == ItemType.COMPARATOR || itemType == ItemType.STRUCTURE_BLOCK
+//                || blockHandle instanceof BlockShulkerBox
+//                || itemType == ItemType.ENDER_CHEST || itemType == ItemType.BARREL
+//                || itemType == ItemType.BELL || itemType == ItemType.BLAST_FURNACE
+//                || itemType == ItemType.CAMPFIRE || itemType == ItemType.SOUL_CAMPFIRE
+//                || itemType == ItemType.JIGSAW || itemType == ItemType.LECTERN
+//                || itemType == ItemType.SMOKER || itemType == ItemType.BEEHIVE
+//                || itemType == ItemType.BEE_NEST || itemType == ItemType.SCULK_CATALYST
+//                || itemType == ItemType.SCULK_SHRIEKER || itemType == ItemType.SCULK_SENSOR
+//                || itemType == ItemType.CALIBRATED_SCULK_SENSOR || itemType == ItemType.CHISELED_BOOKSHELF
+//                || itemType == ItemType.DECORATED_POT || itemType == ItemType.SUSPICIOUS_SAND
+//                || itemType == ItemType.SUSPICIOUS_GRAVEL || itemType == ItemType.CRAFTER
+//                || itemType == ItemType.TRIAL_SPAWNER || itemType == ItemType.VAULT
+//                || itemType == ItemType.CREAKING_HEART) {
+//            return true;
+//        }
+//        if (itemType == ItemType.SHIELD) {
+//            return true;
+//        }
+//        if (itemType == ItemType.TROPICAL_FISH_BUCKET) {
+//            return true;
+//        }
+//        if (itemType == ItemType.AXOLOTL_BUCKET) {
+//            return true;
+//        }
+//        if (itemType == ItemType.CROSSBOW) {
+//            return true;
+//        }
+//        if (itemType == ItemType.SUSPICIOUS_STEW) {
+//            return true;
+//        }
+//        if (itemType == ItemType.COD_BUCKET || itemType == ItemType.PUFFERFISH_BUCKET
+//                || itemType == ItemType.SALMON_BUCKET || itemType == ItemType.ITEM_FRAME
+//                || itemType == ItemType.GLOW_ITEM_FRAME || itemType == ItemType.PAINTING) {
+//            return true;
+//        }
+//        if (itemType == ItemType.COMPASS) {
+//            return true;
+//        }
+//        if (itemHandle instanceof BundleItem) {
+//            return true;
+//        }
+//        if (itemType == ItemType.GOAT_HORN) {
+//            return true;
+//        }
+//
+//        if (itemType == ItemType.OMINOUS_BOTTLE) {
+//            return true;
+//        }
+//    }
 }

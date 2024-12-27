@@ -197,7 +197,7 @@ public class ReflectUtils {
                 }
                 if(match){
                     m.setAccessible(true);
-                    Debug.debug("found method ",m);
+
                     return new Pair<>(m,clazz);
                 }
             }

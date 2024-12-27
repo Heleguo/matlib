@@ -10,6 +10,7 @@ import me.matl114.matlib.Implements.Managers.BlockDataCache;
 import me.matl114.matlib.Utils.Algorithm.DynamicArray;
 import me.matl114.matlib.Utils.ItemCache.*;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
+import me.matl114.matlib.core.EnvironmentManager;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
@@ -24,32 +25,18 @@ import java.util.*;
 import java.util.function.IntFunction;
 
 public class CraftUtils {
-    private static final HashSet<Material> COMPLEX_MATERIALS = new HashSet<>(){{
-        add(Material.AXOLOTL_BUCKET);
-        add(Material.WRITABLE_BOOK);
-        add(Material.WRITTEN_BOOK);
-        add(Material.ENCHANTED_BOOK);
-        add(Material.BUNDLE);
-        add(Material.FIREWORK_STAR);
-        add(Material.FIREWORK_ROCKET);
-        add(Material.COMPASS);
-        add(Material.LEATHER_BOOTS);
-        add(Material.LEATHER_HELMET);
-        add(Material.LEATHER_LEGGINGS);
-        add(Material.LEATHER_CHESTPLATE);
-        add(Material.MAP);
-        add(Material.POTION);
-        add(Material.SPLASH_POTION);
-        add(Material.LINGERING_POTION);
-        add(Material.SUSPICIOUS_STEW);
-        add(Material.COD_BUCKET);
-        add(Material.SALMON_BUCKET);
-        add(Material.TADPOLE_BUCKET);
-        add(Material.PUFFERFISH_BUCKET);
-        add(Material.TROPICAL_FISH_BUCKET);
-        add(Material.PLAYER_HEAD);
-        add(Material.PLAYER_WALL_HEAD);
-    }};
+    private static final EnumSet<Material> COMPLEX_MATERIALS = EnumSet.noneOf(Material.class);
+    static{
+        ItemMeta sampleMeta=new ItemStack(Material.STONE).getItemMeta();
+        for(Material mat : Material.values()){
+            if(mat.isItem()&&!mat.isAir()){
+                ItemMeta testMeta=new ItemStack(mat).getItemMeta();
+                if(testMeta!=null&& testMeta.getClass()!=sampleMeta.getClass()){
+                    COMPLEX_MATERIALS.add(mat);
+                }
+            }
+        }
+    }
     private static final HashSet<Material> INDISTINGUISHABLE_MATERIALS = new HashSet<Material>() {{
         //add(Material.SHULKER_BOX);
         add(Material.BUNDLE);
@@ -88,7 +75,6 @@ public class CraftUtils {
             a.addItem(0,DEFAULT_ITEMSTACK);
             CRAFTITEMSTACK=a.getItemInSlot(0);
             CRAFTITEMSTACKCLASS=CRAFTITEMSTACK.getClass();
-            Debug.debug(CRAFTITEMSTACKCLASS.getName());
             var CRAFTHANDLER=CRAFTITEMSTACKCLASS.getDeclaredField("handle");
             CRAFTHANDLER.setAccessible(true);
             handledAccess=FieldAccess.of(CRAFTHANDLER);
@@ -1496,6 +1482,7 @@ public class CraftUtils {
         return matchItemCore(counter1,counter2,strictCheck);
     }
     //
+
     public static boolean matchItemCore(ItemCounter counter1, ItemCounter counter2, boolean strictCheck) {
 
         ItemStack stack1=counter1.getItem();
@@ -1527,8 +1514,12 @@ public class CraftUtils {
 //        }
         //match display name
 
-        //check important metas
+        //check special metas
         if(canQuickEscapeMetaVariant(meta1,meta2)){
+            return false;
+        }
+
+        if(EnvironmentManager.getManager().getVersioned().differentSpecialMeta(meta1,meta2)){
             return false;
         }
         //check pdc
@@ -1560,11 +1551,11 @@ public class CraftUtils {
 
         //粘液物品一般不可修改displayName和Lore
         //不然则全非sf物品
-        if(COMPLEX_MATERIALS.contains(stack1.getType())){
-            if(canQuickEscapeMaterialVariant(meta1,meta2)){
-                return false;
-            }
-        }
+//        if(COMPLEX_MATERIALS.contains(stack1.getType())){
+//            if(canQuickEscapeMaterialVariant(meta1,meta2)){
+//                return false;
+//            }
+//        }
         //如果非严格且名字相同旧返回，反之则继续
         if(!(!meta1.hasDisplayName() || matchDisplayNameField(meta1,meta2))) {
             return false;
@@ -1734,157 +1725,7 @@ public class CraftUtils {
      * @param ?
      * @return
      */
-    public static boolean canQuickEscapeMaterialVariant(@Nonnull ItemMeta metaOne, @Nonnull ItemMeta metaTwo) {
-        // Banner
 
-        // Axolotl
-        if (metaOne instanceof AxolotlBucketMeta instanceOne && metaTwo instanceof AxolotlBucketMeta instanceTwo) {
-            if (instanceOne.hasVariant() != instanceTwo.hasVariant()) {
-                return true;
-            }
-
-            if(!instanceOne.hasVariant() || !instanceTwo.hasVariant())
-                return true;
-
-            if (instanceOne.getVariant() != instanceTwo.getVariant()) {
-                return true;
-            }
-        }
-
-        // Books
-        if (metaOne instanceof BookMeta instanceOne && metaTwo instanceof BookMeta instanceTwo) {
-            if (instanceOne.getPageCount() != instanceTwo.getPageCount()) {
-                return true;
-            }
-            if (!Objects.equals(instanceOne.getAuthor(), instanceTwo.getAuthor())) {
-                return true;
-            }
-            if (!Objects.equals(instanceOne.getTitle(), instanceTwo.getTitle())) {
-                return true;
-            }
-            if (!Objects.equals(instanceOne.getGeneration(), instanceTwo.getGeneration())) {
-                return true;
-            }
-        }
-
-        // Bundle
-        if (metaOne instanceof BundleMeta instanceOne && metaTwo instanceof BundleMeta instanceTwo) {
-            if (instanceOne.hasItems() != instanceTwo.hasItems()) {
-                return true;
-            }
-            if (!instanceOne.getItems().equals(instanceTwo.getItems())) {
-                return true;
-            }
-        }
-
-        // Compass
-        if (metaOne instanceof CompassMeta instanceOne && metaTwo instanceof CompassMeta instanceTwo) {
-            if (instanceOne.isLodestoneTracked() != instanceTwo.isLodestoneTracked()) {
-                return true;
-            }
-            if (!Objects.equals(instanceOne.getLodestone(), instanceTwo.getLodestone())) {
-                return true;
-            }
-        }
-
-
-        // Firework Star
-        if (metaOne instanceof FireworkEffectMeta instanceOne && metaTwo instanceof FireworkEffectMeta instanceTwo) {
-            if (!Objects.equals(instanceOne.getEffect(), instanceTwo.getEffect())) {
-                return true;
-            }
-        }
-
-        // Firework
-        if (metaOne instanceof FireworkMeta instanceOne && metaTwo instanceof FireworkMeta instanceTwo) {
-            if (instanceOne.getPower() != instanceTwo.getPower()) {
-                return true;
-            }
-            if (!instanceOne.getEffects().equals(instanceTwo.getEffects())) {
-                return true;
-            }
-        }
-
-        // Leather Armor
-        if (metaOne instanceof LeatherArmorMeta instanceOne && metaTwo instanceof LeatherArmorMeta instanceTwo) {
-            if (!instanceOne.getColor().equals(instanceTwo.getColor())) {
-                return true;
-            }
-        }
-
-        // Maps
-        if (metaOne instanceof MapMeta instanceOne && metaTwo instanceof MapMeta instanceTwo) {
-            if (instanceOne.hasMapView() != instanceTwo.hasMapView()) {
-                return true;
-            }
-            if (instanceOne.hasLocationName() != instanceTwo.hasLocationName()) {
-                return true;
-            }
-            if (instanceOne.hasColor() != instanceTwo.hasColor()) {
-                return true;
-            }
-            if (!Objects.equals(instanceOne.getMapView(), instanceTwo.getMapView())) {
-                return true;
-            }
-            if (!Objects.equals(instanceOne.getLocationName(), instanceTwo.getLocationName())) {
-                return true;
-            }
-            if (!Objects.equals(instanceOne.getColor(), instanceTwo.getColor())) {
-                return true;
-            }
-        }
-
-        // Potion
-        if (metaOne instanceof PotionMeta instanceOne && metaTwo instanceof PotionMeta instanceTwo) {
-            if (!instanceOne.getBasePotionData().equals(instanceTwo.getBasePotionData())) {
-                return true;
-            }
-            if (instanceOne.hasCustomEffects() != instanceTwo.hasCustomEffects()) {
-                return true;
-            }
-            if (instanceOne.hasColor() != instanceTwo.hasColor()) {
-                return true;
-            }
-            if (!Objects.equals(instanceOne.getColor(), instanceTwo.getColor())) {
-                return true;
-            }
-            if (!instanceOne.getCustomEffects().equals(instanceTwo.getCustomEffects())) {
-                return true;
-            }
-        }
-
-        // Skull
-        if (metaOne instanceof SkullMeta instanceOne && metaTwo instanceof SkullMeta instanceTwo) {
-            if (instanceOne.hasOwner() != instanceTwo.hasOwner()) {
-                return true;
-            }
-            if (!Objects.equals(instanceOne.getOwningPlayer(), instanceTwo.getOwningPlayer())) {
-                return true;
-            }
-        }
-
-        // Stew
-        if (metaOne instanceof SuspiciousStewMeta instanceOne && metaTwo instanceof SuspiciousStewMeta instanceTwo) {
-            if (!Objects.equals(instanceOne.getCustomEffects(), instanceTwo.getCustomEffects())) {
-                return true;
-            }
-        }
-
-        // Fish Bucket
-        if (metaOne instanceof TropicalFishBucketMeta instanceOne && metaTwo instanceof TropicalFishBucketMeta instanceTwo) {
-            if (instanceOne.hasVariant() != instanceTwo.hasVariant()) {
-                return true;
-            }
-            if (!instanceOne.getPattern().equals(instanceTwo.getPattern())) {
-                return true;
-            }
-            if (!instanceOne.getBodyColor().equals(instanceTwo.getBodyColor())) {
-                return true;
-            }
-            return !instanceOne.getPatternColor().equals(instanceTwo.getPatternColor());
-        }
-        return false;
-    }
     /**
      * pieces of shit copied from Network
      * @param metaOne
@@ -1892,6 +1733,24 @@ public class CraftUtils {
      * @return
      */
     public static boolean canQuickEscapeMetaVariant(@Nonnull ItemMeta metaOne, @Nonnull ItemMeta metaTwo) {
+        if (metaOne instanceof Damageable instanceOne && metaTwo instanceof Damageable instanceTwo) {
+            if (instanceOne.hasDamage() != instanceTwo.hasDamage()) {
+                return true;
+            }
+
+            if (instanceOne.getDamage() != instanceTwo.getDamage()) {
+                return true;
+            }
+        }
+        if (metaOne instanceof Repairable instanceOne && metaTwo instanceof Repairable instanceTwo) {
+            if (instanceOne.hasRepairCost() != instanceTwo.hasRepairCost()) {
+                return true;
+            }
+
+            if (instanceOne.getRepairCost() != instanceTwo.getRepairCost()) {
+                return true;
+            }
+        }
         if (metaOne instanceof BlockDataMeta instanceOne ) {
             if(metaTwo instanceof BlockDataMeta instanceTwo){
                 if (instanceOne.hasBlockData() != instanceTwo.hasBlockData()) {
@@ -1899,54 +1758,6 @@ public class CraftUtils {
                 }
             }else return true;
         }
-        if(metaOne instanceof BlockStateMeta  m1) {
-            if(metaTwo instanceof BlockStateMeta m2){
-                if(m1.hasBlockState()||m2.hasBlockState()){
-                    return !matchBlockStateMetaField(m1,m2);
-                }
-//                if(!m1.hasBlockState()||!m2.hasBlockState()){
-//                    if(m1.hasBlockState()!=m2.hasBlockState())
-//                        return true;
-//                }
-//                else if(  !m1.getBlockState().equals(m2.getBlockState())){
-//                    return true;
-//                }
-            }else{
-                return true;
-            }
-        }
-
-        // Damageable (first as everything can be damageable apparently)
-        if (metaOne instanceof Damageable instanceOne && metaTwo instanceof Damageable instanceTwo) {
-            if (instanceOne.getDamage() != instanceTwo.getDamage()) {
-                return true;
-            }
-        }
-        //banner
-        if (metaOne instanceof BannerMeta instanceOne && metaTwo instanceof BannerMeta instanceTwo) {
-            if (!instanceOne.getPatterns().equals(instanceTwo.getPatterns())) {
-                return true;
-            }
-        }
-        // Enchantment Storage
-        if (metaOne instanceof EnchantmentStorageMeta instanceOne && metaTwo instanceof EnchantmentStorageMeta instanceTwo) {
-            if (instanceOne.hasStoredEnchants() != instanceTwo.hasStoredEnchants()) {
-                return true;
-            }
-            if (!instanceOne.getStoredEnchants().equals(instanceTwo.getStoredEnchants())) {
-                return true;
-            }
-        }
-        // Crossbow
-        if (metaOne instanceof CrossbowMeta instanceOne && metaTwo instanceof CrossbowMeta instanceTwo) {
-            if (instanceOne.hasChargedProjectiles() != instanceTwo.hasChargedProjectiles()) {
-                return true;
-            }
-            if (!instanceOne.getChargedProjectiles().equals(instanceTwo.getChargedProjectiles())) {
-                return true;
-            }
-        }
-        // Cannot escape via any meta extension check
         return false;
     }
 

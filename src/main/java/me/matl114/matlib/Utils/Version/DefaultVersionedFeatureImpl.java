@@ -117,24 +117,6 @@ public abstract class DefaultVersionedFeatureImpl implements VersionedFeature{
         return true;
     }
     public boolean differentSpecialMeta(ItemMeta metaOne, ItemMeta metaTwo){
-        if (metaOne instanceof Damageable instanceOne && metaTwo instanceof Damageable instanceTwo) {
-            if (instanceOne.hasDamage() != instanceTwo.hasDamage()) {
-                return true;
-            }
-
-            if (instanceOne.getDamage() != instanceTwo.getDamage()) {
-                return true;
-            }
-        }
-        if (metaOne instanceof Repairable instanceOne && metaTwo instanceof Repairable instanceTwo) {
-            if (instanceOne.hasRepairCost() != instanceTwo.hasRepairCost()) {
-                return true;
-            }
-
-            if (instanceOne.getRepairCost() != instanceTwo.getRepairCost()) {
-                return true;
-            }
-        }
         // Axolotl
         if (metaOne instanceof AxolotlBucketMeta instanceOne && metaTwo instanceof AxolotlBucketMeta instanceTwo) {
             if (instanceOne.hasVariant() != instanceTwo.hasVariant()) {

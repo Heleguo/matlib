@@ -26,12 +26,32 @@ public enum Version {
     public static Version getVersionInstance(){
         String version=null;
         try{
-            version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3].trim();
+            String[] path=Bukkit.getServer().getClass().getPackage().getName().split("\\.");
+            if(path.length>=4){
+                version = path[3].trim();
+            }else {
+                version = Bukkit.getServer().getBukkitVersion().split("-")[0].trim();
+            }
             for(Version v : Version.values()){
                 if(v.name.equals(version)){
                     Debug.logger("Using version", version);
                     return v;
                 }
+            }
+            switch (version) {
+                case "1.20.5":
+                case "1.20.6":
+                    Debug.logger("Using version",v1_20_R4.name);
+                    return v1_20_R4;
+                case "1.21":
+                case "1.21.1":
+                case "1.21.2":
+                    Debug.logger("Using version",v1_21_R1.name);
+                    return v1_21_R1;
+                case "1.21.3":
+                    Debug.logger("Using version",v1_21_R2.name);
+                    return v1_21_R2;
+                default:
             }
             throw new RuntimeException("Version not supported for " + version);
         }catch (Throwable e){

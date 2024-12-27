@@ -328,7 +328,6 @@ public class BlockDataCache implements Manager {
         SlimefunBlockData data2=safeGetBlockCacheWithLoad(loc2);
         if(data!=null){
             if(data2!=null){
-                Debug.debug("remove called");
                 CONTROLLER.removeBlock(loc2);
             }
             CONTROLLER.setBlockDataLocation(data,loc2);
