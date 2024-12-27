@@ -1,7 +1,10 @@
 package me.matl114.matlib.Utils.Version.VersionedFeatures;
 
+import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Version.Version;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.WritableBookMeta;
@@ -19,6 +22,14 @@ public class VersionedFeature_1_20_R4_Impl extends VersionedFeature_1_20_R3_Impl
     }
     public boolean comparePotionType(PotionMeta instanceOne, PotionMeta instanceTwo){
         return instanceOne.getBasePotionType() == instanceTwo.getBasePotionType();
+    }
+    public boolean copyBlockStateTo(BlockState state1, Block target){
+        try{
+            state1.copy(target.getLocation()).update(true,false);
+            return true;
+        }catch(Throwable e){
+            return super.copyBlockStateTo( state1, target );
+        }
     }
 
     @Override
