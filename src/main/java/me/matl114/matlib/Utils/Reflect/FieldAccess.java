@@ -161,21 +161,29 @@ public class FieldAccess {
         public boolean set(T value1){
             if(!failed){
                 try{
-                    Debug.logger("field",field);
-                    FieldAccess.this.field.set(re, value1);
-                    Debug.logger("do set field",re);
+                    FieldAccess.this.field.set(value, value1);
+                    re=value1;
+                    return true;
+                }catch (Throwable ignored){
+                }
+            }
+            return false;
+        }
+        public boolean setUnsafe(T value1){
+            if(!failed){
+                try{
+                    FieldAccess.this.field.set(value, value1);
+                    re=value1;
                     return true;
                 }catch (Throwable e){
-                    Debug.logger(e);
                     AtomicBoolean result=new AtomicBoolean(false);
                     ReflectUtils.getUnsafeSetter(FieldAccess.this.field,((unsafe, fieldOffset, field1) -> {
                         unsafe.putObject(value, fieldOffset,value1);
+                        re=value1;
                         result.set(true);
                     }));
-                    Debug.logger("do unsafe",re);
                     return result.get();
                 }
-
             }
             return false;
         }
