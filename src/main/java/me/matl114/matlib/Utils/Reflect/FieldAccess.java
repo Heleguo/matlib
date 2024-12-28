@@ -2,6 +2,7 @@ package me.matl114.matlib.Utils.Reflect;
 
 import com.google.common.base.Preconditions;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
+import me.matl114.matlib.Utils.Debug;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -160,20 +161,23 @@ public class FieldAccess {
         public boolean set(T value1){
             if(!failed){
                 try{
+                    Debug.logger("field",field);
                     FieldAccess.this.field.set(re, value1);
+                    Debug.logger("do set field",re);
                     return true;
                 }catch (Throwable e){
+                    Debug.logger(e);
                     AtomicBoolean result=new AtomicBoolean(false);
                     ReflectUtils.getUnsafeSetter(FieldAccess.this.field,((unsafe, fieldOffset, field1) -> {
                         unsafe.putObject(value, fieldOffset,value1);
                         result.set(true);
                     }));
+                    Debug.logger("do unsafe",re);
                     return result.get();
                 }
 
             }
             return false;
-
         }
     }
 
