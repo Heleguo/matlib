@@ -2,11 +2,15 @@ package me.matl114.matlib.Utils.Reflect;
 
 import com.google.common.base.Preconditions;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
+import lombok.Getter;
 import me.matl114.matlib.Utils.Debug;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -18,7 +22,11 @@ public class FieldAccess {
     private boolean failInitialization=false;
     private Function<Object, Field> lazilyInitializationFunction;
     private Field field;
-
+    private boolean failHandle=false;
+    private VarHandle handle;
+    private boolean isStatic=false;
+    private boolean isFinal=false;
+    private Class<?> definedType=null;
     public static FieldAccess ofName(String fieldName){
         return new FieldAccess((obj)->{
             var result=ReflectUtils.getFieldsRecursively(obj.getClass(),fieldName);
@@ -50,7 +58,19 @@ public class FieldAccess {
     private FieldAccess init(Object obj){
         if(this.field==null&&!failInitialization){
             try{
-                field=getFieldInternal(obj);
+                this.field=getFieldInternal(obj);
+                this.isFinal=Modifier.isFinal(this.field.getModifiers());
+                this.isStatic= Modifier.isStatic(this.field.getModifiers());
+                this.definedType=this.field.getType();
+                try{
+                    this.handle=MethodHandles.privateLookupIn(this.field.getDeclaringClass(),MethodHandles.lookup()).unreflectVarHandle(this.field);
+                }catch(IllegalAccessException e){
+                    this.failHandle=true;
+                    if(printError){
+                        Debug.logger("Failed to create field handle for Field :",field);
+                        e.printStackTrace();
+                    }
+                }
             }catch (Throwable e){
                 failInitialization=true;
                 if(printError){
@@ -62,8 +82,8 @@ public class FieldAccess {
     }
     private Class getFieldType(){
         Preconditions.checkArgument(!failInitialization,"FieldAccess initialization failed!");
-        Preconditions.checkArgument(field!=null,"FieldAccess field not initialized!");
-        return field.getType();
+        Preconditions.checkArgument(definedType!=null,"FieldAccess field not initialized!");
+        return definedType;
     }
     private Class getDeclareClass(){
         Preconditions.checkArgument(!failInitialization,"FieldAccess initialization failed!");
@@ -74,16 +94,42 @@ public class FieldAccess {
         init(null);
         return this;
     }
+    private Object getInternal(Object obj) throws Throwable {
+        if(!failHandle){
+            if(isStatic){
+                return this.handle.get();
+            }else {
+                return this.handle.get(obj);
+            }
+        }
+        return this.field.get(obj);
+    }
+    private void setInternal(Object obj, Object value) throws Throwable {
+        if(isStatic&&isFinal){
+            throw new IllegalAccessException("Static final field can only be set using setUnsafe! Field:"+this.field);
+        }else {
+            if(!failHandle&&!isFinal){
+                if(isStatic){
+                    this.handle.set(value);
+                }else {
+                    this.handle.set(obj,value);
+                }
+            }else {
+                this.field.set(obj,value);
+            }
+        }
+    }
     public Object getValue(Object obj) throws Throwable{
         init(obj);
-        return field.get(obj);
+        return getInternal(obj);
     }
     public <W extends Object> AccessWithObject<W> ofAccess(Object obj,Supplier<AccessWithObject<W>> supplier){
         init(obj);
         AccessWithObject<W> ob=supplier.get();
         ob.value=obj;
         if(FieldAccess.this.failInitialization){
-            ob.failed=true;
+            ob.failGet=true;
+            ob.failSet=true;
         }
         return ob;
     }
@@ -104,30 +150,36 @@ public class FieldAccess {
         }
     }
     public class AccessWithObject<T>{
-        private boolean failed=false;
+        private boolean failGet=false;
+        private boolean failSet=false;
         private boolean hasTried=false;
         private Object value;
         private T re;
         public AccessWithObject<T> get(Consumer<T> callback){
-            if(!hasTried){
+            if(!hasTried||isStatic){
                 hasTried=true;
                 try{
-                    re=(T)FieldAccess.this.getValue(value);
+                    re=(T)getInternal(value);
                 }catch(Throwable e){
-                    failed=true;
+                    if(printError){
+                        Debug.logger("Access with object",value,"occurred an error: get");
+                        Debug.logger(e);
+                    }
+                    failGet=true;
                     return this;
                 }
             }
-            if(failed){
+            if(failGet){
                 re=null;
                 return this;
             }
             callback.accept(re);
             return this;
         }
+        private static Consumer<?> NONE=(ignored)->{};
         public T getRaw(){
             if(!hasTried){
-                get((e)->{});
+                get((Consumer<T>) NONE);
             }
             return re;
         }
@@ -138,7 +190,7 @@ public class FieldAccess {
             if(!hasTried){
                 get((e)->{});
             }
-            if(failed){
+            if(failGet){
                 return supplier.get();
             }
             return re;
@@ -147,42 +199,54 @@ public class FieldAccess {
             if(!hasTried){
                 get((e)->{});
             }
-            if(failed){
+            if(failGet){
                 return supplier.get();
             }
             return map.apply(re);
         }
         public AccessWithObject<T> ifFailed(Consumer<Object> callback){
-            if(failed){
+            if(failGet){
                 callback.accept(value);
             }
             return this;
         }
         public boolean set(T value1){
-            if(!failed){
+            if(!failSet){
                 try{
-                    FieldAccess.this.field.set(value, value1);
+                    setInternal(value, value1);
                     re=value1;
                     return true;
                 }catch (Throwable ignored){
+                    if(printError){
+                        Debug.logger("Access with object",value,"occurred an error: set");
+                        Debug.logger(ignored);
+                    }
+                    failSet=true;
                 }
             }
             return false;
         }
         public boolean setUnsafe(T value1){
-            if(!failed){
-                try{
-                    FieldAccess.this.field.set(value, value1);
-                    re=value1;
-                    return true;
-                }catch (Throwable e){
+            if(!failSet){
+                if(!isStatic||!isFinal){
+                    return set(value1);
+                }else{
                     AtomicBoolean result=new AtomicBoolean(false);
-                    ReflectUtils.getUnsafeSetter(FieldAccess.this.field,((unsafe, fieldOffset, field1) -> {
-                        unsafe.putObject(value, fieldOffset,value1);
+                    ReflectUtils.getUnsafeSetter(FieldAccess.this.field,((unsafe,staticFieldBase, fieldOffset, field1) -> {
+                        unsafe.putObject(staticFieldBase, fieldOffset,value1);
                         re=value1;
                         result.set(true);
                     }));
-                    return result.get();
+                    if(result.get()){
+                        re=value1;
+                        return true;
+                    }else {
+                        if(printError){
+                            Debug.logger("Access with object",value,"occurred an error: setUnsafe");
+                        }
+                        failSet=true;
+                        return false;
+                    }
                 }
             }
             return false;

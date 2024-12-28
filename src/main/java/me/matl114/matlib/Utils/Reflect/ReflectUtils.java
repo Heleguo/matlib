@@ -341,23 +341,15 @@ public class ReflectUtils {
         return setFirstFitField(to,getFieldValue(from,clazz,fieldType),clazz,fieldType);
     }
     public interface UnsafeSetter{
-        public void set(Unsafe unsafe, long fieldOffset, Field field);
+        public void set(Unsafe unsafe,Object fieldBase, long fieldOffset, Field field);
     }
-    public static void getUnsafeSetter(Field accessibleField,UnsafeSetter biConsumer){
-        try{
-            try{
-                final Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-                unsafeField.setAccessible(true);
-                Unsafe unsafe = (Unsafe) unsafeField.get(null);
-
-                long fieldOffset = unsafe.objectFieldOffset(accessibleField);
-                biConsumer.set(unsafe,fieldOffset,accessibleField);
-                //unsafe.putFloat(Blocks.REINFORCED_DEEPSLATE,fieldOffset,2.0f);
-            }catch(Exception ex){
-                ex.printStackTrace();
-            }
-        }catch (Throwable e){
-            e.printStackTrace();
-        }
+    private static FieldAccess.AccessWithObject<Unsafe> staticUnsafeAccess=FieldAccess.ofName(Unsafe.class,"theUnsafe").printError(false).ofAccess(null);
+    public static void getUnsafeSetter(Field accessibleField,UnsafeSetter setter){
+        staticUnsafeAccess.get((unsafe)->{
+            boolean isStatic=Modifier.isStatic(accessibleField.getModifiers());
+            long fieldOffset = isStatic?unsafe.staticFieldOffset(accessibleField): unsafe.objectFieldOffset(accessibleField);
+            Object staticFieldBase =isStatic? unsafe.staticFieldBase(accessibleField):null;
+            setter.set(unsafe,staticFieldBase,fieldOffset,accessibleField);
+        });
     }
 }

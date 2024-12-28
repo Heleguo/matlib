@@ -38,14 +38,16 @@ public class AddonInitialization {
         Manager.onEnable();
         Debug.init(name);
         ConfigLoader.init(plugin);
-        this.environment=new EnvironmentManager().init(plugin);
-        AddUtils.init(name,displayName==null?name:displayName,plugin);
-        //core
-        this.registries=new CustomRegistries().init(plugin);
-        //datas
-        this.dataManager=new BlockDataCache().init(plugin);
-        //tasks
-        this.scheduleManager=new ScheduleManager().init(plugin);
+        if(plugin!=null){
+            this.environment=new EnvironmentManager().init(plugin);
+            AddUtils.init(name,displayName==null?name:displayName,plugin);
+            //core
+            this.registries=new CustomRegistries().init(plugin);
+            //datas
+            this.dataManager=new BlockDataCache().init(plugin);
+            //tasks
+            this.scheduleManager=new ScheduleManager().init(plugin);
+        }
         return this;
     }
     public AddonInitialization onDisable(){
