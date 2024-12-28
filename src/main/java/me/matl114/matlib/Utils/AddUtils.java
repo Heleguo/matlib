@@ -53,6 +53,7 @@ public class AddUtils {
     private static final double SF_TPS = 20.0 / (double) Slimefun.getTickerTask().getTickRate();
     private static final DecimalFormat FORMAT = new DecimalFormat("###,###,###,###,###,###.#");
     private static Random random=new Random();
+    private static Enchantment GLOW_EFFECT=Enchantment.getByName("infinity");
     protected static ItemStack RESOLVE_FAILED=AddUtils.addGlow( new CustomItemStack(Material.BARRIER,"&c解析物品失败"));
     public static String formatDouble(double s){
         return FORMAT.format(s);
@@ -439,7 +440,7 @@ public class AddUtils {
      * no clone in this method
      * @param stack
      */
-    private static Enchantment GLOW_EFFECT=Enchantment.getByName("infinity");
+
     public static ItemStack addGlow(ItemStack stack){
         //stack.addEnchantment(Enchantment.ARROW_INFINITE, 1);
         ItemMeta meta=stack.getItemMeta();
