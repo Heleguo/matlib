@@ -2,21 +2,21 @@ package me.matl114.matlib.Utils.Version;
 
 import lombok.Getter;
 import me.matl114.matlib.Utils.CraftUtils;
+import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.WorldUtils;
 import org.bukkit.Material;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.loot.LootTable;
 import org.bukkit.loot.LootTables;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 public abstract class DefaultVersionedFeatureImpl implements VersionedFeature{
     @Getter
@@ -24,6 +24,8 @@ public abstract class DefaultVersionedFeatureImpl implements VersionedFeature{
     public DefaultVersionedFeatureImpl() {
     }
     protected HashMap<String,String> remappingEnchantId=new HashMap<>();
+    protected EnumSet<Material> blockItemWithDifferentId=EnumSet.noneOf(Material.class);
+
     @Override
     public Enchantment getEnchantment(String name) {
         name=convertLegacy(name);
@@ -311,5 +313,18 @@ public abstract class DefaultVersionedFeatureImpl implements VersionedFeature{
 
         return false;
     }
+    public AttributeModifier createAttributeModifier(UUID uid,String name, double amount, AttributeModifier.Operation operation, EquipmentSlot slot){
+        return new AttributeModifier(uid,name,amount,operation,slot);
+    }
+    public String getAttributeModifierName(AttributeModifier modifier){
+        return modifier.getName();
+    }
+    FieldAccess access=FieldAccess.ofName(AttributeModifier.class,"amount");
+    public boolean setAttributeModifierValue(AttributeModifier modifier, double value){
+        return access.ofAccess(modifier).set(value);
 
+    }
+    public UUID getAttributeModifierUid(AttributeModifier modifier){
+        return modifier.getUniqueId();
+    }
 }

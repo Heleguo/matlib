@@ -9,6 +9,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.loot.LootTable;
 
 public class WorldUtils {
+
     protected static Class CraftBlockStateClass;
     protected static boolean invokeBlockStateSuccess=false;
     protected static FieldAccess iBlockDataFieldAccess;

@@ -1,6 +1,10 @@
 package me.matl114.matlib.Utils.Version.VersionedFeatures;
 
 import me.matl114.matlib.Utils.Version.Version;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.OminousBottleMeta;
@@ -8,6 +12,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.ShieldMeta;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class VersionedFeature_1_21_R1_Impl extends VersionedFeature_1_20_R4_Impl{
     public VersionedFeature_1_21_R1_Impl() {
@@ -42,7 +47,15 @@ public class VersionedFeature_1_21_R1_Impl extends VersionedFeature_1_20_R4_Impl
         }
         return false;
     }
-
+    public AttributeModifier createAttributeModifier(UUID uid, String name, double amount, AttributeModifier.Operation operation, EquipmentSlot slot){
+        return new AttributeModifier(new NamespacedKey("minecraft",name),amount,operation,slot == null ? EquipmentSlotGroup.ANY : slot.getGroup());
+    }
+    public String getAttributeModifierName(AttributeModifier modifier){
+        return modifier.getName();
+    }
+    public UUID getAttributeModifierUid(AttributeModifier modifier){
+        return null;
+    }
     //this is shit
 
 //    public boolean isSpecial(ItemType itemType){
