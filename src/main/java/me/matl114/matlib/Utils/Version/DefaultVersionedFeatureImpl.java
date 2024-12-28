@@ -327,4 +327,7 @@ public abstract class DefaultVersionedFeatureImpl implements VersionedFeature{
     public UUID getAttributeModifierUid(AttributeModifier modifier){
         return modifier.getUniqueId();
     }
+    public EquipmentSlot getAttributeModifierSlot(AttributeModifier modifier){
+        return modifier.getSlot();
+    }
 }

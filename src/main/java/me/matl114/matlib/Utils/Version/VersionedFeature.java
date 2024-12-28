@@ -24,4 +24,5 @@ public interface VersionedFeature {
     public String getAttributeModifierName(AttributeModifier modifier);
     public boolean setAttributeModifierValue(AttributeModifier modifier, double value);
     public UUID getAttributeModifierUid(AttributeModifier modifier);
+    public EquipmentSlot getAttributeModifierSlot(AttributeModifier modifier);
 }

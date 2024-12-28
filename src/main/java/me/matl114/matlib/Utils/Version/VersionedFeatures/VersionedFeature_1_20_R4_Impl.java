@@ -3,8 +3,11 @@ package me.matl114.matlib.Utils.Version.VersionedFeatures;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Version.Version;
 import org.bukkit.Material;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.WritableBookMeta;
@@ -91,5 +94,9 @@ public class VersionedFeature_1_20_R4_Impl extends VersionedFeature_1_20_R3_Impl
             }
         }
         return false;
+    }
+    public EquipmentSlot getAttributeModifierSlot(AttributeModifier modifier){
+        var slotGrop=modifier.getSlotGroup();
+        return slotGrop == EquipmentSlotGroup.ANY ? null : slotGrop.getExample();
     }
 }
