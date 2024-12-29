@@ -52,7 +52,6 @@ public class Tests {
         log(TestClass.f);
         fieldAccess=FieldAccess.ofName(TestClass.class,"f");
         ac=fieldAccess.ofAccess(testClass);
-        log(fieldAccess.getField());
         log("checkraw "+ac.getRaw());
         ac.setUnsafe(testClass);
         log("checkset "+TestClass.f);
