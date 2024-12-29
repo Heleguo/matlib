@@ -31,7 +31,7 @@ public abstract class DefaultVersionedFeatureImpl implements VersionedFeature{
         name=convertLegacy(name);
         return Enchantment.getByName(remappingEnchantId.getOrDefault(name,name));
     }
-    private static String convertLegacy(String from) {
+    public static String convertLegacy(String from) {
         if (from == null) {
             return null;
         } else {
