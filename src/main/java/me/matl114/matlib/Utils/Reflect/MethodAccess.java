@@ -29,19 +29,19 @@ public class MethodAccess<T extends Object> {
     public static MethodAccess ofName(Class clazz ,String fieldName){
         return new MethodAccess((obj)->{
             var result=ReflectUtils.getMethodsByName(clazz,fieldName);
-            return result==null?null:result.getFirstValue();
+            return result==null?null:result.getA();
         }).printError(true);
     }
     public static MethodAccess ofName(Class clazz ,String fieldName,Class... parameterTypes){
         return new MethodAccess((obj)->{
             var result=ReflectUtils.getMethodsRecursively(clazz,fieldName,parameterTypes);
-            return result==null?null:result.getFirstValue();
+            return result==null?null:result.getA();
         }).printError(true);
     }
     public static MethodAccess ofName(String fieldName,Class... parameterTypes){
         return new MethodAccess((obj)->{
             var result=ReflectUtils.getMethodsRecursively(obj.getClass(),fieldName,parameterTypes);
-            return result==null?null:result.getFirstValue();
+            return result==null?null:result.getA();
         }).printError(true);
     }
     public static MethodAccess of(Method field){

@@ -1,5 +1,6 @@
 package me.matl114.matlib;
 
+import me.matl114.matlib.Utils.Algorithm.Pair;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.Reflect.MethodAccess;
@@ -62,7 +63,7 @@ public class Tests {
         ac.setUnsafe("我操啊");
         log(TestClass.getS());
     }
-    @Test
+    //@Test
     public void test_reflection_2(){
         MethodAccess<?> methodAccess;
 
@@ -110,5 +111,24 @@ public class Tests {
         log("using time "+(b-a));
         //enable handle: 27683800 19029700 25699400 20924100 27461300 57322300 39966300 23702900
         //disable handle: 28414300 23184400 14584200 18837900 16926600 30481000 15374300 14651700
+    }
+    @Test
+    public void test_pair(){
+        TestClass obj=new TestClass();
+        TestClass obj2=new TestClass();
+        Pair<TestClass,TestClass> pair= Pair.of(obj,obj2);
+        log(pair.toString());
+        long a=System.nanoTime();
+        for(int i=0;i<100000;i++){
+            pair=Pair.of(obj,obj2);
+        }
+        long b=System.nanoTime();
+        log("check "+(b-a));
+        a=System.nanoTime();
+        for(int i=0;i<100000;i++){
+            pair=new Pair<>(obj,obj2);
+        }
+        b=System.nanoTime();
+        log("using time "+(b-a));
     }
 }

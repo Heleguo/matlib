@@ -1,6 +1,6 @@
 package me.matl114.matlib.Utils.Reflect;
 
-import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
+import me.matl114.matlib.Utils.Algorithm.Pair;
 import me.matl114.matlib.Utils.Flags;
 import sun.misc.Unsafe;
 
@@ -73,7 +73,7 @@ public class ReflectUtils {
         try{
             Field field=clazz.getDeclaredField(fieldName);
             field.setAccessible(true);
-            return new Pair(field,clazz);
+            return Pair.of(field,clazz);
         }catch (Throwable e){
             clazz=clazz.getSuperclass();
             if(clazz==null){
@@ -142,7 +142,7 @@ public class ReflectUtils {
         try{
             Method field=clazz.getDeclaredMethod(fieldName,parameterTypes);
             field.setAccessible(true);
-            return new Pair(field,clazz);
+            return Pair.of(field,clazz);
         }catch (Throwable e){
             clazz=clazz.getSuperclass();
             if(clazz==null){
@@ -159,7 +159,7 @@ public class ReflectUtils {
             try{
                 if(m.getName().equals(fieldName)){
                     m.setAccessible(true);
-                    return new Pair(m,clazz);
+                    return Pair.of(m,clazz);
                 }
             }catch (Throwable e){
             }
@@ -197,7 +197,7 @@ public class ReflectUtils {
                 if(match){
                     m.setAccessible(true);
 
-                    return new Pair<>(m,clazz);
+                    return Pair.of(m,clazz);
                 }
             }
         }catch (Throwable e){}

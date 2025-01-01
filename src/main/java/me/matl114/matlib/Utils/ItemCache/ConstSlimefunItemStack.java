@@ -15,7 +15,7 @@ public class ConstSlimefunItemStack extends SlimefunItemStack {
         super(stack.getItemId(),stack);
         this.data =stack ;
         this.thismeta = stack.getItemMeta();
-        this.lockedField= ReflectUtils.getFieldsRecursively(this.getClass(),"locked").getFirstValue();
+        this.lockedField= ReflectUtils.getFieldsRecursively(this.getClass(),"locked").getA();
         try{
             Object locked=this.lockedField.get(this);
             this.lockedField.set(this, Boolean.FALSE);

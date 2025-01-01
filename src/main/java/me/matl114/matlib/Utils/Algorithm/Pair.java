@@ -26,7 +26,7 @@ public class Pair <A extends Object, B extends Object> implements Cloneable{
     }
     public Pair clone(){
         try{
-            return this.clone();
+            return (Pair) super.clone();
         }catch (Throwable e){
             throw new RuntimeException(e);
         }

@@ -32,7 +32,7 @@ public class FieldAccess {
     public static FieldAccess ofName(String fieldName){
         return new FieldAccess((obj)->{
             var result=ReflectUtils.getFieldsRecursively(obj.getClass(),fieldName);
-            return result==null?null:result.getFirstValue();
+            return result==null?null:result.getA();
         }).printError(true);
     }
     public static FieldAccess of(Field field){
@@ -41,7 +41,7 @@ public class FieldAccess {
     public static FieldAccess ofName(Class<?> clazz,String fieldName){
         return new FieldAccess((obj)->{
             var result=ReflectUtils.getFieldsRecursively(clazz,fieldName);
-            return result==null?null:result.getFirstValue();
+            return result==null?null:result.getA();
         }).printError(true);
     }
     public FieldAccess(Function<Object, Field> initFunction) {
