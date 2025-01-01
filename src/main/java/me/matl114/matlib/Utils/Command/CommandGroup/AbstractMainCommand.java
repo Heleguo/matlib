@@ -102,13 +102,13 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor {
     }
     public List<String> onTabComplete(CommandSender var1, Command var2, String var3, String[] var4){
         var re=getMainCommand().parseInput(var4);
-        if(re.getSecondValue().length==0){
-            List<String> provider=re.getFirstValue().getTabComplete();
+        if(re.getB().length==0){
+            List<String> provider=re.getA().getTabComplete();
             return provider==null?new ArrayList<>():provider;
         }else{
-            SubCommand subCommand= getSubCommand(re.getFirstValue().nextArg());
+            SubCommand subCommand= getSubCommand(re.getA().nextArg());
             if(subCommand!=null){
-                String[] elseArg=re.getSecondValue();
+                String[] elseArg=re.getB();
                 return subCommand.onTabComplete(var1,var2,var3,elseArg);
             }
         }
