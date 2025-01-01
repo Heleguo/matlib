@@ -1,6 +1,6 @@
 package me.matl114.matlib.Utils.Command.Params;
 
-import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
+import me.matl114.matlib.Utils.Algorithm.Pair;
 
 import java.util.*;
 import java.util.function.Supplier;

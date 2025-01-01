@@ -1,4 +1,4 @@
-package me.matl114.matlib.Utils;
+package me.matl114.matlib.Utils.Slimefun;
 
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;

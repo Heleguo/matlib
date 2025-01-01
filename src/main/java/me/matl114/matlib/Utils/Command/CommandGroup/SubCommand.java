@@ -1,7 +1,7 @@
 package me.matl114.matlib.Utils.Command.CommandGroup;
 
-import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
 import lombok.Getter;
+import me.matl114.matlib.Utils.Algorithm.Pair;
 import me.matl114.matlib.Utils.Command.Params.SimpleCommandArgs;
 import me.matl114.matlib.Utils.Command.Params.SimpleCommandInputStream;
 import org.bukkit.command.Command;
@@ -20,7 +20,7 @@ public class SubCommand implements TabExecutor {
         if(executor!=this){
             return executor.onTabComplete(commandSender, command, s, elseArg);
         }else {
-            var tab=this.parseInput(elseArg).getFirstValue();
+            var tab=this.parseInput(elseArg).getA();
             if(tab!=null){
                 return tab.getTabComplete();
             }else {

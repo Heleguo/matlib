@@ -1,7 +1,5 @@
 package me.matl114.matlib.Utils.Algorithm;
 
-import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
-
 import java.util.AbstractList;
 import java.util.List;
 import java.util.function.Consumer;

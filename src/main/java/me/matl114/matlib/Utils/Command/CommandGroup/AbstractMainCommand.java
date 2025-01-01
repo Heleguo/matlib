@@ -1,6 +1,6 @@
 package me.matl114.matlib.Utils.Command.CommandGroup;
 
-import io.github.thebusybiscuit.slimefun4.libraries.commons.lang.Validate;
+import com.google.common.base.Preconditions;
 import lombok.Getter;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -27,7 +27,7 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor {
         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
     }
     public <T extends AbstractMainCommand> T registerCommand(Plugin plugin){
-        Validate.isTrue(!registered, "Command have already been registered!");
+        Preconditions.checkArgument(!registered, "Command have already been registered!");
         this.plugin = plugin;
         this.Debug = plugin.getLogger();
         plugin.getServer().getPluginCommand(getMainName()).setExecutor(this);
@@ -36,7 +36,7 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor {
         return (T)this;
     }
     public <T extends AbstractMainCommand> T unregisterCommand(){
-        Validate.isTrue(registered, "Command functional havem't been unregistered!");
+        Preconditions.checkArgument(registered, "Command functional havem't been unregistered!");
         plugin.getServer().getPluginCommand(getMainName()).setExecutor(null);
         plugin.getServer().getPluginCommand(getMainName()).setTabCompleter(null);
         this.registered=false;
