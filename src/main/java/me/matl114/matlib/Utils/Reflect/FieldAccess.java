@@ -11,6 +11,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -27,6 +28,7 @@ public class FieldAccess {
     private boolean isStatic=false;
     private boolean isFinal=false;
     private Class<?> definedType=null;
+    private static final boolean useHandle=false;
     public static FieldAccess ofName(String fieldName){
         return new FieldAccess((obj)->{
             var result=ReflectUtils.getFieldsRecursively(obj.getClass(),fieldName);
@@ -55,7 +57,7 @@ public class FieldAccess {
         field.setAccessible(true);
         return field;
     }
-    private FieldAccess init(Object obj){
+    public FieldAccess init(Object obj){
         if(this.field==null&&!failInitialization){
             try{
                 this.field=getFieldInternal(obj);
@@ -95,7 +97,7 @@ public class FieldAccess {
         return this;
     }
     private Object getInternal(Object obj) throws Throwable {
-        if(!failHandle){
+        if(useHandle&& !failHandle){
             if(isStatic){
                 return this.handle.get();
             }else {
@@ -108,7 +110,7 @@ public class FieldAccess {
         if(isStatic&&isFinal){
             throw new IllegalAccessException("Static final field can only be set using setUnsafe! Field:"+this.field);
         }else {
-            if(!failHandle&&!isFinal){
+            if(useHandle&& !failHandle&&!isFinal){
                 if(isStatic){
                     this.handle.set(value);
                 }else {
@@ -155,6 +157,12 @@ public class FieldAccess {
         private boolean hasTried=false;
         private Object value;
         private T re;
+        public boolean hasFailGet(){
+            return hasTried&&failGet;
+        }
+        public boolean hasFailSet(){
+            return hasTried&&failSet;
+        }
         public AccessWithObject<T> get(Consumer<T> callback){
             if(!hasTried||isStatic){
                 hasTried=true;
@@ -176,7 +184,7 @@ public class FieldAccess {
             callback.accept(re);
             return this;
         }
-        private static Consumer<?> NONE=(ignored)->{};
+        private static final Consumer<?> NONE=(ignored)->{};
         public T getRaw(){
             if(!hasTried){
                 get((Consumer<T>) NONE);
