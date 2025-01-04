@@ -6,7 +6,7 @@ import lombok.Setter;
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
-public class Pair <A extends Object, B extends Object> implements Cloneable{
+public final class Pair <A extends Object, B extends Object> implements Cloneable{
     @Getter
     @Setter
     private A a;

@@ -1,6 +1,7 @@
 package me.matl114.matlib;
 
 import me.matl114.matlib.Utils.Algorithm.Pair;
+import me.matl114.matlib.Utils.Algorithm.Triplet;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.Reflect.MethodAccess;
@@ -112,7 +113,7 @@ public class Tests {
         //enable handle: 27683800 19029700 25699400 20924100 27461300 57322300 39966300 23702900
         //disable handle: 28414300 23184400 14584200 18837900 16926600 30481000 15374300 14651700
     }
-    @Test
+    //@Test
     public void test_pair(){
         TestClass obj=new TestClass();
         TestClass obj2=new TestClass();
@@ -130,5 +131,17 @@ public class Tests {
         }
         b=System.nanoTime();
         log("using time "+(b-a));
+        Triplet<Integer,Integer,Integer> let=Triplet.of(1,2,null);
+        log(let.toString());
+        log(let.getA()+let.getB());
     }
+    @Test
+    public void test_math(){
+        double d0=1.0;
+        int j=(int)(d0 * (double)(4 << 29) + 0.5);
+        double f=20;
+        log(j);
+        log((float)(f+(double) j));
+    }
+
 }
