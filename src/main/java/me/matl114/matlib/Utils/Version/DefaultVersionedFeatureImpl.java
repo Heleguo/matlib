@@ -18,7 +18,7 @@ import org.bukkit.loot.LootTables;
 
 import java.util.*;
 
-public abstract class DefaultVersionedFeatureImpl implements VersionedFeature{
+public class DefaultVersionedFeatureImpl implements VersionedFeature{
     @Getter
     protected Version version;
     public DefaultVersionedFeatureImpl() {
