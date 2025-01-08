@@ -1,5 +1,6 @@
 package me.matl114.matlib;
 
+import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
 import me.matl114.matlib.Utils.Algorithm.Pair;
 import me.matl114.matlib.Utils.Algorithm.Triplet;
 import me.matl114.matlib.Utils.Debug;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
+import java.util.function.Supplier;
 
 public class Tests {
     public void log(Object message) {
@@ -142,6 +144,11 @@ public class Tests {
         double f=20;
         log(j);
         log((float)(f+(double) j));
+    }
+    @Test
+    public void test_initializeTool(){
+        int value= new InitializeSafeProvider<>(Integer.class,()->6).v();
+        log(value);
     }
 
 }
