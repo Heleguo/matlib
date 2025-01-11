@@ -20,6 +20,7 @@ import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
 import lombok.Getter;
 import lombok.Setter;
 import me.matl114.matlib.Utils.AddUtils;
+import me.matl114.matlib.Utils.Menu.MenuClickHandler.GuideClickHandler;
 import me.matl114.matlib.Utils.Menu.MenuGroup.CustomMenuGroup;
 import me.matl114.matlib.Utils.Menu.MenuUtils;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
@@ -153,6 +154,14 @@ public class CustomItemGroup extends FlexItemGroup  {
         assert page>=1&&page<=pages;
         var2.getGuideHistory().add(this,page);
         ChestMenu menu=this.group.buildPage(page).getMenu();
+        //transfer this to GuideClick
+        for (int i=0;i<this.group.getSizePerPage();++i){
+            if(menu.getMenuClickHandler(i) instanceof GuideClickHandler handler){
+                menu.addMenuClickHandler(i,((player, i1, itemStack, clickAction) -> {
+                    return handler.onGuideClick(var1,i1,itemStack,clickAction,var2,var3,this,page);
+                }));
+            }
+        }
         //prev键
         this.group.getPrev().forEach(i1->menu.addMenuClickHandler(i1,((player, i, itemStack, clickAction) -> {
             if(page>1){

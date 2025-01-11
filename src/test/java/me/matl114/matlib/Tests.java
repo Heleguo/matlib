@@ -9,12 +9,17 @@ import me.matl114.matlib.Utils.Reflect.MethodAccess;
 import me.matl114.matlib.core.AddonInitialization;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.checkerframework.checker.units.qual.N;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 public class Tests {
@@ -143,6 +148,7 @@ public class Tests {
         int j=(int)(d0 * (double)(4 << 29) + 0.5);
         double f=20;
         log(j);
+
         log((float)(f+(double) j));
     }
     @Test

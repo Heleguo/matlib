@@ -22,6 +22,7 @@ public class DefaultVersionedFeatureImpl implements VersionedFeature{
     @Getter
     protected Version version;
     public DefaultVersionedFeatureImpl() {
+
     }
     protected HashMap<String,String> remappingEnchantId=new HashMap<>();
     protected EnumSet<Material> blockItemWithDifferentId=EnumSet.noneOf(Material.class);
