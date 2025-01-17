@@ -43,8 +43,8 @@ public class CustomItemGroup extends FlexItemGroup  {
     protected static final ItemStack INVOKE_ERROR=new CustomItemStack(Material.BARRIER,"&c","","&c获取物品组物品展示失败");
     protected boolean isVisible;
     protected CustomMenuGroup group;
-    protected Supplier< HashMap<Integer,ItemGroup>> subGroups;
-    protected Supplier< HashMap<Integer,SlimefunItem>> items;
+    protected Supplier< Map<Integer,ItemGroup>> subGroups;
+    protected Supplier< Map<Integer,SlimefunItem>> items;
     boolean loaded=false;
     @Override
     public ItemStack getItem(Player p){
@@ -62,23 +62,23 @@ public class CustomItemGroup extends FlexItemGroup  {
 
     }
     public CustomItemGroup setLoader(CustomMenuGroup group,
-                                     HashMap<Integer,ItemGroup> subGroup,
-                                     HashMap<Integer, SlimefunItem> researches){
+                                     Map<Integer,ItemGroup> subGroup,
+                                     Map<Integer, SlimefunItem> researches){
         return setLoader(group,subGroup,()->researches);
     }
     public CustomItemGroup setLoader(CustomMenuGroup group,
-                                     HashMap<Integer,ItemGroup> subGroup,
-                                     Supplier<HashMap<Integer, SlimefunItem>> researches){
+                                     Map<Integer,ItemGroup> subGroup,
+                                     Supplier<Map<Integer, SlimefunItem>> researches){
         return setLoader(group,()->subGroup,researches);
     }
     public CustomItemGroup setLoader(CustomMenuGroup group,
-                                     Supplier<HashMap<Integer,ItemGroup>> subGroup,
-                                     HashMap<Integer, SlimefunItem> researches){
+                                     Supplier<Map<Integer,ItemGroup>> subGroup,
+                                     Map<Integer, SlimefunItem> researches){
         return setLoader(group,subGroup,()->researches);
     }
     public CustomItemGroup setLoader(CustomMenuGroup group,
-                                     Supplier<HashMap<Integer,ItemGroup>> subGroup,
-                                     Supplier<HashMap<Integer, SlimefunItem>> researches){
+                                     Supplier<Map<Integer,ItemGroup>> subGroup,
+                                     Supplier<Map<Integer, SlimefunItem>> researches){
         this.group=group;
         assert group.isPlaceItems();
         this.subGroups=subGroup;
@@ -198,7 +198,7 @@ public class CustomItemGroup extends FlexItemGroup  {
         int contentPerPage=contents.length;
         int startIndex=Math.max(0,contentPerPage*(page-1));
         int endIndex=Math.min(contentPerPage*page,contentPerPage*pages);
-        HashMap<Integer,ItemGroup> displayedSubGroups=this.subGroups.get();
+        Map<Integer,ItemGroup> displayedSubGroups=this.subGroups.get();
         for (Map.Entry<Integer,ItemGroup> entry:displayedSubGroups.entrySet()){
             int index=entry.getKey();
             if(index>=startIndex&&index<endIndex){
@@ -211,7 +211,7 @@ public class CustomItemGroup extends FlexItemGroup  {
                 }));
             }
         }
-        HashMap<Integer,SlimefunItem> displayedItems=this.items.get();
+        Map<Integer,SlimefunItem> displayedItems=this.items.get();
         for (Map.Entry<Integer,SlimefunItem> entry:displayedItems.entrySet()){
             int index=entry.getKey();
             if(index>=startIndex&&index<endIndex){
