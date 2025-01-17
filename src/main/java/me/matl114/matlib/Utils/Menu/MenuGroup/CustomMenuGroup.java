@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class CustomMenuGroup {
     public interface CustomMenuClickHandler {
@@ -306,7 +307,15 @@ public class CustomMenuGroup {
         return  this;
     }
 
+    public static CustomMenuGroup defaultGroupTemplate(String value){
+        return new CustomMenuGroup(value,54,1)
+                .addPreloadTask((menu)->{
+                    IntStream.range(0,9).forEach(t->menu.getMenu().addItem(t, ChestMenuUtils.getBackground(),ChestMenuUtils.getEmptyClickHandler()));
+                    IntStream.range(45,54).forEach(t->menu.getMenu().addItem(t,ChestMenuUtils.getBackground(),ChestMenuUtils.getEmptyClickHandler()));
+                }).setPageNextSlots(52).setPagePrevSlots(46)
+                .enableContentPlace(IntStream.range(9,45).toArray());
 
+    }
 
 
 }
