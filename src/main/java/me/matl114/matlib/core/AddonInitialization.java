@@ -38,6 +38,7 @@ public class AddonInitialization {
         Manager.onEnable();
         Debug.init(name);
         ConfigLoader.init(plugin);
+
         if(plugin!=null){
             this.environment=new EnvironmentManager().init(plugin);
             AddUtils.init(name,displayName==null?name:displayName,plugin);

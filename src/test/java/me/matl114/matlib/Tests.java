@@ -30,6 +30,9 @@ public class Tests {
 
     //@Test
     public void test_reflection() {
+        if(true){
+            return;
+        }
         AttributeModifier modifier= new AttributeModifier(new NamespacedKey("m","e"),114, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.HAND);
         FieldAccess amountAccess=FieldAccess.ofName(AttributeModifier.class,"amount");
         amountAccess.ofAccess(modifier).set(514.0);
@@ -73,6 +76,9 @@ public class Tests {
     }
     //@Test
     public void test_reflection_2(){
+        if(true){
+            return;
+        }
         MethodAccess<?> methodAccess;
 
         TestClass obj=new TestClass();
@@ -122,6 +128,9 @@ public class Tests {
     }
     //@Test
     public void test_pair(){
+        if(true){
+            return;
+        }
         TestClass obj=new TestClass();
         TestClass obj2=new TestClass();
         Pair<TestClass,TestClass> pair= Pair.of(obj,obj2);

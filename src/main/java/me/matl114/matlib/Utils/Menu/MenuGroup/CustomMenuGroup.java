@@ -5,16 +5,19 @@ import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
 import lombok.Getter;
 import me.matl114.matlib.Utils.Menu.MenuUtils;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
+import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ClickAction;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class CustomMenuGroup {
-    public interface CustomMenuClickHandler{
+    public interface CustomMenuClickHandler {
         static CustomMenuClickHandler of(ChestMenu.MenuClickHandler handler){
             return (cm)->handler;
         }
@@ -23,6 +26,7 @@ public class CustomMenuGroup {
         }
         public ChestMenu.MenuClickHandler getHandler(CustomMenu menu);
         // public ChestMenu.MenuClickHandler getHandler(ChestMenu menu);
+
     }
     public interface CustomMenuHandler{
         static CustomMenuHandler of(ChestMenu.MenuOpeningHandler handler){
@@ -56,6 +60,8 @@ public class CustomMenuGroup {
     private ArrayList<CustomMenuClickHandler> handlers=new ArrayList<>();
     private HashMap<Integer,ItemStack> overrideItem=new HashMap<>();
     private HashMap<Integer,CustomMenuClickHandler> overrideHandler=new HashMap<>();
+    private HashSet<Consumer<CustomMenu>> preload=new LinkedHashSet<>();
+    private HashSet<Consumer<CustomMenu>> postload=new LinkedHashSet<>();
     private IntFunction<ChestMenu> presetGenerator=null;
     //why do we need this?
     private CustomMenuClickHandler backHandlers=null;
@@ -207,6 +213,14 @@ public class CustomMenuGroup {
         addHandler(slot,handler);
         return this;
     }
+    public CustomMenuGroup addPreloadTask(Consumer<CustomMenu> menu){
+        preload.add(menu);
+        return  this;
+    }
+    public CustomMenuGroup addPostloadTask(Consumer<CustomMenu> menu){
+        postload.add(menu);
+        return this;
+    }
     public ChestMenu.MenuClickHandler getHandler(CustomMenuClickHandler handler,CustomMenu menu){
         if(handler==null){
             return ChestMenuUtils.getEmptyClickHandler();
@@ -238,6 +252,7 @@ public class CustomMenuGroup {
         Preconditions.checkNotNull(menu,"menu should not be null");
         Preconditions.checkArgument(menu.getPage()>=1&&menu.getPage()<=this.pages,"Page of menu out of range! expect %d found %d",this.pages,menu.getPage());
         menu.loadInternal();
+        preload.forEach(i->i.accept(menu));
         if(this.placeItems){
             int len=this.contents.length;
             int startIndex=Math.max(len*(menu.getPage()-1),0);
@@ -287,7 +302,8 @@ public class CustomMenuGroup {
 //            //remain not completed
 //        }
         //
-        return  null;
+        postload.forEach(i->i.accept(menu));
+        return  this;
     }
 
 
