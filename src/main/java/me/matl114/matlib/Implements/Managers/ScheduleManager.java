@@ -1,11 +1,15 @@
 package me.matl114.matlib.Implements.Managers;
 
+import com.google.common.base.Preconditions;
 import lombok.Getter;
 import me.matl114.matlib.Utils.ThreadUtils;
 import me.matl114.matlib.core.Manager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 public class ScheduleManager implements Manager {
     Plugin plugin;
@@ -68,6 +72,52 @@ public class ScheduleManager implements Manager {
             }else{
                 thread.runTaskTimerAsynchronously(plugin, delay,period);
             }
+        }
+    }
+    public void launchRepeatingSchedule(Consumer<Integer> thread , int delay, boolean isSync, int period, int repeatTime){
+        launchScheduled(new BukkitRunnable() {
+            int runTime=0;
+            @Override
+            public void run() {
+                try{
+                    thread.accept(runTime);
+                }catch (Throwable e){
+                    e.printStackTrace();
+                }
+                finally {
+                    this.runTime+=1;
+                    if(this.runTime>=repeatTime){
+                        this.cancel();
+                    }
+                }
+            }
+        },delay,isSync,period);
+    }
+    public void asyncWaithRepeatingSchedule(Consumer<Integer> thread , int delay, boolean isSync, int period,int repeatTime){
+        Preconditions.checkArgument( !Bukkit.isPrimaryThread(),"This method should be called in async thread");
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        launchScheduled(new BukkitRunnable() {
+            int runTime=0;
+            @Override
+            public void run() {
+                try{
+                    thread.accept(runTime);
+                }catch (Throwable e){
+                    e.printStackTrace();
+                }
+                finally {
+                    this.runTime+=1;
+                    if(this.runTime>=repeatTime){
+                        countDownLatch.countDown();
+                        this.cancel();
+                    }
+                }
+            }
+        },delay,isSync,period);
+        try{
+            countDownLatch.await();
+        }catch (InterruptedException e){
+            e.printStackTrace();
         }
     }
 
