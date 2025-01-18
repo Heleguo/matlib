@@ -51,7 +51,9 @@ public class VersionedFeature_1_21_R1_Impl extends VersionedFeature_1_20_R4_Impl
             return false;
         }
         if(meta1 instanceof ShieldMeta meta11 && meta2 instanceof ShieldMeta meta22){
-            return shieldBannerAccess.compareFieldOrDefault(meta11,meta22,()->meta11.equals(meta22));
+            return true;
+            //just let then gooooooooooooooooooooo fu
+           // return shieldBannerAccess.compareFieldOrDefault(meta11,meta22,()->meta11.equals(meta22));
         }else{
             return super.matchBlockStateMeta(meta1, meta2);
         }
