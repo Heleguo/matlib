@@ -156,6 +156,8 @@ public class DefaultVersionedFeatureImpl implements VersionedFeature{
                 return true;
             }
 
+
+
             if (!CraftUtils.matchBlockStateMetaField(instanceOne,instanceTwo)) {
                 return true;
             }
@@ -330,5 +332,12 @@ public class DefaultVersionedFeatureImpl implements VersionedFeature{
     }
     public EquipmentSlot getAttributeModifierSlot(AttributeModifier modifier){
         return modifier.getSlot();
+    }
+    private static FieldAccess blockEntityTagAccess=FieldAccess.ofName("blockEntityTag");
+    public boolean matchBlockStateMeta(BlockStateMeta meta1,BlockStateMeta meta2){
+        return blockEntityTagAccess.compareFieldOrDefault(meta1,meta2,()->meta1.equals(meta2));
+//        .ofAccess(meta1).computeIf((b)->{
+//            return Objects.equals(b, blockEntityTagAccess.ofAccess(meta2).getRawOrDefault(()->null));
+//        },()->meta1.equals(meta2));
     }
 }

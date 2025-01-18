@@ -1658,11 +1658,10 @@ public class CraftUtils {
 //    private static Class CraftMetaBlockState;
 //    private static Field blockEntityTag;
 //    private static boolean hasFailed;
-    private static FieldAccess blockEntityTagAccess=FieldAccess.ofName("blockEntityTag");
+
+
     public static boolean matchBlockStateMetaField(BlockStateMeta meta1, BlockStateMeta meta2){
-        return blockEntityTagAccess.ofAccess(meta1).computeIf((b)->{
-           return Objects.equals(b, blockEntityTagAccess.ofAccess(meta2).getRawOrDefault(()->null));
-        },()->meta1.equals(meta2));
+        return EnvironmentManager.getManager().getVersioned().matchBlockStateMeta(meta1,meta2);
 //        if(!hasFailed){
 //            try{
 //                if(CraftMetaBlockState==null){

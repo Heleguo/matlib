@@ -7,6 +7,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 
@@ -25,4 +26,5 @@ public interface VersionedFeature {
     public boolean setAttributeModifierValue(AttributeModifier modifier, double value);
     public UUID getAttributeModifierUid(AttributeModifier modifier);
     public EquipmentSlot getAttributeModifierSlot(AttributeModifier modifier);
+    boolean matchBlockStateMeta(BlockStateMeta meta1,BlockStateMeta meta2);
 }

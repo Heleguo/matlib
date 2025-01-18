@@ -1,15 +1,13 @@
 package me.matl114.matlib.Utils.Version.VersionedFeatures;
 
+import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.Version.Version;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemType;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.OminousBottleMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.ShieldMeta;
+import org.bukkit.inventory.meta.*;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -47,6 +45,17 @@ public class VersionedFeature_1_21_R1_Impl extends VersionedFeature_1_20_R4_Impl
         }
         return false;
     }
+    private static FieldAccess shieldBannerAccess=FieldAccess.ofName("banner");
+     public boolean matchBlockStateMeta(BlockStateMeta meta1, BlockStateMeta meta2){
+        if(meta1.getClass()!=meta2.getClass()){
+            return false;
+        }
+        if(meta1 instanceof ShieldMeta meta11 && meta2 instanceof ShieldMeta meta22){
+            return shieldBannerAccess.compareFieldOrDefault(meta11,meta22,()->meta11.equals(meta22));
+        }else{
+            return super.matchBlockStateMeta(meta1, meta2);
+        }
+     }
     public AttributeModifier createAttributeModifier(UUID uid, String name, double amount, AttributeModifier.Operation operation, EquipmentSlot slot){
         return new AttributeModifier(new NamespacedKey("minecraft",name),amount,operation,slot == null ? EquipmentSlotGroup.ANY : slot.getGroup());
     }

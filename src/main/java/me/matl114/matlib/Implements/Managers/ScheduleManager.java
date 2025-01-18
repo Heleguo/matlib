@@ -24,8 +24,9 @@ public class ScheduleManager implements Manager {
     @Override
     public void deconstruct() {
     }
+
     @Getter
-    private ScheduleManager manager;
+    private static ScheduleManager manager;
     public ScheduleManager(){
         manager = this;
     }
