@@ -431,10 +431,10 @@ public class AddUtils {
     }
 
     public static void sendMessage(CommandSender p, String msg){
-        p.sendMessage(color(msg));
+        p.sendMessage(resolveColor(msg));
     }
     public static void sendTitle(Player p,String title,String subtitle){
-        p.sendTitle(color(title),color(subtitle),-1,-1,-1);
+        p.sendTitle(resolveColor(title),resolveColor(subtitle),-1,-1,-1);
     }
     public static ItemStack[] formatInfoRecipe(ItemStack stack,String source){
         return new ItemStack[]{
