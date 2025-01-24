@@ -5,6 +5,7 @@ import io.github.thebusybiscuit.slimefun4.implementation.operations.CraftingOper
 import lombok.Getter;
 import lombok.Setter;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -15,8 +16,9 @@ public class CraftingOperationAdaptor<T extends MachineOperation>  extends Craft
         return new CraftingOperationAdaptor<>(operation);
     }
     private final T handle;
+    private static final ItemStack[] EXAMPLE= new ItemStack[]{new ItemStack(Material.STONE)};
     public CraftingOperationAdaptor(T operation) {
-        super(new ItemStack[0],new ItemStack[0],0);
+        super(EXAMPLE,EXAMPLE,0);
         handle = operation;
     }
     //for slimehud display use
