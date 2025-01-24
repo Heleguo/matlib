@@ -5,18 +5,44 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class ItemCounter implements Cloneable{
+    //todo fix the unfreshed item dupe bug
     protected int cnt;
     protected boolean dirty;
     protected ItemStack item;
     protected ItemMeta meta=null;
     protected int maxStackCnt;
+    //when -1,means item is up to date
+    private int cachedItemAmount = -1;
     private static ItemCounter INSTANCE=new ItemCounter(new ItemStack(Material.STONE)) ;
     protected ItemCounter(ItemStack item) {
         dirty=false;
         this.cnt = item.getAmount();
+        this.cachedItemAmount = this.cnt;
         this.item=item;
         this.maxStackCnt=item.getMaxStackSize();
         this.maxStackCnt=maxStackCnt<=0?2147483646:maxStackCnt;
+    }
+    protected void toNull(){
+        item=null;
+        meta=null;
+        cnt=0;
+        dirty=false;
+        cachedItemAmount=0;
+        //
+        itemChange();
+    }
+    protected void fromSource(ItemCounter source,boolean overrideMaxSize){
+        item=source.getItem();
+        if(overrideMaxSize){
+            maxStackCnt= item!=null?item.getMaxStackSize():0;
+        }
+        cnt=0;
+        meta=null;
+        cachedItemAmount=-1;
+        //
+    }
+    protected void itemChange(){
+        cachedItemAmount=item.getAmount();
     }
     public ItemCounter() {
         dirty=false;
@@ -32,19 +58,26 @@ public class ItemCounter implements Cloneable{
         this.cnt=item.getAmount();
         this.maxStackCnt=item.getMaxStackSize();
         this.maxStackCnt=maxStackCnt<=0?2147483646:maxStackCnt;
+        this.cachedItemAmount=cnt;
     }
     protected void init() {
         this.dirty=false;
         this.cnt=0;
         this.item=null;
         this.maxStackCnt=0;
-
+        this.cachedItemAmount=0;
     }
     public int getMaxStackCnt() {
         return maxStackCnt;
     }
     public boolean isNull() {
         return item==null;
+    }
+    public final boolean isFull(){
+        return cnt>=this.maxStackCnt;
+    }
+    public final boolean isEmpty(){
+        return cnt<=0;
     }
     /**
      * get meta info ,if havn't get ,getItemMeta() clone one
@@ -139,8 +172,16 @@ public class ItemCounter implements Cloneable{
      */
     public void updateItemStack(){
         if(dirty){
+            //check if cachedItemAmount is not refreshed
+            if(cachedItemAmount<0){
+                item.setAmount(cnt);
+            }else{
+                int newCachedItemAmount=item.getAmount();
+                cnt+=-cachedItemAmount+newCachedItemAmount;
+                item.setAmount(cnt);
+            }
+            cachedItemAmount=cnt;
 
-            item.setAmount(cnt);
             dirty=false;
         }
     }

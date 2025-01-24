@@ -9,6 +9,7 @@ import me.matl114.matlib.core.EnvironmentManager;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
+import net.guizhanss.guizhanlib.minecraft.helper.inventory.ItemStackHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryType;
@@ -131,6 +132,7 @@ public class CraftUtils {
             return false;
         }
     }).v();
+    private static boolean hookGuizhanLib = true;
     private static final InitializingTasks INIT_TASK_FINISH = new InitializingTasks(()->{
         Debug.logger("Successfully initialize CraftUtils...");
     });
@@ -173,6 +175,24 @@ public class CraftUtils {
         if(!hookSlimefun)return null;
         Optional<String> itemID = io.github.thebusybiscuit.slimefun4.implementation.Slimefun.getItemDataService().getItemData(item);
         return itemID.map(io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem::getById).orElse(null);
+    }
+    public static String getDisplayName(ItemStack itemStack){
+        if(hookGuizhanLib){
+            try{
+                return ItemStackHelper.getDisplayName(itemStack);
+            }catch (Throwable e){
+                hookGuizhanLib=false;
+            }
+        }
+        return getDisplayName0(itemStack);
+    }
+    private static String getDisplayName0(ItemStack itemStack){
+        ItemMeta meta = itemStack.getItemMeta();
+        if(meta!=null && meta.hasDisplayName()){
+            return meta.getDisplayName();
+        }else{
+            return itemStack.getType().getKey().getKey();
+        }
     }
     /**
      * get Consumer for recipe Item

@@ -23,6 +23,9 @@ public interface MultiItemStack extends AbstractItemStack {
     static void getVoid(){
 
     }
+    default boolean canStackWithMatch(){
+        return true;
+    }
     InitializingTasks task=new InitializingTasks(()->{
         CraftUtils.registerCustomMatcher((stack1,stack2,strictCheck)->{
             if(stack1 instanceof MultiItemStack) {

@@ -26,6 +26,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -249,7 +250,10 @@ public class AddUtils {
 //        }
         return result;
     }
-
+    private static final List<Function<ItemStack,ItemStack>> copyFunctions = new ArrayList<>();
+    public static void registerItemCopy(Function<ItemStack,ItemStack> function){
+        copyFunctions.add(function);
+    }
     public static ItemStack getCopy(ItemStack stack){
         ItemStack result;
 //        if(stack instanceof AbstractItemStack abs){
@@ -257,9 +261,15 @@ public class AddUtils {
 //        }else
         if((result=resolveRandomizedItemStack(stack))!=null){
             return result;
-        }else {
+        }else{
+            ItemStack copied = Utils.computeTilPresent(stack, (Function<ItemStack, ItemStack>[]) copyFunctions.toArray(new Function[copyFunctions.size()]));
+            if(copied!=null){
+                return copied;
+            }
             return getCleaned(stack);
+
         }
+
     }
     public static ItemStack getCleaned(ItemStack stack){
         return stack==null?new ItemStack(Material.AIR): new CleanItemStack(stack);

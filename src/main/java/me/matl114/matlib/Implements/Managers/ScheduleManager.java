@@ -8,6 +8,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
@@ -16,6 +19,11 @@ public class ScheduleManager implements Manager {
     @Override
     public ScheduleManager init(Plugin pl, String... path) {
         plugin = pl;
+        new BukkitRunnable() {
+            public void run() {
+                runPostSetup();
+            }
+        }.runTaskLater(this.plugin,1);
         return this;
     }
 
@@ -28,6 +36,7 @@ public class ScheduleManager implements Manager {
     @Override
     public void deconstruct() {
     }
+
 
     @Getter
     private static ScheduleManager manager;
@@ -48,6 +57,14 @@ public class ScheduleManager implements Manager {
             launchScheduled(runnable,0,onMainThread,0);
         }
     }
+    private List<Runnable> postSetupTasks = new ArrayList<>();
+    public void addPostSetup(Runnable runnable){
+        postSetupTasks.add(runnable);
+    }
+    public void runPostSetup(){
+        postSetupTasks.forEach(Runnable::run);
+    }
+
     public <T extends Runnable> void launchScheduled(T r,int delayTick,boolean runSync,int periodTick){
         launchScheduled(ThreadUtils.getRunnable(r),delayTick,runSync,periodTick);
     }
