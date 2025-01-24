@@ -14,9 +14,10 @@ import java.util.List;
 
 public class SequenceCraftingOperation implements CustomMachineOperation {
     private ItemConsumer[] inputItems;
-    private MachineRecipe recipe;
-    private int tickPerSeq;
-    private int totalTicks;
+    @Getter
+    private final MachineRecipe recipe;
+    private final int tickPerSeq;
+    private final int totalTicks;
     private int currentTicks;
     private int currentSeqTicks;
     @Getter
@@ -39,7 +40,7 @@ public class SequenceCraftingOperation implements CustomMachineOperation {
         if(this.currentSeqTicks<this.tickPerSeq){
             this.currentSeqTicks+=var1;
         }
-        if(this.currentSeqTicks>=this.tickPerSeq&&this.inputItems[this.currentTicks].getAmount()<=0){
+        if(this.currentSeqTicks>=this.tickPerSeq&&this.currentTicks<this.totalTicks&&this.inputItems[this.currentTicks].getAmount()<=0){
             this.currentTicks += 1;
             this.currentSeqTicks=0;
         }

@@ -40,8 +40,7 @@ public class CraftUtils {
             }
         }
     }
-    private static final HashSet<Material> INDISTINGUISHABLE_MATERIALS = new HashSet<Material>() {{
-        //add(Material.SHULKER_BOX);
+    private static final HashSet<Material> INDISTINGUISHABLE_MATERIALS = new HashSet<>() {{
         add(Material.BUNDLE);
     }};
     public static final ItemStack DEFAULT_ITEMSTACK=new ItemStack(Material.STONE);
@@ -51,7 +50,7 @@ public class CraftUtils {
     public static final ItemMeta NULL_META=(DEFAULT_ITEMSTACK.getItemMeta());
     public static final Class CRAFTMETAITEMCLASS=NULL_META.getClass();
    // public static final Class ITEMSTACKCLASS=ItemStack.class;
-   private static final ItemStack CRAFTITEMSTACK = new InitializeSafeProvider<ItemStack>(ItemStack.class,()->{
+   private static final ItemStack CRAFTITEMSTACK = new InitializeSafeProvider<>(ItemStack.class,()->{
        try{
            Inventory a= Bukkit.createInventory(new InventoryHolder() {
                Inventory inv;
@@ -70,7 +69,7 @@ public class CraftUtils {
         return CRAFTITEMSTACK!=null ? CRAFTITEMSTACK.getClass() : null;
     }).v();
 
-    private static final FieldAccess loreAccess = new InitializeSafeProvider<FieldAccess>(FieldAccess.class,()->{
+    private static final FieldAccess loreAccess = new InitializeSafeProvider<>(FieldAccess.class,()->{
         try{
             var CRAFTLORE=CRAFTMETAITEMCLASS.getDeclaredField("lore");
             CRAFTLORE.setAccessible(true);
@@ -81,7 +80,7 @@ public class CraftUtils {
             return FieldAccess.ofFailure();
         }
     }).v();
-    private static final FieldAccess displayNameAccess =  new InitializeSafeProvider<FieldAccess>(FieldAccess.class,()->{
+    private static final FieldAccess displayNameAccess =  new InitializeSafeProvider<>(FieldAccess.class,()->{
         try{
             var CRAFTDISPLAYNAME=CRAFTMETAITEMCLASS.getDeclaredField("displayName");
             CRAFTDISPLAYNAME.setAccessible(true);
@@ -92,7 +91,7 @@ public class CraftUtils {
             return FieldAccess.ofFailure();
         }
     }).v();
-    private static FieldAccess handledAccess = new InitializeSafeProvider<FieldAccess>(FieldAccess.class,()->{
+    private static FieldAccess handledAccess = new InitializeSafeProvider<>(FieldAccess.class,()->{
         try{
             var CRAFTHANDLER=CRAFTITEMSTACKCLASS.getDeclaredField("handle");
             CRAFTHANDLER.setAccessible(true);
@@ -104,7 +103,7 @@ public class CraftUtils {
         }
     }).v();
    // public static Field CRAFTHANDLER;
-    private static final Class NMSITEMCLASS = new InitializeSafeProvider<Class>(Class.class,()->{
+    private static final Class NMSITEMCLASS = new InitializeSafeProvider<>(Class.class,()->{
 
        try {
            return (Class) handledAccess.getValue(CRAFTITEMSTACK).getClass() ;
@@ -125,7 +124,7 @@ public class CraftUtils {
     //don't use history record of crafting method
     //don't use parseSfId
     @Getter
-    private static final boolean hookSlimefun = new InitializeSafeProvider<Boolean>(Boolean.class,()->{
+    private static final boolean hookSlimefun = new InitializeSafeProvider<>(Boolean.class,()->{
         try{
             return io.github.thebusybiscuit.slimefun4.implementation.Slimefun.instance()!=null;
         }catch (Throwable e){
