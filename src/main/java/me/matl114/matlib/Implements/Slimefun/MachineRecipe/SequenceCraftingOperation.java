@@ -1,6 +1,7 @@
 package me.matl114.matlib.Implements.Slimefun.MachineRecipe;
 
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
+import lombok.Getter;
 import me.matl114.matlib.Utils.AddUtils;
 import me.matl114.matlib.Utils.CraftUtils;
 import me.matl114.matlib.Utils.ItemCache.ItemConsumer;
@@ -18,6 +19,8 @@ public class SequenceCraftingOperation implements CustomMachineOperation {
     private int totalTicks;
     private int currentTicks;
     private int currentSeqTicks;
+    @Getter
+    private int totalElapsed;
     public SequenceCraftingOperation(MachineRecipe recipe) {
         this.recipe = recipe;
         ItemStack[] stack=recipe.getInput();
@@ -29,9 +32,10 @@ public class SequenceCraftingOperation implements CustomMachineOperation {
         this.currentTicks = 0;
         this.tickPerSeq=recipe.getTicks();
         this.currentSeqTicks=0;
-
+        this.totalElapsed=0;
     }
     public void progress(int var1){
+        totalElapsed += 1;
         if(this.currentSeqTicks<this.tickPerSeq){
             this.currentSeqTicks+=var1;
         }

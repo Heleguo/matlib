@@ -20,11 +20,13 @@ public class CraftingOperationAdaptor<T extends MachineOperation>  extends Craft
         handle = operation;
     }
     //for slimehud display use
+    @Getter
     @Setter
     private int currentTick = 0 ;
     public int getProgress() {
         return this.currentTick;
     }
+    @Getter
     @Setter
     private int totalTick = 0 ;
     public int getTotalTicks() {
