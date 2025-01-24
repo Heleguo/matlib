@@ -1,9 +1,8 @@
-package me.matl114.matlib.Utils.Menu.MenuClickHandler;
+package me.matl114.matlib.Implements.Slimefun.Menu.MenuClickHandler;
 
 import io.github.thebusybiscuit.slimefun4.api.items.groups.FlexItemGroup;
 import io.github.thebusybiscuit.slimefun4.api.player.PlayerProfile;
 import io.github.thebusybiscuit.slimefun4.core.guide.SlimefunGuideMode;
-import me.matl114.matlib.Utils.Menu.MenuGroup.CustomMenuGroup;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ClickAction;
 import org.bukkit.entity.Player;

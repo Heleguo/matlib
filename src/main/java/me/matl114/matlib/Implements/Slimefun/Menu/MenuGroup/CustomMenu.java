@@ -1,4 +1,4 @@
-package me.matl114.matlib.Utils.Menu.MenuGroup;
+package me.matl114.matlib.Implements.Slimefun.Menu.MenuGroup;
 
 import lombok.Getter;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;

@@ -1,14 +1,14 @@
-package me.matl114.matlib.Utils.Menu;
+package me.matl114.matlib.Implements.Slimefun.Menu;
 
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
 import io.github.thebusybiscuit.slimefun4.utils.ChatUtils;
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
+import me.matl114.matlib.Implements.Slimefun.Menu.MenuGroup.CustomMenu;
+import me.matl114.matlib.Implements.Slimefun.Menu.MenuGroup.CustomMenuGroup;
 import me.matl114.matlib.Utils.AddUtils;
 import me.matl114.matlib.Utils.ItemCache.AbstractItemStack;
-import me.matl114.matlib.Utils.Menu.MenuGroup.CustomMenu;
-import me.matl114.matlib.Utils.Menu.MenuGroup.CustomMenuGroup;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.ChatColor;
@@ -103,7 +103,7 @@ public class MenuUtils {
         return  getSelector(filter,cm->clickCallback,cm->shiftClickCallback,objectIterator,iconGenerator);
     }
 
-    public static  <T extends Object> Pair<List<ItemStack>,List<CustomMenuGroup.CustomMenuClickHandler>> getSelector(String filter,Function< CustomMenu,BiConsumer<T, Player>> clickCallback,Function<CustomMenu, BiConsumer<T,Player>> shiftClickCallback, Iterator<Map.Entry<String,T>> objectIterator, Function<T,ItemStack> iconGenerator ){
+    public static  <T extends Object> Pair<List<ItemStack>,List<CustomMenuGroup.CustomMenuClickHandler>> getSelector(String filter, Function<CustomMenu,BiConsumer<T, Player>> clickCallback, Function<CustomMenu, BiConsumer<T,Player>> shiftClickCallback, Iterator<Map.Entry<String,T>> objectIterator, Function<T,ItemStack> iconGenerator ){
         List<ItemStack> itemlist=new ArrayList<>();
         List<CustomMenuGroup.CustomMenuClickHandler> handlerlist=new ArrayList<>();
         while(objectIterator.hasNext()){

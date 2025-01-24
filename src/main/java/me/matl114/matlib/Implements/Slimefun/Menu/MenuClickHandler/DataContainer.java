@@ -1,4 +1,4 @@
-package me.matl114.matlib.Utils.Menu.MenuClickHandler;
+package me.matl114.matlib.Implements.Slimefun.Menu.MenuClickHandler;
 
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ClickAction;

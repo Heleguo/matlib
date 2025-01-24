@@ -3,6 +3,7 @@ package me.matl114.matlib.Utils.Algorithm;
 import java.util.function.Supplier;
 
 public class InitializeSafeProvider  <T extends Object>{
+    boolean noError = true;
     T value;
     public InitializeSafeProvider(Class<T> clazz,Supplier<T> value) {
         this(ofSafe(value));
@@ -15,6 +16,7 @@ public class InitializeSafeProvider  <T extends Object>{
             value = provider.get();
         }catch (Throwable allUnhandledException ) {
             value=defaultValue;
+            noError = false;
         }
     }
     public T v(){
@@ -31,5 +33,17 @@ public class InitializeSafeProvider  <T extends Object>{
 //                return supplier.get();
 //            }
 //        };
+    }
+    public InitializeSafeProvider<T> runNonnullAndNoError(Runnable runnable){
+        if(noError&&value!=null) runnable.run();
+        return this;
+    }
+    public InitializeSafeProvider<T> runNullOrError(Runnable runnable){
+        if(!noError || value==null) runnable.run();
+        return this;
+    }
+    public InitializeSafeProvider<T> runError(Runnable runnable){
+        if(!noError) runnable.run();
+        return this;
     }
 }

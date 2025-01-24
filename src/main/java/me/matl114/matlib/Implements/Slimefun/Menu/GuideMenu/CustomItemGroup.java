@@ -1,4 +1,4 @@
-package me.matl114.matlib.Utils.Menu.GuideMenu;
+package me.matl114.matlib.Implements.Slimefun.Menu.GuideMenu;
 
 
 import city.norain.slimefun4.VaultIntegration;
@@ -9,7 +9,6 @@ import io.github.thebusybiscuit.slimefun4.api.player.PlayerProfile;
 import io.github.thebusybiscuit.slimefun4.api.researches.Research;
 import io.github.thebusybiscuit.slimefun4.core.guide.GuideHistory;
 import io.github.thebusybiscuit.slimefun4.core.guide.SlimefunGuide;
-import io.github.thebusybiscuit.slimefun4.core.guide.SlimefunGuideImplementation;
 import io.github.thebusybiscuit.slimefun4.core.guide.SlimefunGuideMode;
 import io.github.thebusybiscuit.slimefun4.core.multiblocks.MultiBlockMachine;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
@@ -18,11 +17,10 @@ import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.ItemUtils;
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
 import lombok.Getter;
-import lombok.Setter;
+import me.matl114.matlib.Implements.Slimefun.Menu.MenuClickHandler.GuideClickHandler;
+import me.matl114.matlib.Implements.Slimefun.Menu.MenuGroup.CustomMenuGroup;
 import me.matl114.matlib.Utils.AddUtils;
-import me.matl114.matlib.Utils.Menu.MenuClickHandler.GuideClickHandler;
-import me.matl114.matlib.Utils.Menu.MenuGroup.CustomMenuGroup;
-import me.matl114.matlib.Utils.Menu.MenuUtils;
+import me.matl114.matlib.Implements.Slimefun.Menu.MenuUtils;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.Reflect.MethodAccess;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
@@ -32,8 +30,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;

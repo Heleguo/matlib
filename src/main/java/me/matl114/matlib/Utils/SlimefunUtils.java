@@ -2,6 +2,7 @@ package me.matl114.matlib.Utils;
 
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
+import io.github.thebusybiscuit.slimefun4.core.attributes.DistinctiveItem;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.chat.ChatInput;
 import io.github.thebusybiscuit.slimefun4.utils.LoreBuilder;
@@ -12,6 +13,7 @@ import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecip
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -208,5 +210,14 @@ public class SlimefunUtils {
             return new CleanItemStack(Material.RED_STAINED_GLASS_PANE,"&a未发电",
                     "&7类型:&6 %s".formatted(type),"&7&7电量: &6%s/%sJ".formatted(FORMAT.format((double)charge),FORMAT.format((double)buffer)));
         }
+    }
+    public static Flags checkDistinctive(String id, ItemMeta meta1,ItemMeta meta2){
+        SlimefunItem it=SlimefunItem.getById(id);
+        //自动跳过当前附属的物品
+        //distinctive物品必须判断
+        if(it instanceof DistinctiveItem dt){
+            return dt.canStack(meta1,meta2)?Flags.ACCEPT:Flags.REJECT;
+        }
+        return Flags.IGNORED;
     }
 }

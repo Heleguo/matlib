@@ -1,10 +1,9 @@
 package me.matl114.matlib.Utils.ItemCache;
 
-import me.matl114.matlib.Utils.Menu.MenuUtils;
+import me.matl114.matlib.Implements.Slimefun.Menu.MenuUtils;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nonnull;
 

@@ -44,6 +44,11 @@ public class FieldAccess {
             return result==null?null:result.getA();
         }).printError(true);
     }
+    public static FieldAccess ofFailure(){
+        FieldAccess access = new FieldAccess(null);
+        access.failInitialization = true;
+        return access;
+    }
     public FieldAccess(Function<Object, Field> initFunction) {
         this.lazilyInitializationFunction =initFunction;
     }
@@ -92,6 +97,15 @@ public class FieldAccess {
         Preconditions.checkArgument(field!=null,"FieldAccess field not initialized!");
         return field.getDeclaringClass();
     }
+    public VarHandle getVarHandleOrDefault(Supplier<VarHandle> defa){
+        init(null);
+        return failHandle?defa.get():handle;
+    }
+    public VarHandle finalizeHandleOrDefault(Object initializeObject,Supplier<VarHandle> defa){
+        init(initializeObject);
+        return failHandle?defa.get():handle;
+    }
+
     public FieldAccess initWithNull(){
         init(null);
         return this;

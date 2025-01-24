@@ -1,26 +1,26 @@
 package me.matl114.matlib.Utils;
 
-import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
-import io.github.thebusybiscuit.slimefun4.core.attributes.DistinctiveItem;
-import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
-import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
-
-
+import lombok.Getter;
 import me.matl114.matlib.Implements.Managers.BlockDataCache;
-import me.matl114.matlib.Utils.Algorithm.DynamicArray;
+import me.matl114.matlib.Utils.Algorithm.*;
 import me.matl114.matlib.Utils.ItemCache.*;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.core.EnvironmentManager;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.invoke.VarHandle;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
@@ -44,61 +44,96 @@ public class CraftUtils {
         add(Material.BUNDLE);
     }};
     public static final ItemStack DEFAULT_ITEMSTACK=new ItemStack(Material.STONE);
+    private static final InitializingTasks INIT_TASK = new InitializingTasks(()->{
+        Debug.logger("Initializing CraftUtils...");
+    });
     public static final ItemMeta NULL_META=(DEFAULT_ITEMSTACK.getItemMeta());
     public static final Class CRAFTMETAITEMCLASS=NULL_META.getClass();
    // public static final Class ITEMSTACKCLASS=ItemStack.class;
-    public static Class CRAFTITEMSTACKCLASS;
-    public static ItemStack CRAFTITEMSTACK;
-    public static FieldAccess loreAccess;
-    public static FieldAccess displayNameAccess;
-    public static FieldAccess handledAccess;
-   // public static Field CRAFTHANDLER;
-    public static Class NMSITEMCLASS;
-    //public static Field ITEMSTACKMETA;
+   private static final ItemStack CRAFTITEMSTACK = new InitializeSafeProvider<ItemStack>(ItemStack.class,()->{
+       try{
+           Inventory a= Bukkit.createInventory(new InventoryHolder() {
+               Inventory inv;
+               @Override
+               public Inventory getInventory() {
+                   return inv;
+               }
+           }, InventoryType.CHEST);
+           a.setItem(0,DEFAULT_ITEMSTACK);
+           return a.getItem(0);
+       }catch (Throwable e){
+           return null;
+       }
+   }).v();
+    private static Class CRAFTITEMSTACKCLASS =  new InitializeProvider<Class>(()->{
+        return CRAFTITEMSTACK!=null ? CRAFTITEMSTACK.getClass() : null;
+    }).v();
 
-    static{
-        Debug.logger("Initializing CraftUtils...");
+    private static final FieldAccess loreAccess = new InitializeSafeProvider<FieldAccess>(FieldAccess.class,()->{
         try{
             var CRAFTLORE=CRAFTMETAITEMCLASS.getDeclaredField("lore");
             CRAFTLORE.setAccessible(true);
-            loreAccess=FieldAccess.of(CRAFTLORE);
+            return FieldAccess.of(CRAFTLORE);
+        }catch (Throwable e){
+            Debug.logger("Meta reflection failed,please check the error");
+            Debug.logger(e);
+            return FieldAccess.ofFailure();
+        }
+    }).v();
+    private static final FieldAccess displayNameAccess =  new InitializeSafeProvider<FieldAccess>(FieldAccess.class,()->{
+        try{
             var CRAFTDISPLAYNAME=CRAFTMETAITEMCLASS.getDeclaredField("displayName");
             CRAFTDISPLAYNAME.setAccessible(true);
-            displayNameAccess=FieldAccess.of(CRAFTDISPLAYNAME);
-
+            return FieldAccess.of(CRAFTDISPLAYNAME);
         }catch (Throwable e){
-            Debug.logger("Stack reflection failed,please check the error");
+            Debug.logger("Meta reflection failed,please check the error");
             Debug.logger(e);
-            Debug.logger("disabling the relavent features");
-
+            return FieldAccess.ofFailure();
         }
+    }).v();
+    private static FieldAccess handledAccess = new InitializeSafeProvider<FieldAccess>(FieldAccess.class,()->{
         try{
-            ChestMenu a=new ChestMenu("byd");
-            a.addItem(0,DEFAULT_ITEMSTACK);
-            CRAFTITEMSTACK=a.getItemInSlot(0);
-            CRAFTITEMSTACKCLASS=CRAFTITEMSTACK.getClass();
             var CRAFTHANDLER=CRAFTITEMSTACKCLASS.getDeclaredField("handle");
             CRAFTHANDLER.setAccessible(true);
-            handledAccess=FieldAccess.of(CRAFTHANDLER);
-
-            Object handle=CRAFTHANDLER.get(CRAFTITEMSTACK);
-            //Debug.debug(handle.getClass());
-            NMSITEMCLASS=handle.getClass();
-            //CRAFTMETA=NMSITEMCLASS.getDeclaredField("meta");
-//            Field[] fields= NMSITEMCLASS.getDeclaredFields();
-//            for(int i=0;i<fields.length;++i){
-//            }
-            //ITEMSTACKMETA=DEFAULT_ITEMSTACK.getClass().getDeclaredField("meta");
-            //ITEMSTACKMETA.setAccessible(true);
-            //INVOKE_STACK_SUCCESS=true;
-           // INVOKE_STACK_SUCCESS=false;
+            return FieldAccess.of(CRAFTHANDLER);
         }catch (Throwable e){
             Debug.logger("Stack reflection failed,please check the error");
             Debug.logger(e);
-            Debug.logger("disabling the relavent features");
-
+            return FieldAccess.ofFailure();
         }
-    }
+    }).v();
+   // public static Field CRAFTHANDLER;
+    private static final Class NMSITEMCLASS = new InitializeSafeProvider<Class>(Class.class,()->{
+
+       try {
+           return (Class) handledAccess.getValue(CRAFTITEMSTACK).getClass() ;
+       } catch (Throwable e) {
+           return null;
+       }
+    }).v();
+    private static final VarHandle loreHandle = new InitializeSafeProvider<>(()->{
+        return loreAccess.getVarHandleOrDefault(()->null);
+    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize lore VarHandle")).v();
+    private static final VarHandle displayNameHandle = new InitializeSafeProvider<>(()->{
+        return displayNameAccess.getVarHandleOrDefault(()->null);
+    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize displayName VarHandle")).v();
+
+
+
+    //when running without slimefun:
+    //don't use history record of crafting method
+    //don't use parseSfId
+    @Getter
+    private static final boolean hookSlimefun = new InitializeSafeProvider<Boolean>(Boolean.class,()->{
+        try{
+            return io.github.thebusybiscuit.slimefun4.implementation.Slimefun.instance()!=null;
+        }catch (Throwable e){
+            return false;
+        }
+    }).v();
+    private static final InitializingTasks INIT_TASK_FINISH = new InitializingTasks(()->{
+        Debug.logger("Successfully initialize CraftUtils...");
+    });
     public static void setup(){
 
     }
@@ -120,20 +155,24 @@ public class CraftUtils {
     }
     @Nullable
     public static String parseSfId(ItemStack item) {
-        Optional<String> itemID = Slimefun.getItemDataService().getItemData(item);
+        if(!hookSlimefun)return null;
+        Optional<String> itemID = io.github.thebusybiscuit.slimefun4.implementation.Slimefun.getItemDataService().getItemData(item);
         return  itemID.orElse(null) ;
     }
     public static String parseSfId(ItemMeta meta){
-        Optional<String> itemID = Slimefun.getItemDataService().getItemData(meta);
+        if(!hookSlimefun)return null;
+        Optional<String> itemID = io.github.thebusybiscuit.slimefun4.implementation.Slimefun.getItemDataService().getItemData(meta);
         return itemID.orElse(null);
     }
-    public static SlimefunItem parseSfItem(ItemMeta meta){
-        Optional<String> itemID = Slimefun.getItemDataService().getItemData(meta);
-        return itemID.map((id)->SlimefunItem.getById(id)).orElse(null);
+    public static io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem parseSfItem(ItemMeta meta){
+        if(!hookSlimefun)return null;
+        Optional<String> itemID = io.github.thebusybiscuit.slimefun4.implementation.Slimefun.getItemDataService().getItemData(meta);
+        return itemID.map(io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem::getById).orElse(null);
     }
-    public static SlimefunItem parseSfItem(ItemStack item){
-        Optional<String> itemID = Slimefun.getItemDataService().getItemData(item);
-        return itemID.map((id)->SlimefunItem.getById(id)).orElse(null);
+    public static io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem parseSfItem(ItemStack item){
+        if(!hookSlimefun)return null;
+        Optional<String> itemID = io.github.thebusybiscuit.slimefun4.implementation.Slimefun.getItemDataService().getItemData(item);
+        return itemID.map(io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem::getById).orElse(null);
     }
     /**
      * get Consumer for recipe Item
@@ -342,7 +381,7 @@ public class CraftUtils {
      * @return
      */
 
-    public static Pair<ItemConsumer[],ItemConsumer[]> countOneRecipe(BlockMenu inv,int[] input,int[] output,MachineRecipe recipe){
+    public static Pair<ItemConsumer[],ItemConsumer[]> countOneRecipe(BlockMenu inv, int[] input, int[] output, MachineRecipe recipe){
         return countOneRecipe(inv,input,output,recipe,getpusher);
     }
     public static Pair<ItemConsumer[],ItemConsumer[]> countOneRecipe(BlockMenu inv,int[] input,int[] output,MachineRecipe recipe,ItemPusherProvider pusher){
@@ -1212,22 +1251,22 @@ public class CraftUtils {
      }
      Pair<ItemGreedyConsumer[],ItemGreedyConsumer[]> tmp=countMultiRecipe(slotCounter,outPushers,checkRecipe,limit);
      if(tmp!=null) {
-     multiUpdateInputMenu(tmp.getFirstValue(),inv);
+     multiUpdateInputMenu(tmp.getA(),inv);
      if(useHistory) {
      AbstractMachines.setLastRecipe(inv.getLocation(),__iter);
      }
-     return new Pair<>(checkRecipe,tmp.getSecondValue());
+     return new Pair<>(checkRecipe,tmp.getB());
      }
      __iter+=delta;
      for(;__iter<recipeAmount&&__iter>=0;__iter+=delta){
      checkRecipe=recipes.get(__iter);
      tmp=countMultiRecipe(slotCounter,outPushers,checkRecipe,limit);
      if(tmp!=null) {
-     multiUpdateInputMenu(tmp.getFirstValue(),inv);
+     multiUpdateInputMenu(tmp.getA(),inv);
      if(useHistory) {
      AbstractMachines.setLastRecipe(inv.getLocation(),__iter);
      }
-     return new Pair<>(checkRecipe,tmp.getSecondValue());
+     return new Pair<>(checkRecipe,tmp.getB());
      }
      }
      if(__iter<0){
@@ -1239,11 +1278,11 @@ public class CraftUtils {
      checkRecipe=recipes.get(__iter);
      tmp=countMultiRecipe(slotCounter,outPushers,checkRecipe,limit);
      if(tmp!=null) {
-     multiUpdateInputMenu(tmp.getFirstValue(),inv);
+     multiUpdateInputMenu(tmp.getA(),inv);
      if(useHistory) {
      AbstractMachines.setLastRecipe(inv.getLocation(),__iter);
      }
-     return new Pair<>(checkRecipe,tmp.getSecondValue());
+     return new Pair<>(checkRecipe,tmp.getB());
      }
      }
      return null;
@@ -1530,6 +1569,16 @@ public class CraftUtils {
         if(INDISTINGUISHABLE_MATERIALS.contains(stack1.getType())){
             return false;
         }
+        //custommodeldata
+        final boolean hasCustomOne = meta1.hasCustomModelData();
+        final boolean hasCustomTwo = meta2.hasCustomModelData();
+        if (hasCustomOne) {
+            if (!hasCustomTwo || meta1.getCustomModelData() != meta2.getCustomModelData()) {
+                return false;
+            }
+        } else if (hasCustomTwo) {
+            return false;
+        }
 //        //match display name
 //        if(!(!meta1.hasDisplayName() || (meta1.getDisplayName().equals(meta2.getDisplayName())))) {
 //            return false;
@@ -1550,24 +1599,18 @@ public class CraftUtils {
         }
 
         //如果非严格并且是sfid物品比较
-        final Optional<String> optionalStackId1 = Slimefun.getItemDataService().getItemData(meta1);
-        final Optional<String> optionalStackId2 = Slimefun.getItemDataService().getItemData(meta2);
-        if (optionalStackId1.isPresent() != optionalStackId2.isPresent()) {
-            return false;
-        }
-        if (optionalStackId1.isPresent()) {
-            if(optionalStackId1.get().equals(optionalStackId2.get())) {
-                SlimefunItem it=SlimefunItem.getById(optionalStackId1.get());
-                //自动跳过当前附属的物品
-                //distinctive物品必须判断
-                if(it instanceof DistinctiveItem dt){
-                    return dt.canStack(meta1,meta2);
-                }
-                if(!strictCheck){
-                    return true;
-                }
-            }else if(!strictCheck){
-                return false;
+        final String stackId1 = parseSfId(meta1);
+        //final String stackId2 = parseSfId(meta2);
+
+        if (stackId1!=null) {
+            Flags distinctiveFlag = SlimefunUtils.checkDistinctive(stackId1,meta1,meta2);
+            switch (distinctiveFlag) {
+                case ACCEPT:return true;
+                case REJECT:return false;
+                default:
+            }
+            if(!strictCheck){
+                return true;
             }
         }
 
@@ -1596,16 +1639,7 @@ public class CraftUtils {
         if (!meta1.getEnchants().equals(meta2.getEnchants())) {
             return false;
         }
-        //custommodeldata
-        final boolean hasCustomOne = meta1.hasCustomModelData();
-        final boolean hasCustomTwo = meta2.hasCustomModelData();
-        if (hasCustomOne) {
-            if (!hasCustomTwo || meta1.getCustomModelData() != meta2.getCustomModelData()) {
-                return false;
-            }
-        } else if (hasCustomTwo) {
-            return false;
-        }
+
         final boolean hasAttributeOne = meta1.hasAttributeModifiers();
         final boolean hasAttributeTwo = meta2.hasAttributeModifiers();
         if (hasAttributeOne) {
@@ -1666,8 +1700,8 @@ public class CraftUtils {
 //            try{
 //                if(CraftMetaBlockState==null){
 //                    var field= ReflectUtils.getFieldsRecursively(meta1.getClass(),"blockEntityTag");
-//                    CraftMetaBlockState=field.getSecondValue();
-//                    blockEntityTag=field.getFirstValue();
+//                    CraftMetaBlockState=field.getB();
+//                    blockEntityTag=field.getA();
 //                    blockEntityTag.setAccessible(true);
 //                    Debug.debug(CraftMetaBlockState);
 //                    Debug.debug(blockEntityTag);

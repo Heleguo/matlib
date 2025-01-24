@@ -1,17 +1,15 @@
-package me.matl114.matlib.Utils.Menu.MenuGroup;
+package me.matl114.matlib.Implements.Slimefun.Menu.MenuGroup;
 
 import com.google.common.base.Preconditions;
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
 import lombok.Getter;
-import me.matl114.matlib.Utils.Menu.MenuUtils;
+import me.matl114.matlib.Implements.Slimefun.Menu.MenuUtils;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
-import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ClickAction;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;

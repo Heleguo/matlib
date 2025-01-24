@@ -1,4 +1,4 @@
-package me.matl114.matlib.Utils.Menu.GuideMenu;
+package me.matl114.matlib.Implements.Slimefun.Menu.GuideMenu;
 
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
 import org.bukkit.NamespacedKey;
