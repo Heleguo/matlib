@@ -40,9 +40,13 @@ public class SequenceCraftingOperation implements CustomMachineOperation {
         if(this.currentSeqTicks<this.tickPerSeq){
             this.currentSeqTicks+=var1;
         }
-        if(this.currentSeqTicks>=this.tickPerSeq&&this.currentTicks<this.totalTicks&&this.inputItems[this.currentTicks].getAmount()<=0){
-            this.currentTicks += 1;
-            this.currentSeqTicks=0;
+        if(this.currentSeqTicks>=this.tickPerSeq&&this.currentTicks<this.totalTicks){
+            var counter= this.inputItems[this.currentTicks];
+            if(counter==null||counter.getAmount()<=0){
+                this.currentTicks += 1;
+                this.currentSeqTicks=0;
+            }
+
         }
     }
 
