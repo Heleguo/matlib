@@ -104,7 +104,6 @@ public class CraftUtils {
     }).v();
    // public static Field CRAFTHANDLER;
     private static final Class NMSITEMCLASS = new InitializeSafeProvider<>(Class.class,()->{
-
        try {
            return (Class) handledAccess.getValue(CRAFTITEMSTACK).getClass() ;
        } catch (Throwable e) {
@@ -113,10 +112,10 @@ public class CraftUtils {
     }).v();
     private static final VarHandle loreHandle = new InitializeSafeProvider<>(()->{
         return loreAccess.getVarHandleOrDefault(()->null);
-    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize lore VarHandle")).v();
+    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize ItemMeta.lore VarHandle")).v();
     private static final VarHandle displayNameHandle = new InitializeSafeProvider<>(()->{
         return displayNameAccess.getVarHandleOrDefault(()->null);
-    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize displayName VarHandle")).v();
+    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize ItemMeta.displayName VarHandle")).v();
 
 
 

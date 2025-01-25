@@ -2,11 +2,13 @@ package me.matl114.matlib.Utils.Reflect;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
+import me.matl114.matlib.Utils.Algorithm.InitializeProvider;
 import me.matl114.matlib.Utils.Debug;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -46,6 +48,14 @@ public class MethodAccess<T extends Object> {
     }
     public static MethodAccess of(Method field){
         return new MethodAccess((obj)->field).printError(true);
+    }
+    private static final MethodAccess FAIL = new InitializeProvider<>(()->{
+        var access= new MethodAccess<>(null);
+        access.failInitialization=true;
+        return access;
+    }) .v();
+    public static MethodAccess ofFailure(){
+        return FAIL;
     }
     public <W extends Object> MethodAccess<W> forceCast(Class<W> clazz){
         if(this.field!=null)
@@ -106,6 +116,15 @@ public class MethodAccess<T extends Object> {
         init(null);
         return this;
     }
+    public MethodHandle getMethodHandleOrDefault(Supplier<MethodHandle> defa){
+        init(null);
+        return failHandle?defa.get():handle;
+    }
+    public MethodHandle finalizeHandleOrDefault(Object initializeObject,Supplier<MethodHandle> defa){
+        init(initializeObject);
+        return failHandle?defa.get():handle;
+    }
+
     private Object invokeUsingHandle(Object tar ,Object... obj) throws Throwable{
         if(!useHandle){
             throw new RuntimeException("Method Invoke using MethodHandle is not supported anyMore");

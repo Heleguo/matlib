@@ -3,6 +3,7 @@ package me.matl114.matlib.Utils.Reflect;
 import com.google.common.base.Preconditions;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
 import lombok.Getter;
+import me.matl114.matlib.Utils.Algorithm.InitializeProvider;
 import me.matl114.matlib.Utils.Debug;
 
 import java.lang.invoke.MethodHandles;
@@ -44,10 +45,13 @@ public class FieldAccess {
             return result==null?null:result.getA();
         }).printError(true);
     }
-    public static FieldAccess ofFailure(){
+    private static final FieldAccess FAIL= new InitializeProvider<>(()->{
         FieldAccess access = new FieldAccess(null);
         access.failInitialization = true;
         return access;
+    }).v();
+    public static FieldAccess ofFailure(){
+        return FAIL;
     }
     public FieldAccess(Function<Object, Field> initFunction) {
         this.lazilyInitializationFunction =initFunction;
@@ -274,6 +278,8 @@ public class FieldAccess {
             return false;
         }
     }
-
+    public String toString(){
+        return "FieldAccess{ "+ (failInitialization?"failed":(field==null?"null":field))+" }";
+    }
 
 }

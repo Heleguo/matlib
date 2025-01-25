@@ -30,7 +30,8 @@ public class Tests {
         System.out.println("Test: "+message);
     }
     AddonInitialization testMockAddon=new AddonInitialization(null,"Test").onEnable();
-
+    private static final FieldAccess testAccess = FieldAccess.ofName(TestClass.class, "d");
+    private static final VarHandle testHandle = testAccess.getVarHandleOrDefault(()->null);
     //@Test
     public void test_reflection() {
         if(true){
@@ -193,6 +194,15 @@ public class Tests {
                 "Y3RvckkACXRocmVzaG9sZHhwP0AAAAAAAAx3CAAAABAAAAABdAAWc2xpbWVmdW46c2xpbWVmdW5f\n" +
                 "aXRlbXQAD0xPR0lURUNIX0xQTEFURXg=\n"));
         log(value);
+    }
+    @Test
+    public void test_varHandle(){
+        Object object = new TestClass();
+        log("Test Handle");
+        log(testAccess);
+        log(testHandle);
+        testHandle.set(object,object);
+        log(testHandle.get(object));
     }
 
 }
