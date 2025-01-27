@@ -271,8 +271,9 @@ public class AddUtils {
         }
 
     }
+    //make it return org.bukkit.inventory.ItemStack
     public static ItemStack getCleaned(ItemStack stack){
-        return stack==null?new ItemStack(Material.AIR): new CleanItemStack(stack);
+        return stack==null?new ItemStack(Material.AIR): CleanItemStack.ofBukkitClean(stack);
     }
 
 

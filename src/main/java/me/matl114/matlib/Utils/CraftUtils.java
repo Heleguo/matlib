@@ -1527,14 +1527,24 @@ public class CraftUtils {
         }
         return null;
     }
-    /**
-     *
-     * @param counter1
-     * @param counter2
-     * @param strictCheck
-     * @return
-     */
 
+    public static boolean amountLargerThan(ItemStack thisItem,ItemStack thatItem){
+        if(thisItem==null||thatItem==null){
+            return thisItem==thatItem;
+        }else{
+            return thisItem.getAmount()>=thatItem.getAmount();
+        }
+    }
+    public static void consumeThat(ItemStack thisItem,ItemStack thatItem){
+        if(thisItem!=null&&thatItem!=null){
+            thatItem.setAmount(thatItem.getAmount()-thisItem.getAmount());
+        }
+    }
+    public static void consumeThat(int amount ,ItemStack thatItem){
+        if(thatItem!=null){
+            thatItem.setAmount(thatItem.getAmount()-amount);
+        }
+    }
     public static boolean matchItemCounter(ItemCounter counter1, ItemCounter counter2, boolean strictCheck){
         return matchItemCore(counter1,counter2,strictCheck);
     }

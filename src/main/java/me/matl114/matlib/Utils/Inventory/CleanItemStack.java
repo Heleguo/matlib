@@ -32,6 +32,22 @@ public class CleanItemStack extends ItemStack {
             return meta1;
         });
     }
+    public static ItemStack ofBukkitClean(ItemStack itemStackRaw){
+        if(itemStackRaw==null){
+            return null;
+        }
+        var item = new ItemStack(itemStackRaw.getType(),itemStackRaw.getAmount());
+        item.setItemMeta(itemStackRaw.getItemMeta());
+        return item;
+    }
+    //upper than 1.21
+//    public ItemStack ofCraftCopy(){
+//        return this.clone();
+//    }
+    //upper than 1.21
+//    public ItemStack ofCraftItem(){
+//
+//    }
 
     public CleanItemStack(Material material,int amount, String name, String... lore) {
         this(material,amount, (im) -> {
