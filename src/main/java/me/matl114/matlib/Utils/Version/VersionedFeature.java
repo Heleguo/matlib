@@ -10,6 +10,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.UUID;
 
@@ -26,5 +27,6 @@ public interface VersionedFeature {
     public boolean setAttributeModifierValue(AttributeModifier modifier, double value);
     public UUID getAttributeModifierUid(AttributeModifier modifier);
     public EquipmentSlot getAttributeModifierSlot(AttributeModifier modifier);
-    boolean matchBlockStateMeta(BlockStateMeta meta1,BlockStateMeta meta2);
+    public boolean matchBlockStateMeta(BlockStateMeta meta1,BlockStateMeta meta2);
+    public PotionEffectType getPotionEffectType(String key);
 }

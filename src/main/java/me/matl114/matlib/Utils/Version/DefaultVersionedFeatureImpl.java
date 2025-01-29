@@ -5,6 +5,7 @@ import me.matl114.matlib.Utils.CraftUtils;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.WorldUtils;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -15,6 +16,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.loot.LootTable;
 import org.bukkit.loot.LootTables;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
 
@@ -24,8 +26,8 @@ public class DefaultVersionedFeatureImpl implements VersionedFeature{
     public DefaultVersionedFeatureImpl() {
 
     }
-    protected HashMap<String,String> remappingEnchantId=new HashMap<>();
-    protected EnumSet<Material> blockItemWithDifferentId=EnumSet.noneOf(Material.class);
+    protected final HashMap<String,String> remappingEnchantId=new HashMap<>();
+    protected final EnumSet<Material> blockItemWithDifferentId=EnumSet.noneOf(Material.class);
 
     @Override
     public Enchantment getEnchantment(String name) {
@@ -84,7 +86,7 @@ public class DefaultVersionedFeatureImpl implements VersionedFeature{
     }
 
 
-    protected HashMap<String,String> remappingMaterialId=new HashMap<>();
+    protected final HashMap<String,String> remappingMaterialId=new HashMap<>();
     public Material getMaterial(String name) {
         return Material.getMaterial(remappingMaterialId.getOrDefault(name,name));
     }
@@ -92,7 +94,7 @@ public class DefaultVersionedFeatureImpl implements VersionedFeature{
     public boolean copyBlockStateTo(BlockState state1, Block target){
         return WorldUtils.copyBlockState(state1,target);
     }
-    protected HashMap<String,String> remappingEntityId=new HashMap<>();
+    protected final HashMap<String,String> remappingEntityId=new HashMap<>();
     public EntityType getEntityType(String name){
         name=name.toLowerCase(Locale.ROOT);
         return EntityType.fromName(remappingEntityId.getOrDefault(name,name));
@@ -339,5 +341,18 @@ public class DefaultVersionedFeatureImpl implements VersionedFeature{
 //        .ofAccess(meta1).computeIf((b)->{
 //            return Objects.equals(b, blockEntityTagAccess.ofAccess(meta2).getRawOrDefault(()->null));
 //        },()->meta1.equals(meta2));
+    }
+    protected final HashMap<NamespacedKey,NamespacedKey> remappingPotionEffect = new HashMap<>();
+    protected PotionEffectType getPotionEffectByNSK(NamespacedKey key){
+        return PotionEffectType.getByKey(remappingPotionEffect.getOrDefault(key,key));
+    }
+    public PotionEffectType getPotionEffectType(String key){
+        String[] splited=key.split(":");
+        if(splited.length==2){
+            return getPotionEffectByNSK(new NamespacedKey(splited[0],splited[1]));
+        }else{
+            return getPotionEffectByNSK(NamespacedKey.minecraft(key));
+        }
+
     }
 }
