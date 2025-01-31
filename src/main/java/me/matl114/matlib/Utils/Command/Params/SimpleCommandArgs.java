@@ -3,6 +3,7 @@ package me.matl114.matlib.Utils.Command.Params;
 import lombok.Getter;
 import lombok.Setter;
 import me.matl114.matlib.Utils.Algorithm.Pair;
+import me.matl114.matlib.Utils.Debug;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -59,30 +60,36 @@ public class SimpleCommandArgs {
             String arg=iter.next();
             if(arg.startsWith("-")){
                 Argument selected=null;
+                String trueName = arg.replaceFirst("^-+","");
                 for(Argument a:args){
-                    if(a.isAlias(arg)){
+                    if(a.isAlias(trueName)){
                         selected=a;
                         break;
                     }
                 }
                 if(selected!=null){
-                    if(iter.hasNext()){
-                        String arg2=iter.next();
+                    if(arg.startsWith("--")){
+                        // --args inputValue
+                        if(iter.hasNext()){
+                            String arg2=iter.next();
 
-                        argsMap.put(selected,arg2);
-                    }else {
-                        //你这跟人机一样，在最后一个加参数 直接跳
+                            argsMap.put(selected,arg2);
+                        }
+                    }else{
+                        //-f -v means boolean
+                        argsMap.put(selected,"true");
                     }
+
                 }
                 else {
                     //输入了一个无效参数 加入commonArgs
                     commonArgs.add(arg);
                 }
-            }else {
+            }
+            else {
                 commonArgs.add(arg);
             }
         }
-
         for(Argument a:args){
             if(!argsMap.containsKey(a)){
                 if(!commonArgs.isEmpty()){

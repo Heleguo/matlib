@@ -189,7 +189,9 @@ public class Tests {
         var result = comomand.testCommand.parseInput(new String[]{"1"}).getA();
         log(result.nextArg());
         log(result.nextArg());
-
+        result = comomand.testCommand.parseInput(new String[]{"--operation","3","-arg1"}).getA();
+        log(result.nextArg());
+        log(result.nextArg());
     }
 
 
