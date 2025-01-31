@@ -1,5 +1,7 @@
 package me.matl114.matlib.Utils.Command.Params;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.matl114.matlib.Utils.Algorithm.Pair;
 
 import java.util.*;
@@ -7,9 +9,12 @@ import java.util.function.Supplier;
 
 public class SimpleCommandArgs {
     public static class Argument implements TabProvider{
-        public String argsName;
+        @Getter
+        private final String argsName;
         public HashSet<String> argsAlias;
-        public String defaultValue=null;
+        @Getter
+        @Setter
+        private String defaultValue=null;
         public Supplier<List<String>> tabCompletor=null;
         public Argument(String argsName){
             this.argsName = argsName;
@@ -82,8 +87,6 @@ public class SimpleCommandArgs {
             if(!argsMap.containsKey(a)){
                 if(!commonArgs.isEmpty()){
                     argsMap.put(a,commonArgs.remove(0));
-                }else{
-                    argsMap.put(a,null);
                 }
             }
         }
@@ -93,7 +96,7 @@ public class SimpleCommandArgs {
             public String nextArg() {
                 if(iter.hasNext()){
                     Argument a= iter.next();
-                    return argsMap.getOrDefault(a,a.defaultValue);
+                    return argsMap.computeIfAbsent(a,Argument::getDefaultValue);
                 }else {
                     throw new RuntimeException("there is no next argument in your command definition!");
                 }

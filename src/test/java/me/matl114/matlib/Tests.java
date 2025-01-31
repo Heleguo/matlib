@@ -4,6 +4,9 @@ import io.github.thebusybiscuit.slimefun4.libraries.commons.lang.Validate;
 import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
 import me.matl114.matlib.Utils.Algorithm.Pair;
 import me.matl114.matlib.Utils.Algorithm.Triplet;
+import me.matl114.matlib.Utils.Command.CommandGroup.AbstractMainCommand;
+import me.matl114.matlib.Utils.Command.CommandGroup.SubCommand;
+import me.matl114.matlib.Utils.Command.Params.SimpleCommandArgs;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.Reflect.MethodAccess;
@@ -23,6 +26,7 @@ import java.lang.invoke.VarHandle;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class Tests {
@@ -169,32 +173,7 @@ public class Tests {
         String a= ChatColor.GREEN + StrUtil.oooooo("惜歘坜佄畜") + "PlayerTasks" + StrUtil.oooooo1("掣二盵儷赈爲]跿辶杺奖什攁阪則斚沤纝纜伅留");
         log(a);
     }
-    @Test
-    public void test_base64(){
-        String value =new String(Base64Coder.decodeLines("rO0ABXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFwdAAPTGph\n" +
-                "dmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFibGVNYXAk\n" +
-                "U2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAkwABGtleXN0ABJMamF2YS9sYW5nL09iamVjdDtMAAZ2\n" +
-                "YWx1ZXNxAH4ABHhwdXIAE1tMamF2YS5sYW5nLk9iamVjdDuQzlifEHMpbAIAAHhwAAAABHQAAj09\n" +
-                "dAABdnQABHR5cGV0AARtZXRhdXEAfgAGAAAABHQAHm9yZy5idWtraXQuaW52ZW50b3J5Lkl0ZW1T\n" +
-                "dGFja3NyABFqYXZhLmxhbmcuSW50ZWdlchLioKT3gYc4AgABSQAFdmFsdWV4cgAQamF2YS5sYW5n\n" +
-                "Lk51bWJlcoaslR0LlOCLAgAAeHAAAA2JdAAFUEFQRVJzcQB+AABzcQB+AAN1cQB+AAYAAAAFcQB+\n" +
-                "AAh0AAltZXRhLXR5cGV0AAxkaXNwbGF5LW5hbWV0AARsb3JldAASUHVibGljQnVra2l0VmFsdWVz\n" +
-                "dXEAfgAGAAAABXQACEl0ZW1NZXRhdAAKVU5TUEVDSUZJQ3QAmnsiZXh0cmEiOlt7ImJvbGQiOmZh\n" +
-                "bHNlLCJpdGFsaWMiOmZhbHNlLCJ1bmRlcmxpbmVkIjpmYWxzZSwic3RyaWtldGhyb3VnaCI6ZmFs\n" +
-                "c2UsIm9iZnVzY2F0ZWQiOmZhbHNlLCJjb2xvciI6IiNFQjMzRUIiLCJ0ZXh0Ijoi6Jav54mH5ZCI\n" +
-                "6YeR5p2/In1dLCJ0ZXh0IjoiIn1zcgA2Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFi\n" +
-                "bGVMaXN0JFNlcmlhbGl6ZWRGb3JtAAAAAAAAAAACAAFbAAhlbGVtZW50c3QAE1tMamF2YS9sYW5n\n" +
-                "L09iamVjdDt4cHVxAH4ABgAAAAJ0AJ17ImV4dHJhIjpbeyJib2xkIjpmYWxzZSwiaXRhbGljIjpm\n" +
-                "YWxzZSwidW5kZXJsaW5lZCI6ZmFsc2UsInN0cmlrZXRocm91Z2giOmZhbHNlLCJvYmZ1c2NhdGVk\n" +
-                "IjpmYWxzZSwiY29sb3IiOiJncmF5IiwidGV4dCI6IuespuWQiOmAu+i+keeahOmFjeaWuSJ9XSwi\n" +
-                "dGV4dCI6IiJ9dACveyJleHRyYSI6W3siYm9sZCI6ZmFsc2UsIml0YWxpYyI6ZmFsc2UsInVuZGVy\n" +
-                "bGluZWQiOmZhbHNlLCJzdHJpa2V0aHJvdWdoIjpmYWxzZSwib2JmdXNjYXRlZCI6ZmFsc2UsImNv\n" +
-                "bG9yIjoiZ3JheSIsInRleHQiOiLorqnku5blub/ms5vnlKjkuo7lkITnp43pgLvovpHmnLrlmajk\n" +
-                "uK0ifV0sInRleHQiOiIifXNyABFqYXZhLnV0aWwuSGFzaE1hcAUH2sHDFmDRAwACRgAKbG9hZEZh\n" +
-                "Y3RvckkACXRocmVzaG9sZHhwP0AAAAAAAAx3CAAAABAAAAABdAAWc2xpbWVmdW46c2xpbWVmdW5f\n" +
-                "aXRlbXQAD0xPR0lURUNIX0xQTEFURXg=\n"));
-        log(value);
-    }
+//
     @Test
     public void test_varHandle(){
         Object object = new TestClass();
@@ -204,5 +183,28 @@ public class Tests {
         testHandle.set(object,object);
         log(testHandle.get(object));
     }
+    @Test
+    public void test_coommandUtils(){
+        TestComomand comomand = new TestComomand();
+        var result = comomand.testCommand.parseInput(new String[]{"1"}).getA();
+        log(result.nextArg());
+        log(result.nextArg());
 
+    }
+
+
+}
+class TestComomand extends AbstractMainCommand {
+    @Override
+    public String permissionRequired() {
+        return null;
+    }
+
+    public SubCommand mainCommand = new SubCommand("test",new SimpleCommandArgs("_operation"))
+            .setTabCompletor("_operation",()->this.getSubCommands().stream().map(SubCommand::getName).toList());
+    public SubCommand testCommand = new SubCommand("argument",new SimpleCommandArgs("arg1","operation"))
+            .setTabCompletor("arg1", ()->List.of("1"))
+            .setDefault("operation","2")
+            .setTabCompletor("arg2", ()->List.of("2"))
+            .register(this);
 }
