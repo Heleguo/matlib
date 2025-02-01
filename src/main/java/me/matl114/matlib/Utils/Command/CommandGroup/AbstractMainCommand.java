@@ -2,6 +2,7 @@ package me.matl114.matlib.Utils.Command.CommandGroup;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
+import me.matl114.matlib.Utils.Command.Params.SimpleCommandArgs;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -123,5 +124,8 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor {
             }
             return null;
         }
+    }
+    public SimpleCommandArgs genArgument(String... args){
+        return new SimpleCommandArgs(args);
     }
 }

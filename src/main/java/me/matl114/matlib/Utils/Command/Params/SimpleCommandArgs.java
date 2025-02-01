@@ -117,7 +117,7 @@ public class SimpleCommandArgs {
                         final int index=i-1;
                         List<String> tablist=args[index].tabCompletor.get();
                         tablist=tablist==null?List.of():tablist;
-                        return tablist.stream().filter(s->s.startsWith(argsMap.get(args[index]))).toList();
+                        return tablist.stream().filter(s->s.contains(argsMap.get(args[index]))).toList();
                     }
                 }
                 return null;

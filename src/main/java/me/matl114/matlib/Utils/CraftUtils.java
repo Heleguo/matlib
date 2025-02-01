@@ -1679,7 +1679,12 @@ public class CraftUtils {
         }
         return true;
     }
-    public static boolean matchLoreField(ItemMeta meta1, ItemMeta meta2){
+    public static boolean matchLoreField(@Nonnull ItemMeta meta1, @Nonnull ItemMeta meta2){
+        if(loreHandle!=null){
+            try{
+                return Objects.equals(loreHandle.get(meta1),loreHandle.get(meta2));
+            }catch (Throwable unexpected){}
+        }
         return loreAccess.compareFieldOrDefault(meta1,meta2,()->matchLore(meta1.getLore(),meta2.getLore(),false));
 
 //        try{
@@ -1708,6 +1713,11 @@ public class CraftUtils {
 //
 //    }
     public static boolean matchDisplayNameField(ItemMeta meta1, ItemMeta meta2){
+        if(displayNameHandle!=null){
+            try{
+                return Objects.equals(displayNameHandle.get(meta1),displayNameHandle.get(meta2));
+            }catch (Throwable unexpected){}
+        }
         return displayNameAccess.compareFieldOrDefault(meta1,meta2,()->Objects.equals(meta1.getDisplayName(),meta2.getDisplayName()));
 //        try{
 //            Object name1=(CRAFTDISPLAYNAME.get(meta1));
