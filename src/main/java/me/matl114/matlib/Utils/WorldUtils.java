@@ -64,7 +64,7 @@ public class WorldUtils {
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize Blockstate.weakWorld VarHandle")).v();
     private static final boolean handleBlockStateSuccess = positionHandle!=null&&worldHandle!=null&&weakWorldHandle!=null;
 
-    public static boolean copyBlockState(BlockState state, Block block2){
+    public static BlockState copyBlockState(BlockState state, Block block2){
         if(invokeBlockStateSuccess){
             BlockState state2=block2.getState();
             if(craftBlockStateClass.isInstance(state2)&&craftBlockStateClass.isInstance(state)){
@@ -74,7 +74,7 @@ public class WorldUtils {
                         worldHandle.set(state,worldHandle.get(state2));
                         weakWorldHandle.set(state,weakWorldHandle.get(state2));
                         state.update(true,false);
-                        return true;
+                        return state;
                     }catch (Throwable unexpected){}
                 }
                 try{
@@ -83,12 +83,12 @@ public class WorldUtils {
                     worldFieldAccess.ofAccess(state).set(worldFieldAccess.getValue(state2));
                     weakWorldFieldAccess.ofAccess(state).set(weakWorldFieldAccess.getValue(state2));
                     state.update(true,false);
-                    return true;
+                    return state;
                 }catch (Throwable e){
-                    return false;
+                    return null;
                 }
-            }else return false;
-        }else return false;
+            }else return null;
+        }else return null;
     }
 
     private static final MethodAccess<?> getStateNoSnapshotAccess = new InitializeSafeProvider<>(MethodAccess.class,()->{

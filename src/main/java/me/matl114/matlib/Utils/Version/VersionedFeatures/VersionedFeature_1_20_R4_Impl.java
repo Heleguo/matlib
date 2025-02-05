@@ -26,10 +26,11 @@ public class VersionedFeature_1_20_R4_Impl extends VersionedFeature_1_20_R3_Impl
     public boolean comparePotionType(PotionMeta instanceOne, PotionMeta instanceTwo){
         return instanceOne.getBasePotionType() == instanceTwo.getBasePotionType();
     }
-    public boolean copyBlockStateTo(BlockState state1, Block target){
+    public BlockState copyBlockStateTo(BlockState state1, Block target){
         try{
-            state1.copy(target.getLocation()).update(true,false);
-            return true;
+            BlockState newBlockStae = state1.copy(target.getLocation());
+            newBlockStae.update(true,false);
+            return newBlockStae;
         }catch(Throwable e){
             return super.copyBlockStateTo( state1, target );
         }

@@ -91,7 +91,7 @@ public class DefaultVersionedFeatureImpl implements VersionedFeature{
         return Material.getMaterial(remappingMaterialId.getOrDefault(name,name));
     }
 
-    public boolean copyBlockStateTo(BlockState state1, Block target){
+    public BlockState copyBlockStateTo(BlockState state1, Block target){
         return WorldUtils.copyBlockState(state1,target);
     }
     protected final HashMap<String,String> remappingEntityId=new HashMap<>();

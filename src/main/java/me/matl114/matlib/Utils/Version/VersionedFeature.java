@@ -19,7 +19,7 @@ public interface VersionedFeature {
     public Enchantment getEnchantment(String name);
     public Material getMaterial(String name);
     public boolean comparePotionMeta(PotionMeta meta1,PotionMeta meta2);
-    public boolean copyBlockStateTo(BlockState state1, Block block);
+    public BlockState copyBlockStateTo(BlockState state1, Block block);
     public boolean differentSpecialMeta(ItemMeta meta1, ItemMeta meta2);
     public EntityType getEntityType(String name);
     public AttributeModifier createAttributeModifier(UUID uuid, String name, double amount, AttributeModifier.Operation operation, EquipmentSlot slot);

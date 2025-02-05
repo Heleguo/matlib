@@ -7,6 +7,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public interface DataContainer extends ChestMenu.MenuClickHandler {
+    default boolean getStatue(){
+        return false;
+    }
+    default void setStatue(boolean statue){
+
+    }
     default int getInt(int val){
         return 0;
     }
