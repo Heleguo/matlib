@@ -1724,7 +1724,7 @@ public class CraftUtils {
             try{
                 return Objects.equals(displayNameHandle.get(meta1),displayNameHandle.get(meta2));
             }catch (Throwable unexpected){
-                Debug.debug
+                Debug.debug(unexpected);
             }
         }
         return displayNameAccess.compareFieldOrDefault(meta1,meta2,()->Objects.equals(meta1.getDisplayName(),meta2.getDisplayName()));

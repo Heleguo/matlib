@@ -37,6 +37,11 @@ public class Debug {
 
         return breakPoints[i];
     }
+    public static void debug(Throwable debug){
+        if(debugMod){
+            logger(debug);
+        }
+    }
     public static void debug(Object debug){
         if(debugMod){
             logger(debug);
