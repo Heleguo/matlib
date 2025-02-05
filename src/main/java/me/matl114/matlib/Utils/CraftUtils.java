@@ -91,7 +91,7 @@ public class CraftUtils {
             return FieldAccess.ofFailure();
         }
     }).v();
-    private static FieldAccess handledAccess = new InitializeSafeProvider<>(FieldAccess.class,()->{
+    private static final FieldAccess handledAccess = new InitializeSafeProvider<>(FieldAccess.class,()->{
         try{
             var CRAFTHANDLER=CRAFTITEMSTACKCLASS.getDeclaredField("handle");
             CRAFTHANDLER.setAccessible(true);
@@ -112,10 +112,13 @@ public class CraftUtils {
     }).v();
     private static final VarHandle loreHandle = new InitializeSafeProvider<>(()->{
         return loreAccess.getVarHandleOrDefault(()->null);
-    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize ItemMeta.lore VarHandle")).v();
+    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftMetaItem.lore VarHandle")).v();
     private static final VarHandle displayNameHandle = new InitializeSafeProvider<>(()->{
         return displayNameAccess.getVarHandleOrDefault(()->null);
-    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize ItemMeta.displayName VarHandle")).v();
+    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftMetaItem.displayName VarHandle")).v();
+    private static final VarHandle handleHandle = new InitializeSafeProvider<>(()->{
+        return handledAccess.getVarHandleOrDefault(()->null);
+    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftItemStack.handle VarHandle")).v();
 
 
 
@@ -147,7 +150,10 @@ public class CraftUtils {
     public static boolean sameCraftItem(ItemStack a, ItemStack b){
         if(CRAFTITEMSTACKCLASS.isInstance(a)&&CRAFTITEMSTACKCLASS.isInstance(b)){
             try{
-                return  handledAccess.getValue(a)==handledAccess.getValue(b);
+                if (handleHandle!=null){
+                    return handleHandle.get(a) == handleHandle.get(b);
+                }
+                return  handledAccess.getValue(a) == handledAccess.getValue(b);
             }catch (Throwable e){
                 return false;
             }
@@ -1683,7 +1689,8 @@ public class CraftUtils {
         if(loreHandle!=null){
             try{
                 return Objects.equals(loreHandle.get(meta1),loreHandle.get(meta2));
-            }catch (Throwable unexpected){}
+            }catch (Throwable unexpected){
+            }
         }
         return loreAccess.compareFieldOrDefault(meta1,meta2,()->matchLore(meta1.getLore(),meta2.getLore(),false));
 

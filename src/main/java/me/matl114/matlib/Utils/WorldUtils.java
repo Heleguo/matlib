@@ -1,6 +1,7 @@
 package me.matl114.matlib.Utils;
 
 import com.google.errorprone.annotations.Var;
+import io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib;
 import me.matl114.matlib.Utils.Algorithm.InitializeProvider;
 import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
@@ -90,7 +91,13 @@ public class WorldUtils {
             }else return null;
         }else return null;
     }
-
+    private static final boolean hasPaperLib = new InitializeProvider<>(()->{
+        try{
+            return PaperLib.isPaper();
+        }catch(Throwable unexpected){
+            return false;
+        }
+    }).v();
     private static final MethodAccess<?> getStateNoSnapshotAccess = new InitializeSafeProvider<>(MethodAccess.class,()->{
         try {
             return MethodAccess.of( Block.class.getDeclaredMethod("getState",boolean.class) );
@@ -104,6 +111,9 @@ public class WorldUtils {
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize Blockstate.getState MethodHandle")).v();
 
     public static BlockState getBlockStateNoSnapShot(Block block){
+        if(hasPaperLib){
+            return PaperLib.getBlockState(block,false).getState();
+        }
         if(getStateNoSnapshotHandle!=null){
             try{
                 return (BlockState)getStateNoSnapshotHandle.invokeExact(block,false);
