@@ -142,7 +142,7 @@ public class CraftUtils {
     }
 
     /**
-     * if item a and item b both craftItemStack check if handled item match
+     * if item a and item b both craftItemStack ,check if they have same handled NMSItemStack
      * @param a
      * @param b
      * @return
