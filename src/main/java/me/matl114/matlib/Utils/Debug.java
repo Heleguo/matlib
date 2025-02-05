@@ -1,5 +1,8 @@
 package me.matl114.matlib.Utils;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -14,7 +17,9 @@ public class Debug {
     public static Logger testlog=Logger.getLogger("TEST");
     public static boolean start=false;
     public static boolean pos=false;
-
+    @Getter
+    @Setter
+    private static boolean debugMod=false;
     public static AtomicBoolean[] breakPoints=null;
     public static Object[] breakValues=null;
     public static AtomicBoolean[] setValues=null;
@@ -31,6 +36,16 @@ public class Debug {
         }
 
         return breakPoints[i];
+    }
+    public static void debug(Object debug){
+        if(debugMod){
+            logger(debug);
+        }
+    }
+    public static void debug(Object... debug){
+        if(debugMod){
+            logger(debug);
+        }
     }
     public static void setBreakPoint(int i, boolean b){
         synchronized(lock){
