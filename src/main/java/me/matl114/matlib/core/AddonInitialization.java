@@ -8,6 +8,7 @@ import me.matl114.matlib.Utils.AddUtils;
 import me.matl114.matlib.Utils.ConfigLoader;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.PersistentDataContainer.PdcTypes;
+import me.matl114.matlib.Utils.Slimefun.SlimefunSetup;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.plugin.Plugin;
 
@@ -45,7 +46,7 @@ public class AddonInitialization {
         this.environment = this.util.getEnvironment();
 
         if(plugin!=null){
-
+            SlimefunSetup.init();
             //core
             this.registries=new CustomRegistries().init(plugin);
             //datas
