@@ -1,5 +1,7 @@
 package me.matl114.matlib.Utils.Version.VersionedFeatures;
 
+import com.google.common.base.Preconditions;
+import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.Version.Version;
 import org.bukkit.NamespacedKey;
@@ -16,6 +18,11 @@ public class VersionedFeature_1_21_R1_Impl extends VersionedFeature_1_20_R4_Impl
     public VersionedFeature_1_21_R1_Impl() {
         this.version= Version.v1_21_R1;
     }
+    private static final boolean hasShieldMeta = new InitializeSafeProvider<>(()->{
+        Class<?> testClass = ShieldMeta.class;
+        Preconditions.checkArgument(testClass.isInterface());
+        return true;
+    }).v();
     @Override
     public boolean differentSpecialMeta(ItemMeta metaOne, ItemMeta metaTwo) {
         if (metaOne.hasJukeboxPlayable() && metaTwo.hasJukeboxPlayable()) {
@@ -38,22 +45,21 @@ public class VersionedFeature_1_21_R1_Impl extends VersionedFeature_1_20_R4_Impl
             }
         }
         // Shield
-        if (metaOne instanceof ShieldMeta instanceOne && metaTwo instanceof ShieldMeta instanceTwo) {
+        if (hasShieldMeta && metaOne instanceof ShieldMeta instanceOne && metaTwo instanceof ShieldMeta instanceTwo) {
             if (Objects.equals(instanceOne.getBaseColor(), instanceTwo.getBaseColor())) {
                 return true;
             }
         }
         return false;
     }
-    private static FieldAccess shieldBannerAccess=FieldAccess.ofName("banner");
      public boolean matchBlockStateMeta(BlockStateMeta meta1, BlockStateMeta meta2){
         if(meta1.getClass()!=meta2.getClass()){
             return false;
         }
-        if(meta1 instanceof ShieldMeta meta11 && meta2 instanceof ShieldMeta meta22){
+        if(hasShieldMeta && (meta1 instanceof ShieldMeta meta11 && meta2 instanceof ShieldMeta meta22)){
             return true;
-            //just let then gooooooooooooooooooooo fu
-           // return shieldBannerAccess.compareFieldOrDefault(meta11,meta22,()->meta11.equals(meta22));
+            //just let then gooooooooooooooooooooo fuck
+           // return ;
         }else{
             return super.matchBlockStateMeta(meta1, meta2);
         }

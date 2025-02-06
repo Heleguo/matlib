@@ -33,19 +33,19 @@
           <relocations>
             <relocation>
               <pattern>com.jeff_media.morepersistentdatatypes</pattern>
-              <shadedPattern>me.matl114.libs.morepersistentdatatypes</shadedPattern>
+              <shadedPattern>me.matl114.matlib.libs.morepersistentdatatypes</shadedPattern>
             </relocation>
             <relocation>
               <pattern>com.esotericsoftware.reflectasm</pattern>
-              <shadedPattern>me.matl114.libs.reflectasm</shadedPattern>
+              <shadedPattern>me.matl114.matlib.libs.reflectasm</shadedPattern>
             </relocation>
             <relocation>
               <pattern>com.esotericsoftware.asm</pattern>
-              <shadedPattern>me.matl114.libs.reflasm</shadedPattern>
+              <shadedPattern>me.matl114.matlib.libs.reflasm</shadedPattern>
             </relocation>
             <relocation>
               <pattern>org.objectweb.asm</pattern>
-              <shadedPattern>me.matl114.libs.libasm</shadedPattern>
+              <shadedPattern>me.matl114.matlib.libs.libasm</shadedPattern>
             </relocation>
           </relocations>
           <filters>
