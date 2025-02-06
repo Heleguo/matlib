@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class CleanItemStack extends ItemStack {
+    private static final Function<ItemMeta,ItemMeta> IDENTITY= Function.identity();
     public CleanItemStack(Material type, int amount, Function<ItemMeta,ItemMeta> metaMapper){
         super(type,amount);
         ItemMeta itemMeta = this.getItemMeta();
@@ -24,7 +25,12 @@ public class CleanItemStack extends ItemStack {
         super(type,amount);
         this.setItemMeta(metaSupplier.get());
     }
-
+    public CleanItemStack(Material type, int amount){
+        super(type,amount);
+    }
+    public CleanItemStack(Material type){
+        this(type,1);
+    }
     public CleanItemStack(ItemStack item, Consumer<ItemMeta> meta) {
         this(item.getType(),item.getAmount(),()->{
             ItemMeta meta1=item.getItemMeta();

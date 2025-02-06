@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OnlineTest {
-    boolean async() default false;
+    boolean async() default true;
     String name() default "Unknown case";
     boolean automatic() default true;
 }

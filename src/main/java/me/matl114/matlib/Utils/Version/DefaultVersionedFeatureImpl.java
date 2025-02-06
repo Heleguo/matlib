@@ -1,7 +1,9 @@
 package me.matl114.matlib.Utils.Version;
 
 import lombok.Getter;
+import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
 import me.matl114.matlib.Utils.CraftUtils;
+import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.WorldUtils;
 import org.bukkit.Material;
@@ -12,9 +14,11 @@ import org.bukkit.block.BlockState;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionEffectType;
 
+import java.lang.invoke.VarHandle;
 import java.util.*;
 
 public class DefaultVersionedFeatureImpl implements VersionedFeature{
@@ -332,7 +336,13 @@ public class DefaultVersionedFeatureImpl implements VersionedFeature{
     public EquipmentSlot getAttributeModifierSlot(AttributeModifier modifier){
         return modifier.getSlot();
     }
-    private static FieldAccess blockEntityTagAccess=FieldAccess.ofName("blockEntityTag");
+    @Getter
+    private static final FieldAccess blockEntityTagAccess=FieldAccess.ofName("blockEntityTag");
+    private static final VarHandle handle = new InitializeSafeProvider<>(VarHandle.class,()->{
+        ItemMeta meta = new ItemStack(Material.SPAWNER).getItemMeta();
+        BlockStateMeta blockState = (BlockStateMeta)meta;
+        return blockEntityTagAccess.finalizeHandleOrDefault(blockState,()->null);
+    }).runNonnullAndNoError(()-> Debug.logger("Successfully initialize CraftMetaBlockState.blockEntityTag VarHandle")).v();
     public boolean matchBlockStateMeta(BlockStateMeta meta1,BlockStateMeta meta2){
         return blockEntityTagAccess.compareFieldOrDefault(meta1,meta2,()->meta1.equals(meta2));
 //        .ofAccess(meta1).computeIf((b)->{

@@ -41,23 +41,23 @@ public class CraftUtils {
     });
     public static final ItemMeta NULL_META=(DEFAULT_ITEMSTACK.getItemMeta());
     public static final Class craftMetaItemClass =NULL_META.getClass();
-
+    private static final ThreadLocal<Inventory> threadLocalInventory = ThreadLocal.withInitial(()->Bukkit.createInventory(new InventoryHolder() {
+        Inventory inv;
+        @Override
+        public Inventory getInventory() {
+            return inv;
+        }
+    }, InventoryType.CHEST));
    private static final ItemStack craftItemStack = new InitializeSafeProvider<>(ItemStack.class,()->{
        try{
-           Inventory a= Bukkit.createInventory(new InventoryHolder() {
-               Inventory inv;
-               @Override
-               public Inventory getInventory() {
-                   return inv;
-               }
-           }, InventoryType.CHEST);
+           Inventory a = threadLocalInventory.get();
            a.setItem(0,DEFAULT_ITEMSTACK);
            return a.getItem(0);
        }catch (Throwable e){
            return null;
        }
    }).v();
-    private static Class craftItemStackClass =  new InitializeProvider<Class>(()->{
+    private static final Class craftItemStackClass =  new InitializeProvider<Class>(()->{
         return craftItemStack !=null ? craftItemStack.getClass() : null;
     }).v();
     @Getter
@@ -131,6 +131,19 @@ public class CraftUtils {
     });
     public static void setup(){
 
+    }
+    public static ItemStack getCraftCopy(ItemStack item,boolean throughInventorySafe){
+        if(throughInventorySafe){
+            Inventory inventory = threadLocalInventory.get();
+            inventory.setItem(0,item);
+            return inventory.getItem(0);
+        }else{
+            //todo not completed yet
+            return getCraftCopy(item,true);
+        }
+    }
+    public static boolean isCraftItemStack(ItemStack item){
+        return craftItemStackClass.isInstance(item);
     }
 
     /**

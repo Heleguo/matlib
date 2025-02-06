@@ -20,7 +20,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class FieldAccess {
-    private boolean printError = false;
+    private boolean printError = Debug.isDebugMod();
     private boolean failInitialization=false;
     private Function<Object, Field> lazilyInitializationFunction;
     private Field field;
@@ -86,9 +86,15 @@ public class FieldAccess {
                 //only the field who has full access can create fast Access throw FieldAccess
                 if(!isStatic && !isPrivate){
                     try{
-                        this.fastAccessInternal = com.esotericsoftware.reflectasm.FieldAccess.get(field.getDeclaringClass());
-                        this.fastAccessIndex = this.fastAccessInternal.getIndex(this.field);
-                        this.failPublicAccess = !this.isPublic;
+                        String output=  Debug.catchAllOutputs(()->{
+                            this.fastAccessInternal = com.esotericsoftware.reflectasm.FieldAccess.get(field.getDeclaringClass());
+                            this.fastAccessIndex = this.fastAccessInternal.getIndex(this.field);
+                            this.failPublicAccess = !this.isPublic;
+                        },true);
+                        if (output !=null && !output.isEmpty()){
+                            Debug.warn("Console output is intercepted:",output);
+                            Debug.warn("It is not a BUG and you can ignore it");
+                        }
                     }catch (Throwable e){
                         this.failPublicAccess = true;
                         if (printError){

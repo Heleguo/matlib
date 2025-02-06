@@ -12,14 +12,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Optional;
 
 public class SlimefunSetup {
-    @Getter
-    private static final boolean hookSlimefun = new InitializeSafeProvider<>(Boolean.class,()->{
-        try{
-            return io.github.thebusybiscuit.slimefun4.implementation.Slimefun.instance()!=null;
-        }catch (Throwable e){
-            return false;
-        }
-    }).v();
     public static void init(){
         CraftUtils.registerCustomItemIdHook(new CraftUtils.CustomItemMatcher() {
             @Override

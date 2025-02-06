@@ -2,6 +2,7 @@ package me.matl114.matlib.UnitTest;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.matl114.matlib.UnitTest.Tests.CommonTests;
 import me.matl114.matlib.UnitTest.Tests.VarHandleTests;
 import me.matl114.matlib.core.AddonInitialization;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,10 +15,14 @@ public class MatlibTest extends JavaPlugin {
     private static TestRunner testRunner;
     public void onEnable() {
         instance = this;
-        initialization = new AddonInitialization(this,"Matlib").displayName("Matlib-Unittest");
+        initialization = new AddonInitialization(this,"Matlib")
+                .displayName("Matlib-Unittest")
+                .testMode(true)
+                .onEnable();
         testRunner = new TestRunner()
                 .init(this)
                 .registerTestCase(new VarHandleTests())
+                .registerTestCase(new CommonTests())
         ;
     }
     public void onDisable() {
