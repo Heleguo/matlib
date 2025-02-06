@@ -25,10 +25,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 public class AddUtils {
     public static void init(String id,String addonName,Plugin pl){
@@ -41,11 +39,11 @@ public class AddUtils {
     public static String ADDON_NAME;
     public static String ADDON_ID;
     public static Plugin ADDON_INSTANCE;
-    public static boolean USE_IDDECORATOR=true;
+    public static final boolean USE_IDDECORATOR=true;
     private static final DecimalFormat FORMAT = new DecimalFormat("###,###,###,###,###,###.#");
-    private static Random random=new Random();
-    private static Enchantment GLOW_EFFECT=EnvironmentManager.getManager().getVersioned().getEnchantment("infinity");
-    protected static ItemStack RESOLVE_FAILED=AddUtils.addGlow( new CleanItemStack(Material.BARRIER,"&c解析物品失败"));
+    private static final Random random=new Random();
+    private static final Enchantment GLOW_EFFECT=EnvironmentManager.getManager().getVersioned().getEnchantment("infinity");
+    public static final ItemStack RESOLVE_FAILED=AddUtils.addGlow( new CleanItemStack(Material.BARRIER,"&c解析物品失败"));
     public static final String PLACEHOLDER = "†";
     public static String formatDouble(double s){
         return FORMAT.format(s);

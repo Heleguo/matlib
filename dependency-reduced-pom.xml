@@ -90,6 +90,12 @@
       <artifactId>Slimefun4</artifactId>
       <version>2024.3</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>Paperlib</artifactId>
+          <groupId>io.papermc</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>

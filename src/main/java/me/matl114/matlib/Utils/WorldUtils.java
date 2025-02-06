@@ -1,7 +1,6 @@
 package me.matl114.matlib.Utils;
 
-import com.google.errorprone.annotations.Var;
-import io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib;
+import io.papermc.lib.PaperLib;
 import me.matl114.matlib.Utils.Algorithm.InitializeProvider;
 import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
@@ -12,7 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.loot.LootTable;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
