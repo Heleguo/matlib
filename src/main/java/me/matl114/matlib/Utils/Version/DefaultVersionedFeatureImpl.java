@@ -12,10 +12,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.meta.*;
-import org.bukkit.loot.LootTable;
-import org.bukkit.loot.LootTables;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;

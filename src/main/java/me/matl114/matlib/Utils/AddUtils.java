@@ -8,9 +8,9 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Damageable;
@@ -18,7 +18,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
@@ -29,16 +28,14 @@ import java.util.function.Function;
 
 
 public class AddUtils {
-    public static void init(String id,String addonName,Plugin pl){
-        Debug.logger("Initializing Utils...");
-        ADDON_ID=id;
-        ADDON_NAME=addonName;
-        ADDON_INSTANCE=pl;
-
-    }
-    public static String ADDON_NAME;
-    public static String ADDON_ID;
-    public static Plugin ADDON_INSTANCE;
+//    public static void init(String id,String addonName,Plugin pl){
+//        Debug.logger("Initializing Utils...");
+//      //  ADDON_INSTANCE=pl;
+//
+//    }
+//    public static String ADDON_NAME ;
+//    public static String ADDON_ID;
+//    public static Plugin ADDON_INSTANCE;
     public static final boolean USE_IDDECORATOR=true;
     private static final DecimalFormat FORMAT = new DecimalFormat("###,###,###,###,###,###.#");
     private static final Random random=new Random();
@@ -48,21 +45,13 @@ public class AddUtils {
     public static String formatDouble(double s){
         return FORMAT.format(s);
     }
-    public static String idDecorator(String b){
-        if(USE_IDDECORATOR){
-            return ADDON_ID+"_"+b;
-        }
-        else return b;
-    }
+
     public static final String C="§";
-    public static NamespacedKey getNameKey(String str) {
-        return new NamespacedKey(ADDON_INSTANCE,str);
-    }
+//    public static NamespacedKey getNameKey(String str) {
+//        return new NamespacedKey(ADDON_INSTANCE,str);
+//    }
     public static String desc(String str) {
         return "§7" + str;
-    }
-    public static String addonTag(String str) {
-        return "§3"+ADDON_NAME+" " + str;
     }
     public static final String[] COLOR_MAP=new String[]{"§0","§1","§2","§3","§4","§5","§6","§7","§8","§9","§A","§B","§C","§D","§E","§F"};
     public static String resolveRGB(int rgb){
@@ -227,27 +216,8 @@ public class AddUtils {
         return colorString(string, colorList);
     }
 
-    public static final ItemStack[] NULL_RECIPE=new ItemStack[]{null,null,null,null,null,null,null,null,null} ;
 
 
-    public static ItemStack resolveRandomizedItemStack(ItemStack stack){
-        ItemStack result=null;
-//        if(stack.getClass().getName().endsWith("RandomizedItemStack")){
-//            try{
-//                Object itemlist= ReflectUtils.invokeGetRecursively(stack, Settings.FIELD,"items");
-//                if(itemlist!=null){
-//                    ItemStack[] list1=(ItemStack[])itemlist;
-//                    result=AddUtils.eqRandItemStackFactory(Arrays.stream(list1).toList());
-//                }else if((itemlist=ReflectUtils.invokeGetRecursively(stack,Settings.FIELD,"itemStacks"))!=null){
-//                    ItemStack[] list1=(ItemStack[])itemlist;
-//                    result=AddUtils.eqRandItemStackFactory(Arrays.stream(list1).toList());
-//                }
-//            }catch (Throwable e){
-//                e.printStackTrace();
-//            }
-//        }
-        return result;
-    }
     private static final List<Function<ItemStack,ItemStack>> copyFunctions = new ArrayList<>();
     public static void registerItemCopy(Function<ItemStack,ItemStack> function){
         copyFunctions.add(function);
@@ -257,23 +227,19 @@ public class AddUtils {
 //        if(stack instanceof AbstractItemStack abs){
 //            return abs.copy();
 //        }else
-        if((result=resolveRandomizedItemStack(stack))!=null){
-            return result;
-        }else{
-            ItemStack copied = Utils.computeTilPresent(stack, (Function<ItemStack, ItemStack>[]) copyFunctions.toArray(new Function[copyFunctions.size()]));
-            if(copied!=null){
-                return copied;
-            }
-            return getCleaned(stack);
-
+        ItemStack copied = Utils.computeTilPresent(stack, (Function<ItemStack, ItemStack>[]) copyFunctions.toArray(new Function[copyFunctions.size()]));
+        if(copied!=null){
+            return copied;
         }
+        return getCleaned(stack);
+
+
 
     }
     //make it return org.bukkit.inventory.ItemStack
     public static ItemStack getCleaned(ItemStack stack){
         return stack==null?new ItemStack(Material.AIR): CleanItemStack.ofBukkitClean(stack);
     }
-
 
 
     public static boolean copyItem(ItemStack from,ItemStack to){
@@ -482,7 +448,7 @@ public class AddUtils {
         return UUID.randomUUID().toString();
     }
     public static void broadCast(String string){
-        ADDON_INSTANCE.getServer().broadcastMessage(resolveColor(string));
+        Bukkit.getServer().broadcastMessage(resolveColor(string));
     }
     public static ItemStack setCount(ItemStack stack,int amount){
         return new CleanItemStack(stack,amount);

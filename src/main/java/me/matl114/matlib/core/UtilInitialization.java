@@ -4,6 +4,7 @@ import lombok.Getter;
 import me.matl114.matlib.Utils.AddUtils;
 import me.matl114.matlib.Utils.ConfigLoader;
 import me.matl114.matlib.Utils.Debug;
+import me.matl114.matlib.Utils.PluginUtils;
 import org.bukkit.plugin.Plugin;
 
 public class UtilInitialization {
@@ -29,11 +30,12 @@ public class UtilInitialization {
     }
     public UtilInitialization onEnable(){
         Manager.onEnable();
+        PluginUtils.init(this.plugin);
         Debug.init(name);
         if(this.plugin!=null){
             ConfigLoader.init(plugin);
             this.environment=new EnvironmentManager().init(plugin);
-            AddUtils.init(name,displayName==null?name:displayName,plugin);
+            //AddUtils.init(name,displayName==null?name:displayName,plugin);
         }else{
             //in test
         }

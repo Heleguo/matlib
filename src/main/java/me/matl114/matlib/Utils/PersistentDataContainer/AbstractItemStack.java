@@ -2,6 +2,7 @@ package me.matl114.matlib.Utils.PersistentDataContainer;
 
 import com.jeff_media.morepersistentdatatypes.DataType;
 import me.matl114.matlib.Utils.AddUtils;
+import me.matl114.matlib.Utils.PluginUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataAdapterContext;
@@ -12,7 +13,7 @@ import javax.annotation.Nonnull;
 
 public class AbstractItemStack implements PersistentDataType<PersistentDataContainer, ItemStack> {
 
-    public static final NamespacedKey ITEM= AddUtils.getNameKey("data");
+    public static final NamespacedKey ITEM= PluginUtils.getNamedKey("data");
     public Class<PersistentDataContainer> getPrimitiveType(){
         return PersistentDataContainer.class;
     }

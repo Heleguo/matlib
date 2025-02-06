@@ -15,7 +15,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
 
 public class WorldUtils {
-    //fixme
+
     private static final BlockState sampleBlockState = new InitializeSafeProvider<>(BlockState.class,()->{
         try{
             return Material.STONE.createBlockData().createBlockState();
