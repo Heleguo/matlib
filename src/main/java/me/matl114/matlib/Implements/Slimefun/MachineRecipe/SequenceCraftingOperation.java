@@ -5,6 +5,7 @@ import lombok.Getter;
 import me.matl114.matlib.Utils.AddUtils;
 import me.matl114.matlib.Utils.CraftUtils;
 import me.matl114.matlib.Utils.ItemCache.ItemConsumer;
+import me.matl114.matlib.Utils.Slimefun.MachineUtils;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -27,7 +28,7 @@ public class SequenceCraftingOperation implements CustomMachineOperation {
         ItemStack[] stack=recipe.getInput();
         this.inputItems=new ItemConsumer[stack.length];
         for(int i=0;i<stack.length;i++){
-            this.inputItems[i]= CraftUtils.getConsumer(stack[i]);
+            this.inputItems[i]= MachineUtils.getConsumer(stack[i]);
         }
         this.totalTicks=this.inputItems.length;
         this.currentTicks = 0;

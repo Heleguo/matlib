@@ -213,13 +213,5 @@ public class SlimefunUtils {
                     "&7类型:&6 %s".formatted(type),"&7&7电量: &6%s/%sJ".formatted(FORMAT.format((double)charge),FORMAT.format((double)buffer)));
         }
     }
-    public static Flags checkDistinctive(String id, ItemMeta meta1,ItemMeta meta2){
-        SlimefunItem it=SlimefunItem.getById(id);
-        //自动跳过当前附属的物品
-        //distinctive物品必须判断
-        if(it instanceof DistinctiveItem dt){
-            return dt.canStack(meta1,meta2)?Flags.ACCEPT:Flags.REJECT;
-        }
-        return Flags.IGNORED;
-    }
+
 }

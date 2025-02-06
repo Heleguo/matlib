@@ -1,6 +1,5 @@
 package me.matl114.matlib.Utils;
 
-import io.papermc.lib.PaperLib;
 import me.matl114.matlib.Utils.Algorithm.InitializeProvider;
 import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
@@ -91,7 +90,7 @@ public class WorldUtils {
     }
     private static final boolean hasPaperLib = new InitializeProvider<>(()->{
         try{
-            return PaperLib.isPaper();
+            return io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib.isPaper();
         }catch(Throwable unexpected){
             return false;
         }
@@ -110,7 +109,7 @@ public class WorldUtils {
 
     public static BlockState getBlockStateNoSnapShot(Block block){
         if(hasPaperLib){
-            return PaperLib.getBlockState(block,false).getState();
+            return io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib.getBlockState(block,false).getState();
         }
         if(getStateNoSnapshotHandle!=null){
             try{

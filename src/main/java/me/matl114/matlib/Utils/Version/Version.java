@@ -1,5 +1,6 @@
 package me.matl114.matlib.Utils.Version;
 
+import lombok.Getter;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Version.VersionedFeatures.*;
 import org.bukkit.Bukkit;
@@ -7,19 +8,21 @@ import org.bukkit.Bukkit;
 import java.util.function.Supplier;
 
 public enum Version {
-    v1_20_R1("v1_20_R1", VersionedFeature_1_20_R1_Impl::new),
-    v1_20_R2("v1_20_R2", VersionedFeature_1_20_R2_Impl::new),
-    v1_20_R3("v1_20_R3", VersionedFeature_1_20_R3_Impl::new),
-    v1_20_R4("v1_20_R4", VersionedFeature_1_20_R4_Impl::new),
-    v1_21_R1("v1_21_R1", VersionedFeature_1_21_R1_Impl::new),
-    v1_21_R2("v1_21_R2",VersionedFeature_1_21_R2_Impl::new),
-    unknown("unknown", DefaultVersionedFeatureImpl::new);
-    private Version(String name, Supplier<VersionedFeature> feature){
+    v1_20_R1("v1_20_R1", VersionedFeature_1_20_R1_Impl::new,15),
+    v1_20_R2("v1_20_R2", VersionedFeature_1_20_R2_Impl::new,18),
+    v1_20_R3("v1_20_R3", VersionedFeature_1_20_R3_Impl::new,26),
+    v1_20_R4("v1_20_R4", VersionedFeature_1_20_R4_Impl::new,41),
+    v1_21_R1("v1_21_R1", VersionedFeature_1_21_R1_Impl::new,48),
+    v1_21_R2("v1_21_R2",VersionedFeature_1_21_R2_Impl::new,57),
+    unknown("unknown", DefaultVersionedFeatureImpl::new,-1);
+    private Version(String name, Supplier<VersionedFeature> feature,int datapackNumber){
         this.name = name;
         this.feature = feature;
     }
     private String name;
     private Supplier<VersionedFeature> feature;
+    @Getter
+    private int datapackNumber;
     public VersionedFeature getFeature(){
         return feature.get();
     }
@@ -60,5 +63,8 @@ public enum Version {
             Debug.logger("Using default versiond feature ");
             return unknown;
         }
+    }
+    public static boolean versionAtLeast(Version v1, Version v2){
+        return v1.datapackNumber >= v2.datapackNumber;
     }
 }

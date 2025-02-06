@@ -5,10 +5,7 @@ import me.matl114.matlib.Utils.Algorithm.DynamicArray;
 import me.matl114.matlib.Utils.Algorithm.Pair;
 import me.matl114.matlib.Utils.CraftUtils;
 import me.matl114.matlib.Utils.Flags;
-import me.matl114.matlib.Utils.ItemCache.ItemConsumer;
-import me.matl114.matlib.Utils.ItemCache.ItemGreedyConsumer;
-import me.matl114.matlib.Utils.ItemCache.ItemPusher;
-import me.matl114.matlib.Utils.ItemCache.ItemPusherProvider;
+import me.matl114.matlib.Utils.ItemCache.*;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.inventory.ItemStack;
@@ -21,6 +18,56 @@ import java.util.function.IntFunction;
 import static me.matl114.matlib.Utils.CraftUtils.*;
 
 public class MachineUtils {
+    public static ItemConsumer getConsumer(ItemStack a){
+        if(a==null)return null;
+        if (a instanceof RandOutItem ro) {
+            // return new ItemConsumer(a.clone());
+            //当物品是随机输出物品时候,取其中的随机实例
+            return ItemConsumer.get(ro.getInstance());
+        }
+        return ItemConsumer.get(a);
+    }
+    public static ItemGreedyConsumer getGreedyConsumer(ItemStack a){
+        if(a==null)return null;
+        if (a instanceof RandOutItem ro) {
+            //当物品是随机输出物品时候,取其中的随机实例
+            // return new ItemConsumer(a.clone());
+            return ItemGreedyConsumer.get(ro.getInstance());
+        }
+        return ItemGreedyConsumer.get(a);
+    }
+    public static final ItemPusherProvider getpusher=(Flags mod, ItemStack it, int slot)->{
+        if(mod== Flags.INPUT||it!=null){
+            return ItemPusher.get(it);
+        }else{
+            return ItemSlotPusher.get(it,slot);
+        }
+    };
+
+    public static ItemPusher getPusher(ItemStack it){
+        return  ItemPusher.get(it);
+    }
+    /**
+     * change the object in the slot to a different object ,in order to trigger save at this slot when server down ,
+     * will return the ref to the current object in the slot
+     * @return
+     */
+    public static ItemStack syncSlot(BlockMenu inv , int slot){
+        ItemStack item = inv.getItemInSlot(slot);
+        return syncSlot(inv,slot,item);
+    }
+    /**
+     * change the object in the slot to a different object ,in order to trigger save at this slot when server down ,
+     * will return the ref to the current object in the slot
+     * @return
+     */
+    public static ItemStack syncSlot(BlockMenu inv ,int slot, ItemStack item){
+        if(item instanceof AbstractItemStack ast){
+            item= item.clone();
+        }
+        inv.replaceExistingItem(slot, item,false);
+        return inv.getItemInSlot(slot);
+    }
     /**
      * can be later modified to card-implements (water card or storage card(great idea wtf))
      * @param ?
@@ -581,7 +628,7 @@ public class MachineUtils {
     public static boolean  pushItems(ItemStack[] items,BlockMenu inv,int[] slots,ItemPusherProvider pusher){
         ItemConsumer[] consumers=new ItemConsumer[items.length];
         for(int i=0;i<items.length;++i) {
-            consumers[i]=CraftUtils.getConsumer(items[i]);
+            consumers[i]=getConsumer(items[i]);
         }
         return forcePush(consumers,inv,slots,pusher);
     }
@@ -594,7 +641,7 @@ public class MachineUtils {
         }
         ItemGreedyConsumer[] slotCounters=new ItemGreedyConsumer[items.length];
         for(int i=0;i<items.length;++i) {
-            slotCounters[i]=CraftUtils.getGreedyConsumer(items[i]);
+            slotCounters[i]=getGreedyConsumer(items[i]);
             slotCounters[i].setMatchAmount(slotCounters[i].getAmount()*multiple);
         }
         return multiForcePush(slotCounters,inv,slots,pusher);
@@ -1266,7 +1313,7 @@ public class MachineUtils {
         }
         int __iter=__index;
         MachineRecipe checkRecipe=recipes.get(__iter);
-        ItemConsumer result=CraftUtils.getConsumer(checkRecipe.getInput()[0]);
+        ItemConsumer result=getConsumer(checkRecipe.getInput()[0]);
         if(matchSequenceRecipeTarget(inputCounters,result)) {
             if(useHistory) {
                 BlockDataCache.getManager().setLastRecipe(inv.getLocation(),__iter);
@@ -1276,7 +1323,7 @@ public class MachineUtils {
         __iter+=delta;
         for(;__iter<recipeAmount&&__iter>=0;__iter+=delta){
             checkRecipe=recipes.get(__iter);
-            result=CraftUtils.getConsumer(checkRecipe.getInput()[0]);
+            result=getConsumer(checkRecipe.getInput()[0]);
             if(matchSequenceRecipeTarget(inputCounters,result)) {
                 if(useHistory) {
                     BlockDataCache.getManager().setLastRecipe(inv.getLocation(),__iter);
@@ -1291,7 +1338,7 @@ public class MachineUtils {
         }
         for(;__iter!=__index;__iter+=delta) {
             checkRecipe=recipes.get(__iter);
-            result=CraftUtils.getConsumer(checkRecipe.getInput()[0]);
+            result=getConsumer(checkRecipe.getInput()[0]);
             if(matchSequenceRecipeTarget(inputCounters,result)) {
                 if(useHistory) {
                     BlockDataCache.getManager().setLastRecipe(inv.getLocation(),__iter);

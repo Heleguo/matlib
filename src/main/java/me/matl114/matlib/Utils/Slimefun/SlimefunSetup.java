@@ -1,0 +1,42 @@
+package me.matl114.matlib.Utils.Slimefun;
+
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
+import io.github.thebusybiscuit.slimefun4.core.attributes.DistinctiveItem;
+import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
+import lombok.Getter;
+import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
+import me.matl114.matlib.Utils.CraftUtils;
+import me.matl114.matlib.Utils.Flags;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.Optional;
+
+public class SlimefunSetup {
+    @Getter
+    private static final boolean hookSlimefun = new InitializeSafeProvider<>(Boolean.class,()->{
+        try{
+            return io.github.thebusybiscuit.slimefun4.implementation.Slimefun.instance()!=null;
+        }catch (Throwable e){
+            return false;
+        }
+    }).v();
+    public static void init(){
+        CraftUtils.registerCustomItemIdHook(new CraftUtils.CustomItemMatcher() {
+            @Override
+            public Optional<String> parseId(ItemMeta meta1) {
+                return Slimefun.getItemDataService().getItemData(meta1);
+            }
+
+            @Override
+            public Flags doMatch(String id, ItemMeta meta1, ItemMeta meta2) {
+                SlimefunItem it=SlimefunItem.getById(id);
+                //自动跳过当前附属的物品
+                //distinctive物品必须判断
+                if(it instanceof DistinctiveItem dt){
+                    return dt.canStack(meta1,meta2)?Flags.ACCEPT:Flags.REJECT;
+                }
+                return Flags.IGNORED;
+            }
+        });
+    }
+}

@@ -45,27 +45,6 @@ public class MenuUtils {
         return false;
 
     });
-    /**
-     * change the object in the slot to a different object ,in order to trigger save at this slot when server down ,
-     * will return the ref to the current object in the slot
-     * @return
-     */
-    public static ItemStack syncSlot(BlockMenu inv , int slot){
-        ItemStack item = inv.getItemInSlot(slot);
-        return syncSlot(inv,slot,item);
-    }
-    /**
-     * change the object in the slot to a different object ,in order to trigger save at this slot when server down ,
-     * will return the ref to the current object in the slot
-     * @return
-     */
-    public static ItemStack syncSlot(BlockMenu inv ,int slot, ItemStack item){
-        if(item instanceof AbstractItemStack ast){
-            item= item.clone();
-        }
-        inv.replaceExistingItem(slot, item,false);
-        return inv.getItemInSlot(slot);
-    }
 
 
     public static ItemStack getPreviousButton(int page, int pages) {

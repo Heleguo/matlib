@@ -20,6 +20,24 @@ import java.util.Optional;
 import java.util.OptionalInt;
 
 public class SlimefunItemUtils {
+
+    @Nullable
+    public static String parseSfId(ItemStack item) {
+        Optional<String> itemID = Slimefun.getItemDataService().getItemData(item);
+        return  itemID.orElse(null) ;
+    }
+    public static String parseSfId(ItemMeta meta){
+        Optional<String> itemID = Slimefun.getItemDataService().getItemData(meta);
+        return itemID.orElse(null);
+    }
+    public static SlimefunItem parseSfItem(ItemMeta meta){
+        Optional<String> itemID = Slimefun.getItemDataService().getItemData(meta);
+        return itemID.map(SlimefunItem::getById).orElse(null);
+    }
+    public static SlimefunItem parseSfItem(ItemStack item){
+        Optional<String> itemID = Slimefun.getItemDataService().getItemData(item);
+        return itemID.map(SlimefunItem::getById).orElse(null);
+    }
     public static boolean isItemSimilar(@Nullable ItemStack item, @Nullable ItemStack sfitem, boolean checkLore, boolean checkAmount, boolean checkDistinctiveItem, boolean checkCustomModelData) {
         if (item == null) {
             return sfitem == null;

@@ -1,7 +1,5 @@
 package me.matl114.matlib.Utils.ItemCache;
 
-import io.github.thebusybiscuit.slimefun4.libraries.commons.lang.NotImplementedException;
-
 import me.matl114.matlib.Utils.Flags;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Material;
@@ -40,7 +38,7 @@ public class ItemConsumer extends ItemCounter {
 //        return null;
 //    }
     public void updateItemStack(){
-        throw new NotImplementedException("this method should not be called");
+        throw new RuntimeException("this method should not be called");
     }
     private List<ItemPusher> getTargetConsumers(){
         if(targetConsumers==null){

@@ -35,5 +35,13 @@ public interface MultiItemStack extends AbstractItemStack {
             }
             return Flags.IGNORED;
         });
+//        CraftUtils.registerCustomMatcher((stack1,stack2,strictCheck)->{
+//            if(stack1 instanceof MultiItemStack) {
+//                return ((MultiItemStack) stack1).matchItem(stack2,strictCheck)? Flags.ACCEPT:Flags.REJECT;
+//            }else if (stack2 instanceof MultiItemStack) {
+//                return ((MultiItemStack) stack2).matchItem(stack1,strictCheck)? Flags.ACCEPT:Flags.REJECT;
+//            }
+//            return Flags.IGNORED;
+//        });
     });
 }

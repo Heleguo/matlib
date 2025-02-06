@@ -16,5 +16,6 @@ public class VarHandleTests implements TestCase {
         ItemMeta meta = item.getItemMeta();
         Debug.logger(CraftUtils.getDisplayNameHandle().get(meta));
         Debug.logger(CraftUtils.getLoreHandle().get(meta));
+        Debug.logger(CraftUtils.getHandleHandle().get());
     }
 }
