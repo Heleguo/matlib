@@ -15,6 +15,7 @@ public class AddonInitialization {
     private Plugin plugin = null;
     private String name = null;
     private String displayName = null;
+    UtilInitialization util = null;
     @Getter
     private EnvironmentManager environment=null;
     @Getter
@@ -24,6 +25,11 @@ public class AddonInitialization {
     @Getter
     private ScheduleManager scheduleManager=null;
 
+    /**
+     * load as a Slimefun addon helper
+     * @param plugin
+     * @param addonName
+     */
     public AddonInitialization(Plugin plugin,String addonName) {
         this.plugin = plugin;
         this.name = addonName;
@@ -35,13 +41,11 @@ public class AddonInitialization {
         return this;
     }
     public AddonInitialization onEnable(){
-        Manager.onEnable();
-        Debug.init(name);
-        ConfigLoader.init(plugin);
+        this.util = new UtilInitialization(plugin,name).displayName(this.displayName).onEnable();
+        this.environment = this.util.getEnvironment();
 
         if(plugin!=null){
-            this.environment=new EnvironmentManager().init(plugin);
-            AddUtils.init(name,displayName==null?name:displayName,plugin);
+
             //core
             this.registries=new CustomRegistries().init(plugin);
             //datas

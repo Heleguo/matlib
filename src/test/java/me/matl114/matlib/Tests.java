@@ -9,20 +9,20 @@ import me.matl114.matlib.Utils.Command.CommandGroup.SubCommand;
 import me.matl114.matlib.Utils.Command.Params.SimpleCommandArgs;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
+import me.matl114.matlib.Utils.Reflect.FieldGetter;
 import me.matl114.matlib.Utils.Reflect.MethodAccess;
+import me.matl114.matlib.Utils.Reflect.ReflectUtils;
 import me.matl114.matlib.core.AddonInitialization;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlotGroup;
-import org.checkerframework.checker.units.qual.N;
 import org.junit.jupiter.api.Test;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-import java.io.File;
-import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,14 +33,11 @@ public class Tests {
     public void log(Object message) {
         System.out.println("Test: "+message);
     }
-    AddonInitialization testMockAddon=new AddonInitialization(null,"Test").onEnable();
-    private static final FieldAccess testAccess = FieldAccess.ofName(TestClass.class, "d");
+    public static final AddonInitialization testMockAddon=new AddonInitialization(null,"Test").onEnable();
+    private static final FieldAccess testAccess = FieldAccess.ofName(TestClass.class, "d").printError(true);
     private static final VarHandle testHandle = testAccess.getVarHandleOrDefault(()->null);
-    //@Test
+    @Test
     public void test_reflection() {
-        if(true){
-            return;
-        }
         AttributeModifier modifier= new AttributeModifier(new NamespacedKey("m","e"),114, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.HAND);
         FieldAccess amountAccess=FieldAccess.ofName(AttributeModifier.class,"amount");
         amountAccess.ofAccess(modifier).set(514.0);
@@ -82,11 +79,8 @@ public class Tests {
         ac.setUnsafe("我操啊");
         log(TestClass.getS());
     }
-    //@Test
+    @Test
     public void test_reflection_2(){
-        if(true){
-            return;
-        }
         MethodAccess<?> methodAccess;
 
         TestClass obj=new TestClass();
@@ -119,7 +113,7 @@ public class Tests {
             e.printStackTrace();
         }
     }
-    //@Test
+    @Test
     public void test_reflection_efficiency(){
         TestClass obj=new TestClass();
         FieldAccess access=FieldAccess.ofName(TestClass.class,"ttt");
@@ -133,12 +127,10 @@ public class Tests {
         log("using time "+(b-a));
         //enable handle: 27683800 19029700 25699400 20924100 27461300 57322300 39966300 23702900
         //disable handle: 28414300 23184400 14584200 18837900 16926600 30481000 15374300 14651700
+        //using ReflectASM 9542500
     }
-    //@Test
+    @Test
     public void test_pair(){
-        if(true){
-            return;
-        }
         TestClass obj=new TestClass();
         TestClass obj2=new TestClass();
         Pair<TestClass,TestClass> pair= Pair.of(obj,obj2);
@@ -176,12 +168,45 @@ public class Tests {
 //
     @Test
     public void test_varHandle(){
-        Object object = new TestClass();
+        TestClass object = new TestExtendClass();
         log("Test Handle");
         log(testAccess);
         log(testHandle);
-        testHandle.set(object,object);
+        testHandle.set(object,114);
         log(testHandle.get(object));
+        Field field = ReflectUtils.getFieldsRecursively(TestClass.class,"d").getA();
+        FieldGetter getter = testAccess.getter(object);
+        long start = System.nanoTime();
+        try{
+            for (int i=0;i<10000;++i){
+                getter.apply(object);
+                //field.get(object);
+            }
+        }catch (Throwable e){
+
+        }
+        long end = System.nanoTime();
+        log("Test Access time: "+(end-start));
+        start = System.nanoTime();
+        try{
+            for (int i=0;i<10000;++i){
+                testHandle.get(object);
+            }
+        }catch (Throwable e){
+        }
+        end = System.nanoTime();
+        log("Test Handle time: "+(end-start));
+        com.esotericsoftware.reflectasm.FieldAccess fieldAccess = com.esotericsoftware.reflectasm.FieldAccess.get(TestClass.class);
+        log(fieldAccess.getClass());
+        int index = fieldAccess.getIndex("d");
+        start = System.nanoTime();
+        //public非常快 无法访问private
+        for (int i=0;i<10000;++i){
+            fieldAccess.get(object,index);
+        }
+        end = System.nanoTime();
+        log("Test Access time: "+(end-start));
+        log(fieldAccess.get(object,"d"));
     }
     @Test
     public void test_coommandUtils(){
@@ -192,6 +217,10 @@ public class Tests {
         result = comomand.testCommand.parseInput(new String[]{"--operation","3","-arg1"}).getA();
         log(result.nextArg());
         log(result.nextArg());
+    }
+
+    public void test_asm(){
+
     }
 
 

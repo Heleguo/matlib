@@ -45,13 +45,26 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.5.0</version>
                 <configuration>
-                    <minimizeJar>true</minimizeJar>
+<!--                    <minimizeJar>true</minimizeJar>-->
                     <relocations>
                         <relocation>
                             <pattern>com.jeff_media.morepersistentdatatypes</pattern>
-                            <shadedPattern>me.matl114.matlib.morepersistentdatatypes</shadedPattern>
+                            <shadedPattern>me.matl114.libs.morepersistentdatatypes</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.esotericsoftware.reflectasm</pattern>
+                            <shadedPattern>me.matl114.libs.reflectasm</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.esotericsoftware.asm</pattern>
+                            <shadedPattern>me.matl114.libs.reflasm</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.objectweb.asm</pattern>
+                            <shadedPattern>me.matl114.libs.libasm</shadedPattern>
                         </relocation>
                     </relocations>
+
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>
@@ -59,6 +72,12 @@
                                 <exclude>META-INF/*</exclude>
                             </excludes>
                         </filter>
+<!--                        <filter>-->
+<!--                            <artifact>com.esotericsoftware:reflectasm</artifact>-->
+<!--                            <includes>-->
+<!--                                <include>**/*</include> &lt;!&ndash; 确保它不会被 minimize 或移除 &ndash;&gt;-->
+<!--                            </includes>-->
+<!--                        </filter>-->
                     </filters>
                 </configuration>
                 <executions>
@@ -119,6 +138,17 @@
             <artifactId>junit-jupiter</artifactId>
             <version>5.7.2</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>reflectasm</artifactId>
+            <version>1.11.9</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.7.1</version>
         </dependency>
     </dependencies>
 </project>

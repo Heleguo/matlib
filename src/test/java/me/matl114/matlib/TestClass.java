@@ -9,7 +9,7 @@ public class TestClass {
     public int ttt=1;
 
     @Getter
-    private Object d;
+    public Object d;
     @Getter
     private static Object e;
     public final static Object f = new Object();

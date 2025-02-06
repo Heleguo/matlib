@@ -1,5 +1,6 @@
 package me.matl114.matlib.Utils;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import me.matl114.matlib.Implements.Managers.BlockDataCache;
 import me.matl114.matlib.Utils.Algorithm.*;
@@ -23,11 +24,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.invoke.VarHandle;
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
 import java.util.function.IntFunction;
 
 public class CraftUtils {
+
     private static final EnumSet<Material> COMPLEX_MATERIALS = EnumSet.noneOf(Material.class);
     static{
         ItemMeta sampleMeta=new ItemStack(Material.STONE).getItemMeta();
@@ -68,7 +68,7 @@ public class CraftUtils {
     private static Class CRAFTITEMSTACKCLASS =  new InitializeProvider<Class>(()->{
         return CRAFTITEMSTACK!=null ? CRAFTITEMSTACK.getClass() : null;
     }).v();
-
+    @Getter
     private static final FieldAccess loreAccess = new InitializeSafeProvider<>(FieldAccess.class,()->{
         try{
             var CRAFTLORE=CRAFTMETAITEMCLASS.getDeclaredField("lore");
@@ -80,6 +80,7 @@ public class CraftUtils {
             return FieldAccess.ofFailure();
         }
     }).v();
+    @Getter
     private static final FieldAccess displayNameAccess =  new InitializeSafeProvider<>(FieldAccess.class,()->{
         try{
             var CRAFTDISPLAYNAME=CRAFTMETAITEMCLASS.getDeclaredField("displayName");
@@ -91,6 +92,7 @@ public class CraftUtils {
             return FieldAccess.ofFailure();
         }
     }).v();
+    @Getter
     private static final FieldAccess handledAccess = new InitializeSafeProvider<>(FieldAccess.class,()->{
         try{
             var CRAFTHANDLER=CRAFTITEMSTACKCLASS.getDeclaredField("handle");
@@ -110,12 +112,15 @@ public class CraftUtils {
            return null;
        }
     }).v();
+    @Getter
     private static final VarHandle loreHandle = new InitializeSafeProvider<>(()->{
         return loreAccess.getVarHandleOrDefault(()->null);
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftMetaItem.lore VarHandle")).v();
+    @Getter
     private static final VarHandle displayNameHandle = new InitializeSafeProvider<>(()->{
         return displayNameAccess.getVarHandleOrDefault(()->null);
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftMetaItem.displayName VarHandle")).v();
+    @Getter
     private static final VarHandle handleHandle = new InitializeSafeProvider<>(()->{
         return handledAccess.getVarHandleOrDefault(()->null);
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftItemStack.handle VarHandle")).v();
@@ -1687,12 +1692,11 @@ public class CraftUtils {
     }
     public static boolean matchLoreField(@Nonnull ItemMeta meta1, @Nonnull ItemMeta meta2){
         if(loreHandle!=null){
-            try{
-                return Objects.equals(loreHandle.get(meta1),loreHandle.get(meta2));
-            }catch (Throwable unexpected){
-            }
+            return Objects.equals(loreHandle.get(meta1),loreHandle.get(meta2));
+        }else{
+            return loreAccess.compareFieldOrDefault(meta1,meta2,()->matchLore(meta1.getLore(),meta2.getLore(),false));
         }
-        return loreAccess.compareFieldOrDefault(meta1,meta2,()->matchLore(meta1.getLore(),meta2.getLore(),false));
+
 
 //        try{
 //            Object lore1= (CRAFTLORE.get(meta1));
@@ -1721,13 +1725,11 @@ public class CraftUtils {
 //    }
     public static boolean matchDisplayNameField(ItemMeta meta1, ItemMeta meta2){
         if(displayNameHandle!=null){
-            try{
-                return Objects.equals(displayNameHandle.get(meta1),displayNameHandle.get(meta2));
-            }catch (Throwable unexpected){
-                Debug.debug(unexpected);
-            }
+            return Objects.equals(displayNameHandle.get(meta1),displayNameHandle.get(meta2));
+        }else{
+            return displayNameAccess.compareFieldOrDefault(meta1,meta2,()->Objects.equals(meta1.getDisplayName(),meta2.getDisplayName()));
         }
-        return displayNameAccess.compareFieldOrDefault(meta1,meta2,()->Objects.equals(meta1.getDisplayName(),meta2.getDisplayName()));
+
 //        try{
 //            Object name1=(CRAFTDISPLAYNAME.get(meta1));
 //            Object name2=(CRAFTDISPLAYNAME.get(meta2));

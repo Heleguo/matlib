@@ -11,7 +11,6 @@ import java.util.logging.Logger;
 public class Debug {
     public static void init(String name){
         log= Logger.getLogger(name);
-
     }
     public  static Logger log ;
     public static Logger testlog=Logger.getLogger("TEST");
