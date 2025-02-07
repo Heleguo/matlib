@@ -1,6 +1,7 @@
 package me.matl114.matlib;
 
 import io.github.thebusybiscuit.slimefun4.libraries.commons.lang.Validate;
+import me.matl114.matlib.Implements.Managers.ObjectLockFactory;
 import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
 import me.matl114.matlib.Utils.Algorithm.Pair;
 import me.matl114.matlib.Utils.Algorithm.Triplet;
@@ -12,12 +13,14 @@ import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.Reflect.FieldGetter;
 import me.matl114.matlib.Utils.Reflect.MethodAccess;
 import me.matl114.matlib.Utils.Reflect.ReflectUtils;
+import me.matl114.matlib.Utils.ThreadUtils;
 import me.matl114.matlib.core.AddonInitialization;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlotGroup;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Test;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
@@ -27,6 +30,9 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 public class Tests {
@@ -219,8 +225,144 @@ public class Tests {
         log(result.nextArg());
     }
 
-    public void test_asm(){
-
+    @Test
+    public void test_lockFactory(){
+        ObjectLockFactory<String> testFactory = new ObjectLockFactory<>(String.class).init(null);
+        List<CompletableFuture<Void>> futures=new ArrayList<>();
+        AtomicInteger runningThread =new AtomicInteger(0);
+        for(int i=0;i<30;++i){
+            int index = i;
+            futures.add(CompletableFuture.runAsync(()->{
+                testFactory.ensureLock(()->{
+                    if(runningThread.incrementAndGet()>1){
+                        Debug.logger("Catch Async Thread Run");
+                    }
+                    log("Task %d - 1 start".formatted(index));
+                    ThreadUtils.sleep(10);
+                    log("Task %d - 1 done".formatted(index));
+                    runningThread.decrementAndGet();
+                },"ab","cd","ef");
+            }))
+            ;
+            futures.add(CompletableFuture.runAsync(()->{
+                testFactory.ensureLock(()->{
+                    if(runningThread.incrementAndGet()>1){
+                        Debug.logger("Catch Async Thread Run");
+                    }
+                    log("Task %d - 1 - 1 start".formatted(index));
+                    ThreadUtils.sleep(10);
+                    log("Task %d - 1 - 1 done".formatted(index));
+                    runningThread.decrementAndGet();
+                },"ef","cd","ab");
+            }))
+            ;
+            futures.add(CompletableFuture.runAsync(()->{
+                testFactory.ensureLock(()->{
+                    if(runningThread.incrementAndGet()>1){
+                        Debug.logger("Catch Async Thread Run");
+                    }
+                    log("Task %d - 1 - 2 start".formatted(index));
+                    ThreadUtils.sleep(10);
+                    log("Task %d - 1 - 2 done".formatted(index));
+                    runningThread.decrementAndGet();
+                },"ef","cd","ab");
+            }))
+            ;
+            futures.add(CompletableFuture.runAsync(()->{
+                testFactory.ensureLock(()->{
+                    if(runningThread.incrementAndGet()>1){
+                        Debug.logger("Catch Async Thread Run");
+                    }
+                    log("Task %d - 2 start".formatted(index));
+                    ThreadUtils.sleep(10);
+                    log("Task %d - 2 done".formatted(index));
+                    runningThread.decrementAndGet();
+                },"666","33","ab","666","666","666","666","666","666","666","666","666");
+            }));
+            futures.add(CompletableFuture.runAsync(()->{
+                testFactory.ensureLock(()->{
+                    if(runningThread.incrementAndGet()>1){
+                        Debug.logger("Catch Async Thread Run");
+                    }
+                    log("Task %d - 3 start".formatted(index));
+                    ThreadUtils.sleep(10);
+                    log("Task %d - 3 done".formatted(index));
+                    runningThread.decrementAndGet();
+                },"ss","rr","ab","asc");
+            }));
+        }
+        CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+        log(runningThread.get());
+        //total wait time in requesting lock
+        //30697362000
+        futures=new ArrayList<>();
+        runningThread.set(0);
+        for(int i=0;i<30;++i){
+            int index = i;
+            futures.add(CompletableFuture.runAsync(()->{
+                testFactory.ensureLock(()->{
+                    if(runningThread.incrementAndGet()>1){
+                        Debug.logger("Catch Async Thread Run");
+                    }
+//                    log("Task %d - 1 start".formatted(index));
+//                    log("Task %d - 1 done".formatted(index));
+                    runningThread.decrementAndGet();
+                },"ab","cd","ef");
+            }))
+            ;
+            futures.add(CompletableFuture.runAsync(()->{
+                testFactory.ensureLock(()->{
+                    if(runningThread.incrementAndGet()>1){
+                        Debug.logger("Catch Async Thread Run");
+                    }
+//                    log("Task %d - 1 - 1 start".formatted(index));
+//                    log("Task %d - 1 - 1 done".formatted(index));
+                    runningThread.decrementAndGet();
+                },"ef","cd","ab");
+            }))
+            ;
+            futures.add(CompletableFuture.runAsync(()->{
+                testFactory.ensureLock(()->{
+                    if(runningThread.incrementAndGet()>1){
+                        Debug.logger("Catch Async Thread Run");
+                    }
+//                    log("Task %d - 1 - 2 start".formatted(index));
+//                    log("Task %d - 1 - 2 done".formatted(index));
+                    runningThread.decrementAndGet();
+                },"ef","cd","ab");
+            }))
+            ;
+            futures.add(CompletableFuture.runAsync(()->{
+                testFactory.ensureLock(()->{
+                    if(runningThread.incrementAndGet()>1){
+                        Debug.logger("Catch Async Thread Run");
+                    }
+//                    log("Task %d - 2 start".formatted(index));
+//                    log("Task %d - 2 done".formatted(index));
+                    runningThread.decrementAndGet();
+                },"666","33","ab","666","666","666","666","666","666","666","666","666");
+            }));
+            futures.add(CompletableFuture.runAsync(()->{
+                testFactory.ensureLock(()->{
+                    if(runningThread.incrementAndGet()>1){
+                        Debug.logger("Catch Async Thread Run");
+                    }
+//                    log("Task %d - 3 start".formatted(index));
+//                    log("Task %d - 3 done".formatted(index));
+                    runningThread.decrementAndGet();
+                },"ss","rr","ab","asc");
+            }));
+        }
+        CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+        log(runningThread.get());
+        //sort time 477000 235800 898200
+        // 288200
+    }
+    @Test
+    public void test_convertBase(){
+//        for (long i = 2147483649l;i<2147483949l ; ++i ){
+//            log((int)i);
+//        }
     }
 
 

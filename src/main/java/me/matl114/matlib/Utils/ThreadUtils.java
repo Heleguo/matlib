@@ -1,10 +1,14 @@
 package me.matl114.matlib.Utils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.LockSupport;
 
 public class ThreadUtils {
     private static final int MAX_CACHED_LOCK=8000;
@@ -46,9 +50,10 @@ public class ThreadUtils {
         long left = ns%1_000_000;
         sleep(ms);
         long endTime = System.nanoTime()+left;
-        do{
-
-        }while(System.nanoTime()<endTime);
+        LockSupport.parkNanos(endTime);
+//        do{
+//
+//        }while(System.nanoTime()<endTime);
     }
     public static FutureTask<Void> getFutureTask(Runnable runnable) {
         return new FutureTask<>(runnable,(Void) null);
@@ -60,4 +65,5 @@ public class ThreadUtils {
             throw new RuntimeException(e);
         }
     }
+
 }

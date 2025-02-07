@@ -24,6 +24,7 @@ public class TestRunner implements Manager {
     @Override
     public TestRunner init(Plugin pl, String... path) {
         ScheduleManager.getManager().launchScheduled(this::runAutomaticTests,200,false,0);
+        this.addToRegistry();
         return this;
     }
 
@@ -35,7 +36,7 @@ public class TestRunner implements Manager {
 
     @Override
     public void deconstruct() {
-
+        this.removeFromRegistry();
     }
     private final HashMap<TestRunnable,TestCase> testCases = new LinkedHashMap<TestRunnable,TestCase>();
     private final HashMap<Consumer<CommandSender>,TestCase> manuallyExecutedCase = new LinkedHashMap<>();

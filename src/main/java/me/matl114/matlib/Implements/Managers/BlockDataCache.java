@@ -66,9 +66,9 @@ public class BlockDataCache implements Manager {
     @Override
     public BlockDataCache init(Plugin pl, String... path) {
         this.plugin=pl;
-        this.addToRegistry();
         this.loadInternal();
         Debug.logger("Enabling Data Cache");
+        this.addToRegistry();
         return this;
     }
     public BlockDataCache reload(){

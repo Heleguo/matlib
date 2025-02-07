@@ -2,6 +2,7 @@ package me.matl114.matlib.Implements.Managers;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
+import lombok.Setter;
 import me.matl114.matlib.Utils.ThreadUtils;
 import me.matl114.matlib.core.Manager;
 import org.bukkit.Bukkit;
@@ -10,11 +11,18 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
 public class ScheduleManager implements Manager {
     Plugin plugin;
+    AbstractExecutorService asyncExecutor = null;
+    public ScheduleManager setAsyncExecutor(AbstractExecutorService asyncExecutor) {
+        this.asyncExecutor = asyncExecutor;
+        return this;
+    }
     @Override
     public ScheduleManager init(Plugin pl, String... path) {
         plugin = pl;
@@ -23,6 +31,7 @@ public class ScheduleManager implements Manager {
                 runPostSetup();
             }
         }.runTaskLater(this.plugin,1);
+        addToRegistry();
         return this;
     }
 
@@ -34,6 +43,7 @@ public class ScheduleManager implements Manager {
     }
     @Override
     public void deconstruct() {
+        removeFromRegistry();
     }
 
 
@@ -79,7 +89,11 @@ public class ScheduleManager implements Manager {
                 if(delay!=0)
                     thread.runTaskLaterAsynchronously(plugin,delay);
                 else{
-                    thread.runTaskAsynchronously(plugin);
+                    if(asyncExecutor!=null){
+                        CompletableFuture.runAsync(thread,asyncExecutor);
+                    }else {
+                        thread.runTaskAsynchronously(plugin);
+                    }
                 }
             }
         }else{

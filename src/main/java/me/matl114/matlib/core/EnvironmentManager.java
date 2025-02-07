@@ -18,7 +18,7 @@ public class EnvironmentManager implements Manager {
         this.plugin = pl;
         Debug.logger("Initializing environment manager...");
         versioned= Version.getVersionInstance().getFeature();
-
+        this.addToRegistry();
         return this;
     }
     @Override
@@ -28,7 +28,7 @@ public class EnvironmentManager implements Manager {
     }
     @Override
     public void deconstruct() {
-
+        this.removeFromRegistry();
     }
     @Getter
     private VersionedFeature versioned;
