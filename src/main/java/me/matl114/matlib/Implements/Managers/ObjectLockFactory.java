@@ -15,6 +15,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 
@@ -117,6 +118,20 @@ public class ObjectLockFactory<T extends Object> implements Manager {
         requestLocks(requiredLocks);
         try{
             task.run();
+        }finally {
+            for(var lock : requiredLocks){
+                lock.unlock();
+            }
+        }
+    }
+    public <C> C ensureLock(Supplier<C> task, T ... objs){
+        if(shutdown){
+            return null;
+        }
+        SortableReentrantLock[] requiredLocks = getLocks(objs);
+        requestLocks(requiredLocks);
+        try{
+            return task.get();
         }finally {
             for(var lock : requiredLocks){
                 lock.unlock();
