@@ -50,6 +50,13 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor {
             }
         }return null;
     }
+    public List<String> getDisplayedSubCommand(){
+        return this.subCommands.stream().filter(SubCommand::isVisiable).map(SubCommand::getName).toList();
+    }
+    protected SubCommand genMainCommand(String name){
+        return new SubCommand(name,genArgument("_operation"),"")
+                .setTabCompletor("_operation",this::getDisplayedSubCommand);
+    }
     @Override
     public void registerSub(SubCommand command) {
         this.subCommands.add(command);

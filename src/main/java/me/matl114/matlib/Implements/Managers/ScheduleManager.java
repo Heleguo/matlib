@@ -11,10 +11,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 public class ScheduleManager implements Manager {
     Plugin plugin;
@@ -104,7 +103,7 @@ public class ScheduleManager implements Manager {
             }
         }
     }
-    public void launchRepeatingSchedule(Consumer<Integer> thread , int delay, boolean isSync, int period, int repeatTime){
+    public void launchRepeatingSchedule(IntConsumer thread , int delay, boolean isSync, int period, int repeatTime){
         launchScheduled(new BukkitRunnable() {
             int runTime=0;
             @Override
@@ -123,7 +122,7 @@ public class ScheduleManager implements Manager {
             }
         },delay,isSync,period);
     }
-    public void asyncWaithRepeatingSchedule(Consumer<Integer> thread , int delay, boolean isSync, int period,int repeatTime){
+    public void asyncWaithRepeatingSchedule(IntConsumer thread , int delay, boolean isSync, int period,int repeatTime){
         Preconditions.checkArgument( !Bukkit.isPrimaryThread(),"This method should be called in async thread");
         CountDownLatch countDownLatch = new CountDownLatch(1);
         launchScheduled(new BukkitRunnable() {
@@ -149,6 +148,11 @@ public class ScheduleManager implements Manager {
         }catch (InterruptedException e){
             e.printStackTrace();
         }
+    }
+    public <T> FutureTask<T> getScheduledFuture(Callable<T> callable,int delay,boolean isSync){
+        FutureTask<T> future = new FutureTask<>(callable);
+        launchScheduled(future,delay,isSync,0);
+        return future;
     }
 
 }

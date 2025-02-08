@@ -3,6 +3,7 @@ package me.matl114.matlib.UnitTest;
 import lombok.Getter;
 import lombok.Setter;
 import me.matl114.matlib.UnitTest.Tests.CommonTests;
+import me.matl114.matlib.UnitTest.Tests.InventoryTests;
 import me.matl114.matlib.UnitTest.Tests.VarHandleTests;
 import me.matl114.matlib.core.AddonInitialization;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,6 +24,7 @@ public class MatlibTest extends JavaPlugin {
                 .init(this)
                 .registerTestCase(new VarHandleTests())
                 .registerTestCase(new CommonTests())
+                .registerTestCase(new InventoryTests())
         ;
     }
     public void onDisable() {

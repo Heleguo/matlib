@@ -126,15 +126,13 @@ public class FieldAccess {
         }
         return this;
     }
-    private Class getFieldType(){
-        Preconditions.checkArgument(!failInitialization,"FieldAccess initialization failed!");
-        Preconditions.checkArgument(definedType!=null,"FieldAccess field not initialized!");
-        return definedType;
+    public Field getFieldOrDefault(Supplier<Field> defa){
+        init(null);
+        return failHandle?defa.get():field;
     }
-    private Class getDeclareClass(){
-        Preconditions.checkArgument(!failInitialization,"FieldAccess initialization failed!");
-        Preconditions.checkArgument(field!=null,"FieldAccess field not initialized!");
-        return field.getDeclaringClass();
+    public Field finalizeFieldOrDefault(Object initializeObject,Supplier<Field> defa){
+        init(initializeObject);
+        return failHandle?defa.get():field;
     }
     public VarHandle getVarHandleOrDefault(Supplier<VarHandle> defa){
         init(null);

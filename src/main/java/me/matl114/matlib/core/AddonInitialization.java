@@ -9,6 +9,7 @@ import me.matl114.matlib.Utils.Slimefun.SlimefunSetup;
 import org.bukkit.plugin.Plugin;
 
 public class AddonInitialization {
+
     private Plugin plugin = null;
     private String name = null;
     private String displayName = null;

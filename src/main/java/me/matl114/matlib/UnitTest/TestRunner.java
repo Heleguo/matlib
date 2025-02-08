@@ -80,7 +80,7 @@ public class TestRunner implements Manager {
                     @Override
                     public void run() {
                         long start = System.nanoTime();
-                        Debug.logger("Start Running test case: ",testAnnotation.name(),"in",isAsync()?"Async":"Main","Thread");
+                        Debug.logger("Start Running test case: ",testAnnotation.name(),",in",isAsync()?"Async":"Main","Thread");
                         try{
                             method.invoke(testCase,sender);
                         }catch (InvocationTargetException | IllegalAccessException e) {
@@ -88,7 +88,7 @@ public class TestRunner implements Manager {
                         }
                         finally {
                             long end = System.nanoTime();
-                            Debug.logger("Finish test case:",testAnnotation.name(),"Time cost:",end-start,"ns,(",(end-start)/1_000_000,"ms)");
+                            Debug.logger("Finish test case:",testAnnotation.name(),",Time cost:",end-start,"ns,(",(end-start)/1_000_000,"ms)");
                         }
                     }
                 }.execute()),testCase);
@@ -115,11 +115,11 @@ public class TestRunner implements Manager {
     }
     public void runAutomaticTests(){
         Debug.logger("Starting automatic tests");
-        Debug.logger("-------------------------------------------");
+        Debug.logger("--------------------------------------------------------------------------------------");
         for (TestRunnable runnable : testCases.keySet()) {
             ThreadUtils.sleep(1_000);
             runnable.executeAwait();
-            Debug.logger("-------------------------------------------");
+            Debug.logger("--------------------------------------------------------------------------------------");
         }
 
         Debug.logger("Finished automatic tests");

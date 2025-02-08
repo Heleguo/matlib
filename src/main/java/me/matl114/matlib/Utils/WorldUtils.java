@@ -1,5 +1,7 @@
 package me.matl114.matlib.Utils;
 
+import lombok.Getter;
+import me.matl114.matlib.UnitTest.Tests.InventoryTests;
 import me.matl114.matlib.Utils.Algorithm.InitializeProvider;
 import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
@@ -10,9 +12,20 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.TileState;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
+import java.lang.reflect.Field;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Iterator;
 
 public class WorldUtils {
 
@@ -117,6 +130,88 @@ public class WorldUtils {
             }catch (Throwable ignored){}
         }
         return block.getState();
+    }
+    @Getter
+    private static final Class<?> craftBlockEntityStateClass = new InitializeSafeProvider<>(Class.class,()->{
+        try{
+            ItemStack spawner = new ItemStack(Material.CHEST);
+            ItemMeta meta = spawner.getItemMeta();
+            BlockStateMeta blockMeta = (BlockStateMeta)meta;
+            BlockState state = blockMeta.getBlockState();
+            Class<?> type = state.getClass();
+            Class<?> oldType ;
+            do{
+                oldType = type;
+                type = type.getSuperclass();
+            }while(TileState.class.isAssignableFrom(type));
+            return oldType;
+        }catch (Throwable e){
+            return null;
+        }
+    }).v();
+    private static final FieldAccess tileEntityAccess = FieldAccess.ofName(craftBlockEntityStateClass,"tileEntity").printError(true);
+    @Getter
+    private static final Class<?> tileEntityClass = new InitializeSafeProvider<>(Class.class,()->{
+        Field tileEntityField = tileEntityAccess.getFieldOrDefault(()->null);
+        return tileEntityField.getType();
+    }).v();
+    private static final FieldAccess tileEntityRemovalAccess = new FieldAccess((ignored)->{
+        return ReflectUtils.getFirstFitField(tileEntityClass,boolean.class,false);
+    }).initWithNull();
+    @Getter
+    private static final VarHandle tileEntityHandle = new InitializeSafeProvider<>(VarHandle.class,()->{
+        return tileEntityAccess.getVarHandleOrDefault(()->null);
+    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize BlockEntityState.tileEntity VarHandle")).v();
+    @Getter
+    private static final VarHandle tileEntityRemovalHandle = new InitializeSafeProvider<>(VarHandle.class,()->{
+        return tileEntityRemovalAccess.getVarHandleOrDefault(()->null);
+    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize TileEntity.remove VarHandle")).v();
+
+    public static boolean isTileEntityStillValid(BlockState tile){
+        if(craftBlockEntityStateClass.isInstance(tile)){
+            Object tileEntity = tileEntityHandle.get(tile);
+            return tileEntity != null && !((boolean) tileEntityRemovalHandle.get(tileEntity));
+        }else {
+            //they may get a wrong state ,so we suppose that the origin state is removed
+            return false;
+        }
+    }
+
+    private static final EnumSet<Material> TILE_ENTITIES_MATERIAL = EnumSet.noneOf(Material.class);
+    private static final EnumSet<Material> INVENTORYHOLDER_MATERIAL = EnumSet.noneOf(Material.class);
+    static {
+        for(Material material : Material.values()){
+            if(material.isBlock()){
+                try{
+                    BlockState sampleBlockState =  material.createBlockData().createBlockState();
+                    if(sampleBlockState instanceof TileState){
+                        TILE_ENTITIES_MATERIAL. add(material);
+                    }
+                    if(sampleBlockState instanceof InventoryHolder){
+                        INVENTORYHOLDER_MATERIAL.add(material);
+                    }
+                }catch (Throwable e){
+                }
+            }
+        }
+    }
+    private static boolean isInventoryTypeCommon(InventoryType inventoryType){
+        return inventoryType!=InventoryType.CHISELED_BOOKSHELF && inventoryType!=InventoryType.JUKEBOX;
+    }
+    public static boolean isInventoryTypeAsyncSafe(InventoryType inventoryType){
+        return inventoryType!=InventoryType.LECTERN && isInventoryTypeCommon(inventoryType);
+    }
+    public static boolean isTileEntity(Material material){
+        return TILE_ENTITIES_MATERIAL.contains(material);
+    }
+    public static Iterator<Material> getTileEntityTypes(){
+        return TILE_ENTITIES_MATERIAL.iterator();
+    }
+    public static boolean isInventoryHolder(Material material){
+        return INVENTORYHOLDER_MATERIAL.contains(material);
+    }
+    public static Iterator<Material> getInventoryHolderTypes(){
+        return INVENTORYHOLDER_MATERIAL.iterator();
     }
 
 }

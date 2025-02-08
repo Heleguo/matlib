@@ -39,6 +39,7 @@ public class SubCommand implements TabExecutor {
     String name;
     @Getter
     TabExecutor executor=this;
+    boolean hide = false;
     public boolean onCommand(CommandSender var1, Command var2,String var3, String[] var4){
         return true;
     }
@@ -50,7 +51,13 @@ public class SubCommand implements TabExecutor {
     public SubCommand(String name,SimpleCommandArgs argsTemplate,List<String> help){
         this(name,argsTemplate,help.toArray(String[]::new));
     }
-
+    public SubCommand hide(){
+        this.hide=true;
+        return this;
+    }
+    public boolean isVisiable(){
+        return !this.hide;
+    }
     public SubCommand register(SubCommandCaller caller){
         caller.registerSub(this);
         return this;
