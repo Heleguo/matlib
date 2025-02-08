@@ -38,6 +38,7 @@ public class ObjectLockFactory<T extends Object> implements Manager {
 
     @Override
     public ObjectLockFactory<T> init(Plugin pl, String... path) {
+        this.pl = pl;
         this.addToRegistry();
         return this;
     }

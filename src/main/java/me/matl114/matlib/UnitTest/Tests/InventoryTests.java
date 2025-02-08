@@ -137,7 +137,7 @@ public class InventoryTests implements TestCase {
                 Debug.logger("Zero size Inventory: ",testInventory);
             }
         }catch (Throwable e){
-            Debug.logger("Validate unsafe inventory type:",testInventory);
+            Debug.logger("Validate unsafe inventory type:",testInventory.getType());
             Assert(!WorldUtils.isInventoryTypeAsyncSafe(testInventory.getType()));
         }
     }
