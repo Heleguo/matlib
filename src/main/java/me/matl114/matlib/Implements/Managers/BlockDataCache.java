@@ -261,6 +261,9 @@ public class BlockDataCache implements Manager {
             mmp.getMachineProcessor().endOperation(loc);
         }
     }
+    public SlimefunBlockData createBlockData(Location loc,SlimefunItem item){
+        return CONTROLLER.createBlock(loc,item.getId());
+    }
     public void removeAllSlimefunBlockAsync(Predicate<SlimefunChunkData> chunkPredicate, Predicate<SlimefunBlockData> blockPredicate, IntConsumer callback){
         new BukkitRunnable() {
             public void run() {

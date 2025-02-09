@@ -1,0 +1,8 @@
+package me.matl114.matlib.core;
+
+public interface Initialization {
+    public Initialization testMode(boolean testMode);
+    public Initialization displayName(final String displayName) ;
+    public Initialization onEnable();
+    public Initialization onDisable();
+}

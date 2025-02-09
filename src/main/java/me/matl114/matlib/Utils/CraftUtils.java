@@ -124,8 +124,6 @@ public class CraftUtils {
     //when running without slimefun:
     //don't use history record of crafting method
     //don't use parseSfId
-
-    private static boolean hookGuizhanLib = true;
     private static final InitializingTasks INIT_TASK_FINISH = new InitializingTasks(()->{
         Debug.logger("Successfully initialize CraftUtils...");
     });
@@ -165,24 +163,6 @@ public class CraftUtils {
         }else return false;
     }
 
-    public static String getDisplayName(ItemStack itemStack){
-        if(hookGuizhanLib){
-            try{
-                return net.guizhanss.guizhanlib.minecraft.helper.inventory.ItemStackHelper.getDisplayName(itemStack);
-            }catch (Throwable e){
-                hookGuizhanLib=false;
-            }
-        }
-        return getDisplayName0(itemStack);
-    }
-    private static String getDisplayName0(ItemStack itemStack){
-        ItemMeta meta = itemStack.getItemMeta();
-        if(meta!=null && meta.hasDisplayName()){
-            return meta.getDisplayName();
-        }else{
-            return itemStack.getType().getKey().getKey();
-        }
-    }
     /**
      * get Consumer for recipe Item
      * @param a

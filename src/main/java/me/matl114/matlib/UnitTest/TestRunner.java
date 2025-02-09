@@ -62,11 +62,11 @@ public class TestRunner implements Manager {
                         try{
                             method.invoke(testCase);
                         }catch (InvocationTargetException | IllegalAccessException e) {
-                            Debug.logger("Error While Running test case: ",testAnnotation.name(),"caused by:");
+                            Debug.logger("Error While Running test case: ",testAnnotation.name(),",caused by:");
                             e.getCause().printStackTrace();
                         }finally {
                             long end = System.nanoTime();
-                            Debug.logger("Finish test case:",testAnnotation.name(),"Time cost:",end-start,"ns,(",(end-start)/1_000_000,"ms)");
+                            Debug.logger("Finish test case:",testAnnotation.name(),",Time cost:",end-start,"ns,(",(end-start)/1_000_000,"ms)");
                         }
                     }
                 },testCase);

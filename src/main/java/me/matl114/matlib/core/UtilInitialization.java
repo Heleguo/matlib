@@ -6,15 +6,15 @@ import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.PluginUtils;
 import org.bukkit.plugin.Plugin;
 
-public class UtilInitialization {
-    private final Plugin plugin;
+public class UtilInitialization implements Initialization{
+    protected final Plugin plugin;
 
-    private final String name;
-    private String displayName;
+    protected final String name;
+    protected String displayName;
     @Getter
-    private boolean testMode = false;
+    protected boolean testMode = false;
     @Getter
-    private EnvironmentManager environment;
+    protected EnvironmentManager environment;
     public UtilInitialization testMode(boolean testMode){
         this.testMode = testMode;
         return this;
@@ -42,9 +42,14 @@ public class UtilInitialization {
             ConfigLoader.init(plugin);
             this.environment=new EnvironmentManager().init(plugin);
             //AddUtils.init(name,displayName==null?name:displayName,plugin);
-        }else{
-            //in test
         }
+//        else{
+//            //in test
+//        }
+        return this;
+    }
+    public UtilInitialization onDisable(){
+        Manager.onDisable();
         return this;
     }
 }
