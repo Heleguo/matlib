@@ -1,15 +1,21 @@
-package me.matl114.matlib.Utils.Inventory;
+package me.matl114.matlib.Utils.Inventory.InventoryRecords;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import me.matl114.matlib.Implements.Managers.BlockDataCache;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Location;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 
-public record SlimefunInventoryRecord(Inventory inventory, BlockMenu optionalHolder, SlimefunBlockData data) implements InventoryRecord {
+public record SlimefunInventoryRecord(Inventory inventory,  SlimefunBlockData data) implements InventoryRecord {
     @Override
     public Location invLocation() {
         return data.getLocation();
+    }
+
+    @Override
+    public InventoryHolder optionalHolder() {
+        return data.getBlockMenu();
     }
 
     @Override
@@ -46,7 +52,7 @@ public record SlimefunInventoryRecord(Inventory inventory, BlockMenu optionalHol
             }
             //also contains vanilla inventory with Slimefun Item
         }
-        return checkVanilla?SimpleInventoryRecord.getInventoryRecord(loc):new SimpleInventoryRecord(null,null,loc);
+        return checkVanilla? SimpleInventoryRecord.getInventoryRecord(loc):new SimpleInventoryRecord(null,null,loc);
 
     }
 }

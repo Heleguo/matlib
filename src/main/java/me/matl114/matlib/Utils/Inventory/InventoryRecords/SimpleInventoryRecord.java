@@ -1,12 +1,10 @@
-package me.matl114.matlib.Utils.Inventory;
+package me.matl114.matlib.Utils.Inventory.InventoryRecords;
 
 import com.google.common.base.Preconditions;
 import me.matl114.matlib.Utils.WorldUtils;
-import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.TileState;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;

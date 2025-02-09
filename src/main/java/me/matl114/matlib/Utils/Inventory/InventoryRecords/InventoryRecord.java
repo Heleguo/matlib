@@ -1,4 +1,4 @@
-package me.matl114.matlib.Utils.Inventory;
+package me.matl114.matlib.Utils.Inventory.InventoryRecords;
 
 import org.bukkit.Location;
 import org.bukkit.inventory.Inventory;

@@ -5,4 +5,7 @@ public interface Initialization {
     public Initialization displayName(final String displayName) ;
     public Initialization onEnable();
     public Initialization onDisable();
+    default  <T extends Initialization> T cast(Class<T> clazz) {
+        return (T)this;
+    }
 }

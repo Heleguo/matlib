@@ -14,14 +14,15 @@ public class MatlibTest extends JavaPlugin {
     @Getter
     @Setter
     private static MatlibTest instance;
-    private static Initialization initialization ;
+    private static AddonInitialization initialization ;
     private static TestRunner testRunner;
     public void onEnable() {
         instance = this;
         initialization = new AddonInitialization(this,"Matlib")
                 .displayName("Matlib-Unittest")
                 .testMode(true)
-                .onEnable();
+                .onEnable()
+                .cast(AddonInitialization.class);
         testRunner = new TestRunner()
                 .init(this)
                 .registerTestCase(new VarHandleTests())

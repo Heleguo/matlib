@@ -1,4 +1,4 @@
-package me.matl114.matlib.Utils.Inventory;
+package me.matl114.matlib.Utils.Inventory.ItemStacks;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
