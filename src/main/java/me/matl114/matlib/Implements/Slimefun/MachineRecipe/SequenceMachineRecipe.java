@@ -1,13 +1,9 @@
 package me.matl114.matlib.Implements.Slimefun.MachineRecipe;
 
 import com.google.common.base.Preconditions;
-import me.matl114.matlib.Utils.CraftUtils;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
 import net.guizhanss.guizhanlib.minecraft.helper.inventory.ItemStackHelper;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SequenceMachineRecipe extends MachineRecipe {
     public static final String[] displayPrefixs=new String[]{
@@ -22,7 +18,8 @@ public class SequenceMachineRecipe extends MachineRecipe {
         for(int i=0; i<len; i++) {
             Preconditions.checkNotNull(inputs[i]);
             displayedNames[i]=new StringBuilder("").append(displayPrefixs[0])
-                    .append(displayPrefixs[1].formatted(inputs[i].getAmount(), CraftUtils.getDisplayName(inputs[i]))).toString();
+                    //fixme change ItemStackHelper to some interface
+                    .append(displayPrefixs[1].formatted(inputs[i].getAmount(), ItemStackHelper.getDisplayName(inputs[i]))).toString();
         }
     }
 }

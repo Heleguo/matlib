@@ -48,7 +48,7 @@ public record SlimefunInventoryRecord(Inventory inventory,  SlimefunBlockData da
         if(data != null){
             BlockMenu inv = data.getBlockMenu();
             if(inv != null){
-                return new SlimefunInventoryRecord(inv.toInventory(),inv,data);
+                return new SlimefunInventoryRecord(inv.toInventory(),data);
             }
             //also contains vanilla inventory with Slimefun Item
         }
