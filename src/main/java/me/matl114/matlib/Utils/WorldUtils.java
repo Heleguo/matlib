@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import javax.annotation.Nonnull;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
@@ -167,7 +168,7 @@ public class WorldUtils {
         return tileEntityRemovalAccess.getVarHandleOrDefault(()->null);
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize TileEntity.remove VarHandle")).v();
 
-    public static boolean isTileEntityStillValid(TileState tile){
+    public static boolean isTileEntityStillValid(@Nonnull TileState tile){
         if(craftBlockEntityStateClass.isInstance(tile)){
             Object tileEntity = tileEntityHandle.get(tile);
             return tileEntity != null && !((boolean) tileEntityRemovalHandle.get(tileEntity));

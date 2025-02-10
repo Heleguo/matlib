@@ -20,12 +20,12 @@ public record SimpleInventoryRecord(Inventory inventory, InventoryHolder optiona
 
     @Override
     public boolean isVanillaInv(){
-        return true;
+        return optionalHolder != null;
     }
 
     @Override
     public boolean stillValid(){
-        return inventory != null && (optionalHolder instanceof TileState);
+        return inventory != null && (optionalHolder instanceof TileState tile) && WorldUtils.isTileEntityStillValid(tile);
 //        if( inventory == null ) return false;
 //        if( ){
 //            return WorldUtils.isTileEntityStillValid(tile);
