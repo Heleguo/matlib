@@ -7,7 +7,9 @@ import org.bukkit.Location;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
-public record SlimefunInventoryRecord(Inventory inventory,  SlimefunBlockData data) implements InventoryRecord {
+import javax.annotation.Nonnull;
+
+public record SlimefunInventoryRecord(Inventory inventory,@Nonnull SlimefunBlockData data) implements InventoryRecord {
     @Override
     public Location invLocation() {
         return data.getLocation();
@@ -40,7 +42,7 @@ public record SlimefunInventoryRecord(Inventory inventory,  SlimefunBlockData da
 
     @Override
     public boolean hasData(){
-        return data != null;
+        return true;
     }
 
     public static InventoryRecord getInventoryRecord(Location loc,boolean checkVanilla){

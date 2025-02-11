@@ -5,7 +5,9 @@ import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Location;
 import org.bukkit.inventory.Inventory;
 
-public record OldSlimefunInventoryRecord(Inventory inventory, BlockMenu optionalHolder) implements InventoryRecord {
+import javax.annotation.Nonnull;
+
+public record OldSlimefunInventoryRecord(@Nonnull Inventory inventory,@Nonnull BlockMenu optionalHolder) implements InventoryRecord {
     @Override
     public Location invLocation() {
         return optionalHolder.getLocation();
@@ -13,7 +15,7 @@ public record OldSlimefunInventoryRecord(Inventory inventory, BlockMenu optional
 
     @Override
     public boolean isSlimefunInv() {
-        return optionalHolder != null;
+        return true;
     }
 
     @Override
@@ -23,7 +25,7 @@ public record OldSlimefunInventoryRecord(Inventory inventory, BlockMenu optional
 
     @Override
     public boolean stillValid() {
-        return optionalHolder!=null && BlockStorage.getInventory(optionalHolder.getLocation())==optionalHolder;
+        return BlockStorage.getInventory(optionalHolder.getLocation())==optionalHolder;
     }
 
     @Override

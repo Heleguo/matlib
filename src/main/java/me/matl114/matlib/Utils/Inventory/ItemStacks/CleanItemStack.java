@@ -43,7 +43,9 @@ public class CleanItemStack extends ItemStack {
             return null;
         }
         var item = new ItemStack(itemStackRaw.getType(),itemStackRaw.getAmount());
-        item.setItemMeta(itemStackRaw.getItemMeta());
+        if(itemStackRaw.hasItemMeta()){
+            item.setItemMeta(itemStackRaw.getItemMeta());
+        }
         return item;
     }
     //upper than 1.21
