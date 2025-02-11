@@ -43,6 +43,7 @@ public class CleanItemStack extends ItemStack {
             return null;
         }
         var item = new ItemStack(itemStackRaw.getType(),itemStackRaw.getAmount());
+        //check hasItemMeta for stupid ItemStackWrapper
         if(itemStackRaw.hasItemMeta()){
             item.setItemMeta(itemStackRaw.getItemMeta());
         }
