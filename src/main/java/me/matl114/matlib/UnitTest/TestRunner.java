@@ -6,7 +6,7 @@ import me.matl114.matlib.Implements.Bukkit.ScheduleManager;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Reflect.ReflectUtils;
 import me.matl114.matlib.Algorithms.Algorithm.ThreadUtils;
-import me.matl114.matlib.Algorithms.Interfaces.Manager;
+import me.matl114.matlib.core.Manager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;

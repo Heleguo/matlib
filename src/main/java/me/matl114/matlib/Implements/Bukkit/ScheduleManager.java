@@ -3,7 +3,7 @@ package me.matl114.matlib.Implements.Bukkit;
 import com.google.common.base.Preconditions;
 import lombok.Getter;
 import me.matl114.matlib.Algorithms.Algorithm.ThreadUtils;
-import me.matl114.matlib.Algorithms.Interfaces.Manager;
+import me.matl114.matlib.core.Manager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;

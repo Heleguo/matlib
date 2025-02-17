@@ -1,6 +1,7 @@
 package me.matl114.matlib.Algorithms.DataStructures.Complex;
 
 import me.matl114.matlib.Algorithms.Algorithm.ThreadUtils;
+import me.matl114.matlibAPI.Algorithms.DataStructures.LockFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -14,7 +15,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 
-public class ObjectLockFactory<T extends Object> {
+public class ObjectLockFactory<T extends Object> implements LockFactory<T> {
     boolean shutdown = false;
     Plugin pl;
     Class<T> clazz;

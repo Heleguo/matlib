@@ -1,4 +1,4 @@
-package me.matl114.matlib.Algorithms.Interfaces;
+package me.matl114.matlib.core;
 
 import org.bukkit.plugin.Plugin;
 

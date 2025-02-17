@@ -4,14 +4,16 @@ import lombok.Getter;
 import me.matl114.matlib.Utils.ConfigLoader;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.PluginUtils;
-import me.matl114.matlib.Algorithms.Interfaces.Initialization;
-import me.matl114.matlib.Algorithms.Interfaces.Manager;
+import me.matl114.matlibAPI.Algorithms.Interfaces.Initialization;
 import org.bukkit.plugin.Plugin;
+
+import java.util.logging.Logger;
 
 public class UtilInitialization implements Initialization {
     protected final Plugin plugin;
 
     protected final String name;
+    @Getter
     protected String displayName;
     @Getter
     protected boolean testMode = false;
@@ -55,6 +57,10 @@ public class UtilInitialization implements Initialization {
         return this;
     }
 
+    @Override
+    public Logger getLogger() {
+        return Debug.log;
+    }
 
 
 }
