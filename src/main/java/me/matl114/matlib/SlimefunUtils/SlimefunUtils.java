@@ -5,7 +5,7 @@ import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.chat.ChatInput;
 import io.github.thebusybiscuit.slimefun4.utils.LoreBuilder;
 import me.matl114.matlib.Utils.AddUtils;
-import me.matl114.matlib.Utils.Algorithm.Pair;
+import me.matl114.matlib.Algorithms.DataStructures.Struct.Pair;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Flags;
 import me.matl114.matlib.Utils.Inventory.ItemStacks.CleanItemStack;

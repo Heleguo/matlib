@@ -1,6 +1,6 @@
 package me.matl114.matlib.Utils.Reflect;
 
-import me.matl114.matlib.Utils.Algorithm.Pair;
+import me.matl114.matlib.Algorithms.DataStructures.Struct.Pair;
 import me.matl114.matlib.Utils.Flags;
 import sun.misc.Unsafe;
 

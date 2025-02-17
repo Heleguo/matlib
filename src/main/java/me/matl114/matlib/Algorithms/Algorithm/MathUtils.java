@@ -1,4 +1,4 @@
-package me.matl114.matlib.Utils.Algorithm;
+package me.matl114.matlib.Algorithms.Algorithm;
 
 import me.matl114.matlib.Utils.Reflect.ReflectUtils;
 import me.matl114.matlib.Utils.Flags;

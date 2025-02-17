@@ -2,6 +2,7 @@ package me.matl114.matlib.Utils;
 
 import com.google.common.base.Charsets;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.config.Config;
+import me.matl114.matlib.Algorithms.Algorithm.FileUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;

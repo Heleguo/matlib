@@ -1,6 +1,6 @@
 package me.matl114.matlib.Utils.ItemCache;
 
-import me.matl114.matlib.Utils.Algorithm.InitializingTasks;
+import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializingTasks;
 import me.matl114.matlib.Utils.CraftUtils;
 import me.matl114.matlib.Utils.Flags;
 import org.bukkit.inventory.ItemStack;

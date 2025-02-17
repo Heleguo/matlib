@@ -1,7 +1,7 @@
 package me.matl114.matlib.Utils.Command.CommandGroup;
 
 import lombok.Getter;
-import me.matl114.matlib.Utils.Algorithm.Pair;
+import me.matl114.matlib.Algorithms.DataStructures.Struct.Pair;
 import me.matl114.matlib.Utils.Command.Params.SimpleCommandArgs;
 import me.matl114.matlib.Utils.Command.Params.SimpleCommandInputStream;
 import org.bukkit.command.Command;

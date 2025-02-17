@@ -1,4 +1,4 @@
-package me.matl114.matlib.Utils;
+package me.matl114.matlib.Algorithms.Algorithm;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,7 +75,6 @@ public class FileUtils {
         DirectoryStream<Path> directoryStream = Files.newDirectoryStream(fs.getPath(from));
         Path to=new File(toPath).toPath();
         for(Path p: directoryStream){
-            Debug.logger(p);
             InputStream is = FileUtils.class.getResourceAsStream("/"+p.toString()) ;
             Path target=to.resolve(p.toString());
 

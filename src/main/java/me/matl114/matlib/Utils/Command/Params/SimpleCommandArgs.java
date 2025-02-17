@@ -2,8 +2,7 @@ package me.matl114.matlib.Utils.Command.Params;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.matl114.matlib.Utils.Algorithm.Pair;
-import me.matl114.matlib.Utils.Debug;
+import me.matl114.matlib.Algorithms.DataStructures.Struct.Pair;
 
 import java.util.*;
 import java.util.function.Supplier;

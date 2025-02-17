@@ -2,11 +2,11 @@ package me.matl114.matlib.UnitTest;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
-import me.matl114.matlib.Implements.Managers.ScheduleManager;
+import me.matl114.matlib.Implements.Bukkit.ScheduleManager;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Reflect.ReflectUtils;
-import me.matl114.matlib.Utils.ThreadUtils;
-import me.matl114.matlib.core.Manager;
+import me.matl114.matlib.Algorithms.Algorithm.ThreadUtils;
+import me.matl114.matlib.Algorithms.Interfaces.Manager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
@@ -14,7 +14,6 @@ import org.bukkit.plugin.Plugin;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.concurrent.FutureTask;
 import java.util.function.Consumer;
 
 public class TestRunner implements Manager {

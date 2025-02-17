@@ -1,10 +1,9 @@
-package me.matl114.matlib.Implements.Managers;
+package me.matl114.matlib.Implements.Bukkit;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
-import lombok.Setter;
-import me.matl114.matlib.Utils.ThreadUtils;
-import me.matl114.matlib.core.Manager;
+import me.matl114.matlib.Algorithms.Algorithm.ThreadUtils;
+import me.matl114.matlib.Algorithms.Interfaces.Manager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -12,7 +11,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
 public class ScheduleManager implements Manager {

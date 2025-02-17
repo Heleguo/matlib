@@ -1,4 +1,4 @@
-package me.matl114.matlib.core;
+package me.matl114.matlib.Algorithms.Interfaces;
 
 public interface Initialization {
     public Initialization testMode(boolean testMode);

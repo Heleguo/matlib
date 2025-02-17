@@ -1,8 +1,8 @@
 package me.matl114.matlib.Utils;
 
 import lombok.Getter;
-import me.matl114.matlib.Utils.Algorithm.InitializeProvider;
-import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
+import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeProvider;
+import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeSafeProvider;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.Reflect.MethodAccess;
 import me.matl114.matlib.Utils.Reflect.ReflectUtils;

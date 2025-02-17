@@ -1,4 +1,4 @@
-package me.matl114.matlib.Utils.Algorithm;
+package me.matl114.matlib.Algorithms.DataStructures.Struct;
 
 import lombok.Getter;
 import lombok.Setter;

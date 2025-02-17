@@ -16,7 +16,8 @@ import java.util.logging.Logger;
 public class Debug {
     public static void init(String name){
         log= Logger.getLogger(name);
-        //CraftBukkit should contains log4j-core
+    }
+    static {
         try{
             ((org.apache.logging.log4j.core.Logger) LogManager.getRootLogger()).addFilter(new org.apache.logging.log4j.core.Filter() {
                 public Result checkMessage(String message) {
@@ -121,10 +122,9 @@ public class Debug {
             logger("Error while injecting log4j-core Filter:");
             logger(e);
         }
-
     }
-    public  static Logger log ;
-    public static Logger testlog=Logger.getLogger("TEST");
+    public  static Logger log = Logger.getLogger("Debug") ;
+    public static Logger testlog=Logger.getLogger("Test");
     public static boolean start=false;
     public static boolean pos=false;
     @Getter

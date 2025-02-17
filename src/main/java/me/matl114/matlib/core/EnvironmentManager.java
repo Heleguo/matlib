@@ -2,6 +2,7 @@ package me.matl114.matlib.core;
 
 import lombok.Getter;
 import me.matl114.matlib.Utils.Debug;
+import me.matl114.matlib.Algorithms.Interfaces.Manager;
 import me.matl114.matlib.Utils.Version.Version;
 import me.matl114.matlib.Utils.Version.VersionedFeature;
 import org.bukkit.plugin.Plugin;

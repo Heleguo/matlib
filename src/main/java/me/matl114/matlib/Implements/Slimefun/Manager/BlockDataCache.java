@@ -1,4 +1,4 @@
-package me.matl114.matlib.Implements.Managers;
+package me.matl114.matlib.Implements.Slimefun.Manager;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.BlockDataController;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
@@ -10,7 +10,7 @@ import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import lombok.Getter;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
-import me.matl114.matlib.core.Manager;
+import me.matl114.matlib.Algorithms.Interfaces.Manager;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,8 +18,6 @@ import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;

@@ -1,9 +1,6 @@
-package me.matl114.matlib.Implements.Managers;
+package me.matl114.matlib.Algorithms.DataStructures.Complex;
 
-import lombok.Getter;
-import me.matl114.matlib.Utils.Debug;
-import me.matl114.matlib.Utils.ThreadUtils;
-import me.matl114.matlib.core.Manager;
+import me.matl114.matlib.Algorithms.Algorithm.ThreadUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -17,7 +14,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 
-public class ObjectLockFactory<T extends Object> implements Manager {
+public class ObjectLockFactory<T extends Object> {
     boolean shutdown = false;
     Plugin pl;
     Class<T> clazz;
@@ -34,10 +31,9 @@ public class ObjectLockFactory<T extends Object> implements Manager {
         this.cloneFactory = cloneFactory;
     }
 
-    @Override
     public ObjectLockFactory<T> init(Plugin pl, String... path) {
         this.pl = pl;
-        this.addToRegistry();
+
         return this;
     }
 
@@ -46,20 +42,16 @@ public class ObjectLockFactory<T extends Object> implements Manager {
         return this;
     }
 
-    @Override
     public ObjectLockFactory<T> reload() {
         deconstruct();
         return init(pl);
     }
 
-    @Override
     public void deconstruct() {
         if(this.autoRefreshTask != null){
             this.autoRefreshTask.cancel();
         }
-        this.removeFromRegistry();
         this.shutdown = true;
-        Debug.logger("Shuting down LockFactory...");
     }
 
     public void onLockRecordRefresh(){

@@ -1,9 +1,9 @@
 package me.matl114.matlib.SlimefunUtils;
 
-import me.matl114.matlib.Implements.Managers.BlockDataCache;
+import me.matl114.matlib.Implements.Slimefun.Manager.BlockDataCache;
 import me.matl114.matlib.SlimefunUtils.ItemCache.*;
-import me.matl114.matlib.Utils.Algorithm.DynamicArray;
-import me.matl114.matlib.Utils.Algorithm.Pair;
+import me.matl114.matlib.Algorithms.DataStructures.Frames.DynamicArray;
+import me.matl114.matlib.Algorithms.DataStructures.Struct.Pair;
 import me.matl114.matlib.Utils.CraftUtils;
 import me.matl114.matlib.Utils.Flags;
 import me.matl114.matlib.Utils.ItemCache.*;

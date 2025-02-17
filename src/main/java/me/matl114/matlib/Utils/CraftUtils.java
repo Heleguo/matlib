@@ -1,6 +1,9 @@
 package me.matl114.matlib.Utils;
 
 import lombok.Getter;
+import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeProvider;
+import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeSafeProvider;
+import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializingTasks;
 import me.matl114.matlib.Utils.Algorithm.*;
 import me.matl114.matlib.SlimefunUtils.ItemCache.ItemCounter;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;

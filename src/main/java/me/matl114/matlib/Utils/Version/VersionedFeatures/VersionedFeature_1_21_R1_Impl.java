@@ -1,15 +1,12 @@
 package me.matl114.matlib.Utils.Version.VersionedFeatures;
 
 import com.google.common.base.Preconditions;
-import lombok.Getter;
-import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
-import me.matl114.matlib.Utils.Reflect.FieldAccess;
+import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeSafeProvider;
 import me.matl114.matlib.Utils.Version.Version;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.EquipmentSlotGroup;
-import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.*;
 
 import java.util.Objects;

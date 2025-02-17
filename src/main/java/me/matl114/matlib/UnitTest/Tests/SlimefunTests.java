@@ -1,11 +1,10 @@
 package me.matl114.matlib.UnitTest.Tests;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
-import io.github.thebusybiscuit.slimefun4.api.events.SlimefunItemSpawnEvent;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
-import me.matl114.matlib.Implements.Managers.BlockDataCache;
-import me.matl114.matlib.Implements.Managers.ScheduleManager;
+import me.matl114.matlib.Implements.Slimefun.Manager.BlockDataCache;
+import me.matl114.matlib.Implements.Bukkit.ScheduleManager;
 import me.matl114.matlib.UnitTest.OnlineTest;
 import me.matl114.matlib.UnitTest.TestCase;
 import me.matl114.matlib.Utils.Debug;
@@ -14,7 +13,6 @@ import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.BlockState;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

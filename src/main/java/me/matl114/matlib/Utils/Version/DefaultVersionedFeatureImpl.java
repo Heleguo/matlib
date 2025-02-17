@@ -1,7 +1,7 @@
 package me.matl114.matlib.Utils.Version;
 
 import lombok.Getter;
-import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
+import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeSafeProvider;
 import me.matl114.matlib.Utils.CraftUtils;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;

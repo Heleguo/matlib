@@ -4,9 +4,11 @@ import lombok.Getter;
 import me.matl114.matlib.Utils.ConfigLoader;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.PluginUtils;
+import me.matl114.matlib.Algorithms.Interfaces.Initialization;
+import me.matl114.matlib.Algorithms.Interfaces.Manager;
 import org.bukkit.plugin.Plugin;
 
-public class UtilInitialization implements Initialization{
+public class UtilInitialization implements Initialization {
     protected final Plugin plugin;
 
     protected final String name;

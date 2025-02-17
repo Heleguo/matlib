@@ -1,6 +1,6 @@
 package me.matl114.matlib.SlimefunUtils.ItemCache;
 
-import me.matl114.matlib.Utils.Algorithm.MathUtils;
+import me.matl114.matlib.Algorithms.Algorithm.MathUtils;
 import me.matl114.matlib.Utils.Flags;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Material;

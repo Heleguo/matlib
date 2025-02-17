@@ -1,6 +1,4 @@
-package me.matl114.matlib.Utils.Algorithm;
-
-import lombok.Value;
+package me.matl114.matlib.Algorithms.DataStructures.Struct;
 
 import java.util.function.Supplier;
 

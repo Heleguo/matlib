@@ -1,10 +1,10 @@
 package me.matl114.matlib.core;
 
 import lombok.Getter;
-import me.matl114.matlib.Implements.Managers.ScheduleManager;
+import me.matl114.matlib.Implements.Bukkit.ScheduleManager;
 import org.bukkit.plugin.Plugin;
 
-public class PluginInitialization extends UtilInitialization{
+public class PluginInitialization extends UtilInitialization {
 
     @Getter
     private ScheduleManager scheduleManager=null;

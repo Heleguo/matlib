@@ -1,9 +1,7 @@
-package me.matl114.matlib.Utils;
+package me.matl114.matlib.Algorithms.Algorithm;
 
-import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;

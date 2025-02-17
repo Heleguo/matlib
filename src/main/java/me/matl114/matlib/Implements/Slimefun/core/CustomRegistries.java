@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import lombok.Getter;
 import me.matl114.matlib.Utils.Debug;
-import me.matl114.matlib.core.Manager;
+import me.matl114.matlib.Algorithms.Interfaces.Manager;
 import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;

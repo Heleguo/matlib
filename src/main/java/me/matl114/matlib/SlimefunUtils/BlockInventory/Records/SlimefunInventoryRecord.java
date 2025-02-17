@@ -1,7 +1,7 @@
 package me.matl114.matlib.SlimefunUtils.BlockInventory.Records;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
-import me.matl114.matlib.Implements.Managers.BlockDataCache;
+import me.matl114.matlib.Implements.Slimefun.Manager.BlockDataCache;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.SimpleInventoryRecord;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
