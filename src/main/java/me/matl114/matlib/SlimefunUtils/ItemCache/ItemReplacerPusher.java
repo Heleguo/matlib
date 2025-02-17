@@ -1,13 +1,9 @@
-package me.matl114.matlib.Utils.ItemCache;
+package me.matl114.matlib.SlimefunUtils.ItemCache;
 
-import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.Nonnull;
-
-public class ItemReplacerPusher extends ItemPusher{
+public class ItemReplacerPusher extends ItemPusher {
     ItemStack source;
     private static ItemReplacerPusher INSTANCE=new ItemReplacerPusher(new ItemStack(Material.STONE),new ItemStack(Material.STONE));
     public static ItemPusher get(ItemStack source,ItemStack data){

@@ -1,5 +1,7 @@
-package me.matl114.matlib.Utils.Inventory.InventoryRecords;
+package me.matl114.matlib.SlimefunUtils.BlockInventory.Records;
 
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.SimpleInventoryRecord;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Location;
@@ -20,6 +22,11 @@ public record OldSlimefunInventoryRecord(@Nonnull Inventory inventory,@Nonnull B
 
     @Override
     public boolean isVanillaInv() {
+        return false;
+    }
+
+    @Override
+    public boolean isMultiBlockInv(){
         return false;
     }
 

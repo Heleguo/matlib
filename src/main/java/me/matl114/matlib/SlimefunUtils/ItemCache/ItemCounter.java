@@ -1,4 +1,4 @@
-package me.matl114.matlib.Utils.ItemCache;
+package me.matl114.matlib.SlimefunUtils.ItemCache;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

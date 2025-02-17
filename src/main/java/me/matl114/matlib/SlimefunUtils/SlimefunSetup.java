@@ -1,10 +1,8 @@
-package me.matl114.matlib.Utils.Slimefun;
+package me.matl114.matlib.SlimefunUtils;
 
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.core.attributes.DistinctiveItem;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
-import lombok.Getter;
-import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
 import me.matl114.matlib.Utils.CraftUtils;
 import me.matl114.matlib.Utils.Flags;
 import org.bukkit.inventory.meta.ItemMeta;

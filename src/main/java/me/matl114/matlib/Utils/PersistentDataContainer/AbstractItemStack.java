@@ -1,8 +1,6 @@
 package me.matl114.matlib.Utils.PersistentDataContainer;
 
 import com.jeff_media.morepersistentdatatypes.DataType;
-import me.matl114.matlib.Utils.AddUtils;
-import me.matl114.matlib.Utils.PluginUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataAdapterContext;
@@ -12,8 +10,10 @@ import org.bukkit.persistence.PersistentDataType;
 import javax.annotation.Nonnull;
 
 public class AbstractItemStack implements PersistentDataType<PersistentDataContainer, ItemStack> {
-
-    public static final NamespacedKey ITEM= PluginUtils.getNamedKey("data");
+    NamespacedKey key;
+    public AbstractItemStack(NamespacedKey key) {
+        this.key = key;
+    }
     public Class<PersistentDataContainer> getPrimitiveType(){
         return PersistentDataContainer.class;
     }
@@ -25,12 +25,12 @@ public class AbstractItemStack implements PersistentDataType<PersistentDataConta
     public PersistentDataContainer toPrimitive(@Nonnull ItemStack complex, @Nonnull PersistentDataAdapterContext context) {
         final PersistentDataContainer container = context.newPersistentDataContainer();
         if(complex.getAmount()==1){
-            container.set(ITEM, DataType.ITEM_STACK, complex);
+            container.set(key, DataType.ITEM_STACK, complex);
         }
         else{
             complex=complex.clone();
             complex.setAmount(1);
-            container.set(ITEM, DataType.ITEM_STACK, complex);
+            container.set(key, DataType.ITEM_STACK, complex);
 
         }
         return container;
@@ -39,7 +39,7 @@ public class AbstractItemStack implements PersistentDataType<PersistentDataConta
     @Override
     @Nonnull
     public ItemStack fromPrimitive(@Nonnull PersistentDataContainer primitive, @Nonnull PersistentDataAdapterContext context) {
-        final ItemStack item = primitive.get(ITEM, DataType.ITEM_STACK);
+        final ItemStack item = primitive.get(key, DataType.ITEM_STACK);
         return item;
     }
 

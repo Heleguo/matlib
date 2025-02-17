@@ -1,6 +1,6 @@
 package me.matl114.matlib.Implements.Slimefun.MachineRecipe;
 
-import me.matl114.matlib.Utils.ItemCache.ItemGreedyConsumer;
+import me.matl114.matlib.SlimefunUtils.ItemCache.ItemGreedyConsumer;
 
 public class MultiCraftingOperation implements CustomMachineOperation {
     private ItemGreedyConsumer[] outputItems;

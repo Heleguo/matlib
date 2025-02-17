@@ -163,7 +163,8 @@
             <version>2.20.0</version> <!-- 选择合适的版本 -->
             <scope>provided</scope>
         </dependency>
-<!--        <dependency>-->
+
+        <!--        <dependency>-->
 <!--            <groupId>io.papermc</groupId>-->
 <!--            <artifactId>paperlib</artifactId>-->
 <!--            <version>1.0.8</version>-->

@@ -1,6 +1,5 @@
 package me.matl114.matlib.Utils.PersistentDataContainer;
 
-import me.matl114.matlib.Utils.PluginUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -11,7 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AbstractStringList implements PersistentDataType<PersistentDataContainer, List<String>> {
-    public AbstractStringList() {
+    String namespace;
+    public AbstractStringList(String namespace) {
+        this.namespace = namespace;
     }
 
     @Nonnull
@@ -30,7 +31,7 @@ public class AbstractStringList implements PersistentDataType<PersistentDataCont
         PersistentDataContainer container = context.newPersistentDataContainer();
 
         for(int i = 0; i < complex.size(); ++i) {
-            NamespacedKey key = PluginUtils.getNamedKey(String.valueOf(i)) ;
+            NamespacedKey key = new NamespacedKey(namespace, "i_"+i);
             container.set(key, STRING, (String)complex.get(i));
         }
 
@@ -41,7 +42,7 @@ public class AbstractStringList implements PersistentDataType<PersistentDataCont
     public List<String> fromPrimitive(@Nonnull PersistentDataContainer primitive, @Nonnull PersistentDataAdapterContext context) {
         List<String> strings = new ArrayList<>();
         for(int i=0;true;++i){
-            NamespacedKey key = PluginUtils.getNamedKey(String.valueOf(i)) ;
+            NamespacedKey key = new NamespacedKey(namespace, "i_"+i);
             if(primitive.has(key, STRING)){
                 strings.add(primitive.get(key, STRING));
             }else {

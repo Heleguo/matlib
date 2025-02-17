@@ -27,10 +27,13 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
@@ -358,11 +361,37 @@ public class Tests {
         //sort time 477000 235800 898200
         // 288200
     }
+    public static int GetRandom(int end) {
+        return Math.abs(new Random().nextInt()) % (end + 1);
+    }
+    public static long GetRandomL(long end) {
+        return Math.abs(new Random().nextLong()) % (end + 1);
+    }
+    public static boolean predicate(double test){
+        return GetRandom( Math.min(20,20) * 16777216 * 6 ) <= 10 *test;
+    }
     @Test
-    public void test_convertBase(){
-//        for (long i = 2147483649l;i<2147483949l ; ++i ){
-//            log((int)i);
+    public void test_probablity(){
+        int testCount = 10000;
+        int successCount = 0;
+        for(int i=0;i<testCount;++i){
+            if(predicate(10000*10000)){
+                successCount++;
+            }
+        }
+        log("Prob: %d/%d".formatted(successCount,testCount));
+    }
+    @Test
+    public void test_threadpool(){
+//        var pool = new ForkJoinPool();
+//        List<CompletableFuture<Void>> futures = new ArrayList<>();
+//        for(int i=0;i<65536;++i){
+//            futures.add(  CompletableFuture.runAsync(()->{
+//                ThreadUtils.sleep(1000);
+//            },pool));
 //        }
+//        CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+//        log("Finish");
     }
 
 

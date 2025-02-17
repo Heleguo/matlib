@@ -86,7 +86,7 @@ public class MethodAccess<T extends Object> {
     }
     private void initInternal(Object obj) throws Throwable{
         Method field=lazilyInitializationFunction.apply(obj);
-        Preconditions.checkArgument(field!=null,"MethodAccess init method failed: method is null! using argument: "+(obj==null?"null":obj.toString()));
+        Preconditions.checkArgument(field!=null,"MethodAccess init method failed: method is null! using argument: "+(obj==null?"null":obj.getClass()));
         field.setAccessible(true);
         this.field= field;
         this.isStatic= Modifier.isStatic(this.field.getModifiers());

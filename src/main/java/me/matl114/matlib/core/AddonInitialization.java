@@ -5,7 +5,7 @@ import me.matl114.matlib.Implements.Managers.BlockDataCache;
 import me.matl114.matlib.Implements.Slimefun.core.CustomRegistries;
 import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
 import me.matl114.matlib.Utils.Debug;
-import me.matl114.matlib.Utils.Slimefun.SlimefunSetup;
+import me.matl114.matlib.SlimefunUtils.SlimefunSetup;
 import org.bukkit.plugin.Plugin;
 
 public class AddonInitialization extends PluginInitialization {

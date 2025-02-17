@@ -1,7 +1,6 @@
 package me.matl114.matlib.Utils;
 
 import lombok.Getter;
-import me.matl114.matlib.UnitTest.Tests.InventoryTests;
 import me.matl114.matlib.Utils.Algorithm.InitializeProvider;
 import me.matl114.matlib.Utils.Algorithm.InitializeSafeProvider;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
@@ -23,9 +22,7 @@ import javax.annotation.Nonnull;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
-import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Iterator;
 
 public class WorldUtils {
@@ -102,13 +99,21 @@ public class WorldUtils {
             }else return null;
         }else return null;
     }
-    private static final boolean hasPaperLib = new InitializeProvider<>(()->{
+    private static final Class<?> optionalPaperLibSource = new InitializeSafeProvider<Class<?>>(()->{
+        return Class.forName("io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib");
+    }).v();
+    private static final boolean isPaperLibEnv = new InitializeProvider<>(()->{
         try{
-            return io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib.isPaper();
+            if(optionalPaperLibSource!=null){
+                return (Boolean) optionalPaperLibSource.getMethod("isPaper").invoke(null);
+            }else {
+                return false;
+            }
         }catch(Throwable unexpected){
             return false;
         }
     }).v();
+    //private static final MethodAccess<?> getBlockS
     private static final MethodAccess<?> getStateNoSnapshotAccess = new InitializeSafeProvider<>(MethodAccess.class,()->{
         try {
             return MethodAccess.of( Block.class.getDeclaredMethod("getState",boolean.class) );
@@ -122,9 +127,6 @@ public class WorldUtils {
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize Blockstate.getState MethodHandle")).v();
 
     public static BlockState getBlockStateNoSnapShot(Block block){
-        if(hasPaperLib){
-            return io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib.getBlockState(block,false).getState();
-        }
         if(getStateNoSnapshotHandle!=null){
             try{
                 return (BlockState)getStateNoSnapshotHandle.invokeExact(block,false);

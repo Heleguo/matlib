@@ -1,6 +1,5 @@
 package me.matl114.matlib.Utils.Algorithm;
 
-import java.security.Provider;
 import java.util.function.Supplier;
 
 public class InitializeProvider <T extends Object>{

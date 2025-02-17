@@ -37,6 +37,12 @@ public interface InventoryRecord {
     public boolean isVanillaInv();
 
     /**
+     * check if inventory are made of multi BlockState(DoubleChest)
+     * @return
+     */
+    public boolean isMultiBlockInv();
+
+    /**
      * check if optionalHolder still presents,
      * @return
      */

@@ -7,8 +7,8 @@ import me.matl114.matlib.UnitTest.Tests.InventoryTests;
 import me.matl114.matlib.UnitTest.Tests.SlimefunTests;
 import me.matl114.matlib.UnitTest.Tests.VarHandleTests;
 import me.matl114.matlib.core.AddonInitialization;
-import me.matl114.matlib.core.Initialization;
 import org.bukkit.plugin.java.JavaPlugin;
+
 
 public class MatlibTest extends JavaPlugin {
     @Getter
@@ -16,6 +16,8 @@ public class MatlibTest extends JavaPlugin {
     private static MatlibTest instance;
     private static AddonInitialization initialization ;
     private static TestRunner testRunner;
+
+
     public void onEnable() {
         instance = this;
         initialization = new AddonInitialization(this,"Matlib")
@@ -30,8 +32,10 @@ public class MatlibTest extends JavaPlugin {
                 .registerTestCase(new InventoryTests())
                 .registerTestCase(new SlimefunTests())
         ;
+
     }
     public void onDisable() {
+
         instance = null;
         initialization.onDisable();
         initialization = null;

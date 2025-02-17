@@ -1,7 +1,9 @@
-package me.matl114.matlib.Utils.Inventory.InventoryRecords;
+package me.matl114.matlib.SlimefunUtils.BlockInventory.Records;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import me.matl114.matlib.Implements.Managers.BlockDataCache;
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.SimpleInventoryRecord;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Location;
 import org.bukkit.inventory.Inventory;
@@ -27,6 +29,11 @@ public record SlimefunInventoryRecord(Inventory inventory,@Nonnull SlimefunBlock
 
     @Override
     public boolean isVanillaInv() {
+        return false;
+    }
+
+    @Override
+    public boolean isMultiBlockInv(){
         return false;
     }
 

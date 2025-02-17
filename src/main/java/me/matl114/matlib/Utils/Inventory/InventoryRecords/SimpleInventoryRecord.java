@@ -24,6 +24,11 @@ public record SimpleInventoryRecord(Inventory inventory, InventoryHolder optiona
     }
 
     @Override
+    public boolean isMultiBlockInv() {
+        return false;
+    }
+
+    @Override
     public boolean stillValid(){
         return inventory != null && (optionalHolder instanceof TileState tile) && WorldUtils.isTileEntityStillValid(tile);
 //        if( inventory == null ) return false;
@@ -49,9 +54,9 @@ public record SimpleInventoryRecord(Inventory inventory, InventoryHolder optiona
     public boolean hasData() {
         return optionalHolder != null;
     }
-
+    //todo need check of double chest
     @Nonnull
-    static InventoryRecord getInventoryRecord(Location loc) {
+    public static InventoryRecord getInventoryRecord(Location loc) {
         //should force Sync
         Block b = loc.getBlock();
         if(WorldUtils.getBlockStateNoSnapShot(b) instanceof InventoryHolder holder){

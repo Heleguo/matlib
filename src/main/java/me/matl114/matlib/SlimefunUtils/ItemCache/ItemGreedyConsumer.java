@@ -1,4 +1,4 @@
-package me.matl114.matlib.Utils.ItemCache;
+package me.matl114.matlib.SlimefunUtils.ItemCache;
 
 import me.matl114.matlib.Utils.Algorithm.MathUtils;
 import me.matl114.matlib.Utils.Flags;

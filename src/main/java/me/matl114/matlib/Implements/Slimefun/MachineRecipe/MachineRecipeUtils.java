@@ -7,14 +7,12 @@ import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
 import me.matl114.matlib.Utils.AddUtils;
 import me.matl114.matlib.Utils.CraftUtils;
 import me.matl114.matlib.Utils.ItemCache.AbstractItemStack;
-import me.matl114.matlib.Utils.ItemCache.ItemCounter;
+import me.matl114.matlib.SlimefunUtils.ItemCache.ItemCounter;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
-import java.util.function.IntFunction;
-import java.util.function.Supplier;
 
 public class MachineRecipeUtils {
     public static final ItemStack BOTTLE=new ItemStack(Material.GLASS_BOTTLE);

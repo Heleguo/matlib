@@ -2,7 +2,7 @@ package me.matl114.matlib.Utils;
 
 import lombok.Getter;
 import me.matl114.matlib.Utils.Algorithm.*;
-import me.matl114.matlib.Utils.ItemCache.ItemCounter;
+import me.matl114.matlib.SlimefunUtils.ItemCache.ItemCounter;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.core.EnvironmentManager;
 import org.bukkit.Bukkit;
