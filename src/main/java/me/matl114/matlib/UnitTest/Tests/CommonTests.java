@@ -61,7 +61,14 @@ public class CommonTests implements TestCase {
         }
         long end = System.nanoTime();
         Debug.logger("time cost for 1_000_000 invocation",end-start,value);
-
+        Method method = instance.getClass().getMethod("getDisplayName");
+        start = System.nanoTime();
+        value = null;
+        for (int i=0;i<1_000_000;++i){
+            method.invoke(instance);
+        }
+        end = System.nanoTime();
+        Debug.logger("time cost for 1_000_000 reflection",end-start,value);
 
         //DO NOT CALL METHOD WITH OUR CLASS RETURN VALUE ,OTHERWISE CLASS CAST EXCEPTION WILL OCCURS
         Debug.logger(init.isTestMode());

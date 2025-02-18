@@ -2,11 +2,13 @@ package me.matl114.matlib.Utils.Reflect;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import me.matl114.matlib.Algorithms.DataStructures.Frames.HashContainer;
 import me.matl114.matlibAdaptor.Proxy.Utils.AnnotationUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -15,7 +17,7 @@ public class AdaptorInvocation implements InvocationHandler {
     private final Object target;
     private final MethodAccess fastAccess;
     private final HashContainer<MethodIndex> methods;
-
+//    private final Map<MethodSignature,Integer> methods2 ;
     /**
      * create Adaptor of an object
      * @param targetInterface
@@ -64,19 +66,28 @@ public class AdaptorInvocation implements InvocationHandler {
         }
         this.methods = new HashContainer<>(2*methodSnapshot.size(),p->p.signature.hashCode());
 
-//        this.methods = new Triplet[maxCount+1][];
+
         for(var count :methodSnapshot.entrySet()){
             this.methods.add(new MethodIndex(MethodSignature.getSignature(count.getKey()),count.getValue()));
         }
+//        Map<MethodSignature,Integer> bey = new HashMap<>(maxCount);
+//        for (var count:methodSnapshot.entrySet()){
+//            bey.put(MethodSignature.getSignature(count.getKey()),count.getValue());
+//        }
+//        this.methods2 = ImmutableMap.copyOf(bey);
 
     }
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        var methodParam = method.getParameterTypes();
+//        var methodParam = method.getParameterTypes();
         MethodIndex info = this.methods.findFirst(MethodSignature.getHash(method),index->index.signature.ofSameSignature(method));
+//        Integer index = this.methods2.get(MethodSignature.getSignature(method));
         if(info!=null){
             return invoke0(info.index,args);
         }
+//        if(index!=null){
+//            return invoke0(index,args);
+//        }
 
         throw new IllegalArgumentException("Method " + method + " not Accessible in this Adaptor!");
     }
