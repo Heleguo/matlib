@@ -10,6 +10,7 @@ import org.apache.logging.log4j.message.Message;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -249,6 +250,21 @@ public class Debug {
             interceptionString.clear();
         }
         return value;
+    }
+    private static final Consumer<String> NULL=(st)->{};
+    public static <C> C interceptAllOutputs(Supplier<C> r){
+        return interceptAllOutputs(r,NULL);
+    }
+    public static <C> C interceptAllOutputs(Supplier<C> r, Consumer<String> callback){
+        interceptLogger = true;
+        try{
+            return r.get();
+        }finally {
+            interceptLogger = false;
+            String value = String.join("\n", interceptionString.toArray(String[]::new));
+            interceptionString.clear();
+            callback.accept(value);
+        }
     }
 
 }

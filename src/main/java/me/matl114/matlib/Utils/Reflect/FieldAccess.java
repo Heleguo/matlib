@@ -9,6 +9,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -26,6 +27,16 @@ public class FieldAccess {
     private boolean isFinal = false;
     private boolean isPublic = false;
     private boolean isPrivate = false;
+    private static HashMap<Class<?>, com.esotericsoftware.reflectasm.FieldAccess> cachedAccess = new HashMap<>();
+    public static com.esotericsoftware.reflectasm.FieldAccess getOrCreateAccess(Class<?> targetClass){
+        return cachedAccess.computeIfAbsent(targetClass, (clz)->Debug.interceptAllOutputs(()-> com.esotericsoftware.reflectasm.FieldAccess.get(clz),(output)->{
+            if (output !=null && !output.isEmpty()){
+                Debug.warn("Console output is intercepted:",output);
+                Debug.warn("It is not a BUG and you can ignore it");
+            }
+        }))
+                ;
+    }
     private com.esotericsoftware.reflectasm.FieldAccess fastAccessInternal;
     private int fastAccessIndex;
     private boolean failPublicAccess=false;
@@ -82,15 +93,9 @@ public class FieldAccess {
                 //only the field who has full access can create fast Access throw FieldAccess
                 if(!isStatic && !isPrivate){
                     try{
-                        String output=  Debug.catchAllOutputs(()->{
-                            this.fastAccessInternal = com.esotericsoftware.reflectasm.FieldAccess.get(field.getDeclaringClass());
-                            this.fastAccessIndex = this.fastAccessInternal.getIndex(this.field);
-                            this.failPublicAccess = !this.isPublic;
-                        },true);
-                        if (output !=null && !output.isEmpty()){
-                            Debug.warn("Console output is intercepted:",output);
-                            Debug.warn("It is not a BUG and you can ignore it");
-                        }
+                        this.fastAccessInternal = getOrCreateAccess(field.getDeclaringClass());
+                        this.fastAccessIndex = this.fastAccessInternal.getIndex(this.field);
+                        this.failPublicAccess = !this.isPublic;
                     }catch (Throwable e){
                         this.failPublicAccess = true;
                         if (printError){

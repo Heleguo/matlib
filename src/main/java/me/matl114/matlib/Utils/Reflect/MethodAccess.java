@@ -17,7 +17,12 @@ import java.util.function.Supplier;
 public class MethodAccess<T extends Object> {
     private static HashMap<Class, com.esotericsoftware.reflectasm.MethodAccess> cachedAccess = new HashMap<>();
     public static com.esotericsoftware.reflectasm.MethodAccess getOrCreateAccess(Class<?> targetClass){
-        return cachedAccess.computeIfAbsent(targetClass, com.esotericsoftware.reflectasm.MethodAccess::get);
+        return cachedAccess.computeIfAbsent(targetClass, (clz)->Debug.interceptAllOutputs(()-> com.esotericsoftware.reflectasm.MethodAccess.get(clz),(output)->{
+            if (output !=null && !output.isEmpty()){
+                Debug.warn("Console output is intercepted:",output);
+                Debug.warn("It is not a BUG and you can ignore it");
+            }
+        }))    ;
     }
     private boolean printError = false;
     @Getter
