@@ -20,7 +20,7 @@ public class MethodAccess<T extends Object> {
         return cachedAccess.computeIfAbsent(targetClass, (clz)->Debug.interceptAllOutputs(()-> com.esotericsoftware.reflectasm.MethodAccess.get(clz),(output)->{
             if (output !=null && !output.isEmpty()){
                 Debug.warn("Console output is intercepted:",output);
-                Debug.warn("It is not a BUG and you can ignore it");
+                Debug.warn("It is not a BUG and you can ignore it ");
             }
         }))    ;
     }
