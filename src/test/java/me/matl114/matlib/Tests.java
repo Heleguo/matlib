@@ -13,6 +13,7 @@ import me.matl114.matlib.Utils.Reflect.MethodAccess;
 import me.matl114.matlib.Utils.Reflect.ReflectUtils;
 import me.matl114.matlib.Algorithms.Algorithm.ThreadUtils;
 import me.matl114.matlib.core.AddonInitialization;
+import me.matl114.matlibAdaptor.Proxy.Utils.AnnotationUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -349,6 +351,11 @@ public class Tests {
         log(runningThread.get());
         //sort time 477000 235800 898200
         // 288200
+    }
+    @Test
+    public void test_method() throws NoSuchMethodException {
+        log(AnnotationUtils.ADAPTOR_ANNOTATION_IDENTIFIER);
+
     }
     public static int GetRandom(int end) {
         return Math.abs(new Random().nextInt()) % (end + 1);

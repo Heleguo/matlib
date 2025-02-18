@@ -1,7 +1,7 @@
 package me.matl114.matlib.Algorithms.DataStructures.Complex;
 
 import me.matl114.matlib.Algorithms.Algorithm.ThreadUtils;
-import me.matl114.matlibAPI.Algorithms.DataStructures.LockFactory;
+import me.matl114.matlibAdaptor.Algorithms.DataStructures.LockFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;

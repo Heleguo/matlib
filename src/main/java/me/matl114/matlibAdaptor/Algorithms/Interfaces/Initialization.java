@@ -1,4 +1,7 @@
-package me.matl114.matlibAPI.Algorithms.Interfaces;
+package me.matl114.matlibAdaptor.Algorithms.Interfaces;
+
+import me.matl114.matlibAdaptor.Proxy.Annotations.AdaptorInterface;
+import me.matl114.matlibAdaptor.Proxy.Annotations.InternalMethod;
 
 import java.util.logging.Logger;
 
@@ -6,6 +9,7 @@ import java.util.logging.Logger;
  * Initialization contains the startup/shutdown information of a progress,
  * the management of Utils,PluginHelper,Plugin
  */
+@AdaptorInterface
 public interface Initialization {
     /**
      * return if this progress is in test
@@ -19,13 +23,22 @@ public interface Initialization {
      * @return
      */
     public String getDisplayName();
+    @InternalMethod
     public Initialization displayName(final String displayName) ;
 
     /**
-     * control the progress's startup/shutdown
+     * control the progress's start/stop
      * @return
      */
+    default void onStart(){
+        onEnable();
+    }
+    @InternalMethod
     public Initialization onEnable();
+    default void onStop(){
+        onDisable();
+    }
+    @InternalMethod
     public Initialization onDisable();
 
     /**
@@ -39,6 +52,7 @@ public interface Initialization {
      * @return
      * @param <T>
      */
+    @InternalMethod
     default  <T extends Initialization> T cast(Class<T> clazz) {
         return (T)this;
     }

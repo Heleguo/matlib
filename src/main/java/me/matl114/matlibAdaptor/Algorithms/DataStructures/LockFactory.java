@@ -1,4 +1,6 @@
-package me.matl114.matlibAPI.Algorithms.DataStructures;
+package me.matl114.matlibAdaptor.Algorithms.DataStructures;
+
+import me.matl114.matlibAdaptor.Proxy.Annotations.AdaptorInterface;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
@@ -8,6 +10,7 @@ import java.util.function.Supplier;
  * LockFactory means that each T(in equal() equivalence) object holds a lock, some task need to ensure that only one task holds a object at the same time,
  * @param <T>
  */
+@AdaptorInterface
 public interface LockFactory<T extends Object> {
     /**
      * this task need to hold objs to run

@@ -24,7 +24,7 @@ public class MatlibTest extends JavaPlugin {
                 .displayName("Matlib-Unittest")
                 .testMode(true)
                 .onEnable()
-                .cast(AddonInitialization.class);
+                .cast(null);
         testRunner = new TestRunner()
                 .init(this)
                 .registerTestCase(new VarHandleTests())

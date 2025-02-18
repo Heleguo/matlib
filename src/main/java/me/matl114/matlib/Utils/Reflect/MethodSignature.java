@@ -1,0 +1,33 @@
+package me.matl114.matlib.Utils.Reflect;
+
+import com.esotericsoftware.reflectasm.MethodAccess;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+
+public record MethodSignature(String methodName, Class<?>[] parameterTypes){
+    public static MethodSignature getSignature(Method method){
+        return new MethodSignature(method.getName(), method.getParameterTypes());
+    }
+    public int getSignatureIndex(MethodAccess access){
+        return access.getIndex(methodName,parameterTypes);
+    }
+    public int getParameterCount(){
+        return parameterTypes.length;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof MethodSignature sig && methodName.equals(sig.methodName) && Arrays.equals(parameterTypes, sig.parameterTypes);
+    }
+
+    @Override
+    public int hashCode() {
+        return methodName.hashCode()*67+parameterTypes.length;
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuilder("MethodSignature{ method = ").append(methodName).append(", parameters = ").append(Arrays.toString(parameterTypes)).append(" }").toString();
+    }
+}

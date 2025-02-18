@@ -4,7 +4,7 @@ import lombok.Getter;
 import me.matl114.matlib.Utils.ConfigLoader;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.PluginUtils;
-import me.matl114.matlibAPI.Algorithms.Interfaces.Initialization;
+import me.matl114.matlibAdaptor.Algorithms.Interfaces.Initialization;
 import org.bukkit.plugin.Plugin;
 
 import java.util.logging.Logger;

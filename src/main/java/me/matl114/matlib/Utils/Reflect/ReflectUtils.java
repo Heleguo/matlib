@@ -8,9 +8,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class ReflectUtils {
     public static  Object invokeGetRecursively(Object target, Flags mod, String declared){
@@ -117,6 +115,12 @@ public class ReflectUtils {
         fieldList.addAll(getAllMethodsRecursively(clazz.getSuperclass()));
         return fieldList;
     }
+
+    /**
+     * return the directly implemented interface, the superInterface of interface is not listed in the return List
+     * @param clazz
+     * @return
+     */
     public static List<Class> getAllInterfacesRecursively(Class clazz){
         List<Class> fieldList=new ArrayList<>();
         if(clazz==null){
@@ -128,6 +132,18 @@ public class ReflectUtils {
         }
         fieldList.addAll(getAllInterfacesRecursively(clazz.getSuperclass()));
         return fieldList;
+    }
+    public static List<Class> getAllAssignableInterface(Class clazz){
+        Set<Class> fieldList=new HashSet<>();
+        if(clazz==null){
+            return fieldList.stream().toList();
+        }
+        Class[] fields=clazz.getInterfaces();
+        for(Class f:fields){
+            fieldList.addAll(getAllAssignableInterface(f));
+        }
+        fieldList.addAll(getAllAssignableInterface(clazz.getSuperclass()));
+        return fieldList.stream().toList();
     }
     public static List<Class> getAllSuperClassRecursively(Class clazz){
         List<Class> fieldList=new ArrayList<>();
