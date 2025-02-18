@@ -368,4 +368,49 @@ public class ReflectUtils {
             setter.set(unsafe,staticFieldBase,fieldOffset,accessibleField);
         });
     }
+    public static final Map<String,Integer> objectInvocationIndex = new HashMap<>(){{
+        put("getClass",-1);
+        put("hashCode",-2);
+        put("equals",-3);
+        put("clone",-4);
+        put("toString",-5);
+        put("notify",-6);
+        put("notifyAll",-7);
+        put("wait",-8);
+        put("wait0",-9);
+        put("finalize",-10);
+    }};
+    public static boolean isBaseMethod(Method method){
+        return objectInvocationIndex.containsKey(method.getName()); //Object.class.equals(method.getDeclaringClass());
+    }
+    public static int getBaseMethodIndex(Method method){
+        String methodName = method.getName();
+        if(objectInvocationIndex.containsKey(methodName)){
+            return objectInvocationIndex.get(methodName);
+        }else {
+            throw new IllegalArgumentException("Not a base Method!");
+        }
+    }
+    public static Object invokeBaseMethod(Object target,int index,Object[] args){
+        switch (index){
+            case -1:return target.getClass();
+            case -2:return target.hashCode();
+            case -3:return target.equals(args[0]);
+            case -4:throw new IllegalStateException("clone method not supported");
+            case -5:return target.toString();
+            case -6:target.notify();return null;
+            case -7:target.notifyAll();return null;
+            case -8:try{ switch (args.length){
+                case 0:target.wait();return null;
+                case 1:target.wait((Long) args[0]);return null;
+                case 2:target.wait();return null;
+                default:throw new IllegalArgumentException("Wrong argument count for wait!");
+            }}catch (InterruptedException e){
+            }
+                return null;
+            case -9:throw new IllegalArgumentException("wait0 method not supported");
+            case -10:throw new IllegalArgumentException("finalize method not supported");
+        }
+        return null;
+    }
 }

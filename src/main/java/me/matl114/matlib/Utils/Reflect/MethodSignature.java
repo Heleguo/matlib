@@ -25,6 +25,12 @@ public record MethodSignature(String methodName, Class<?>[] parameterTypes){
     public int hashCode() {
         return methodName.hashCode()*67+parameterTypes.length;
     }
+    public static int getHash(Method method){
+        return method.getName().hashCode()*67+method.getParameterCount();
+    }
+    public boolean ofSameSignature(Method method){
+        return methodName.equals(method.getName()) && Arrays.equals(parameterTypes, method.getParameterTypes());
+    }
 
     @Override
     public String toString() {

@@ -1,43 +1,72 @@
 package me.matl114.matlibAdaptor.Proxy.Utils;
 
 import com.google.common.base.Preconditions;
-import me.matl114.matlibAdaptor.Proxy.Annotations.AdaptorInterface;
-import me.matl114.matlibAdaptor.Proxy.Annotations.InternalMethod;
 
 import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class AnnotationUtils {
-    public static String ADAPTOR_ANNOTATION_IDENTIFIER = AdaptorInterface.class.getName();
-    public static String INTERNEL_ANNOTATION_IDENTIFIER = InternalMethod.class.getName();
+    public static String ADAPTOR_ANNOTATION_IDENTIFIER = "matlibAdaptor.Proxy.Annotations.AdaptorInterface";
+    public static String INTERNEL_ANNOTATION_IDENTIFIER = "matlibAdaptor.Proxy.Annotations.InternalMethod";
     @Nonnull
     public static Optional<Annotation> getAdaptorInstance(Class<?> interfaceClass){
         Preconditions.checkArgument(interfaceClass.isInterface(),"Argument is not an interface");
         Annotation[] annotations = interfaceClass.getAnnotations();
         for(Annotation annotation : annotations){
-            if(ADAPTOR_ANNOTATION_IDENTIFIER.equals(annotation.annotationType().getName())){
+            if(annotation.annotationType().getName().endsWith( ADAPTOR_ANNOTATION_IDENTIFIER )){
                 return Optional.of(annotation);
             }
         }
         return Optional.empty();
     }
     @Nonnull
-    public static List<Method> getAdaptedMethods(Class<?> interfaceClass){
+    public static Set<Method> getAdaptedMethods(Class<?> interfaceClass){
         Preconditions.checkArgument(interfaceClass.isInterface(),"Argument is not an interface");
-        List<Method> methods = new ArrayList<>();
+        Set<Method> methods = new HashSet<>();
         collectMethods0(interfaceClass, methods);
         //remove all internal method
-        methods.removeIf(method -> Arrays.stream(method.getAnnotations()).anyMatch(a->INTERNEL_ANNOTATION_IDENTIFIER.equals(a.annotationType().getName())));
+        methods.removeIf(method -> Arrays.stream(method.getAnnotations()).anyMatch(a->a.annotationType().getName().endsWith( INTERNEL_ANNOTATION_IDENTIFIER )));
         return methods;
     }
-    private static void collectMethods0(Class<?> clazz,List<Method> methods){
+    private static void collectMethods0(Class<?> clazz,Collection<Method> methods){
         Arrays.stream(clazz.getInterfaces()).forEach(i->collectMethods0(i,methods));
         //only collect public and default method
         methods.addAll(Arrays.asList(clazz.getMethods()));
+    }
+    private static void collectInterface0(Class<?> clazz, Collection<Class> methods){
+        Arrays.stream(clazz.getInterfaces()).forEach(i->collectInterface0(i,methods));
+        if(clazz.isInterface()){
+            methods.add(clazz);
+        }else {
+            clazz = clazz.getSuperclass();
+            if(clazz != null){
+                collectInterface0(clazz,methods);
+            }
+        }
+    }
+    public static Class<?> getTargetInterface(Class<?> orginClass,String adaptorSimpleName){
+        Deque<Class<?>> queue = new ArrayDeque<>();
+        queue.add(orginClass);
+        while(!queue.isEmpty()){
+            Class<?> clazz = queue.poll();
+            if(clazz.isInterface()){
+                if( clazz.getSimpleName().equals(adaptorSimpleName)){
+                    return clazz;
+                }
+            }else{
+                //add at last,check later
+                Class<?> superClass = clazz.getSuperclass();
+                if(superClass != null){
+                    queue.add(superClass);
+                }
+            }
+            //check interfaces first
+            for (Class<?> iface : clazz.getInterfaces()) {
+                queue.addFirst(iface);
+            }
+        }
+        return null;
     }
 }

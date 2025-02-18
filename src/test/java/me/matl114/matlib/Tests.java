@@ -1,6 +1,7 @@
 package me.matl114.matlib;
 
 import me.matl114.matlib.Algorithms.DataStructures.Complex.ObjectLockFactory;
+import me.matl114.matlib.Algorithms.DataStructures.Frames.HashContainer;
 import me.matl114.matlib.Algorithms.DataStructures.Struct.Pair;
 import me.matl114.matlib.Algorithms.DataStructures.Struct.Triplet;
 import me.matl114.matlib.Utils.Command.CommandGroup.AbstractMainCommand;
@@ -353,8 +354,16 @@ public class Tests {
         // 288200
     }
     @Test
-    public void test_method() throws NoSuchMethodException {
-        log(AnnotationUtils.ADAPTOR_ANNOTATION_IDENTIFIER);
+    public void test_container()  {
+        HashContainer<Integer> container = new HashContainer<>();
+        container.add(1);
+        container.add(2);
+        container.add(3);
+        container.add(4);
+        log(container.toString());
+        log(container.contains(1));
+        log(container.contains(2));
+        log(container.findFirst(Integer.hashCode(1),x->x==1));
 
     }
     public static int GetRandom(int end) {

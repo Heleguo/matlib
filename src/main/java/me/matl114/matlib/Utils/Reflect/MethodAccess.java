@@ -9,11 +9,16 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 @SuppressWarnings("unchecked")
 public class MethodAccess<T extends Object> {
+    private static HashMap<Class, com.esotericsoftware.reflectasm.MethodAccess> cachedAccess = new HashMap<>();
+    public static com.esotericsoftware.reflectasm.MethodAccess getOrCreateAccess(Class<?> targetClass){
+        return cachedAccess.computeIfAbsent(targetClass, com.esotericsoftware.reflectasm.MethodAccess::get);
+    }
     private boolean printError = false;
     @Getter
     private boolean failInitialization=false;

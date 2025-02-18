@@ -4,9 +4,7 @@ import com.esotericsoftware.reflectasm.MethodAccess;
 import me.matl114.matlib.UnitTest.OnlineTest;
 import me.matl114.matlib.UnitTest.TestCase;
 import me.matl114.matlib.Utils.Debug;
-import me.matl114.matlib.Utils.Reflect.FieldAccess;
-import me.matl114.matlib.Utils.Reflect.MethodSignature;
-import me.matl114.matlib.Utils.Reflect.ReflectUtils;
+import me.matl114.matlib.Utils.Reflect.*;
 import me.matl114.matlibAdaptor.Algorithms.Interfaces.Initialization;
 import me.matl114.matlibAdaptor.Proxy.Utils.AnnotationUtils;
 
@@ -38,7 +36,7 @@ public class CommonTests implements TestCase {
     public void testThrowError(){
         throw new NullPointerException("This is a null pointer");
     }
-    @OnlineTest(name = "MatlibAPI Test")
+    @OnlineTest(name = "MatlibAdaptor Test")
     public void testAPI() throws Throwable {
         Class logiTech = Class.forName("me.matl114.logitech.MyAddon");
         Debug.logger(logiTech.getName());
@@ -46,11 +44,21 @@ public class CommonTests implements TestCase {
         Object instance= initAccess.initWithNull().getValue(null);
         Debug.logger(instance.getClass().getName());
         Debug.logger(instance instanceof Initialization);
-        Initialization init =(Initialization) Proxy.newProxyInstance(this.getClass().getClassLoader(),new Class[]{ Initialization.class},new InvocationTest(instance,Initialization.class.getSimpleName()));
+        Initialization init = ProxyUtils.buildAdaptorOf(Initialization.class, instance);
         Debug.logger(init);
         Debug.logger(init.getClass());
         Debug.logger(init.getClass().getSimpleName());
         Debug.logger(init.getDisplayName());
+        Debug.logger(init.getLogger());
+        long start = System.nanoTime();
+        String value = null;
+        for (int i=0;i<1_000_000;++i){
+             value = init.getDisplayName();
+        }
+        long end = System.nanoTime();
+        Debug.logger("time cost for 1_000_000 invocation",end-start,value);
+
+
         //DO NOT CALL METHOD WITH OUR CLASS RETURN VALUE ,OTHERWISE CLASS CAST EXCEPTION WILL OCCURS
         Debug.logger(init.isTestMode());
     }
