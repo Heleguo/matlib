@@ -27,6 +27,7 @@ public class FieldAccess {
     private boolean isFinal = false;
     private boolean isPublic = false;
     private boolean isPrivate = false;
+    private boolean createSnapshot = true;
     private static HashMap<Class<?>, com.esotericsoftware.reflectasm.FieldAccess> cachedAccess = new HashMap<>();
     public static com.esotericsoftware.reflectasm.FieldAccess getOrCreateAccess(Class<?> targetClass){
         return cachedAccess.computeIfAbsent(targetClass, (clz)->Debug.interceptAllOutputs(()-> com.esotericsoftware.reflectasm.FieldAccess.get(clz),(output)->{
@@ -87,35 +88,37 @@ public class FieldAccess {
                 int modifiers = field.getModifiers();
                 this.isFinal=Modifier.isFinal(modifiers);
                 this.isStatic= Modifier.isStatic(modifiers);
-                this.isPublic = Modifier.isPublic(modifiers);
-                this.isPrivate = Modifier.isPrivate(modifiers);
-                this.definedType=this.field.getType();
-                //only the field who has full access can create fast Access throw FieldAccess
-                if(!isStatic && !isPrivate){
-                    try{
-                        this.fastAccessInternal = getOrCreateAccess(field.getDeclaringClass());
-                        this.fastAccessIndex = this.fastAccessInternal.getIndex(this.field);
-                        this.failPublicAccess = !this.isPublic;
-                    }catch (Throwable e){
+                if(createSnapshot){
+                    this.isPublic = Modifier.isPublic(modifiers);
+                    this.isPrivate = Modifier.isPrivate(modifiers);
+                    this.definedType=this.field.getType();
+                    //only the field who has full access can create fast Access throw FieldAccess
+                    if(!isStatic && !isPrivate){
+                        try{
+                            this.fastAccessInternal = getOrCreateAccess(field.getDeclaringClass());
+                            this.fastAccessIndex = this.fastAccessInternal.getIndex(this.field);
+                            this.failPublicAccess = !this.isPublic;
+                        }catch (Throwable e){
+                            this.failPublicAccess = true;
+                            if (printError){
+                                Debug.logger("Failed to create fast Access for Field :",field);
+                                Debug.logger(e);
+                            }
+                        }
+                    }else {
                         this.failPublicAccess = true;
-                        if (printError){
-                            Debug.logger("Failed to create fast Access for Field :",field);
-                            Debug.logger(e);
+                    }
+                    try{
+                        this.handle=MethodHandles.privateLookupIn(this.field.getDeclaringClass(),MethodHandles.lookup()).unreflectVarHandle(this.field);
+                    }catch(IllegalAccessException e){
+                        this.failHandle=true;
+                        if(printError){
+                            Debug.logger("Failed to create field handle for Field :",field);
+                            e.printStackTrace();
                         }
                     }
-                }else {
-                    this.failPublicAccess = true;
-                }
-                try{
-                    this.handle=MethodHandles.privateLookupIn(this.field.getDeclaringClass(),MethodHandles.lookup()).unreflectVarHandle(this.field);
-                }catch(IllegalAccessException e){
-                    this.failHandle=true;
-                    if(printError){
-                        Debug.logger("Failed to create field handle for Field :",field);
-                        e.printStackTrace();
-                    }
-                }
 
+                }
                 this.getter = getterInternal();
                 this.setter = setterInternal();
             }catch (Throwable e){
@@ -171,6 +174,10 @@ public class FieldAccess {
         return getter.apply(obj);
     }
     private FieldGetter getterInternal(){
+        //no snapshot ,direct get
+        if(!this.createSnapshot){
+            return this.field::get;
+        }
         if(useHandle && !failHandle){
             if(isStatic){
                 return (o)->this.handle.get();
@@ -188,6 +195,9 @@ public class FieldAccess {
         if(isStatic&&isFinal){
             return (o,v)-> {throw new IllegalAccessException("Static final field can only be set using setUnsafe! Field:"+this.field);};
         }else {
+            if(!this.createSnapshot){
+                return this.field::set;
+            }
             if(useHandle&& !failHandle&&!isFinal){
                 if(isStatic){
                    return (o,value)-> this.handle.set(value);

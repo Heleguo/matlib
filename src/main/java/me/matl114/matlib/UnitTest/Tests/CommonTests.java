@@ -1,12 +1,16 @@
 package me.matl114.matlib.UnitTest.Tests;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
+import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import me.matl114.matlib.UnitTest.OnlineTest;
 import me.matl114.matlib.UnitTest.TestCase;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Reflect.*;
+import me.matl114.matlibAdaptor.Algorithms.DataStructures.LockFactory;
 import me.matl114.matlibAdaptor.Algorithms.Interfaces.Initialization;
 import me.matl114.matlibAdaptor.Proxy.Utils.AnnotationUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -61,6 +65,15 @@ public class CommonTests implements TestCase {
 
         //DO NOT CALL METHOD WITH OUR CLASS RETURN VALUE ,OTHERWISE CLASS CAST EXCEPTION WILL OCCURS
         Debug.logger(init.isTestMode());
+        Object access = me.matl114.matlib.Utils.Reflect.MethodAccess.ofName(Slimefun.class,"getCargoLockFactory")
+                .noSnapShot()
+                .initWithNull()
+                .invoke(null);
+        Debug.logger(access);
+        LockFactory<Location> locationLockFactory = ProxyUtils.buildAdaptorOf(LockFactory.class, access);
+        Debug.logger(locationLockFactory);
+        Debug.logger(locationLockFactory.getClass().getSimpleName());
+        Debug.logger(locationLockFactory.checkThreadStatus(new Location(Bukkit.getWorlds().get(0),0,0,0)));
     }
     public static Map<String,Integer> ObjectInvocationIndex = new HashMap<>(){{
         put("getClass",-1);

@@ -33,8 +33,13 @@ public class MethodAccess<T extends Object> {
     private boolean failHandle = false;
     private boolean isStatic;
     private int argLen;
-    private boolean isVoidReuturn;
+    private boolean isVoidReturn;
     private static final boolean useHandle=false;
+    private boolean createSnapshot = true;
+    public MethodAccess<T> noSnapShot(){
+        this.createSnapshot = false;
+        return this;
+    }
     public static MethodAccess ofName(Class clazz ,String fieldName){
         return new MethodAccess((obj)->{
             var result=ReflectUtils.getMethodsByName(clazz,fieldName);
@@ -96,18 +101,21 @@ public class MethodAccess<T extends Object> {
         Preconditions.checkArgument(field!=null,"MethodAccess init method failed: method is null! using argument: "+(obj==null?"null":obj.getClass()));
         field.setAccessible(true);
         this.field= field;
-        this.isStatic= Modifier.isStatic(this.field.getModifiers());
-        this.argLen=this.field.getParameters().length;
-        this.isVoidReuturn=this.field.getReturnType()==void.class;
-        try{
-            this.handle= MethodHandles.privateLookupIn(this.field.getDeclaringClass(),MethodHandles.lookup()).unreflect(this.field);
-        }catch (Throwable handleFailed){
-            this.failHandle=true;
-            if(printError){
-                Debug.logger("Failed to create method handle for method :",field);
-                handleFailed.printStackTrace();
+        this.argLen=this.field.getParameterCount();
+        if(this.createSnapshot){
+            this.isStatic= Modifier.isStatic(this.field.getModifiers());
+            this.isVoidReturn =this.field.getReturnType()==void.class;
+            try{
+                this.handle= MethodHandles.privateLookupIn(this.field.getDeclaringClass(),MethodHandles.lookup()).unreflect(this.field);
+            }catch (Throwable handleFailed){
+                this.failHandle=true;
+                if(printError){
+                    Debug.logger("Failed to create method handle for method :",field);
+                    handleFailed.printStackTrace();
+                }
             }
         }
+
     }
     private Class getMethodReturnType(){
         Preconditions.checkArgument(!failInitialization,"MehodAccess initialization failed!");
@@ -138,7 +146,7 @@ public class MethodAccess<T extends Object> {
         }
         if(isStatic){
             if(this.argLen==0){
-                if(isVoidReuturn){
+                if(isVoidReturn){
 
                 }
             }else{

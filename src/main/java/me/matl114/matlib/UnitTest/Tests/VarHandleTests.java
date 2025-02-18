@@ -46,7 +46,6 @@ public class VarHandleTests implements TestCase {
         try{
             reflectAsm.getA().get(blockState,reflectAsm.getB());
         }catch (Throwable protect){
-            Debug.logger(protect);
         }
         Debug.logger(blockState.getClass(),blockState.getClass().getClassLoader(), ClassLoader.getSystemClassLoader());
     }
