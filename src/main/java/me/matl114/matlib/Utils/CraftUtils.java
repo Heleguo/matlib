@@ -4,7 +4,7 @@ import lombok.Getter;
 import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeProvider;
 import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeSafeProvider;
 import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializingTasks;
-import me.matl114.matlib.SlimefunUtils.ItemCache.ItemCounter;
+import me.matl114.matlib.Utils.ItemCache.ItemStackCache;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.core.EnvironmentManager;
 import org.bukkit.Bukkit;
@@ -181,34 +181,11 @@ public class CraftUtils {
         }else return false;
     }
 
-    /**
-     * get Consumer for recipe Item
-     * @param a
-     * @return
-     */
-
-    public static ItemCounter getCounter(ItemStack a){
+    public static ItemStackCache getStackCache(ItemStack a){
         if(a==null)return null;
         //用于比较和
-        return ItemCounter.get(a);
+        return ItemStackCache.get(a);
     }
-
-    /**
-     * get greedy consumer for recipe Item
-     * @param a
-     * @return
-     */
-
-
-    /**
-     * a huge project to adapt sth...
-     * use .get(mod,inv,slot) to get ItemPusher
-     * mod should be in {Settings.INPUT,Settings.OUTPUT}
-     */
-
-
-
-
 
     public static boolean amountLargerThan(ItemStack thisItem,ItemStack thatItem){
         if(thisItem==null||thatItem==null){
@@ -227,7 +204,7 @@ public class CraftUtils {
             thatItem.setAmount(thatItem.getAmount()-amount);
         }
     }
-    public static boolean matchItemCounter(ItemCounter counter1, ItemCounter counter2, boolean strictCheck){
+    public static boolean matchItemCounter(ItemStackCache counter1, ItemStackCache counter2, boolean strictCheck){
         return matchItemCore(counter1,counter2,strictCheck);
     }
     //
@@ -247,7 +224,7 @@ public class CraftUtils {
     public static void registerCustomItemIdHook(CustomItemMatcher matcher){
         registeredCustomMatchers.add(matcher);
     }
-    public static boolean matchItemCore(ItemCounter counter1, ItemCounter counter2, boolean strictCheck) {
+    public static boolean matchItemCore(ItemStackCache counter1, ItemStackCache counter2, boolean strictCheck) {
 
         ItemStack stack1=counter1.getItem();
         ItemStack stack2=counter2.getItem();
@@ -267,13 +244,20 @@ public class CraftUtils {
         if (stack1.getType() != stack2.getType()) {
             return false;
         }
-        ItemMeta meta1=   counter1.getMeta();
-        ItemMeta meta2=    counter2.getMeta();
+        ItemMeta meta1= counter1.getMeta();
+        ItemMeta meta2= counter2.getMeta();
         if(meta1==null||meta2==null ) {
             return meta2==meta1;
+        }else if(meta1.getClass()!=meta2.getClass()){
+            //class different ,probably do not match
+            return false;
         }
         //if indistinguishable meta all return false
         if(INDISTINGUISHABLE_MATERIALS.contains(stack1.getType())){
+            return false;
+        }
+        //match display name
+        if(!matchDisplayNameField(meta1,meta2)) {
             return false;
         }
         //custommodeldata
@@ -286,11 +270,7 @@ public class CraftUtils {
         } else if (hasCustomTwo) {
             return false;
         }
-//        //match display name
-//        if(!(!meta1.hasDisplayName() || (meta1.getDisplayName().equals(meta2.getDisplayName())))) {
-//            return false;
-//        }
-        //match display name
+
 
         //check special metas
         if(canQuickEscapeMetaVariant(meta1,meta2)){
@@ -337,20 +317,17 @@ public class CraftUtils {
 //            }
 //        }
         //如果非严格且名字相同旧返回，反之则继续
-        if(!(!meta1.hasDisplayName() || matchDisplayNameField(meta1,meta2))) {
-            return false;
-        }
 
-        if(!meta1.hasLore()||!meta2.hasLore()){
-            return meta1.hasLore()==meta2.hasLore();
-        }
+//        if(!meta1.hasLore()||!meta2.hasLore()){
+//            return meta1.hasLore()==meta2.hasLore();
+//        }
         if ( !matchLoreField(meta1, meta2)) {
             return false;
             //对于普通物品 检查完lore就结束是正常的
         }else if(!strictCheck){
             return true;
         }
-        // Make sure enchantments match
+        //Strict check: Make sure enchantments match
         if (!matchEnchantmentsFields(meta1,meta2)) {
             return false;
         }
@@ -450,14 +427,14 @@ public class CraftUtils {
         if(stack1==null || stack2==null){
             return stack1 == stack2;
         }else {
-            return matchItemCore(getCounter(stack1),getCounter(stack2),strictCheck);
+            return matchItemCore(getStackCache(stack1), getStackCache(stack2),strictCheck);
         }
     }
-    public static boolean matchItemStack(ItemStack counter1, ItemCounter counter2, boolean strictCheck){
+    public static boolean matchItemStack(ItemStack counter1, ItemStackCache counter2, boolean strictCheck){
         if(counter1==null ){
             return counter2.getItem()==null;
         }else {
-            return matchItemCore(getCounter(counter1),counter2,strictCheck);
+            return matchItemCore(getStackCache(counter1),counter2,strictCheck);
         }
     }
 //    public static boolean matchLore(List<String> lore1,List<String> lore2,boolean strictMod){

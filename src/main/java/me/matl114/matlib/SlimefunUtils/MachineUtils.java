@@ -37,6 +37,12 @@ public class MachineUtils {
         }
         return ItemGreedyConsumer.get(a);
     }
+
+    /**
+     * a huge project to adapt sth...
+     * use .get(mod,inv,slot) to get ItemPusher
+     * mod should be in {Settings.INPUT,Settings.OUTPUT}
+     */
     public static final ItemPusherProvider getpusher=(Flags mod, ItemStack it, int slot)->{
         if(mod== Flags.INPUT||it!=null){
             return ItemPusher.get(it);

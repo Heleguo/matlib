@@ -1,15 +1,16 @@
 package me.matl114.matlib.SlimefunUtils.ItemCache;
 
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
+import me.matl114.matlib.Algorithms.DataStructures.Struct.LazyInitReference;
+import me.matl114.matlib.Utils.ItemCache.ItemStackCache;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class ItemCounter implements Cloneable{
+public class ItemCounter extends ItemStackCache {
     //todo fix the unfreshed item dupe bug
     protected int cnt;
     protected boolean dirty;
-    protected ItemStack item;
-    protected ItemMeta meta=null;
     protected int maxStackCnt;
     //when -1,means item is up to date
     private int cachedItemAmount = -1;
@@ -24,25 +25,25 @@ public class ItemCounter implements Cloneable{
     }
     protected void toNull(){
         item=null;
-        meta=null;
+        metaRef= LazyInitReference.ofEmpty();
         cnt=0;
         dirty=false;
         cachedItemAmount=0;
         //
-        itemChange();
+        //itemChange();
     }
     protected void fromSource(ItemCounter source,boolean overrideMaxSize){
-        item=source.getItem();
+        super.fromSource(source);
         if(overrideMaxSize){
             maxStackCnt= item!=null?item.getMaxStackSize():0;
         }
         cnt=0;
-        meta=null;
+        //do need clone?
         cachedItemAmount=-1;
         //
     }
     protected void itemChange(){
-        cachedItemAmount=item.getAmount();
+        cachedItemAmount=item!=null? item.getAmount():0;
     }
     public ItemCounter() {
         dirty=false;
@@ -53,17 +54,17 @@ public class ItemCounter implements Cloneable{
         return consumer;
     }
     protected void init(ItemStack item) {
+        super.init(item);
         this.dirty=false;
-        this.item=item;
         this.cnt=item.getAmount();
         this.maxStackCnt=item.getMaxStackSize();
         this.maxStackCnt=maxStackCnt<=0?2147483646:maxStackCnt;
         this.cachedItemAmount=cnt;
     }
     protected void init() {
+        super.init(null);
         this.dirty=false;
         this.cnt=0;
-        this.item=null;
         this.maxStackCnt=0;
         this.cachedItemAmount=0;
     }
@@ -79,27 +80,12 @@ public class ItemCounter implements Cloneable{
     public final boolean isEmpty(){
         return cnt<=0;
     }
-    /**
-     * get meta info ,if havn't get ,getItemMeta() clone one
-     * @return
-     */
-    public ItemMeta getMeta() {
-        if(item.hasItemMeta()){
-            if (meta==null){
-                meta=  item.getItemMeta();
-            }
-            return meta;
-        }
-        return null;
-    }
 
     /**
      * make sure you know what you are doing!
      * @param meta
      */
-    public void setMeta(ItemMeta meta) {
-        this.meta=meta;
-    }
+
 
     /**
      * get dirty bits
@@ -111,18 +97,7 @@ public class ItemCounter implements Cloneable{
     public void setDirty(boolean t){
         this.dirty=t;
     }
-    /**
-     * void constructor
-     */
 
-
-    /**
-     * get item,should be read-only! and will not represent real amount
-     * @return
-     */
-    public ItemStack getItem() {
-        return item;
-    }
     /**
      * modify recorded amount
      * @param amount
@@ -216,13 +191,7 @@ public class ItemCounter implements Cloneable{
     }
 
     protected ItemCounter clone(){
-        ItemCounter clone=null;
-        try {
-            clone=(ItemCounter) super.clone();
-        }catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        return clone;
+        return (ItemCounter) super.clone();
     }
 
 }
