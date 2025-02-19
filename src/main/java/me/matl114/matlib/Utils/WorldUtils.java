@@ -198,7 +198,7 @@ public class WorldUtils {
             }
         }
     }
-    private static boolean isInventoryTypeCommon(InventoryType inventoryType){
+    public static boolean isInventoryTypeCommon(InventoryType inventoryType){
         return inventoryType!=InventoryType.CHISELED_BOOKSHELF && inventoryType!=InventoryType.JUKEBOX && inventoryType != InventoryType.COMPOSTER;
     }
     public static boolean isInventoryTypeAsyncSafe(InventoryType inventoryType){
@@ -217,7 +217,7 @@ public class WorldUtils {
         return INVENTORYHOLDER_MATERIAL.iterator();
     }
     public static boolean canBlockInventoryOpenToPlayer(Inventory inventory){
-        InventoryHolder holder = inventory.getHolder();
-        return holder instanceof Container || holder instanceof Lectern || !(holder instanceof BlockInventoryHolder);
+        //InventoryHolder holder = inventory.getHolder();
+        return isInventoryTypeCommon(inventory.getType()); //holder instanceof Container || holder instanceof Lectern || !(holder instanceof BlockInventoryHolder);
     }
 }
