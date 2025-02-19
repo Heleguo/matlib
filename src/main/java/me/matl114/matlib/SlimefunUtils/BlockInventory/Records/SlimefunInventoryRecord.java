@@ -6,6 +6,7 @@ import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.SimpleInventoryRecord;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
@@ -50,6 +51,10 @@ public record SlimefunInventoryRecord (Inventory inventory,@Nonnull SlimefunBloc
     @Override
     public boolean hasData(){
         return true;
+    }
+
+    public boolean canPlayerOpen(Player p){
+        return data.getBlockMenu()!=null&&data.getBlockMenu().canOpen(data.getLocation().getBlock(), p);
     }
 
     public static InventoryRecord getInventoryRecord(Location loc,boolean checkVanilla){

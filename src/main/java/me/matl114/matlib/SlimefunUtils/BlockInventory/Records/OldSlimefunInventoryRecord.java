@@ -5,6 +5,7 @@ import me.matl114.matlib.Utils.Inventory.InventoryRecords.SimpleInventoryRecord;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import javax.annotation.Nonnull;
@@ -43,6 +44,10 @@ public record OldSlimefunInventoryRecord(@Nonnull Inventory inventory,@Nonnull B
     @Override
     public boolean hasData(){
         return BlockStorage.hasBlockInfo(optionalHolder.getLocation());
+    }
+
+    public boolean canPlayerOpen(Player p){
+        return optionalHolder!=null && optionalHolder.canOpen(optionalHolder.getBlock(),p);
     }
 
     public static InventoryRecord getInventoryRecord(Location loc,boolean checkVanilla){

@@ -1,6 +1,7 @@
 package me.matl114.matlib.Utils.Inventory.InventoryRecords;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
@@ -63,4 +64,5 @@ public interface InventoryRecord {
     public Inventory getInventorySync();
     //todo I have a big big big idea about this: fast access cache,
     //first we need a ensureDelaySyncRunner class
+    public boolean canPlayerOpen(Player p);
 }

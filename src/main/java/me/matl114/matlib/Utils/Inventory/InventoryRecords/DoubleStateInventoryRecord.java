@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.TileState;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -54,6 +55,9 @@ public record DoubleStateInventoryRecord(DoubleChestInventory inventory,
     @Override
     public boolean stillValid() {
         return left != null && WorldUtils.isTileEntityStillValid(left) && right != null && WorldUtils.isTileEntityStillValid(right);
+    }
+    public boolean canPlayerOpen(Player p){
+        return stillValid();
     }
 
     @Override

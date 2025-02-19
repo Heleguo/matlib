@@ -217,7 +217,11 @@ public class WorldUtils {
         return INVENTORYHOLDER_MATERIAL.iterator();
     }
     public static boolean canBlockInventoryOpenToPlayer(Inventory inventory){
-        //InventoryHolder holder = inventory.getHolder();
-        return isInventoryTypeCommon(inventory.getType()); //holder instanceof Container || holder instanceof Lectern || !(holder instanceof BlockInventoryHolder);
+        //should run on Primary thread
+        InventoryHolder holder = inventory.getHolder();
+        return canBlockInventoryOpenToPlayer(holder);
+    }
+    public static boolean canBlockInventoryOpenToPlayer(InventoryHolder holder){
+        return holder instanceof Container || holder instanceof Lectern || !(holder instanceof BlockInventoryHolder);
     }
 }

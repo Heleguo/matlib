@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.TileState;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -54,6 +55,10 @@ public record SimpleInventoryRecord<T extends TileState & InventoryHolder>(Inven
     @Override
     public boolean hasData() {
         return optionalHolder != null;
+    }
+
+    public boolean canPlayerOpen(Player p){
+        return optionalHolder!=null && WorldUtils.canBlockInventoryOpenToPlayer(optionalHolder);
     }
     //todo need check of double chest
     @Nonnull
