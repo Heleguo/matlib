@@ -11,7 +11,7 @@ import org.bukkit.inventory.InventoryHolder;
 
 import javax.annotation.Nonnull;
 
-public record SlimefunInventoryRecord(Inventory inventory,@Nonnull SlimefunBlockData data) implements InventoryRecord {
+public record SlimefunInventoryRecord (Inventory inventory,@Nonnull SlimefunBlockData data) implements InventoryRecord {
     @Override
     public Location invLocation() {
         return data.getLocation();

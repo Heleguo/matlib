@@ -49,16 +49,16 @@ public class FieldAccess {
         return new FieldAccess((obj)->{
             var result=ReflectUtils.getFieldsRecursively(obj.getClass(),fieldName);
             return result==null?null:result.getA();
-        }).printError(true);
+        });
     }
     public static FieldAccess of(Field field){
-        return new FieldAccess((obj)->field).printError(true);
+        return new FieldAccess((obj)->field);
     }
     public static FieldAccess ofName(Class<?> clazz,String fieldName){
         return new FieldAccess((obj)->{
             var result=ReflectUtils.getFieldsRecursively(clazz,fieldName);
             return result==null?null:result.getA();
-        }).printError(true);
+        });
     }
     private static final FieldAccess FAIL= new InitializeProvider<>(()->{
         FieldAccess access = new FieldAccess(null);

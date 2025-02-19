@@ -87,6 +87,18 @@ public class CraftUtils {
         }
     }).v();
     @Getter
+    private static final FieldAccess enchantmentAccess = new InitializeSafeProvider<>(FieldAccess.class,()->{
+        try{
+            var CRAFTDISPLAYNAME= craftMetaItemClass.getDeclaredField("enchantments");
+            CRAFTDISPLAYNAME.setAccessible(true);
+            return FieldAccess.of(CRAFTDISPLAYNAME);
+        }catch (Throwable e){
+            Debug.logger("Meta reflection failed,please check the error");
+            Debug.logger(e);
+            return FieldAccess.ofFailure();
+        }
+    }).v();
+    @Getter
     private static final FieldAccess handledAccess = new InitializeSafeProvider<>(FieldAccess.class,()->{
         try{
             var CRAFTHANDLER= craftItemStackClass.getDeclaredField("handle");
@@ -114,6 +126,10 @@ public class CraftUtils {
     private static final VarHandle displayNameHandle = new InitializeSafeProvider<>(()->{
         return displayNameAccess.getVarHandleOrDefault(()->null);
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftMetaItem.displayName VarHandle")).v();
+    @Getter
+    private static final VarHandle enchantmentsHandle = new InitializeSafeProvider<>(()->{
+        return enchantmentAccess.getVarHandleOrDefault(()->null);
+    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftMetaItem.enchantments VarHandle")).v();
     @Getter
     private static final VarHandle handleHandle = new InitializeSafeProvider<>(()->{
         return handledAccess.getVarHandleOrDefault(()->null);
@@ -335,7 +351,7 @@ public class CraftUtils {
             return true;
         }
         // Make sure enchantments match
-        if (!meta1.getEnchants().equals(meta2.getEnchants())) {
+        if (!matchEnchantmentsFields(meta1,meta2)) {
             return false;
         }
 
@@ -354,7 +370,7 @@ public class CraftUtils {
         if(loreHandle!=null){
             return Objects.equals(loreHandle.get(meta1),loreHandle.get(meta2));
         }else{
-            return loreAccess.compareFieldOrDefault(meta1,meta2,()->matchLore(meta1.getLore(),meta2.getLore(),false));
+            return loreAccess.compareFieldOrDefault(meta1,meta2,()->Objects.equals(meta1.getLore(),meta2.getLore()));
         }
 
 
@@ -398,6 +414,14 @@ public class CraftUtils {
 //            return meta1.getDisplayName().equals(meta2.getDisplayName());
 //        }
     }
+
+    public static boolean matchEnchantmentsFields(ItemMeta meta1,ItemMeta meta2){
+        if(enchantmentsHandle!=null){
+            return meta1.hasEnchants()? meta2.hasEnchants()&& Objects.equals(enchantmentsHandle.get(meta1),enchantmentsHandle.get(meta2)) : !meta2.hasEnchants();
+        }else {
+            return meta1.hasEnchants()? meta2.hasEnchants()&& displayNameAccess.compareFieldOrDefault(meta1,meta2,()->Objects.equals(meta1.getEnchants(),meta2.getEnchants())) : !meta2.hasEnchants();
+        }
+    }
 //    private static Class CraftMetaBlockState;
 //    private static Field blockEntityTag;
 //    private static boolean hasFailed;
@@ -436,53 +460,53 @@ public class CraftUtils {
             return matchItemCore(getCounter(counter1),counter2,strictCheck);
         }
     }
-    public static boolean matchLore(List<String> lore1,List<String> lore2,boolean strictMod){
-        if(strictMod){
-            if(lore1==null || lore2==null){
-                return lore1 == lore2;
-            }
-            if(lore1.size()!=lore2.size()){
-                return false;
-            }
-            int len=lore1.size();
-            String l1;
-            String l2;
-            for(int i=0;i<len;++i){
-                l1=lore1.get(i);
-                l2=lore2.get(i);
-                if(l1.length()!=l2.length()){
-                    return false;
-                }
-                if(!l1.equals(l2)){
-                    return false;
-                }
-            }
-            return true;
-        }else{
-            if(lore1==null || lore2==null){
-                return lore1 == lore2;
-            }
-            if(lore1.size()!=lore2.size()){
-                return false;
-            }
-            return lore1.hashCode()==lore2.hashCode();
-            /**
-             int len=lore1.size();
-             String l1;
-             String l2;
-             for(int i=0;i<len;++i){
-             l1=lore1.get(i);
-             l2=lore2.get(i);
-             if(l1.length()!=l2.length()){
-             return false;
-             }
-             if(l1.hashCode()!=l2.hashCode()){
-             return false;
-             }
-             }
-             return true;**/
-        }
-    }
+//    public static boolean matchLore(List<String> lore1,List<String> lore2,boolean strictMod){
+//        if(strictMod){
+//            if(lore1==null || lore2==null){
+//                return lore1 == lore2;
+//            }
+//            if(lore1.size()!=lore2.size()){
+//                return false;
+//            }
+//            int len=lore1.size();
+//            String l1;
+//            String l2;
+//            for(int i=0;i<len;++i){
+//                l1=lore1.get(i);
+//                l2=lore2.get(i);
+//                if(l1.length()!=l2.length()){
+//                    return false;
+//                }
+//                if(!l1.equals(l2)){
+//                    return false;
+//                }
+//            }
+//            return true;
+//        }else{
+//            if(lore1==null || lore2==null){
+//                return lore1 == lore2;
+//            }
+//            if(lore1.size()!=lore2.size()){
+//                return false;
+//            }
+//            return lore1.hashCode()==lore2.hashCode();
+//            /**
+//             int len=lore1.size();
+//             String l1;
+//             String l2;
+//             for(int i=0;i<len;++i){
+//             l1=lore1.get(i);
+//             l2=lore2.get(i);
+//             if(l1.length()!=l2.length()){
+//             return false;
+//             }
+//             if(l1.hashCode()!=l2.hashCode()){
+//             return false;
+//             }
+//             }
+//             return true;**/
+//        }
+//    }
 
 
 

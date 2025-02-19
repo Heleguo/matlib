@@ -2,6 +2,7 @@ package me.matl114.matlib.UnitTest.Tests;
 
 import me.matl114.matlib.UnitTest.TestCase;
 import me.matl114.matlib.UnitTest.OnlineTest;
+import me.matl114.matlib.Utils.AddUtils;
 import me.matl114.matlib.Utils.CraftUtils;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Inventory.ItemStacks.CleanItemStack;
@@ -14,10 +15,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Map;
+
 public class VarHandleTests implements TestCase {
     @OnlineTest(name = "CraftUtils VarHandle test")
     public void testDisplayVarHandle(){
         ItemStack item = new CleanItemStack(Material.BOOK,"这是&a一个&c书","这&e是一本&r书","这并&6不是两&3本书");
+        AddUtils.addGlow(item);
         ItemMeta meta = item.getItemMeta();
         Debug.logger(CraftUtils.getDisplayNameHandle().get(meta));
         Debug.logger(CraftUtils.getLoreHandle().get(meta));
@@ -28,6 +32,9 @@ public class VarHandleTests implements TestCase {
         ItemMeta meta2 = item.getItemMeta();
         Assert(CraftUtils.matchDisplayNameField(meta,meta2));
         Assert(CraftUtils.matchLoreField(meta,meta2));
+        Assert(CraftUtils.matchEnchantmentsFields(meta,meta2));
+        Debug.logger(CraftUtils.getEnchantmentsHandle().get(meta2));
+        Assert( ((Map)CraftUtils.getEnchantmentsHandle().get(meta)).size()==1);
         Assert(CraftUtils.matchItemStack(item,item,true));
         ItemStack blockStateItem = new CleanItemStack(Material.SPAWNER);
         ItemMeta blockStateMeta = blockStateItem.getItemMeta();

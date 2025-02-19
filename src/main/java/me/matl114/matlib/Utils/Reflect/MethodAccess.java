@@ -44,22 +44,22 @@ public class MethodAccess<T extends Object> {
         return new MethodAccess((obj)->{
             var result=ReflectUtils.getMethodsByName(clazz,fieldName);
             return result==null?null:result.getA();
-        }).printError(true);
+        });
     }
     public static MethodAccess ofName(Class clazz ,String fieldName,Class... parameterTypes){
         return new MethodAccess((obj)->{
             var result=ReflectUtils.getMethodsRecursively(clazz,fieldName,parameterTypes);
             return result==null?null:result.getA();
-        }).printError(true);
+        });
     }
     public static MethodAccess ofName(String fieldName,Class... parameterTypes){
         return new MethodAccess((obj)->{
             var result=ReflectUtils.getMethodsRecursively(obj.getClass(),fieldName,parameterTypes);
             return result==null?null:result.getA();
-        }).printError(true);
+        });
     }
     public static MethodAccess of(Method field){
-        return new MethodAccess((obj)->field).printError(true);
+        return new MethodAccess((obj)->field);
     }
     private static final MethodAccess FAIL = new InitializeProvider<>(()->{
         var access= new MethodAccess<>(null);

@@ -9,10 +9,10 @@ import me.matl114.matlib.Utils.Reflect.ReflectUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.TileState;
+import org.bukkit.block.*;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.BlockInventoryHolder;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
@@ -199,7 +199,7 @@ public class WorldUtils {
         }
     }
     private static boolean isInventoryTypeCommon(InventoryType inventoryType){
-        return inventoryType!=InventoryType.CHISELED_BOOKSHELF && inventoryType!=InventoryType.JUKEBOX;
+        return inventoryType!=InventoryType.CHISELED_BOOKSHELF && inventoryType!=InventoryType.JUKEBOX && inventoryType != InventoryType.COMPOSTER;
     }
     public static boolean isInventoryTypeAsyncSafe(InventoryType inventoryType){
         return inventoryType!=InventoryType.LECTERN && isInventoryTypeCommon(inventoryType);
@@ -216,5 +216,8 @@ public class WorldUtils {
     public static Iterator<Material> getInventoryHolderTypes(){
         return INVENTORYHOLDER_MATERIAL.iterator();
     }
-
+    public static boolean canBlockInventoryOpenToPlayer(Inventory inventory){
+        InventoryHolder holder = inventory.getHolder();
+        return holder instanceof Container || holder instanceof Lectern || !(holder instanceof BlockInventoryHolder);
+    }
 }
