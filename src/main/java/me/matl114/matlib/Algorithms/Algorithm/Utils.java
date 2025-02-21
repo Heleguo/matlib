@@ -1,4 +1,4 @@
-package me.matl114.matlib.Utils;
+package me.matl114.matlib.Algorithms.Algorithm;
 
 import java.util.HashMap;
 import java.util.Objects;

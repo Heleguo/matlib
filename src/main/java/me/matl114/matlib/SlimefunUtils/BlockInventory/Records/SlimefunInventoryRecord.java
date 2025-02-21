@@ -1,6 +1,7 @@
 package me.matl114.matlib.SlimefunUtils.BlockInventory.Records;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
+import me.matl114.matlib.Common.Lang.Annotations.ForceOnMainThread;
 import me.matl114.matlib.Implements.Slimefun.Manager.BlockDataCache;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.SimpleInventoryRecord;
@@ -56,7 +57,7 @@ public record SlimefunInventoryRecord (Inventory inventory,@Nonnull SlimefunBloc
     public boolean canPlayerOpen(Player p){
         return data.getBlockMenu()!=null&&data.getBlockMenu().canOpen(data.getLocation().getBlock(), p);
     }
-
+    @ForceOnMainThread(condition = "checkVanilla = true")
     public static InventoryRecord getInventoryRecord(Location loc,boolean checkVanilla){
         SlimefunBlockData data = BlockDataCache.getManager().safeGetBlockDataFromCache(loc);
         if(data != null){

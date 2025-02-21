@@ -1,5 +1,6 @@
 package me.matl114.matlib.Utils.Inventory.ItemStacks;
 
+import me.matl114.matlib.Common.Lang.Annotations.Note;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -14,6 +15,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+@Note(note = "instance of this can not be used for serialization!")
 public class CleanItemStack extends ItemStack {
     private static final Function<ItemMeta,ItemMeta> IDENTITY= Function.identity();
     public CleanItemStack(Material type, int amount, Function<ItemMeta,ItemMeta> metaMapper){
@@ -38,6 +40,7 @@ public class CleanItemStack extends ItemStack {
             return meta1;
         });
     }
+    @Note(note = "return pure org.bukkit.inventory.ItemStack")
     public static ItemStack ofBukkitClean(ItemStack itemStackRaw){
         if(itemStackRaw==null){
             return null;

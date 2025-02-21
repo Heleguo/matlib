@@ -1,6 +1,8 @@
 package me.matl114.matlib.Utils.Inventory.InventoryRecords;
 
 import com.google.common.base.Preconditions;
+import me.matl114.matlib.Common.Lang.Annotations.ForceOnMainThread;
+import me.matl114.matlib.Common.Lang.Annotations.Note;
 import me.matl114.matlib.Utils.WorldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -62,16 +64,20 @@ public record SimpleInventoryRecord<T extends TileState & InventoryHolder>(Inven
     }
     //todo need check of double chest
     @Nonnull
+    @ForceOnMainThread
+    @Note(note = "some InventoryType is totally async unsafe,we will seen then as null,others need catch unhandled exception when set(slot,item)")
     public static InventoryRecord getInventoryRecord(Location loc) {
         return getInventoryRecord(loc,false);
     }
     @Nonnull
-    public static InventoryRecord getInventoryRecord(Location loc,boolean forceOnMain) {
+    @ForceOnMainThread
+    @Note(note = "some InventoryType is totally async unsafe,others need catch unhandled exception when set(slot,item)")
+    public static InventoryRecord getInventoryRecord(Location loc,boolean useOnMain) {
         //should force Sync
         Block b = loc.getBlock();
         if(WorldUtils.getBlockStateNoSnapShot(b) instanceof InventoryHolder holder && holder instanceof TileState state){
             Inventory inventory = holder.getInventory();
-            if((forceOnMain)||WorldUtils.isInventoryTypeAsyncSafe(inventory.getType())){
+            if((useOnMain)||WorldUtils.isInventoryTypeAsyncSafe(inventory.getType())){
                 return inventory instanceof DoubleChestInventory chestchest? DoubleStateInventoryRecord.ofDoubleChest(chestchest): new SimpleInventoryRecord(inventory,state,loc);
             }else{
                 return new SimpleInventoryRecord(null,state,loc);

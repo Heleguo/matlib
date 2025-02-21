@@ -1,7 +1,7 @@
 package me.matl114.matlib.Algorithms.DataStructures.Frames;
 
 
-import me.matl114.matlib.Utils.Utils;
+import me.matl114.matlib.Algorithms.Algorithm.Utils;
 
 import java.util.Collection;
 import java.util.HashMap;

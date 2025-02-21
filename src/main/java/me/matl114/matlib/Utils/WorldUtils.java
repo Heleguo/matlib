@@ -3,6 +3,8 @@ package me.matl114.matlib.Utils;
 import lombok.Getter;
 import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeProvider;
 import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeSafeProvider;
+import me.matl114.matlib.Common.Lang.Annotations.ForceOnMainThread;
+import me.matl114.matlib.Common.Lang.Annotations.Note;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.Reflect.MethodAccess;
 import me.matl114.matlib.Utils.Reflect.ReflectUtils;
@@ -72,10 +74,10 @@ public class WorldUtils {
         return weakWorldFieldAccess.getVarHandleOrDefault(()->null);
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize Blockstate.weakWorld VarHandle")).v();
     private static final boolean handleBlockStateSuccess = positionHandle!=null&&worldHandle!=null&&weakWorldHandle!=null;
-
+    @ForceOnMainThread
     public static BlockState copyBlockState(BlockState state, Block block2){
         if(invokeBlockStateSuccess){
-            BlockState state2=block2.getState();
+            BlockState state2=WorldUtils.getBlockStateNoSnapShot(block2);
             if(craftBlockStateClass.isInstance(state2)&&craftBlockStateClass.isInstance(state)){
                 if(handleBlockStateSuccess){
                     try{
@@ -125,7 +127,7 @@ public class WorldUtils {
     private static final MethodHandle getStateNoSnapshotHandle = new InitializeSafeProvider<>(MethodHandle.class,()->{
         return getStateNoSnapshotAccess.getMethodHandleOrDefault(()->null);
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize Blockstate.getState MethodHandle")).v();
-
+    @ForceOnMainThread
     public static BlockState getBlockStateNoSnapShot(Block block){
         if(getStateNoSnapshotHandle!=null){
             try{
@@ -198,9 +200,11 @@ public class WorldUtils {
             }
         }
     }
+    @Note(note = "check if Inventory type safe enough to setItem and getItem,some inventory are too weird")
     public static boolean isInventoryTypeCommon(InventoryType inventoryType){
         return inventoryType!=InventoryType.CHISELED_BOOKSHELF && inventoryType!=InventoryType.JUKEBOX && inventoryType != InventoryType.COMPOSTER;
     }
+    @Note(note = "check if Inventory type commonly async safe,when return false,this type of inventory will 100% trigger block update,others will be safe in most time(still cause block update when redstone comparator is near,but inventory changes will keep)")
     public static boolean isInventoryTypeAsyncSafe(InventoryType inventoryType){
         return inventoryType!=InventoryType.LECTERN && isInventoryTypeCommon(inventoryType);
     }
@@ -216,6 +220,7 @@ public class WorldUtils {
     public static Iterator<Material> getInventoryHolderTypes(){
         return INVENTORYHOLDER_MATERIAL.iterator();
     }
+    @ForceOnMainThread
     public static boolean canBlockInventoryOpenToPlayer(Inventory inventory){
         //should run on Primary thread
         InventoryHolder holder = inventory.getHolder();
