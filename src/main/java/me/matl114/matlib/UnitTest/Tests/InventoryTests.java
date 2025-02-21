@@ -67,6 +67,8 @@ public class InventoryTests implements TestCase {
         Assert(WorldUtils.getTileEntityClass().isInstance(tileEntity));
         Debug.logger("check tile Entity Removal");
         Assert(!((boolean) WorldUtils.getTileEntityRemovalHandle().get(tileEntity)));
+        Debug.logger("check tile Entity setChange");
+        WorldUtils.tileEntitySetChange(tileState);
         AtomicReference<BlockState> newState = new AtomicReference<>(null);
         FutureTask<Void> deleteChest = ScheduleManager.getManager().getScheduledFuture(()->{
             testBlock.setType(Material.AIR);

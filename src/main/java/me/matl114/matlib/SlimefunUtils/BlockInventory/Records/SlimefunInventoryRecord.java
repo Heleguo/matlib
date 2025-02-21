@@ -45,6 +45,10 @@ public record SlimefunInventoryRecord (Inventory inventory,@Nonnull SlimefunBloc
     }
 
     @Override
+    public void setChange() {
+    }
+
+    @Override
     public Inventory getInventorySync() {
         return inventory;
     }

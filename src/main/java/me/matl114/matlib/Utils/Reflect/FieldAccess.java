@@ -40,9 +40,9 @@ public class FieldAccess {
     }
     private com.esotericsoftware.reflectasm.FieldAccess fastAccessInternal;
     private int fastAccessIndex;
-    private boolean failPublicAccess=false;
+    private boolean failPublicAccess=true;
     private Class<?> definedType=null;
-    private static final boolean useHandle=false;
+    private static final boolean useHandle=true;
     private FieldGetter getter = null;
     private FieldSetter setter = null;
     public static FieldAccess ofName(String fieldName){
@@ -93,23 +93,14 @@ public class FieldAccess {
                     this.isPrivate = Modifier.isPrivate(modifiers);
                     this.definedType=this.field.getType();
                     //only the field who has full access can create fast Access throw FieldAccess
-                    if(!isStatic && !isPrivate){
-                        try{
-                            this.fastAccessInternal = getOrCreateAccess(field.getDeclaringClass());
-                            this.fastAccessIndex = this.fastAccessInternal.getIndex(this.field);
-                            this.failPublicAccess = !this.isPublic;
-                        }catch (Throwable e){
-                            this.failPublicAccess = true;
-                            if (printError){
-                                Debug.logger("Failed to create fast Access for Field :",field);
-                                Debug.logger(e);
-                            }
-                        }
+                    if(!isStatic && isPublic){
+                        initFastAccess();
                     }else {
                         this.failPublicAccess = true;
                     }
                     try{
                         this.handle=MethodHandles.privateLookupIn(this.field.getDeclaringClass(),MethodHandles.lookup()).unreflectVarHandle(this.field);
+                        this.failHandle=false;
                     }catch(IllegalAccessException e){
                         this.failHandle=true;
                         if(printError){
@@ -129,6 +120,19 @@ public class FieldAccess {
             }
         }
         return this;
+    }
+    private void initFastAccess(){
+        try{
+            this.fastAccessInternal = getOrCreateAccess(field.getDeclaringClass());
+            this.fastAccessIndex = this.fastAccessInternal.getIndex(this.field);
+            this.failPublicAccess = !this.isPublic;
+        }catch (Throwable e){
+            this.failPublicAccess = true;
+            if (printError){
+                Debug.logger("Failed to create fast Access for Field :",field);
+                Debug.logger(e);
+            }
+        }
     }
     public Field getFieldOrDefault(Supplier<Field> defa){
         init(null);
@@ -152,6 +156,10 @@ public class FieldAccess {
     public Pair<com.esotericsoftware.reflectasm.FieldAccess,Integer> getReflectAsm(Object initializeObject){
         init(initializeObject);
         Preconditions.checkArgument(!isStatic&&!isPrivate,"Private and Static field can not be accessed from FieldAccess");
+        if(!isPublic){
+            //only public create automatically
+            initFastAccess();
+        }
         return Pair.of(this.fastAccessInternal,this.fastAccessIndex);
     }
 

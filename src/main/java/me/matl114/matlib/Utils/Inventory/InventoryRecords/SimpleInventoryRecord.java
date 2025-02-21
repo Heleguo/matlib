@@ -45,6 +45,11 @@ public record SimpleInventoryRecord<T extends TileState & InventoryHolder>(Inven
     }
 
     @Override
+    public void setChange() {
+        WorldUtils.tileEntitySetChange(optionalHolder);
+    }
+
+    @Override
     public Inventory getInventorySync(){
         if(inventory != null){
             return inventory;
@@ -65,13 +70,13 @@ public record SimpleInventoryRecord<T extends TileState & InventoryHolder>(Inven
     //todo need check of double chest
     @Nonnull
     @ForceOnMainThread
-    @Note(note = "some InventoryType is totally async unsafe,we will seen then as null,others need catch unhandled exception when set(slot,item)")
+    @Note(value = "some InventoryType is totally async unsafe,we will seen then as null,others need catch unhandled exception when set(slot,item)")
     public static InventoryRecord getInventoryRecord(Location loc) {
         return getInventoryRecord(loc,false);
     }
     @Nonnull
     @ForceOnMainThread
-    @Note(note = "some InventoryType is totally async unsafe,others need catch unhandled exception when set(slot,item)")
+    @Note(value = "some InventoryType is totally async unsafe,others need catch unhandled exception when set(slot,item)")
     public static InventoryRecord getInventoryRecord(Location loc,boolean useOnMain) {
         //should force Sync
         Block b = loc.getBlock();

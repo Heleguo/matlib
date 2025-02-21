@@ -8,5 +8,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE,ElementType.METHOD,ElementType.FIELD})
 @Retention(RetentionPolicy.CLASS)
 public @interface Note {
-    String note() default "";
+    String value() default "";
 }

@@ -30,12 +30,17 @@ public class MethodAccess<T extends Object> {
     private Function<Object, Method> lazilyInitializationFunction;
     private Method field;
     private MethodHandle handle;
-    private boolean failHandle = false;
+    private boolean failHandle = true;
     private boolean isStatic;
+    private boolean isPublic;
     private int argLen;
     private boolean isVoidReturn;
     private static final boolean useHandle=false;
     private boolean createSnapshot = true;
+    private com.esotericsoftware.reflectasm.MethodAccess fastAccessInternal;
+    private int fastAccessIndex;
+    private boolean failPublicAccess = true;
+    private MethodInvoker<T> invoker;
     public MethodAccess<T> noSnapShot(){
         this.createSnapshot = false;
         return this;
@@ -103,10 +108,18 @@ public class MethodAccess<T extends Object> {
         this.field= field;
         this.argLen=this.field.getParameterCount();
         if(this.createSnapshot){
-            this.isStatic= Modifier.isStatic(this.field.getModifiers());
+            int mod = this.field.getModifiers();
+            this.isStatic= Modifier.isStatic(mod);
+            this.isPublic= Modifier.isPublic(mod);
             this.isVoidReturn =this.field.getReturnType()==void.class;
+            if(!isStatic && isPublic){
+                initFastAccess();
+            }else {
+                this.failPublicAccess = true;
+            }
             try{
                 this.handle= MethodHandles.privateLookupIn(this.field.getDeclaringClass(),MethodHandles.lookup()).unreflect(this.field);
+                this.failHandle = false;
             }catch (Throwable handleFailed){
                 this.failHandle=true;
                 if(printError){
@@ -115,8 +128,23 @@ public class MethodAccess<T extends Object> {
                 }
             }
         }
-
+        this.invoker = invokerInternal();
     }
+
+    private void initFastAccess(){
+        try{
+            this.fastAccessInternal = getOrCreateAccess(field.getDeclaringClass());
+            this.fastAccessIndex = this.fastAccessInternal.getIndex(this.field.getName(),this.field.getParameterTypes());
+            this.failPublicAccess = !this.isPublic;
+        }catch (Throwable e){
+            this.failPublicAccess = true;
+            if (printError){
+                Debug.logger("Failed to create fast Access for Field :",field);
+                Debug.logger(e);
+            }
+        }
+    }
+
     private Class getMethodReturnType(){
         Preconditions.checkArgument(!failInitialization,"MehodAccess initialization failed!");
         Preconditions.checkArgument(field!=null,"MehodAccess method not initialized!");
@@ -138,6 +166,14 @@ public class MethodAccess<T extends Object> {
     public MethodHandle finalizeHandleOrDefault(Object initializeObject,Supplier<MethodHandle> defa){
         init(initializeObject);
         return failHandle?defa.get():handle;
+    }
+    public MethodInvoker<T> getInvoker(){
+        initWithNull();
+        return invoker;
+    }
+    public MethodInvoker<T> finalizeInvoker(Object initializeObject){
+        init(initializeObject);
+        return invoker;
     }
 
     private Object invokeUsingHandle(Object tar ,Object... obj) throws Throwable{
@@ -164,17 +200,29 @@ public class MethodAccess<T extends Object> {
         }
         return null;
     }
-    private T invokeInternal(Object tar,Object... obj) throws Throwable {
-        Preconditions. checkArgument(obj.length==this.argLen,"wrong number of arguments: %s expected: %s",obj.length,this.argLen);
-        if(!useHandle|| this.failHandle){
-            return (T)field.invoke(tar,obj);
+    private MethodInvoker<T> invokerInternal(){
+        if(!useHandle ||this.failHandle){
+            if(!failPublicAccess){
+                return new MethodInvoker<T>() {
+                    @Override
+                    public T invokeInternal(Object obj, Object... args) throws Throwable {
+                        throw new IllegalStateException("Method shouldn't be called");
+                    }
+                    public T invoke(Object obj,Object... args){
+                        return (T)fastAccessInternal.invoke(obj,fastAccessIndex,args);
+                    }
+                } ;
+            }else {
+                return ((obj, args) ->(T) field.invoke(obj,args));
+            }
         }else {
-            return (T)invokeUsingHandle(tar,obj);
+            return (obj, args) ->(T) invokeUsingHandle(obj,args);
         }
     }
+
     public T invoke(Object tar,Object... obj) throws Throwable{
         init(tar);
-        return invokeInternal(tar,obj);
+        return invoker.invoke(tar,obj);
     }
     public T invokeIgnoreFailure(Object tar,Object... obj) throws Throwable{
         if(field==null){
@@ -186,7 +234,7 @@ public class MethodAccess<T extends Object> {
                 }
             }
         }
-        return invokeInternal(tar,obj);
+        return invoker.invoke(tar,obj);
     }
 
     public MethodAccess<T> invokeCallback(Consumer<T> callback,Runnable failedCallback, Object tar, Object... obj) {
@@ -215,7 +263,7 @@ public class MethodAccess<T extends Object> {
             //return this::invokeInternal();
             return ()->{
                 try{
-                    return invokeInternal(tar,obj);
+                   return invoker.invoke(tar,obj);
                 }catch (Throwable e){
                     throw new RuntimeException(e);
                 }

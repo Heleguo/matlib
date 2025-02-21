@@ -7,6 +7,7 @@ import me.matl114.matlib.Common.Lang.Annotations.ForceOnMainThread;
 import me.matl114.matlib.Common.Lang.Annotations.Note;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.Reflect.MethodAccess;
+import me.matl114.matlib.Utils.Reflect.MethodInvoker;
 import me.matl114.matlib.Utils.Reflect.ReflectUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -24,8 +25,12 @@ import javax.annotation.Nonnull;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.Set;
 
 public class WorldUtils {
 
@@ -171,7 +176,21 @@ public class WorldUtils {
     private static final VarHandle tileEntityRemovalHandle = new InitializeSafeProvider<>(VarHandle.class,()->{
         return tileEntityRemovalAccess.getVarHandleOrDefault(()->null);
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize TileEntity.remove VarHandle")).v();
-
+    @Getter
+    private static final MethodAccess<Void> tileEntitySetChangeAccess = new MethodAccess<>((ignored)->{
+        Method[] methods = tileEntityClass.getMethods();
+        var met = Arrays.stream(methods).filter(m->m.getParameterCount()==0).filter(m->m.getReturnType()==void.class).filter(m->{
+            int mod = m.getModifiers();
+            return Modifier.isPublic(mod) && !Modifier.isStatic(mod) && !Modifier.isFinal(mod);
+        }).filter(m->{
+            String name=m.getName();
+            return Set.of("e","setChanged").contains(name);
+        }).findFirst();
+        return met.orElse(null);
+    });
+    private static final MethodInvoker<Void> tileEntitySetChangeMethodInvoker = new InitializeSafeProvider<>(tileEntitySetChangeAccess::getInvoker)
+            .runNonnullAndNoError(()->Debug.logger("Successfully initialize TileEntity.setChange Method Invoker"))
+            .v();
     public static boolean isTileEntityStillValid(@Nonnull TileState tile){
         if(craftBlockEntityStateClass.isInstance(tile)){
             Object tileEntity = tileEntityHandle.get(tile);
@@ -179,6 +198,14 @@ public class WorldUtils {
         }else {
             //they may get a wrong state ,so we suppose that the origin state is removed
             return false;
+        }
+    }
+    public static void tileEntitySetChange(@Nonnull TileState tile){
+        if(craftBlockEntityStateClass.isInstance(tile)){
+            Object tileEntity = tileEntityHandle.get(tile);
+            if(tileEntitySetChangeMethodInvoker!=null && !(boolean)tileEntityRemovalHandle.get(tileEntity)){
+                tileEntitySetChangeMethodInvoker.invoke(tileEntity);
+            }
         }
     }
 
@@ -200,11 +227,11 @@ public class WorldUtils {
             }
         }
     }
-    @Note(note = "check if Inventory type safe enough to setItem and getItem,some inventory are too weird")
+    @Note(value = "check if Inventory type safe enough to setItem and getItem,some inventory are too weird")
     public static boolean isInventoryTypeCommon(InventoryType inventoryType){
         return inventoryType!=InventoryType.CHISELED_BOOKSHELF && inventoryType!=InventoryType.JUKEBOX && inventoryType != InventoryType.COMPOSTER;
     }
-    @Note(note = "check if Inventory type commonly async safe,when return false,this type of inventory will 100% trigger block update,others will be safe in most time(still cause block update when redstone comparator is near,but inventory changes will keep)")
+    @Note(value = "check if Inventory type commonly async safe,when return false,this type of inventory will 100% trigger block update,others will be safe in most time(still cause block update when redstone comparator is near,but inventory changes will keep)")
     public static boolean isInventoryTypeAsyncSafe(InventoryType inventoryType){
         return inventoryType!=InventoryType.LECTERN && isInventoryTypeCommon(inventoryType);
     }

@@ -25,3 +25,16 @@ depend:
   - Slimefun
 softdepend:
   - GuizhanLibPlugin
+
+
+commands:
+  matlib:
+    description: basic logitech command
+    aliases: mat
+    usage: 'ask the author,pls.I dont think theres a need for you to use these commands'
+
+permissions:
+  matlib.test.op:
+    description: Allows you to use test commands
+    default: op
+

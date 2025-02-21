@@ -37,6 +37,11 @@ public record OldSlimefunInventoryRecord(@Nonnull Inventory inventory,@Nonnull B
     }
 
     @Override
+    public void setChange() {
+        this.optionalHolder.markDirty();
+    }
+
+    @Override
     public Inventory getInventorySync() {
         return inventory;
     }

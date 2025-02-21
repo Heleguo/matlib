@@ -56,6 +56,13 @@ public record DoubleStateInventoryRecord(DoubleChestInventory inventory,
     public boolean stillValid() {
         return left != null && WorldUtils.isTileEntityStillValid(left) && right != null && WorldUtils.isTileEntityStillValid(right);
     }
+
+    @Override
+    public void setChange() {
+        WorldUtils.tileEntitySetChange(left);
+        WorldUtils.tileEntitySetChange(right);
+    }
+
     public boolean canPlayerOpen(Player p){
         return stillValid();
     }

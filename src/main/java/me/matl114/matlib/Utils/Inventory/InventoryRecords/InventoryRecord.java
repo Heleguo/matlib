@@ -2,6 +2,7 @@ package me.matl114.matlib.Utils.Inventory.InventoryRecords;
 
 import me.matl114.matlib.Common.Lang.Annotations.Experimental;
 import me.matl114.matlib.Common.Lang.Annotations.ForceOnMainThread;
+import me.matl114.matlib.Common.Lang.Annotations.Note;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -51,6 +52,8 @@ public interface InventoryRecord {
      */
     public boolean stillValid();
 
+    @Note("force on main when vanillaInv = true")
+    public void setChange();
     /**
      * check if data present
      * @return

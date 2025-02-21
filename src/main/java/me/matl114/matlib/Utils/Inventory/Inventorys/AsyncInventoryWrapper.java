@@ -2,10 +2,12 @@ package me.matl114.matlib.Utils.Inventory.Inventorys;
 
 import me.matl114.matlib.Common.Lang.Annotations.Note;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
+import me.matl114.matlib.Utils.WorldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.TileState;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -17,9 +19,8 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 
-@Note(note = "note that this class just provides a view to manipulate block inventory in an async-safe way")
+@Note(value = "note that this class just provides a view to manipulate block inventory in an async-safe way")
 public abstract class AsyncInventoryWrapper implements Inventory {
     boolean triggerDelayUpdate =false;
     Inventory handle;
@@ -34,10 +35,8 @@ public abstract class AsyncInventoryWrapper implements Inventory {
                 @Override
                 public void delayChangeUpdateInternal() {
                     Bukkit.getScheduler().runTask(pl,()->{
-                        Location loc = getLocation();
-                        if(loc != null){
-                            Block b= loc.getBlock();
-                            b.setBlockData(b.getBlockData(),true);
+                        if(blockInventory.getHolder() instanceof TileState tile) {
+                            WorldUtils.tileEntitySetChange(tile);
                         }
                     });
                 }
@@ -48,7 +47,13 @@ public abstract class AsyncInventoryWrapper implements Inventory {
         if(!record.isVanillaInv()||Bukkit.isPrimaryThread()){
             return record.inventory();
         }else {
-            return wrapOfCurrentThread(pl,record.inventory());
+            Inventory inv = record.inventory();
+            return inv==null?null:new AsyncInventoryWrapper(inv) {
+                @Override
+                public void delayChangeUpdateInternal() {
+                    Bukkit.getScheduler().runTask(pl, record::setChange);
+                }
+            };
         }
     }
     public AsyncInventoryWrapper(Inventory inventory) {
@@ -75,7 +80,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
-    @Note(note = "this method may trigger block update and throw exceptions,but fortunately we catch it and schedule a delay block update")
+    @Note(value = "this method may trigger block update and throw exceptions,but fortunately we catch it and schedule a delay block update")
     public void setItem(int i, ItemStack itemStack) {
         try{
             this.handle.setItem(i,itemStack);
@@ -88,7 +93,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
-    @Note(note = "Not recommended in async")
+    @Note(value = "Not recommended in async")
     public HashMap<Integer, ItemStack> addItem(ItemStack... itemStacks) throws IllegalArgumentException {
         try{
             return this.handle.addItem(itemStacks);
@@ -101,7 +106,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
-    @Note(note = "Not recommended in async")
+    @Note(value = "Not recommended in async")
     public HashMap<Integer, ItemStack> removeItem(ItemStack... itemStacks) throws IllegalArgumentException {
         try{
             return this.handle.removeItem(itemStacks);
@@ -118,7 +123,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
-    @Note(note = "Not recommended in async")
+    @Note(value = "Not recommended in async")
     public void setContents(ItemStack[] itemStacks) throws IllegalArgumentException {
         try{
             this.handle.setContents(itemStacks);
@@ -135,7 +140,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
-    @Note(note = "Not recommended in async")
+    @Note(value = "Not recommended in async")
     public void setStorageContents(ItemStack[] itemStacks) throws IllegalArgumentException {
         try{
             this.handle.setStorageContents(itemStacks);
@@ -200,7 +205,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
-    @Note(note = "Not recommended in async")
+    @Note(value = "Not recommended in async")
     public void remove(Material material) throws IllegalArgumentException {
         try{
             this.handle.remove(material);
@@ -211,7 +216,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
-    @Note(note = "Not recommended in async")
+    @Note(value = "Not recommended in async")
     public void remove(ItemStack itemStack) {
         try{
             this.handle.remove(itemStack);
@@ -221,7 +226,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
-    @Note(note = "Not recommended in async")
+    @Note(value = "Not recommended in async")
     public void clear(int i) {
         try{
             this.handle.clear(i);
@@ -231,7 +236,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
-    @Note(note = "Not recommended in async")
+    @Note(value = "Not recommended in async")
     public void clear() {
         try{
             this.handle.clear();
@@ -269,7 +274,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     public Location getLocation() {
         return this.handle.getLocation();
     }
-    @Note(note = "override of this method is available if multiple change update is required")
+    @Note(value = "override of this method is available if multiple change update is required")
     public void delayChangeUpdate(){
         if(!triggerDelayUpdate){
             triggerDelayUpdate = true;
