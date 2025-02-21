@@ -59,10 +59,7 @@ public record SimpleInventoryRecord<T extends TileState & InventoryHolder>(Inven
         }
     }
 
-    @Override
-    public boolean hasData() {
-        return optionalHolder != null;
-    }
+
 
     public boolean canPlayerOpen(Player p){
         return optionalHolder!=null && WorldUtils.canBlockInventoryOpenToPlayer(optionalHolder);

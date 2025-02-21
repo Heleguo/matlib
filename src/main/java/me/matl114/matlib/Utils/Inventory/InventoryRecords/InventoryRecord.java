@@ -58,9 +58,11 @@ public interface InventoryRecord {
      * check if data present
      * @return
      */
-    public boolean hasData();
+    default boolean hasData(){
+        return optionalHolder() != null;
+    }
     default boolean hasInv(){
-        return invLocation() != null;
+        return inventory() != null;
     }
     /**
      * get Inventory (if needed ,always Sync)

@@ -68,11 +68,6 @@ public record DoubleStateInventoryRecord(DoubleChestInventory inventory,
     }
 
     @Override
-    public boolean hasData() {
-        return optionalHolder() != null;
-    }
-
-    @Override
     public Inventory getInventorySync() {
         if(inventory != null){
             return inventory;
