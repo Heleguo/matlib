@@ -79,8 +79,10 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     public void setItem(int i, ItemStack itemStack) {
         try{
             this.handle.setItem(i,itemStack);
-        }catch (IllegalStateException e){
-            //ignore out-of-bound exception
+        }catch (ArrayIndexOutOfBoundsException shit){
+            //ignore out-of-bound setItem
+            throw shit;
+        }catch (Throwable e){
             delayChangeUpdate();
         }
     }
@@ -90,7 +92,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     public HashMap<Integer, ItemStack> addItem(ItemStack... itemStacks) throws IllegalArgumentException {
         try{
             return this.handle.addItem(itemStacks);
-        }catch(IllegalStateException e){
+        }catch(Throwable e){
             delayChangeUpdate();
 
         }
@@ -103,7 +105,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     public HashMap<Integer, ItemStack> removeItem(ItemStack... itemStacks) throws IllegalArgumentException {
         try{
             return this.handle.removeItem(itemStacks);
-        }catch(IllegalStateException e){
+        }catch(Throwable e){
             delayChangeUpdate();
 
         }
@@ -202,7 +204,8 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     public void remove(Material material) throws IllegalArgumentException {
         try{
             this.handle.remove(material);
-        }catch (IllegalStateException e){
+        }
+        catch (Throwable e){
             delayChangeUpdate();
         }
     }
@@ -212,7 +215,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     public void remove(ItemStack itemStack) {
         try{
             this.handle.remove(itemStack);
-        }catch (IllegalStateException e){
+        }catch (Throwable e){
             delayChangeUpdate();
         }
     }
@@ -222,7 +225,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     public void clear(int i) {
         try{
             this.handle.clear(i);
-        }catch (IllegalStateException e){
+        }catch (Throwable e){
             delayChangeUpdate();
         }
     }
@@ -232,7 +235,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     public void clear() {
         try{
             this.handle.clear();
-        }catch (IllegalStateException e){
+        }catch (Throwable e){
             delayChangeUpdate();
         }
     }
