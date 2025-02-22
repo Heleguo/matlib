@@ -33,6 +33,6 @@ public class InventoryUtils {
         return inventoryHolder instanceof BlockInventoryHolder || inventoryHolder instanceof DoubleChest;
     }
     public static boolean canBlockInventoryOpenToPlayer(InventoryHolder holder){
-        return holder instanceof Container || holder instanceof Lectern || !(holder instanceof BlockInventoryHolder);
+        return holder instanceof Container || holder instanceof Lectern || holder instanceof DoubleChest || !(holder instanceof BlockInventoryHolder);
     }
 }

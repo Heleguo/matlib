@@ -53,12 +53,12 @@ public abstract class AsyncInventoryWrapper implements Inventory {
         if(!record.isVanillaInv()||Bukkit.isPrimaryThread()){
             return record.inventory();
         }else {
-            return record.hasInv()?null:new AsyncInventoryWrapper(record) {
+            return record.hasInv()?new AsyncInventoryWrapper(record) {
                 @Override
                 public void delayChangeUpdateInternal() {
                     Bukkit.getScheduler().runTask(pl, record::setChange);
                 }
-            };
+            }:null;
         }
     }
     public AsyncInventoryWrapper(Inventory inventory) {
