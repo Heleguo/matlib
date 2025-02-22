@@ -52,7 +52,8 @@ public interface InventoryRecord {
      */
     public boolean stillValid();
 
-    @Note("force on main when vanillaInv = true")
+    @ForceOnMainThread
+    @Note("call only when isVanillaInv = true,")
     public void setChange();
     /**
      * check if data present
