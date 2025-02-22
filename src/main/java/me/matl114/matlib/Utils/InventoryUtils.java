@@ -5,6 +5,7 @@ import me.matl114.matlib.Common.Lang.Annotations.ForceOnMainThread;
 import me.matl114.matlib.Common.Lang.Annotations.Note;
 import me.matl114.matlib.core.EnvironmentManager;
 import org.bukkit.block.Container;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.block.Lectern;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.BlockInventoryHolder;
@@ -26,6 +27,10 @@ public class InventoryUtils {
         //should run on Primary thread
         InventoryHolder holder = inventory.getHolder();
         return canBlockInventoryOpenToPlayer(holder);
+    }
+
+    public static boolean isBlockInventory(InventoryHolder inventoryHolder){
+        return inventoryHolder instanceof BlockInventoryHolder || inventoryHolder instanceof DoubleChest;
     }
     public static boolean canBlockInventoryOpenToPlayer(InventoryHolder holder){
         return holder instanceof Container || holder instanceof Lectern || !(holder instanceof BlockInventoryHolder);

@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import lombok.Getter;
 import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeSafeProvider;
 import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializingTasks;
+import me.matl114.matlib.Common.Lang.Annotations.NotRecommended;
 import me.matl114.matlib.Common.Lang.Annotations.Note;
 import me.matl114.matlib.Common.Lang.Annotations.UnsafeOperation;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
@@ -81,6 +82,22 @@ public class NMSInventoryUtils {
             }
         }else{
             setInvInternal(bukkitInventory, index, item);
+        }
+    }
+    @UnsafeOperation
+    @NotRecommended
+    @Note("inventory must be a block inventory, s.t. holder instanceof TileState or DoubleChest")
+    public static void setTileInvItemNoUpdate(Inventory inventory, int index, ItemStack item){
+        if(inventory instanceof DoubleChestInventory first){
+            Inventory left = first.getLeftSide();
+            int size = left.getSize();
+            if(index < size){
+                setInvInternal(left, index, item);
+            }else {
+                setInvInternal(first.getRightSide(), index - size, item);
+            }
+        }else {
+            setInvInternal(inventory, index, item);
         }
     }
     private static void setInvInternal(Inventory inventory, int index, ItemStack item){
