@@ -1,5 +1,6 @@
 package me.matl114.matlib.SlimefunUtils.BlockInventory.Records;
 
+import me.matl114.matlib.Common.Lang.Annotations.NotRecommended;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.SimpleInventoryRecord;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
@@ -10,6 +11,7 @@ import org.bukkit.inventory.Inventory;
 
 import javax.annotation.Nonnull;
 
+@NotRecommended
 public record OldSlimefunInventoryRecord(@Nonnull Inventory inventory,@Nonnull BlockMenu optionalHolder) implements InventoryRecord {
     @Override
     public Location invLocation() {

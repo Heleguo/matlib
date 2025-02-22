@@ -4,8 +4,11 @@ import lombok.Getter;
 import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeProvider;
 import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeSafeProvider;
 import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializingTasks;
+import me.matl114.matlib.Common.Lang.Annotations.Note;
 import me.matl114.matlib.Utils.ItemCache.ItemStackCache;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
+import me.matl114.matlib.Utils.Reflect.MethodAccess;
+import me.matl114.matlib.Utils.Reflect.MethodInvoker;
 import me.matl114.matlib.core.EnvironmentManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -111,7 +114,7 @@ public class CraftUtils {
         }
     }).v();
    // public static Field CRAFTHANDLER;
-    private static final Class NMSITEMCLASS = new InitializeSafeProvider<>(Class.class,()->{
+    private static final Class NMSItemStackClass = new InitializeSafeProvider<>(Class.class,()->{
        try {
            return (Class) handledAccess.getValue(craftItemStack).getClass() ;
        } catch (Throwable e) {
@@ -131,6 +134,7 @@ public class CraftUtils {
         return enchantmentAccess.getVarHandleOrDefault(()->null);
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftMetaItem.enchantments VarHandle")).v();
     @Getter
+    @Note("net.minecraft.ItemStack handle;")
     private static final VarHandle handleHandle = new InitializeSafeProvider<>(()->{
         return handledAccess.getVarHandleOrDefault(()->null);
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftItemStack.handle VarHandle")).v();
@@ -138,7 +142,21 @@ public class CraftUtils {
     private static final FieldAccess craftDelegateAccess = new InitializeSafeProvider<>(FieldAccess.class,()->{
         return null;
     }).runNonnullAndNoError(()->Debug.logger("Detected ItemStack.craftDelegate field")).v();
+    @Getter
 
+    private static final MethodAccess<ItemStack> asCraftCopyAccess = MethodAccess.ofName(craftItemStackClass,"asCraftCopy",ItemStack.class);
+
+    @Getter
+    @Note("public static CraftItemStack asCraftCopy")
+    private static final MethodInvoker<ItemStack> asCraftCopyInvoker = asCraftCopyAccess.getInvoker();
+
+    private static final MethodAccess<?> asNMSCopyAccess = MethodAccess.ofName(craftItemStackClass,"asNMSCopy",ItemStack.class);
+    @Getter
+    @Note("public static net.minecraft.world.item.ItemStack asNMSCopy")
+    private static final MethodInvoker<?> asNMSCopyInvoker = asNMSCopyAccess.getInvoker();
+    private static final InitializingTasks CRAFTITEM_CLASS_FINISH = new InitializingTasks(()->{
+        Debug.logger("Successfully initialize CraftItemStack static methods...");
+    });
     //when running without slimefun:
     //don't use history record of crafting method
     //don't use parseSfId
@@ -148,20 +166,31 @@ public class CraftUtils {
     public static void setup(){
 
     }
+    public static ItemStack getCraftCopy(ItemStack item){
+        return asCraftCopyInvoker.invoke(null,item);
+    }
     public static ItemStack getCraftCopy(ItemStack item,boolean throughInventorySafe){
-        if(throughInventorySafe){
-            Inventory inventory = threadLocalInventory.get();
-            inventory.setItem(0,item);
-            return inventory.getItem(0);
-        }else{
-            //todo not completed yet
-            return getCraftCopy(item,true);
-        }
+        return asCraftCopyInvoker.invoke(null,item);
+//        if(throughInventorySafe){
+//            Inventory inventory = threadLocalInventory.get();
+//            inventory.setItem(0,item);
+//            return inventory.getItem(0);
+//        }else{
+//            //todo not completed yet
+//            return getCraftCopy(item,true);
+//        }
+    }
+    public static Object getNMSCopy(ItemStack item){
+//        ItemStack craftItemStack = getCraftCopy(item,true);
+//        return handleHandle.get(craftItemStack);
+        return asNMSCopyInvoker.invoke(null,item);
     }
     public static boolean isCraftItemStack(ItemStack item){
         return craftItemStackClass.isInstance(item);
     }
-
+    public static boolean isNMSItemStack(Object nms){
+        return NMSItemStackClass.isInstance(nms);
+    }
     /**
      * if item a and item b both craftItemStack ,check if they have same handled NMSItemStack
      * @param a

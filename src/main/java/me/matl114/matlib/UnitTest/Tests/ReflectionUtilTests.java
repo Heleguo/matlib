@@ -17,7 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Map;
 
-public class VarHandleTests implements TestCase {
+public class ReflectionUtilTests implements TestCase {
     @OnlineTest(name = "CraftUtils VarHandle test")
     public void testDisplayVarHandle(){
         ItemStack item = new CleanItemStack(Material.BOOK,"这是&a一个&c书","这&e是一本&r书","这并&6不是两&3本书");
@@ -55,5 +55,20 @@ public class VarHandleTests implements TestCase {
         }catch (Throwable protect){
         }
         Debug.logger(blockState.getClass(),blockState.getClass().getClassLoader(), ClassLoader.getSystemClassLoader());
+    }
+
+
+    @OnlineTest(name = "CraftUtils Invoker test")
+    public void testCraftInvoker(){
+        ItemStack item = new CleanItemStack(Material.BOOK);
+        ItemStack citem = CraftUtils.getCraftCopy(item);
+        Debug.logger(citem);
+        Debug.logger(citem.getClass());
+        Assert(CraftUtils.isCraftItemStack(citem));
+        Object nmsItem = CraftUtils.getNMSCopy(item);
+        Debug.logger(nmsItem);
+        Debug.logger(nmsItem.getClass());
+        Assert(CraftUtils.isNMSItemStack(nmsItem));
+        Debug.logger("Test Success");
     }
 }

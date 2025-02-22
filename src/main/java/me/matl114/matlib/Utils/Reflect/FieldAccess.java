@@ -136,11 +136,11 @@ public class FieldAccess {
     }
     public Field getFieldOrDefault(Supplier<Field> defa){
         init(null);
-        return failHandle?defa.get():field;
+        return failInitialization?defa.get():field;
     }
     public Field finalizeFieldOrDefault(Object initializeObject,Supplier<Field> defa){
         init(initializeObject);
-        return failHandle?defa.get():field;
+        return failInitialization?defa.get():field;
     }
     public VarHandle getVarHandleOrDefault(Supplier<VarHandle> defa){
         init(null);

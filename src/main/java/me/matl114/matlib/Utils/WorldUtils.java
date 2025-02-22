@@ -5,6 +5,7 @@ import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeProvider;
 import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeSafeProvider;
 import me.matl114.matlib.Common.Lang.Annotations.ForceOnMainThread;
 import me.matl114.matlib.Common.Lang.Annotations.Note;
+import me.matl114.matlib.Common.Lang.Annotations.UnsafeOperation;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.Reflect.MethodAccess;
 import me.matl114.matlib.Utils.Reflect.MethodInvoker;
@@ -200,6 +201,7 @@ public class WorldUtils {
             return false;
         }
     }
+    @UnsafeOperation
     public static void tileEntitySetChange(@Nonnull TileState tile){
         if(craftBlockEntityStateClass.isInstance(tile)){
             Object tileEntity = tileEntityHandle.get(tile);
@@ -227,14 +229,7 @@ public class WorldUtils {
             }
         }
     }
-    @Note(value = "check if Inventory type safe enough to setItem and getItem,some inventory are too weird")
-    public static boolean isInventoryTypeCommon(InventoryType inventoryType){
-        return inventoryType!=InventoryType.CHISELED_BOOKSHELF && inventoryType!=InventoryType.JUKEBOX && inventoryType != InventoryType.COMPOSTER;
-    }
-    @Note(value = "check if Inventory type commonly async safe,when return false,this type of inventory will 100% trigger block update,others will be safe in most time(still cause block update when redstone comparator is near,but inventory changes will keep)")
-    public static boolean isInventoryTypeAsyncSafe(InventoryType inventoryType){
-        return inventoryType!=InventoryType.LECTERN && isInventoryTypeCommon(inventoryType);
-    }
+
     public static boolean isTileEntity(Material material){
         return TILE_ENTITIES_MATERIAL.contains(material);
     }
@@ -247,13 +242,5 @@ public class WorldUtils {
     public static Iterator<Material> getInventoryHolderTypes(){
         return INVENTORYHOLDER_MATERIAL.iterator();
     }
-    @ForceOnMainThread
-    public static boolean canBlockInventoryOpenToPlayer(Inventory inventory){
-        //should run on Primary thread
-        InventoryHolder holder = inventory.getHolder();
-        return canBlockInventoryOpenToPlayer(holder);
-    }
-    public static boolean canBlockInventoryOpenToPlayer(InventoryHolder holder){
-        return holder instanceof Container || holder instanceof Lectern || !(holder instanceof BlockInventoryHolder);
-    }
+
 }

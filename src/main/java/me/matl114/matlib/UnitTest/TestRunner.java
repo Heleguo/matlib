@@ -27,7 +27,7 @@ public class TestRunner extends AbstractMainCommand implements Manager {
     @Override
     public TestRunner init(Plugin pl, String... path) {
         this.plugin = pl;
-        ScheduleManager.getManager().launchScheduled(this::runAutomaticTests,0,false,0);
+        ScheduleManager.getManager().launchScheduled(this::runAutomaticTests,200,false,0);
         registerFunctional();
         this.addToRegistry();
         return this;
@@ -125,7 +125,7 @@ public class TestRunner extends AbstractMainCommand implements Manager {
     private final SubCommand runMainTest = new SubCommand("runmain",new SimpleCommandArgs(),"..."){
         @Override
         public boolean onCommand(CommandSender var1, Command var2, String var3, String[] var4) {
-            ScheduleManager.getManager().launchScheduled(TestRunner.this::runAutomaticTests,200,false,0);
+            ScheduleManager.getManager().launchScheduled(TestRunner.this::runAutomaticTests,0,false,0);
             return true;
         }
     }

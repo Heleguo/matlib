@@ -1,7 +1,11 @@
 package me.matl114.matlib.Utils.Inventory.Inventorys;
 
+import me.matl114.matlib.Common.Lang.Annotations.NotRecommended;
 import me.matl114.matlib.Common.Lang.Annotations.Note;
+import me.matl114.matlib.Common.Lang.Annotations.UnsafeOperation;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.SimpleInventoryRecord;
+import me.matl114.matlib.Utils.NMSInventoryUtils;
 import me.matl114.matlib.Utils.WorldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -24,6 +28,8 @@ import java.util.ListIterator;
 public abstract class AsyncInventoryWrapper implements Inventory {
     boolean triggerDelayUpdate =false;
     Inventory handle;
+    InventoryRecord record = null;
+    @NotRecommended("use Inventory Record instead")
     public static Inventory wrapOfCurrentThread(Plugin pl,@Nullable Inventory blockInventory) {
         if(blockInventory == null) {
             return null;
@@ -47,8 +53,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
         if(!record.isVanillaInv()||Bukkit.isPrimaryThread()){
             return record.inventory();
         }else {
-            Inventory inv = record.inventory();
-            return inv==null?null:new AsyncInventoryWrapper(inv) {
+            return record.hasInv()?null:new AsyncInventoryWrapper(record) {
                 @Override
                 public void delayChangeUpdateInternal() {
                     Bukkit.getScheduler().runTask(pl, record::setChange);
@@ -58,6 +63,11 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
     public AsyncInventoryWrapper(Inventory inventory) {
         this.handle = inventory;
+        this.record = SimpleInventoryRecord.fromInventory(inventory,false);
+    }
+    public AsyncInventoryWrapper(InventoryRecord record){
+        this.handle = record.inventory();
+        this.record = record;
     }
     @Override
     public int getSize() {
@@ -80,39 +90,33 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
-    @Note(value = "this method may trigger block update and throw exceptions,but fortunately we catch it and schedule a delay block update")
+    @UnsafeOperation
     public void setItem(int i, ItemStack itemStack) {
-        try{
-            this.handle.setItem(i,itemStack);
-        }catch (ArrayIndexOutOfBoundsException shit){
-            //ignore out-of-bound setItem
-            throw shit;
-        }catch (Throwable e){
-            delayChangeUpdate();
-        }
+        NMSInventoryUtils.setTileInvItemNoUpdate(record, i, itemStack);
+        delayChangeUpdate();
     }
 
     @Override
+    @NotRecommended
     @Note(value = "Not recommended in async")
     public HashMap<Integer, ItemStack> addItem(ItemStack... itemStacks) throws IllegalArgumentException {
         try{
             return this.handle.addItem(itemStacks);
         }catch(Throwable e){
             delayChangeUpdate();
-
         }
         return new HashMap<>();
 
     }
 
     @Override
+    @NotRecommended
     @Note(value = "Not recommended in async")
     public HashMap<Integer, ItemStack> removeItem(ItemStack... itemStacks) throws IllegalArgumentException {
         try{
             return this.handle.removeItem(itemStacks);
         }catch(Throwable e){
             delayChangeUpdate();
-
         }
         return new HashMap<>();
     }
@@ -123,30 +127,20 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
-    @Note(value = "Not recommended in async")
+    @UnsafeOperation
     public void setContents(ItemStack[] itemStacks) throws IllegalArgumentException {
-        try{
-            this.handle.setContents(itemStacks);
-        }catch (Throwable e){
-            delayChangeUpdate();
-        }
+        NMSInventoryUtils.setTileInvContentsNoUpdate(this.record,itemStacks);
     }
 
     @Override
     public ItemStack[] getStorageContents() {
-
-            return this.handle.getStorageContents();
-
+        return this.handle.getStorageContents();
     }
 
     @Override
-    @Note(value = "Not recommended in async")
+    @UnsafeOperation
     public void setStorageContents(ItemStack[] itemStacks) throws IllegalArgumentException {
-        try{
-            this.handle.setStorageContents(itemStacks);
-        }catch (Throwable e){
-            delayChangeUpdate();
-        }
+        NMSInventoryUtils.setTileInvContentsNoUpdate(this.record,itemStacks);
     }
 
     @Override
@@ -205,6 +199,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
+    @NotRecommended
     @Note(value = "Not recommended in async")
     public void remove(Material material) throws IllegalArgumentException {
         try{
@@ -216,6 +211,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
+    @NotRecommended
     @Note(value = "Not recommended in async")
     public void remove(ItemStack itemStack) {
         try{
@@ -226,6 +222,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
+    @NotRecommended
     @Note(value = "Not recommended in async")
     public void clear(int i) {
         try{
@@ -236,6 +233,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     }
 
     @Override
+    @NotRecommended
     @Note(value = "Not recommended in async")
     public void clear() {
         try{

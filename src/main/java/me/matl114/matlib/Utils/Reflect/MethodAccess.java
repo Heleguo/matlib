@@ -7,6 +7,7 @@ import me.matl114.matlib.Utils.Debug;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -112,7 +113,7 @@ public class MethodAccess<T extends Object> {
             this.isStatic= Modifier.isStatic(mod);
             this.isPublic= Modifier.isPublic(mod);
             this.isVoidReturn =this.field.getReturnType()==void.class;
-            if(!isStatic && isPublic){
+            if(isPublic){
                 initFastAccess();
             }else {
                 this.failPublicAccess = true;
@@ -143,6 +144,14 @@ public class MethodAccess<T extends Object> {
                 Debug.logger(e);
             }
         }
+    }
+    public Method getMethodOrDefault(Supplier<Method> defa){
+        init(null);
+        return failInitialization?defa.get():field;
+    }
+    public Method finalizeMethodOrDefault(Object initializeObject,Supplier<Method> defa){
+        init(initializeObject);
+        return failInitialization?defa.get():field;
     }
 
     private Class getMethodReturnType(){

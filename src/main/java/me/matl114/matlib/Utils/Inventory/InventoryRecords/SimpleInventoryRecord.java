@@ -3,6 +3,7 @@ package me.matl114.matlib.Utils.Inventory.InventoryRecords;
 import com.google.common.base.Preconditions;
 import me.matl114.matlib.Common.Lang.Annotations.ForceOnMainThread;
 import me.matl114.matlib.Common.Lang.Annotations.Note;
+import me.matl114.matlib.Utils.InventoryUtils;
 import me.matl114.matlib.Utils.WorldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -62,7 +63,7 @@ public record SimpleInventoryRecord<T extends TileState & InventoryHolder>(Inven
 
 
     public boolean canPlayerOpen(Player p){
-        return optionalHolder!=null && WorldUtils.canBlockInventoryOpenToPlayer(optionalHolder);
+        return optionalHolder!=null && InventoryUtils.canBlockInventoryOpenToPlayer(optionalHolder);
     }
     //todo need check of double chest
     @Nonnull
@@ -79,12 +80,19 @@ public record SimpleInventoryRecord<T extends TileState & InventoryHolder>(Inven
         Block b = loc.getBlock();
         if(WorldUtils.getBlockStateNoSnapShot(b) instanceof InventoryHolder holder && holder instanceof TileState state){
             Inventory inventory = holder.getInventory();
-            if((useOnMain)||WorldUtils.isInventoryTypeAsyncSafe(inventory.getType())){
+            if((useOnMain)||InventoryUtils.isInventoryTypeAsyncSafe(inventory.getType())){
                 return inventory instanceof DoubleChestInventory chestchest? DoubleStateInventoryRecord.ofDoubleChest(chestchest): new SimpleInventoryRecord(inventory,state,loc);
             }else{
                 return new SimpleInventoryRecord(null,state,loc);
             }
         }
         return new SimpleInventoryRecord(null, null, loc);
+    }
+    public static InventoryRecord fromInventory(Inventory inventory,boolean useOnMain) {
+        if((useOnMain)||InventoryUtils.isInventoryTypeAsyncSafe(inventory.getType())){
+            return inventory instanceof DoubleChestInventory chestchest? DoubleStateInventoryRecord.ofDoubleChest(chestchest):(inventory.getHolder() instanceof TileState state ? new SimpleInventoryRecord(inventory,state,inventory.getLocation()) : new SimpleInventoryRecord(null, null, inventory.getLocation()));
+        }else {
+            return new SimpleInventoryRecord(null, null, null);
+        }
     }
 }

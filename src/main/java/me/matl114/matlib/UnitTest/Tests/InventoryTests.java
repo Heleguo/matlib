@@ -1,9 +1,14 @@
 package me.matl114.matlib.UnitTest.Tests;
 
+import com.google.common.base.Preconditions;
 import me.matl114.matlib.Implements.Bukkit.ScheduleManager;
 import me.matl114.matlib.UnitTest.OnlineTest;
 import me.matl114.matlib.UnitTest.TestCase;
 import me.matl114.matlib.Utils.Debug;
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.SimpleInventoryRecord;
+import me.matl114.matlib.Utils.InventoryUtils;
+import me.matl114.matlib.Utils.NMSInventoryUtils;
 import me.matl114.matlib.Utils.WorldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -16,6 +21,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -101,19 +108,31 @@ public class InventoryTests implements TestCase {
         var iteration=WorldUtils.getInventoryHolderTypes();
         while(iteration.hasNext()){
             var mat = iteration.next();
-            FutureTask<Inventory> materialInventory = ScheduleManager.getManager().getScheduledFuture(()->{
+            FutureTask<InventoryRecord> materialInventory = ScheduleManager.getManager().getScheduledFuture(()->{
                 testBlock.setType(Material.AIR);
                 testBlock.setType(mat);
                 BlockState state=WorldUtils.getBlockStateNoSnapShot(testBlock);
                 Assert(state instanceof InventoryHolder);
-                return ((InventoryHolder) state).getInventory();
+                return SimpleInventoryRecord.getInventoryRecord(testBlock.getLocation(),true);
             },0,true);
             try{
                 doAsyncInventoryTest(materialInventory.get(),mat);
-            }catch (Throwable e){}
+            }catch (Throwable e){
+                Debug.severe("Assertion failed for",mat);
+
+            }
         }
     }
-    public void doAsyncInventoryTest(Inventory testInventory,Material material){
+    private Material randGenMaterial(){
+        Random rand=new Random();
+        Material mat ;
+        do{
+            mat=Material.values()[rand.nextInt(Material.values().length)];
+        }while(!(mat.isItem()&&!mat.isAir()));
+        return mat;
+    }
+    public void doAsyncInventoryTest(InventoryRecord testInventoryRecord,Material material){
+        Inventory testInventory = testInventoryRecord.inventory();
         try{
             if(testInventory.getSize()>0){
                 //check set
@@ -122,12 +141,20 @@ public class InventoryTests implements TestCase {
                 //check update
                 testInventory.setItem(0,new ItemStack( Material.CHEST));
                 Assert(testInventory.getItem(0).getType()==Material.CHEST);
+                for (int i=0;i<testInventory.getSize();++i){
+                    Material material1 = randGenMaterial();
+                    ItemStack testItemStack = new ItemStack(material1);
+                    NMSInventoryUtils.setTileInvItemNoUpdate(testInventoryRecord,i,testItemStack);
+                    ItemStack itemInInv = testInventory.getItem(i);
+                    Preconditions.checkArgument(Objects.equals(itemInInv,testItemStack),"Not equal for two ItemStack {0} {1} in slot {2}",itemInInv,testItemStack,i);
+                }
             }else{
                 Debug.logger("Zero size Inventory: ",testInventory);
             }
         }catch (Throwable e){
-            Debug.logger("Validate unsafe inventory type:",testInventory.getType());
-            Assert(!WorldUtils.isInventoryTypeAsyncSafe(testInventory.getType()));
+            Debug.warn("Validate unsafe inventory type:",testInventory.getType());
+            Assert(!InventoryUtils.isInventoryTypeAsyncSafe(testInventory.getType()));
         }
+        Debug.logger("Material",material.toString(),"passes the async inventory test");
     }
 }
