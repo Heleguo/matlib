@@ -11,6 +11,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -216,13 +217,64 @@ public class AddUtils {
 
         return colorString(string, colorList);
     }
-
-
+    private static final String DISPLAY_PATTERN="[%s,%.0f,%.0f,%.0f]";
+    public static String locationToString(Location loc){
+        if(loc==null){
+            return "null";
+        }else{
+            return new StringBuilder().append(loc.getWorld().getName()).append(',')
+                .append(loc.getX()).append(',').append(loc.getY()).append(',').append(loc.getZ()).toString();
+        }
+    }
+    public static String blockLocationToString(Location loc){
+        if(loc==null){
+            return "null";
+        }else{
+            return new StringBuilder().append(loc.getWorld().getName()).append(',')
+                    .append(loc.getBlockX()).append(',').append(loc.getBlockY()).append(',').append(loc.getBlockZ()).toString();
+        }
+    }
+    public static Location locationFromString(String loc){
+        try{
+            if("null".equals(loc)){
+                return null;
+            }
+            String[] list=loc.split(",");
+            if(list.length!=4)return null;
+            String world =list[0];
+            double x = Double.parseDouble(list[1]);
+            double y = Double.parseDouble(list[2]);
+            double z = Double.parseDouble(list[3]);
+            return new Location(Bukkit.getWorld(world), x, y, z);
+        }catch (Throwable e){
+        }
+        return null;
+    }
+    public static Location blockLocationFromString(String loc){
+        try{
+            if("null".equals(loc)){
+                return null;
+            }
+            String[] list=loc.split(",");
+            if(list.length!=4)return null;
+            String world =list[0];
+            int x = Integer.parseInt(list[1]);
+            int y = Integer.parseInt(list[2]);
+            int z = Integer.parseInt(list[3]);
+            return new Location(Bukkit.getWorld(world), x, y, z);
+        }catch (Throwable e){
+        }
+        return null;
+    }
+    public static String locationToDisplayString(Location loc) {
+        return loc!=null? DISPLAY_PATTERN.formatted(loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ()):"null";
+    }
 
     private static final List<Function<ItemStack,ItemStack>> copyFunctions = new ArrayList<>();
     public static void registerItemCopy(Function<ItemStack,ItemStack> function){
         copyFunctions.add(function);
     }
+
     public static ItemStack getCopy(ItemStack stack){
         ItemStack result;
 //        if(stack instanceof AbstractItemStack abs){

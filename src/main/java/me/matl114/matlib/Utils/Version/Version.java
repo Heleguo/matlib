@@ -18,6 +18,7 @@ public enum Version {
     private Version(String name, Supplier<VersionedFeature> feature,int datapackNumber){
         this.name = name;
         this.feature = feature;
+        this.datapackNumber = datapackNumber;
     }
     private String name;
     private Supplier<VersionedFeature> feature;
@@ -63,6 +64,9 @@ public enum Version {
             Debug.logger("Using default versiond feature ");
             return unknown;
         }
+    }
+    public boolean isAtLeast(Version v2){
+        return versionAtLeast(this,v2);
     }
     public static boolean versionAtLeast(Version v1, Version v2){
         return v1.datapackNumber >= v2.datapackNumber;

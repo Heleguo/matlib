@@ -1,6 +1,7 @@
 package me.matl114.matlib.Implements.Slimefun.Manager;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.BlockDataController;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.ChunkDataLoadMode;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunChunkData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
@@ -8,8 +9,11 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.core.attributes.MachineProcessHolder;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import lombok.Getter;
+import me.matl114.matlib.Common.Lang.Annotations.UnsafeOperation;
+import me.matl114.matlib.Utils.AddUtils;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
+import me.matl114.matlib.core.AutoInit;
 import me.matl114.matlib.core.Manager;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Bukkit;
@@ -20,12 +24,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashSet;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
+@AutoInit(level = "SlimefunAddon")
 public class BlockDataCache implements Manager {
     private Plugin plugin;
     @Getter
@@ -37,11 +40,13 @@ public class BlockDataCache implements Manager {
 
 //    private Method GETBLOCKDATACACHE;
 //    private boolean INVOKE_GETBLOCKDATACACHE;
-    private FieldAccess.AccessWithObject<Map<String,SlimefunChunkData>> loadChunkDataAccess;
-//    private Map<String, SlimefunChunkData> loadedChunkData;
+    private Map<String,SlimefunChunkData> loadedChunk;
+    private ChunkDataLoadMode CHUNK_MODE;
+    //    private Map<String, SlimefunChunkData> loadedChunkData;
 //    private boolean INVOKE_LOADEDCHUNK;
     private void loadInternal(){
         this.CONTROLLER = Slimefun.getDatabaseManager().getBlockDataController();
+        this.CHUNK_MODE = Slimefun.getDatabaseManager().getChunkDataLoadMode();
 //        try{
 //            GETBLOCKDATACACHE=CONTROLLER.getClass().getDeclaredMethod("getBlockDataFromCache",String.class,String.class);
 //            GETBLOCKDATACACHE.setAccessible(true);
@@ -51,7 +56,8 @@ public class BlockDataCache implements Manager {
 //            Debug.logger(e);
 //        }
         try{
-            loadChunkDataAccess=FieldAccess.ofName(CONTROLLER.getClass(),"loadedChunk").ofAccess(CONTROLLER);
+            FieldAccess.AccessWithObject<Map<String,SlimefunChunkData>> loadChunkDataAccess=FieldAccess.ofName(CONTROLLER.getClass(),"loadedChunk").ofAccess(CONTROLLER);
+            loadedChunk = loadChunkDataAccess.getRaw();
 //            Field loadedChunkDataField=CONTROLLER.getClass().getDeclaredField("loadedChunk");
 //            loadedChunkDataField.setAccessible(true);
 //            loadedChunkData=(Map<String, SlimefunChunkData>)loadedChunkDataField.get(CONTROLLER);
@@ -129,9 +135,8 @@ public class BlockDataCache implements Manager {
 
         data.setData("recipe", String.valueOf(val));
     }
-    final Pattern LOCATION_DE_PATTERN=Pattern.compile("(.*?),(.*?),(.*?),(.*?)");
-    final String LOCATION_CODE_SPLITER=",";
-    final String LOCATION_CODE_PATTERN="%s,%d,%d,%d";
+    final static String LOCATION_CODE_SPLITER=",";
+
     public Location locationFromString(String loc){
         try{
             if("null".equals(loc)){
@@ -149,17 +154,9 @@ public class BlockDataCache implements Manager {
         return null;
     }
     public String locationToString(Location loc){
-        if(loc==null){
-            return "null";
-        }else{
-            return new StringBuilder().append(loc.getWorld().getName()).append(',')
-                    .append(loc.getBlockX()).append(',').append(loc.getBlockY()).append(',').append(loc.getBlockZ()).toString();
-        }
+        return AddUtils.blockLocationToString(loc);
     }
-    public final String DISPLAY_PATTERN="[%s,%.0f,%.0f,%.0f]";
-    public String locationToDisplayString(Location loc){
-        return loc!=null? DISPLAY_PATTERN.formatted(loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ()):"null";
-    }
+
     public Location getLocation(String key,SlimefunBlockData data){
         if(data==null)return null;
         String location=data.getData(key);
@@ -225,18 +222,25 @@ public class BlockDataCache implements Manager {
     }
     public HashSet<SlimefunBlockData> getAllSfItemInChunk(World world, int x, int z){
         HashSet<SlimefunBlockData> set=new HashSet<>();
-        loadChunkDataAccess.get((a)->{
-            String chunkkey= world.getName() + ";" + x + ":" +z;
-            SlimefunChunkData data=a.get(chunkkey);
-            if(data!=null){
-                set.addAll(data.getAllBlockData());
-            }
-        }).ifFailed((ob)->{
-            var data=CONTROLLER.getChunkData(world.getChunkAt(x,z)).getAllBlockData();
-            if(data!=null){
-                set.addAll(data);
-            }
-        });
+        String chunkkey= world.getName() + ";" + x + ":" +z;
+        SlimefunChunkData data = loadedChunk.get(chunkkey);
+        if(data != null){
+            set.addAll(data.getAllBlockData());
+        }else if (!CHUNK_MODE.readCacheOnly()){
+            set.addAll(CONTROLLER.getChunkData(world.getChunkAt(x,z)).getAllBlockData());
+        }
+//        loadChunkDataAccess.get((a)->{
+//
+//            SlimefunChunkData data=a.get(chunkkey);
+//            if(data!=null){
+//                set.addAll(data.getAllBlockData());
+//            }
+//        }).ifFailed((ob)->{
+//            var data=CONTROLLER.getChunkData(world.getChunkAt(x,z)).getAllBlockData();
+//            if(data!=null){
+//                set.addAll(data);
+//            }
+//        });
         return set;
 //        if(INVOKE_LOADEDCHUNK){
 //            try{
@@ -270,33 +274,34 @@ public class BlockDataCache implements Manager {
         }.runTaskAsynchronously(plugin);
     }
     public int removeAllSlimefunBlock(Predicate<SlimefunChunkData> chunkPredicate,Predicate<SlimefunBlockData> blockPredicate){
-        AtomicInteger count=new AtomicInteger(0);
-        loadChunkDataAccess.get((d)->{
-            HashSet<SlimefunChunkData> data=new HashSet<>( d.values());
-            for(SlimefunChunkData chunkData:data){
-                if(chunkPredicate.test(chunkData)){
-                    HashSet<SlimefunBlockData> blockData=new HashSet<>(chunkData.getAllBlockData());
-                    for(SlimefunBlockData blockData2:blockData){
-                        if(blockPredicate.test(blockData2)){
-                            CONTROLLER.removeBlock(blockData2.getLocation());
-                            count.incrementAndGet();
-                        }
+        int count=0;
+        HashSet<SlimefunChunkData> data=new HashSet<>( loadedChunk.values());
+        for(SlimefunChunkData chunkData:data){
+            if(chunkPredicate.test(chunkData)){
+                HashSet<SlimefunBlockData> blockData=new HashSet<>(chunkData.getAllBlockData());
+                for(SlimefunBlockData blockData2:blockData){
+                    if(blockPredicate.test(blockData2)){
+                        CONTROLLER.removeBlock(blockData2.getLocation());
+                        count ++;
                     }
                 }
             }
-        });
-        return count.get();
+        }
+        return count;
     }
     public SlimefunBlockData safeGetBlockDataFromCache(Location loc){
-        var loadedChunkData= this.loadChunkDataAccess.getRaw();
-        if(loadedChunkData!=null){
-            String chunkKey=getChunkKey(loc);
-            SlimefunChunkData data=loadedChunkData.get(chunkKey);
-            if(data!=null){
-                return data.getBlockData(loc);
+        String chunkKey=getChunkKey(loc);
+        SlimefunChunkData data=loadedChunk.get(chunkKey);
+        if(data!=null ){
+            return data.getBlockData(loc);
+        }else{
+            if(CHUNK_MODE.readCacheOnly()){
+                return null;
+            }else {
+                return CONTROLLER.getChunkData(loc.getChunk()).getBlockData(loc);
             }
         }
-        return CONTROLLER.getBlockDataFromCache(loc);
+
     }
     public SlimefunBlockData safeGetBlockCacheWithLoad(Location loc){
         SlimefunBlockData data=safeGetBlockDataFromCache(loc);
@@ -324,6 +329,7 @@ public class BlockDataCache implements Manager {
     public void requestLoad(SlimefunBlockData data){
         StorageCacheUtils.requestLoad(data);
     }
+    @UnsafeOperation
     public boolean moveSlimefunBlockData(Location loc1,Location loc2){
         SlimefunBlockData data=safeGetBlockCacheWithLoad(loc1);
         SlimefunBlockData data2=safeGetBlockCacheWithLoad(loc2);

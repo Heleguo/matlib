@@ -276,4 +276,29 @@ public class MathUtils {
         }
         return (int) Math.min(max, Math.max(value, min));
     }
+
+    public static boolean isInteger(String str) {
+        if (str == null || str.isEmpty()) {
+            return false;
+        }
+        int i = 0;
+        // 处理负号
+        if (str.charAt(0) == '-') {
+            if (str.length() == 1) {
+                return false; // 只有负号不是整数
+            }
+            i = 1;
+        }
+        // 遍历字符
+        for (; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c < '0' || c > '9') {
+                return false; // 非数字字符
+            }
+        }
+        return true;
+    }
+
+
+
 }

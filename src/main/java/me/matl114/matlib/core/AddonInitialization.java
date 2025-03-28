@@ -1,6 +1,7 @@
 package me.matl114.matlib.core;
 
 import lombok.Getter;
+import me.matl114.matlib.Common.Lang.Annotations.Note;
 import me.matl114.matlib.Implements.Slimefun.Manager.BlockDataCache;
 import me.matl114.matlib.Implements.Slimefun.core.CustomRegistries;
 import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeSafeProvider;
@@ -8,6 +9,7 @@ import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.SlimefunUtils.SlimefunSetup;
 import org.bukkit.plugin.Plugin;
 
+@Note("Manage class marked as @AutoInit(level = \"SlimefunAddon\")")
 public class AddonInitialization extends PluginInitialization {
     @Getter
     private BlockDataCache dataManager=null;

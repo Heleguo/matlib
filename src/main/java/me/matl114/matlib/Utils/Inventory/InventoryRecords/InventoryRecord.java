@@ -2,6 +2,7 @@ package me.matl114.matlib.Utils.Inventory.InventoryRecords;
 
 import me.matl114.matlib.Common.Lang.Annotations.Experimental;
 import me.matl114.matlib.Common.Lang.Annotations.ForceOnMainThread;
+import me.matl114.matlib.Common.Lang.Annotations.Internal;
 import me.matl114.matlib.Common.Lang.Annotations.Note;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -28,24 +29,39 @@ public interface InventoryRecord {
      */
     public InventoryHolder optionalHolder();
 
+    @Internal
+    public InventoryKind invKind();
     /**
      * check if inventory belongs to a Slimefun Block
      * @return
      */
-    public boolean isSlimefunInv();
+    default boolean isSlimefunInv(){
+        return invKind()==InventoryKind.PLUGIN_BLOCKMENU;
+    }
 
     /**
      * check if inventory belongs to a BlockState
      * @return
      */
-    public boolean isVanillaInv();
+    default boolean isVanillaInv(){
+        return invKind()==InventoryKind.TILE_ENTITY_INVENTORY;
+    }
 
     /**
      * check if inventory are made of multi BlockState(DoubleChest)
      * @return
      */
-    public boolean isMultiBlockInv();
+    default boolean isMultiBlockInv(){
+        return false;
+    }
 
+    /**
+     * check if inventory belongs to a Entity
+     * @return
+     */
+    default boolean isEntityInv(){
+        return invKind()==InventoryKind.ENTITY_INVENTORY;
+    }
     /**
      * check if optionalHolder still presents,
      * @return
@@ -75,4 +91,10 @@ public interface InventoryRecord {
     //first we need a ensureDelaySyncRunner class
     @ForceOnMainThread
     public boolean canPlayerOpen(Player p);
+    @Internal
+    static enum InventoryKind{
+        TILE_ENTITY_INVENTORY,
+        PLUGIN_BLOCKMENU,
+        ENTITY_INVENTORY
+    }
 }

@@ -2,7 +2,9 @@ package me.matl114.matlib.UnitTest;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
+import me.matl114.matlib.Algorithms.DataStructures.Struct.Pair;
 import me.matl114.matlib.Implements.Bukkit.ScheduleManager;
+import me.matl114.matlib.Utils.AddUtils;
 import me.matl114.matlib.Utils.Command.CommandGroup.AbstractMainCommand;
 import me.matl114.matlib.Utils.Command.CommandGroup.SubCommand;
 import me.matl114.matlib.Utils.Command.Params.SimpleCommandArgs;
@@ -13,12 +15,14 @@ import me.matl114.matlib.core.Manager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class TestRunner extends AbstractMainCommand implements Manager {
     private Plugin plugin;
@@ -52,18 +56,19 @@ public class TestRunner extends AbstractMainCommand implements Manager {
         this.plugin.getServer().getPluginCommand("matlib").setExecutor(null);
         this.plugin.getServer().getPluginCommand("matlib").setTabCompleter(null);
     }
-    private final HashMap<TestRunnable,TestCase> testCases = new LinkedHashMap<TestRunnable,TestCase>();
-    private final HashMap<Consumer<CommandSender>,TestCase> manuallyExecutedCase = new LinkedHashMap<>();
+    private final HashMap<String, Pair<TestRunnable,TestCase>> testCases = new LinkedHashMap<>();
+    private final HashMap<String, Pair<BiConsumer<CommandSender,String[]>,TestCase>> manuallyExecutedCase = new LinkedHashMap<>();
     public TestRunner registerTestCase(TestCase testCase) {
         var methods = ReflectUtils.getAllMethodsRecursively(testCase.getClass());
         for (var method : methods) {
-            if(method.isSynthetic()||method.isBridge()||method.getParameterTypes().length>=2) {continue;}
+            if(method.isSynthetic()||method.isBridge()||method.getParameterTypes().length>=3) {continue;}
             OnlineTest testAnnotation = method.getAnnotation(OnlineTest.class);
             if(testAnnotation == null) {continue;}
 
             method.setAccessible(true);
+            String testcaseName = testAnnotation.name().toLowerCase(Locale.ROOT).replace(" ","_");
             if(testAnnotation.automatic()&&method.getParameterTypes().length==0){
-                testCases .put(new TestRunnable() {
+                testCases .put(testcaseName,Pair.of( new TestRunnable() {
                     @Override
                     public boolean isAsync() {
                         return testAnnotation.async();
@@ -83,9 +88,12 @@ public class TestRunner extends AbstractMainCommand implements Manager {
                             Debug.logger("Finish test case:",testAnnotation.name(),",Time cost:",end-start,"ns,(",(end-start)/1_000_000,"ms)");
                         }
                     }
-                },testCase);
-            }else if(!testAnnotation.automatic()&&method.getParameterTypes().length==1&&method.getParameterTypes()[0]==CommandSender.class){
-                manuallyExecutedCase.put((sender -> new TestRunnable() {
+                },testCase));
+            }else {
+                Debug.logger("check method",testcaseName);
+                Debug.logger((Object[]) method.getParameterTypes());
+                if(!testAnnotation.automatic()&&method.getParameterTypes().length>=1&&method.getParameterTypes()[0]==CommandSender.class &&(method.getParameterCount()==1 || method.getParameterTypes()[1]==String[].class)){
+                manuallyExecutedCase.put(testcaseName ,Pair.of(((sender,str) -> new TestRunnable() {
                     @Override
                     public boolean isAsync() {
                         return testAnnotation.async();
@@ -96,7 +104,12 @@ public class TestRunner extends AbstractMainCommand implements Manager {
                         long start = System.nanoTime();
                         Debug.logger("Start Running test case: ",testAnnotation.name(),",in",isAsync()?"Async":"Main","Thread");
                         try{
-                            method.invoke(testCase,sender);
+                            if(method.getParameterCount() == 1){
+                                method.invoke(testCase,sender);
+                            }else{
+                                method.invoke(testCase,sender,str);
+                            }
+
                         }catch (InvocationTargetException | IllegalAccessException e) {
                             throw new RuntimeException(e.getCause());
                         }
@@ -105,14 +118,15 @@ public class TestRunner extends AbstractMainCommand implements Manager {
                             Debug.logger("Finish test case:",testAnnotation.name(),",Time cost:",end-start,"ns,(",(end-start)/1_000_000,"ms)");
                         }
                     }
-                }.execute()),testCase);
+                }.execute()),testCase));
+                }
             }
 
         }
         return this;
     }
     public TestRunner unregisterTestCase(TestCase testCase) {
-        testCases.entrySet().removeIf(entry -> entry.getValue() == testCase);
+        testCases.entrySet().removeIf(entry -> entry.getValue().getB() == testCase);
         return this;
     }
 
@@ -122,13 +136,45 @@ public class TestRunner extends AbstractMainCommand implements Manager {
     }
     private final SubCommand mainCommand = genMainCommand("matlib");
 
-    private final SubCommand runMainTest = new SubCommand("runmain",new SimpleCommandArgs(),"..."){
+    private final SubCommand runMainTest = new SubCommand("runmain",new SimpleCommandArgs("test"),"..."){
         @Override
         public boolean onCommand(CommandSender var1, Command var2, String var3, String[] var4) {
-            ScheduleManager.getManager().launchScheduled(TestRunner.this::runAutomaticTests,0,false,0);
+
+            String val  = var4[0];
+            var re = testCases.get(val);
+            if(re==null){
+                AddUtils.sendMessage(var1,"&cTest case not found, run all");
+                ScheduleManager.getManager().launchScheduled(TestRunner.this::runAutomaticTests,0,false,0);
+            }else {
+                ScheduleManager.getManager().launchScheduled(()->runAutomaticTests(List.of(re.getA())),0,false,0);
+            }
+
+
+
             return true;
         }
     }
+            .setTabCompletor("test",()->this.testCases.keySet().stream().toList())
+            .register(this);
+
+    private final SubCommand runManuallyOne = new SubCommand("exetest",new SimpleCommandArgs("testcase"),"..."){
+        public boolean onCommand(CommandSender var1, Command var2, String var3, String[] var4) {
+            var result = parseInput(var4);
+            String testcase = result.getA().nextArg();
+            var re = TestRunner.this.manuallyExecutedCase.get(testcase);
+            if(re != null) {
+                ScheduleManager.getManager().execute(()->runManualTests(var1,List.of(re.getA()),result.getB()));
+            }else {
+                if("all".equals(testcase)){
+                    ScheduleManager.getManager().execute(()->runManualTests(var1,manuallyExecutedCase.values().stream().map(Pair::getA).toList(),result.getB()));
+                }else {
+                    AddUtils.sendMessage(var1,"&cTest case not found");
+                }
+            }
+            return true;
+        }
+    }
+            .setTabCompletor("testcase",()->this.manuallyExecutedCase.keySet().stream().toList())
             .register(this);
 
     public interface TestRunnable extends Runnable{
@@ -144,15 +190,26 @@ public class TestRunner extends AbstractMainCommand implements Manager {
         boolean isAsync();
     }
     public void runAutomaticTests(){
+        runAutomaticTests(this.testCases.values().stream().map(Pair::getA).toList());
+    }
+    public void runAutomaticTests(List<TestRunnable> tests) {
         Debug.logger("Starting automatic tests");
         Debug.logger("--------------------------------------------------------------------------------------");
-        for (TestRunnable runnable : testCases.keySet()) {
-            ThreadUtils.sleep(1_000);
+        for (var runnable : tests) {
             runnable.executeAwait();
             Debug.logger("--------------------------------------------------------------------------------------");
         }
 
         Debug.logger("Finished automatic tests");
+    }
+    public void runManualTests(CommandSender player, List<BiConsumer<CommandSender,String[]>> testCases,String[] args){
+        Debug.logger("Starting manually tests");
+        Debug.logger("--------------------------------------------------------------------------------------");
+        for (var runnable : testCases) {
+            runnable.accept(player,args);
+            Debug.logger("--------------------------------------------------------------------------------------");
+        }
+        Debug.logger("Finished manually tests");
     }
 
 }

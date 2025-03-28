@@ -6,13 +6,16 @@ import me.matl114.matlib.Utils.CraftUtils;
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
 import me.matl114.matlib.Utils.WorldUtils;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
@@ -20,6 +23,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.lang.invoke.VarHandle;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class DefaultVersionedFeatureImpl implements VersionedFeature{
     @Getter
@@ -361,5 +365,12 @@ public class DefaultVersionedFeatureImpl implements VersionedFeature{
             return getPotionEffectByNSK(NamespacedKey.minecraft(key));
         }
 
+    }
+
+    @Override
+    public <T extends Entity> T spawnEntity(Location location, Class<T> clazz, Consumer<T> consumer, CreatureSpawnEvent.SpawnReason reason) {
+        T val =  location.getChunk().getWorld().spawn(location,clazz,reason);
+        consumer.accept(val);
+        return val;
     }
 }

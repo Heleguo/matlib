@@ -2,18 +2,22 @@ package me.matl114.matlib.Utils.Command.CommandGroup;
 
 import lombok.Getter;
 import me.matl114.matlib.Algorithms.DataStructures.Struct.Pair;
+import me.matl114.matlib.Utils.Command.CommandUtils;
+import me.matl114.matlib.Utils.Command.Params.CommandArgumentMap;
 import me.matl114.matlib.Utils.Command.Params.SimpleCommandArgs;
 import me.matl114.matlib.Utils.Command.Params.SimpleCommandInputStream;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
-public class SubCommand implements TabExecutor {
+public class SubCommand implements CustomTabExecutor {
     @Nullable
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command,  String s, String[] elseArg) {
@@ -40,6 +44,9 @@ public class SubCommand implements TabExecutor {
     @Getter
     TabExecutor executor=this;
     boolean hide = false;
+    public boolean hasPermission(CommandSender sender){
+        return true;
+    }
     public boolean onCommand(CommandSender var1, Command var2,String var3, String[] var4){
         return true;
     }
@@ -66,8 +73,32 @@ public class SubCommand implements TabExecutor {
     public Pair<SimpleCommandInputStream,String[]> parseInput(String[] args){
         return template.parseInputStream(args);
     }
+
+    public CommandArgumentMap parseArgument(String[] args){
+        return new CommandArgumentMap( CommandUtils.parseArguments(args, this.template.getArgs()));
+    }
     public SubCommand setDefault(String arg,String val){
         this.template.setDefault(arg,val);
+        return this;
+    }
+    public SubCommand setInt(String arg){
+        setDefault(arg, "0");
+        setTabCompletor(arg, AbstractMainCommand.numberSupplier());
+        return this;
+    }
+    public SubCommand setInt(String arg, int val){
+        setDefault(arg, String.valueOf(val));
+        setTabCompletor(arg, AbstractMainCommand.numberSupplier());
+        return this;
+    }
+    public SubCommand setFloat(String arg){
+        setDefault(arg, "0.0");
+        setTabCompletor(arg, AbstractMainCommand.floatSupplier());
+        return this;
+    }
+    public SubCommand setFloat(String arg, float val){
+        setDefault(arg, String.valueOf(val));
+        setTabCompletor(arg, AbstractMainCommand.floatSupplier());
         return this;
     }
     public SubCommand setTabCompletor(String arg, Supplier<List<String>> completions){
@@ -78,5 +109,4 @@ public class SubCommand implements TabExecutor {
         this.executor=executor;
         return this;
     }
-
 }

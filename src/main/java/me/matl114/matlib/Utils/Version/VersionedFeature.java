@@ -1,11 +1,14 @@
 package me.matl114.matlib.Utils.Version;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -13,6 +16,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public interface VersionedFeature {
     public Version getVersion();
@@ -29,4 +33,5 @@ public interface VersionedFeature {
     public EquipmentSlot getAttributeModifierSlot(AttributeModifier modifier);
     public boolean matchBlockStateMeta(BlockStateMeta meta1,BlockStateMeta meta2);
     public PotionEffectType getPotionEffectType(String key);
+    public <T extends Entity> T spawnEntity(Location location, Class<T> clazz, Consumer<T> consumer, CreatureSpawnEvent.SpawnReason reason);
 }

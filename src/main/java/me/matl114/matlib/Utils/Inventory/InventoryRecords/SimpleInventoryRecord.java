@@ -17,21 +17,12 @@ import org.bukkit.inventory.InventoryHolder;
 import javax.annotation.Nonnull;
 
 public record SimpleInventoryRecord<T extends TileState & InventoryHolder>(Inventory inventory, T optionalHolder, Location invLocation) implements InventoryRecord {
+    @Override
+    public InventoryKind invKind() {
+        return InventoryKind.TILE_ENTITY_INVENTORY;
+    }
+
     //this class records a Location 's Inventory Info,whether it is sf or vanilla, and records sth about holder
-    @Override
-    public boolean isSlimefunInv(){
-        return false;
-    }
-
-    @Override
-    public boolean isVanillaInv(){
-        return optionalHolder != null;
-    }
-
-    @Override
-    public boolean isMultiBlockInv() {
-        return false;
-    }
 
     @Override
     public boolean stillValid(){
@@ -90,7 +81,7 @@ public record SimpleInventoryRecord<T extends TileState & InventoryHolder>(Inven
     }
     public static InventoryRecord fromInventory(Inventory inventory,boolean useOnMain) {
         if((useOnMain)||InventoryUtils.isInventoryTypeAsyncSafe(inventory.getType())){
-            return inventory instanceof DoubleChestInventory chestchest? DoubleStateInventoryRecord.ofDoubleChest(chestchest):(inventory.getHolder() instanceof TileState state ? new SimpleInventoryRecord(inventory,state,inventory.getLocation()) : new SimpleInventoryRecord(null, null, inventory.getLocation()));
+            return inventory instanceof DoubleChestInventory chestchest? DoubleStateInventoryRecord.ofDoubleChest(chestchest):(inventory.getHolder(false) instanceof TileState state ? new SimpleInventoryRecord(inventory,state,inventory.getLocation()) : new SimpleInventoryRecord(null, null, inventory.getLocation()));
         }else {
             return new SimpleInventoryRecord(null, null, null);
         }

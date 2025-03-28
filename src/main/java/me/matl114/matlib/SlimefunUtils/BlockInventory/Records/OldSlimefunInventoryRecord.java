@@ -19,20 +19,9 @@ public record OldSlimefunInventoryRecord(@Nonnull Inventory inventory,@Nonnull B
     }
 
     @Override
-    public boolean isSlimefunInv() {
-        return true;
+    public InventoryKind invKind() {
+        return InventoryKind.PLUGIN_BLOCKMENU;
     }
-
-    @Override
-    public boolean isVanillaInv() {
-        return false;
-    }
-
-    @Override
-    public boolean isMultiBlockInv(){
-        return false;
-    }
-
     @Override
     public boolean stillValid() {
         return BlockStorage.getInventory(optionalHolder.getLocation())==optionalHolder;

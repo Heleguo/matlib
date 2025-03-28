@@ -5,10 +5,12 @@ import io.github.thebusybiscuit.slimefun4.core.attributes.DistinctiveItem;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import me.matl114.matlib.Utils.CraftUtils;
 import me.matl114.matlib.Utils.Flags;
+import me.matl114.matlib.core.AutoInit;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Optional;
 
+@AutoInit(level = "SlimefunAddon")
 public class SlimefunSetup {
     public static void init(){
         CraftUtils.registerCustomItemIdHook(new CraftUtils.CustomItemMatcher() {

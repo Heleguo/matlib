@@ -2,6 +2,7 @@ package me.matl114.matlib.Utils;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.matl114.matlib.core.AutoInit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Marker;
@@ -14,11 +15,10 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
+@AutoInit(level = "Util")
 public class Debug {
     public static void init(String name){
         log= Logger.getLogger(name);
-    }
-    static {
         try{
             ((org.apache.logging.log4j.core.Logger) LogManager.getRootLogger()).addFilter(new org.apache.logging.log4j.core.Filter() {
                 public Result checkMessage(String message) {
@@ -119,6 +119,7 @@ public class Debug {
                     return false;
                 }
             });
+            interceptorRegistered = true;
         }catch (Throwable e){
             logger("Error while injecting log4j-core Filter:");
             logger(e);
@@ -131,6 +132,7 @@ public class Debug {
     @Getter
     @Setter
     private static boolean debugMod=false;
+    private static boolean interceptorRegistered = false;
     private static boolean interceptLogger = false;
     private static List<String> interceptionString = new ArrayList<>();
     public static AtomicBoolean[] breakPoints=null;
@@ -234,6 +236,9 @@ public class Debug {
         }
     }
     public static String catchAllOutputs(Runnable r,boolean returnCatched){
+        if(!interceptorRegistered){
+            Debug.warn("Warning: No interceptor registered !");
+        }
         interceptLogger = true;
         String value = null;
         try{
@@ -256,6 +261,9 @@ public class Debug {
         return interceptAllOutputs(r,NULL);
     }
     public static <C> C interceptAllOutputs(Supplier<C> r, Consumer<String> callback){
+        if(!interceptorRegistered){
+            Debug.warn("Warning: No interceptor registered !");
+        }
         interceptLogger = true;
         try{
             return r.get();

@@ -6,10 +6,13 @@ import me.matl114.matlib.Utils.Version.Version;
 import me.matl114.matlib.Utils.Version.VersionedFeature;
 import org.bukkit.plugin.Plugin;
 
+@AutoInit(level = "Util")
 public class EnvironmentManager implements Manager {
     private Plugin plugin;
     @Getter
     private static EnvironmentManager manager;
+    @Getter
+    private Version version;
     public EnvironmentManager() {
         manager = this;
     }
@@ -17,7 +20,7 @@ public class EnvironmentManager implements Manager {
     public EnvironmentManager init(Plugin pl, String... path) {
         this.plugin = pl;
         Debug.logger("Initializing environment manager...");
-        versioned= Version.getVersionInstance().getFeature();
+        version = Version.getVersionInstance();
         this.addToRegistry();
         return this;
     }
@@ -30,7 +33,13 @@ public class EnvironmentManager implements Manager {
     public void deconstruct() {
         this.removeFromRegistry();
     }
-    @Getter
-    private VersionedFeature versioned;
 
+    private VersionedFeature versioned;
+    public VersionedFeature getVersioned() {
+        //lazily init
+        if (versioned == null) {
+            versioned= version.getFeature();
+        }
+        return versioned;
+    }
 }

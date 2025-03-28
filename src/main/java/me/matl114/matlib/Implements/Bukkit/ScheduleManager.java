@@ -3,6 +3,7 @@ package me.matl114.matlib.Implements.Bukkit;
 import com.google.common.base.Preconditions;
 import lombok.Getter;
 import me.matl114.matlib.Algorithms.Algorithm.ThreadUtils;
+import me.matl114.matlib.core.AutoInit;
 import me.matl114.matlib.core.Manager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.IntConsumer;
 
+@AutoInit(level = "Plugin")
 public class ScheduleManager implements Manager {
     Plugin plugin;
     AbstractExecutorService asyncExecutor = null;

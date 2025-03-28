@@ -1,13 +1,15 @@
 package me.matl114.matlib.Utils.Command.CommandGroup;
 
+import me.matl114.matlib.Common.Lang.Annotations.Note;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public interface ComplexCommandExecutor extends TabExecutor, SubCommand.SubCommandCaller {
+public interface ComplexCommandExecutor extends CustomTabExecutor, SubCommand.SubCommandCaller {
     public SubCommand getMainCommand();
     public SubCommand getSubCommand(String name);
     default List<String> onTabComplete(CommandSender var1, Command var2, String var3, String[] var4){
@@ -26,5 +28,9 @@ public interface ComplexCommandExecutor extends TabExecutor, SubCommand.SubComma
             }
         }
         return new ArrayList<>();
+    }
+    @Note("the \"async\" means that it can be called either on main or off main")
+    default boolean onCommandAsync(@NotNull CommandSender var1, @NotNull Command var2, @NotNull String var3, @NotNull String[] var4){
+        return onCommand(var1, var2, var3, var4);
     }
 }

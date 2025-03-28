@@ -17,6 +17,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -100,19 +102,50 @@ public class NMSInventoryUtils {
             setInvInternal(inventory, index, item);
         }
     }
-    private static void setInvInternal(Inventory inventory, int index, ItemStack item){
+    @UnsafeOperation
+    @NotRecommended
+    @Note("inventory must be a CraftInventoryCustom, s.t. it is created through Bukkit.createInventory()")
+    public static void setInvItem(Inventory inventory, int index, ItemStack item){
+        setInvInternal(inventory, index, item);
+    }
+    @UnsafeOperation
+    @NotRecommended
+    @Note("inventory must be a CraftInventoryCustom, s.t. it is created through Bukkit.createInventory()")
+    public static void setInvItemNoCopy(Inventory inventory, int index, ItemStack item){
+        if(CraftUtils.isCraftItemStack(item)){
+            setInvNoCopy(inventory, index, item);
+        }else {
+            setInvInternal(inventory, index, null);
+        }
+    }
+    private static void setInvInternal(Inventory inventory, int index,@Nullable ItemStack item){
         try{
-            Object iInventory = getIInventoryInvoker.invoke(inventory);
-            List itemContents = getIIContentsInvoker.invoke(iInventory);
-            itemContents.set(index,CraftUtils.getNMSCopy(item));
+            Object iInventory = getIInventoryInvoker.invokeNoArg(inventory);
+            List itemContents = getIIContentsInvoker.invokeNoArg(iInventory);
+            itemContents.set(index, CraftUtils.getNMSCopy(item));
         }catch(ArrayIndexOutOfBoundsException SHIT){
             throw SHIT;
         }catch(Throwable e){
-            Debug.logger("Error while doing no-update blockInventory modification");
+            Debug.logger("Error while doing nms Inventory modification");
             Debug.logger(e);
         }
-
     }
+    private static void setInvNoCopy(Inventory inventory, int index,@Nonnull ItemStack item){
+        try{
+            Object iInventory = getIInventoryInvoker.invokeNoArg(inventory);
+            List itemContents = getIIContentsInvoker.invokeNoArg(iInventory);
+            itemContents.set(index, CraftUtils.getHandled(item));
+        }catch (ArrayIndexOutOfBoundsException SHIT){
+            throw SHIT;
+        }catch (Throwable e){
+            if(CraftUtils.isCraftItemStack(item)){
+                throw new RuntimeException("Invalid Argument passed, can not access nms handle from "+(item.getClass()));
+            }
+            Debug.logger("Error while doing nms Inventory modification");
+            Debug.logger(e);
+        }
+    }
+
     @UnsafeOperation
     public static void setTileInvContentsNoUpdate(InventoryRecord inventory, ItemStack... contents){
         Inventory bukkitInventory = inventory.inventory();
@@ -134,8 +167,8 @@ public class NMSInventoryUtils {
     }
     private static void setInvContentInternal(Inventory inventory, ItemStack[] item,int start,int end){
         try{
-            Object iInventory = getIInventoryInvoker.invoke(inventory);
-            List itemContents = getIIContentsInvoker.invoke(iInventory);
+            Object iInventory = getIInventoryInvoker.invokeNoArg(inventory);
+            List itemContents = getIIContentsInvoker.invokeNoArg(iInventory);
             for (int i=start; i<end; i++){
                 itemContents.set(i - start,CraftUtils.getNMSCopy(item[i]));
             }

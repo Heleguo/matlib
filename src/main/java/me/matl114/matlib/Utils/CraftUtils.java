@@ -7,6 +7,7 @@ import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializingTasks;
 import me.matl114.matlib.Common.Lang.Annotations.Note;
 import me.matl114.matlib.Utils.ItemCache.ItemStackCache;
 import me.matl114.matlib.Utils.Reflect.FieldAccess;
+import me.matl114.matlib.Utils.Reflect.FieldAccessor;
 import me.matl114.matlib.Utils.Reflect.MethodAccess;
 import me.matl114.matlib.Utils.Reflect.MethodInvoker;
 import me.matl114.matlib.core.EnvironmentManager;
@@ -133,11 +134,33 @@ public class CraftUtils {
     private static final VarHandle enchantmentsHandle = new InitializeSafeProvider<>(()->{
         return enchantmentAccess.getVarHandleOrDefault(()->null);
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftMetaItem.enchantments VarHandle")).v();
-    @Getter
+
     @Note("net.minecraft.ItemStack handle;")
     private static final VarHandle handleHandle = new InitializeSafeProvider<>(()->{
         return handledAccess.getVarHandleOrDefault(()->null);
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftItemStack.handle VarHandle")).v();
+
+
+    @Note("net.minecraft.ItemStack handle may be public")
+    private static final FieldAccessor handleAccessor = new InitializeSafeProvider<>(()->{
+        if(handledAccess.isPublicField()){
+            var re = FieldAccessor.ofASM(handledAccess.getReflectAsm(null));
+            Debug.logger("Detect handle field public! using asm Accessor");
+            return re;
+        }else {
+            return new FieldAccessor() {
+                @Override
+                public void set(Object obj, Object value) {
+                    CraftUtils.handleHandle.set(obj,value);
+                }
+
+                @Override
+                public Object get(Object obj) {
+                    return CraftUtils.handleHandle.get(obj);
+                }
+            };
+        }
+    }).v();
 
     private static final FieldAccess craftDelegateAccess = new InitializeSafeProvider<>(FieldAccess.class,()->{
         return null;
@@ -165,6 +188,13 @@ public class CraftUtils {
     });
     public static void setup(){
 
+    }
+    public static Object getHandled(ItemStack stack){
+        if(craftItemStackClass.isInstance(stack)){
+            return handleAccessor.get(stack);
+        }else {
+            throw new RuntimeException("Invalid argument passed! "+stack.getClass()+" does not extend from CraftItemStack");
+        }
     }
     public static ItemStack getCraftCopy(ItemStack item){
         return asCraftCopyInvoker.invoke(null,item);
@@ -200,8 +230,8 @@ public class CraftUtils {
     public static boolean sameCraftItem(ItemStack a, ItemStack b){
         if(craftItemStackClass.isInstance(a)&& craftItemStackClass.isInstance(b)){
             try{
-                if (handleHandle!=null){
-                    return handleHandle.get(a) == handleHandle.get(b);
+                if (handleAccessor!=null){
+                    return handleAccessor.get(a) == handleAccessor.get(b);
                 }
                 return  handledAccess.getValue(a) == handledAccess.getValue(b);
             }catch (Throwable e){

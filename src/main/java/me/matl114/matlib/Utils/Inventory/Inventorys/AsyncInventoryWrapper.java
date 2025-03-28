@@ -10,7 +10,6 @@ import me.matl114.matlib.Utils.WorldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.block.TileState;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryType;
@@ -41,7 +40,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
                 @Override
                 public void delayChangeUpdateInternal() {
                     Bukkit.getScheduler().runTask(pl,()->{
-                        if(blockInventory.getHolder() instanceof TileState tile) {
+                        if(blockInventory.getHolder(false) instanceof TileState tile) {
                             WorldUtils.tileEntitySetChange(tile);
                         }
                     });
@@ -61,6 +60,24 @@ public abstract class AsyncInventoryWrapper implements Inventory {
             }:null;
         }
     }
+    public static Inventory wrapOfThread(Plugin pl, InventoryRecord record, boolean isMainThread) {
+        if(!record.isVanillaInv()||isMainThread){
+            return record.inventory();
+        }else {
+            return record.hasInv()?new AsyncInventoryWrapper(record) {
+                @Override
+                public void delayChangeUpdateInternal() {
+                    Bukkit.getScheduler().runTask(pl, record::setChange);
+                }
+            }:null;
+        }
+    }
+
+    public InventoryHolder getHolder(boolean var1){
+        return handle.getHolder(var1);
+    }
+
+
     public AsyncInventoryWrapper(Inventory inventory) {
         this.handle = inventory;
         this.record = SimpleInventoryRecord.fromInventory(inventory,false);
@@ -280,4 +297,10 @@ public abstract class AsyncInventoryWrapper implements Inventory {
         }
     }
     public abstract void delayChangeUpdateInternal();
+    public HashMap<Integer, ItemStack> removeItemAnySlot(ItemStack... var1) throws IllegalArgumentException{
+        return handle.removeItemAnySlot(var1);
+    }
+    public int close(){
+        return handle.close();
+    }
 }

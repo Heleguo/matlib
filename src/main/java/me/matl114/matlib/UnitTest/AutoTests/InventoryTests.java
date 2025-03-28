@@ -1,25 +1,24 @@
-package me.matl114.matlib.UnitTest.Tests;
+package me.matl114.matlib.UnitTest.AutoTests;
 
 import com.google.common.base.Preconditions;
 import me.matl114.matlib.Implements.Bukkit.ScheduleManager;
 import me.matl114.matlib.UnitTest.OnlineTest;
 import me.matl114.matlib.UnitTest.TestCase;
-import me.matl114.matlib.Utils.Debug;
+import me.matl114.matlib.Utils.*;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.SimpleInventoryRecord;
-import me.matl114.matlib.Utils.InventoryUtils;
-import me.matl114.matlib.Utils.NMSInventoryUtils;
-import me.matl114.matlib.Utils.WorldUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.TileState;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Objects;
 import java.util.Random;
@@ -35,11 +34,12 @@ public class InventoryTests implements TestCase {
         Block testBlock = testLocation.getBlock();
         Debug.logger("Running test in world: " + thisWorld.getName());
         Debug.logger("Launch scheduled sync task");
+        //test blockEntity field reflection
         FutureTask<Void> createChest =  ScheduleManager.getManager().getScheduledFuture(()->{
             testBlock.setType(Material.CHEST);
             Debug.logger("Create a chest");
             return null;
-        },40,true);
+        },10,true);
         AtomicReference<BlockState> blockStateHere = new AtomicReference<>(null);
         AtomicReference<Inventory> inventoryHere = new AtomicReference<>(null);
         FutureTask<Void> getChestBlockState = ScheduleManager.getManager().getScheduledFuture(()->{
@@ -49,7 +49,7 @@ public class InventoryTests implements TestCase {
             Assert(inventoryHere.get());
             Debug.logger("get chest block state: " + blockStateHere.get());
             return null;
-        },80,true);
+        },10,true);
         try{
             createChest.get();
             getChestBlockState.get();
@@ -82,7 +82,7 @@ public class InventoryTests implements TestCase {
             newState.set(WorldUtils.getBlockStateNoSnapShot(testBlock));
             Debug.logger("Delete a chest");
             return null;
-        },40,true);
+        },10,true);
         try{
             deleteChest.get();
         }catch (Throwable e){}
@@ -104,7 +104,7 @@ public class InventoryTests implements TestCase {
         long end = System.nanoTime();
         Debug.logger("Test Accessing tileState removal flag: cost",end-start);
         Debug.logger("check safety of Async inventory operation");
-        final AtomicReference<Inventory> inv = new AtomicReference<>(null);
+        //test Async Inventory Operation
         var iteration=WorldUtils.getInventoryHolderTypes();
         while(iteration.hasNext()){
             var mat = iteration.next();
@@ -122,6 +122,32 @@ public class InventoryTests implements TestCase {
 
             }
         }
+        //test no-copy method
+        Inventory bukkitInventory = Bukkit.createInventory(null, 54, "testTitle");
+        ItemStack item = CraftUtils.getCraftCopy(new ItemStack(Material.DIAMOND));
+        ItemMeta meta = item.getItemMeta();
+        meta.getPersistentDataContainer().set(new NamespacedKey("matlib","test"), PersistentDataType.STRING,"SFID_BLABLABLA");
+        meta.setDisplayName(AddUtils.resolveColor("&6&l ababababababab"));
+        item.setItemMeta(meta);
+        NMSInventoryUtils.setInvItemNoCopy(bukkitInventory, 1,item);
+        item.setAmount(63);
+        Assert(bukkitInventory.getItem(1).getAmount() == 63);
+        NMSInventoryUtils.setInvItemNoCopy(bukkitInventory, 1, null);
+        Assert(bukkitInventory.getItem(1) == null);
+        Debug.logger("Passing No-Copy inventory set");
+        long a = System.nanoTime();
+        for (int i=0;i<1_000_000;++i){
+            bukkitInventory.setItem(0, item);
+        }
+        long b = System.nanoTime();
+        Debug.logger("original setItem time",b-a);
+        a = System.nanoTime();
+        for (int i=0;i<1_000_000;++i){
+            NMSInventoryUtils.setInvItemNoCopy(bukkitInventory, 0, item);
+        }
+        b = System.nanoTime();
+        Debug.logger("no-copy setItem time", b-a);
+
     }
     private Material randGenMaterial(){
         Random rand=new Random();
@@ -156,5 +182,28 @@ public class InventoryTests implements TestCase {
             Assert(!InventoryUtils.isInventoryTypeAsyncSafe(testInventory.getType()));
         }
         Debug.logger("Material",material.toString(),"passes the async inventory test");
+    }
+
+    @OnlineTest(name = "Spawner type test")
+    public void test_spawnertype(){
+        ItemStack item = new ItemStack(Material.SPAWNER);
+        if( item.getItemMeta() instanceof BlockStateMeta  blockStateMeta){
+            BlockState state = blockStateMeta.getBlockState();
+            if(state instanceof CreatureSpawner spawner){
+                for (EntityType typed : EntityType.values()) {
+                    try{
+                        spawner.setSpawnedType(typed);
+                        blockStateMeta.setBlockState(spawner);
+                        item.setItemMeta(blockStateMeta);
+                        Assert(((CreatureSpawner)((BlockStateMeta)item.getItemMeta()).getBlockState()).getSpawnedType() == typed);
+
+                    }catch (Throwable e){
+                        Debug.logger(e);
+                    }
+
+                }
+            }
+        }
+
     }
 }

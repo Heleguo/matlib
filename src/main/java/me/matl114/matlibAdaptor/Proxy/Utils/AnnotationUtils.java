@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class AnnotationUtils {
     public static String ADAPTOR_ANNOTATION_IDENTIFIER = "matlibAdaptor.Proxy.Annotations.AdaptorInterface";
@@ -23,12 +24,14 @@ public class AnnotationUtils {
     }
     @Nonnull
     public static Set<Method> getAdaptedMethods(Class<?> interfaceClass){
+        //fixme should not collect multiple method if override
         Preconditions.checkArgument(interfaceClass.isInterface(),"Argument is not an interface");
-        Set<Method> methods = new HashSet<>();
-        collectMethods0(interfaceClass, methods);
+       // Set<Method> methods = new HashSet<>();
+        return Arrays.stream(interfaceClass.getMethods()).filter(method -> !Arrays.stream(method.getAnnotations()).anyMatch(a->a.annotationType().getName().endsWith( INTERNEL_ANNOTATION_IDENTIFIER ))).collect(Collectors.toSet());
+        //collectMethods0(interfaceClass, methods);
         //remove all internal method
-        methods.removeIf(method -> Arrays.stream(method.getAnnotations()).anyMatch(a->a.annotationType().getName().endsWith( INTERNEL_ANNOTATION_IDENTIFIER )));
-        return methods;
+//        methods.removeIf(method -> Arrays.stream(method.getAnnotations()).anyMatch(a->a.annotationType().getName().endsWith( INTERNEL_ANNOTATION_IDENTIFIER )));
+//        return methods;
     }
     private static void collectMethods0(Class<?> clazz,Collection<Method> methods){
         Arrays.stream(clazz.getInterfaces()).forEach(i->collectMethods0(i,methods));

@@ -1,14 +1,151 @@
 package me.matl114.matlib.Algorithms.Algorithm;
 
+import io.papermc.paper.plugin.configuration.PluginMeta;
+import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
+import me.matl114.matlib.Common.Lang.Exceptions.NotImplementedYet;
+import org.bukkit.Bukkit;
+import org.bukkit.Server;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.generator.BiomeProvider;
+import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginBase;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.PluginLoader;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.InputStream;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
+import java.util.logging.Logger;
 
 public class ThreadUtils {
+    private static final Plugin MOCK_PLUGIN = new PluginBase() {
+        PluginDescriptionFile pdf = new PluginDescriptionFile("Unknown","unknown","me.matl114.matlib.UnknownClass");
+        FileConfiguration config = new YamlConfiguration();
+        Logger log = Logger.getLogger("Mock-Plugin");
+        @Override
+        public File getDataFolder() {
+            return new File(".");
+        }
+        @Override
+        public PluginDescriptionFile getDescription() {
+            return pdf;
+        }
+
+        @Override
+        public @NotNull PluginMeta getPluginMeta() {
+            return this.pdf;
+        }
+
+        @Override
+        public FileConfiguration getConfig() {
+            return config;
+        }
+
+        @Override
+        public InputStream getResource(String s) {
+            throw new NotImplementedYet();
+        }
+
+        @Override
+        public void saveConfig() {
+
+        }
+        @Override
+        public void saveDefaultConfig() {
+
+        }
+
+        @Override
+        public void saveResource(String s, boolean b) {
+
+        }
+
+        @Override
+        public void reloadConfig() {
+
+        }
+
+        @Override
+        public PluginLoader getPluginLoader() {
+            return null;
+        }
+
+        @Override
+        public Server getServer() {
+            return Bukkit.getServer();
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return true;
+        }
+
+        @Override
+        public void onDisable() {
+
+        }
+
+        @Override
+        public void onLoad() {
+
+        }
+
+        @Override
+        public void onEnable() {
+
+        }
+
+        @Override
+        public boolean isNaggable() {
+            return false;
+        }
+
+        @Override
+        public void setNaggable(boolean b) {
+
+        }
+
+        @Override
+        public ChunkGenerator getDefaultWorldGenerator(String s, String s1) {
+            return null;
+        }
+
+        @Override
+        public BiomeProvider getDefaultBiomeProvider(String s, String s1) {
+            return null;
+        }
+
+        @Override
+        public Logger getLogger() {
+            return this.log;
+        }
+
+        @Override
+        public @NotNull LifecycleEventManager<Plugin> getLifecycleManager() {
+            return null;
+        }
+
+        @Override
+        public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
+            return false;
+        }
+
+        @Override
+        public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
+            return List.of();
+        }
+    };
     private static final int MAX_CACHED_LOCK=8000;
     private static ConcurrentHashMap<Class<?>, ConcurrentHashMap<Object, AtomicBoolean>> lockedSet = new ConcurrentHashMap<>();
     public static boolean runAsyncOrBlocked(Object lock,Runnable runnable) {
@@ -62,6 +199,26 @@ public class ThreadUtils {
         }catch (Throwable e){
             throw new RuntimeException(e);
         }
+    }
+    public static void executeSync(Runnable runnable){
+        if(Bukkit.isPrimaryThread()){
+            runnable.run();
+        }else {
+            runSync(runnable,MOCK_PLUGIN);
+        }
+    }
+    public static void executeSync(Runnable runnable, Plugin pl) {
+        if(Bukkit.isPrimaryThread()){
+            runnable.run();
+        }else {
+            runSync(runnable,pl);
+        }
+    }
+    private static void runSync(Runnable runnable,Plugin pl) {
+        Bukkit.getScheduler().runTask(pl,runnable);
+    }
+    public static Plugin getMockPlugin(){
+        return MOCK_PLUGIN;
     }
 
 }

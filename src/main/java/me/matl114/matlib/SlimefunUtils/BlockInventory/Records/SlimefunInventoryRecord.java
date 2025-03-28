@@ -25,18 +25,8 @@ public record SlimefunInventoryRecord (Inventory inventory,@Nonnull SlimefunBloc
     }
 
     @Override
-    public boolean isSlimefunInv() {
-        return inventory != null;
-    }
-
-    @Override
-    public boolean isVanillaInv() {
-        return false;
-    }
-
-    @Override
-    public boolean isMultiBlockInv(){
-        return false;
+    public InventoryKind invKind() {
+        return InventoryKind.PLUGIN_BLOCKMENU;
     }
 
     @Override

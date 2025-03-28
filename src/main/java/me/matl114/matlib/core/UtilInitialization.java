@@ -1,14 +1,15 @@
 package me.matl114.matlib.core;
 
 import lombok.Getter;
+import me.matl114.matlib.Common.Lang.Annotations.Note;
 import me.matl114.matlib.Utils.ConfigLoader;
 import me.matl114.matlib.Utils.Debug;
-import me.matl114.matlib.Utils.PluginUtils;
 import me.matl114.matlibAdaptor.Algorithms.Interfaces.Initialization;
 import org.bukkit.plugin.Plugin;
 
 import java.util.logging.Logger;
 
+@Note("Manage class marked as @AutoInit(level = \"Util\")")
 public class UtilInitialization implements Initialization {
     protected final Plugin plugin;
 
@@ -39,7 +40,6 @@ public class UtilInitialization implements Initialization {
     }
     public UtilInitialization onEnable(){
         Manager.onEnable();
-        PluginUtils.init(this.plugin);
         Debug.init(name);
         Debug.setDebugMod(this.testMode);
         if(this.plugin!=null){

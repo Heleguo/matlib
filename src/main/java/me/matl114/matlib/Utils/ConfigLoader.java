@@ -3,6 +3,7 @@ package me.matl114.matlib.Utils;
 import com.google.common.base.Charsets;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.config.Config;
 import me.matl114.matlib.Algorithms.Algorithm.FileUtils;
+import me.matl114.matlib.core.AutoInit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -13,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.file.Files;
 
+@AutoInit(level = "Util")
 public class ConfigLoader {
     public static void init(Plugin plugin) {
         ConfigLoader.plugin=plugin;

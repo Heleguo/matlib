@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import lombok.Getter;
 import me.matl114.matlib.Utils.Debug;
+import me.matl114.matlib.core.AutoInit;
 import me.matl114.matlib.core.Manager;
 import org.bukkit.plugin.Plugin;
 
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.function.Predicate;
 
+@AutoInit(level = "SlimefunAddon")
 public class CustomRegistries implements   Manager {
     Plugin plugin;
     @Getter

@@ -1,6 +1,7 @@
 package me.matl114.matlib.Utils.Reflect;
 
 import com.google.common.base.Preconditions;
+import lombok.Getter;
 import me.matl114.matlib.Algorithms.DataStructures.Frames.InitializeProvider;
 import me.matl114.matlib.Algorithms.DataStructures.Struct.Pair;
 import me.matl114.matlib.Utils.Debug;
@@ -23,11 +24,18 @@ public class FieldAccess {
     private Field field;
     private boolean failHandle=false;
     private VarHandle handle;
-    private boolean isStatic=false;
-    private boolean isFinal = false;
-    private boolean isPublic = false;
+    @Getter
+    private boolean staticField =false;
+    @Getter
+    private boolean finalField = false;
+    @Getter
+    private boolean publicField = false;
     private boolean isPrivate = false;
     private boolean createSnapshot = true;
+    public FieldAccess noSnapShot(){
+        this.createSnapshot = false;
+        return this;
+    }
     private static HashMap<Class<?>, com.esotericsoftware.reflectasm.FieldAccess> cachedAccess = new HashMap<>();
     public static com.esotericsoftware.reflectasm.FieldAccess getOrCreateAccess(Class<?> targetClass){
         return cachedAccess.computeIfAbsent(targetClass, (clz)->Debug.interceptAllOutputs(()-> com.esotericsoftware.reflectasm.FieldAccess.get(clz),(output)->{
@@ -86,14 +94,14 @@ public class FieldAccess {
             try{
                 this.field=getFieldInternal(obj);
                 int modifiers = field.getModifiers();
-                this.isFinal=Modifier.isFinal(modifiers);
-                this.isStatic= Modifier.isStatic(modifiers);
+                this.finalField =Modifier.isFinal(modifiers);
+                this.staticField = Modifier.isStatic(modifiers);
                 if(createSnapshot){
-                    this.isPublic = Modifier.isPublic(modifiers);
+                    this.publicField = Modifier.isPublic(modifiers);
                     this.isPrivate = Modifier.isPrivate(modifiers);
                     this.definedType=this.field.getType();
                     //only the field who has full access can create fast Access throw FieldAccess
-                    if(!isStatic && isPublic){
+                    if(!staticField && publicField){
                         initFastAccess();
                     }else {
                         this.failPublicAccess = true;
@@ -125,7 +133,7 @@ public class FieldAccess {
         try{
             this.fastAccessInternal = getOrCreateAccess(field.getDeclaringClass());
             this.fastAccessIndex = this.fastAccessInternal.getIndex(this.field);
-            this.failPublicAccess = !this.isPublic;
+            this.failPublicAccess = !this.publicField;
         }catch (Throwable e){
             this.failPublicAccess = true;
             if (printError){
@@ -155,8 +163,8 @@ public class FieldAccess {
     }
     public Pair<com.esotericsoftware.reflectasm.FieldAccess,Integer> getReflectAsm(Object initializeObject){
         init(initializeObject);
-        Preconditions.checkArgument(!isStatic&&!isPrivate,"Private and Static field can not be accessed from FieldAccess");
-        if(!isPublic){
+        Preconditions.checkArgument(!staticField &&!isPrivate,"Private and Static field can not be accessed from FieldAccess");
+        if(!publicField){
             //only public create automatically
             initFastAccess();
         }
@@ -169,7 +177,7 @@ public class FieldAccess {
     }
     private Object getInternal(Object obj) throws Throwable {
 //        if(useHandle&& !failHandle){
-//            if(isStatic){
+//            if(staticField){
 //                return this.handle.get();
 //            }else {
 //                return this.handle.get(obj);
@@ -187,7 +195,7 @@ public class FieldAccess {
             return this.field::get;
         }
         if(useHandle && !failHandle){
-            if(isStatic){
+            if(staticField){
                 return (o)->this.handle.get();
             }else {
                 return (o)->this.handle.get(o);
@@ -200,14 +208,14 @@ public class FieldAccess {
         return this.field::get;
     }
     private FieldSetter setterInternal() {
-        if(isStatic&&isFinal){
+        if(staticField && finalField){
             return (o,v)-> {throw new IllegalAccessException("Static final field can only be set using setUnsafe! Field:"+this.field);};
         }else {
             if(!this.createSnapshot){
                 return this.field::set;
             }
-            if(useHandle&& !failHandle&&!isFinal){
-                if(isStatic){
+            if(useHandle&& !failHandle&&!finalField){
+                if(staticField){
                    return (o,value)-> this.handle.set(value);
                 }else {
                    return (obj,value)-> this.handle.set(obj,value);
@@ -231,11 +239,11 @@ public class FieldAccess {
 
     private void setInternal(Object obj, Object value) throws Throwable {
         setter.consume(obj,value);
-//        if(isStatic&&isFinal){
+//        if(staticField&&finalField){
 //            throw new IllegalAccessException("Static final field can only be set using setUnsafe! Field:"+this.field);
 //        }else {
-//            if(useHandle&& !failHandle&&!isFinal){
-//                if(isStatic){
+//            if(useHandle&& !failHandle&&!finalField){
+//                if(staticField){
 //                    this.handle.set(value);
 //                }else {
 //                    this.handle.set(obj,value);
@@ -290,7 +298,7 @@ public class FieldAccess {
             return hasTried&&failSet;
         }
         public AccessWithObject<T> get(Consumer<T> callback){
-            if(!hasTried||isStatic){
+            if(!hasTried|| staticField){
                 hasTried=true;
                 try{
                     re=(T)getInternal(value);
@@ -362,7 +370,7 @@ public class FieldAccess {
         }
         public boolean setUnsafe(T value1){
             if(!failSet){
-                if(!isStatic||!isFinal){
+                if(!staticField ||!finalField){
                     return set(value1);
                 }else{
                     AtomicBoolean result=new AtomicBoolean(false);

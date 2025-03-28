@@ -25,7 +25,7 @@ public class InventoryUtils {
     @ForceOnMainThread
     public static boolean canBlockInventoryOpenToPlayer(Inventory inventory){
         //should run on Primary thread
-        InventoryHolder holder = inventory.getHolder();
+        InventoryHolder holder = inventory.getHolder(false);
         return canBlockInventoryOpenToPlayer(holder);
     }
 

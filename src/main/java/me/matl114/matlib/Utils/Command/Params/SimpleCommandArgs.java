@@ -33,6 +33,7 @@ public class SimpleCommandArgs {
             return tabCompletor.get();
         }
     }
+    @Getter
     Argument[] args;
     public SimpleCommandArgs(String... args){
         this.args= Arrays.stream(args).map(Argument::new).toArray(Argument[]::new);
@@ -96,31 +97,7 @@ public class SimpleCommandArgs {
                 }
             }
         }
-        return new Pair<>(new SimpleCommandInputStream() {
-            Iterator<Argument> iter= Arrays.stream(args).iterator();
-            @Override
-            public String nextArg() {
-                if(iter.hasNext()){
-                    Argument a= iter.next();
-                    return argsMap.computeIfAbsent(a,Argument::getDefaultValue);
-                }else {
-                    throw new RuntimeException("there is no next argument in your command definition!");
-                }
-            }
-            public List<String> getTabComplete(){
-                for(int i=0;i<=args.length;i++){
-                    if(i==args.length ||argsMap.get(args[i])==null){
-                        if(i==0){
-                            return null;
-                        }
-                        final int index=i-1;
-                        List<String> tablist=args[index].tabCompletor.get();
-                        tablist=tablist==null?List.of():tablist;
-                        return tablist.stream().filter(s->s.contains(argsMap.get(args[index]))).toList();
-                    }
-                }
-                return null;
-            }
-        },commonArgs.toArray(String[]::new));
+        return new Pair<>(new SimpleCommandInputStream(args, argsMap) ,commonArgs.toArray(String[]::new));
     }
+
 }

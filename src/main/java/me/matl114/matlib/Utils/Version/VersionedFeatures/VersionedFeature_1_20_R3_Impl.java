@@ -2,9 +2,14 @@ package me.matl114.matlib.Utils.Version.VersionedFeatures;
 
 import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Version.Version;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+
+import java.util.function.Consumer;
 
 
 public class VersionedFeature_1_20_R3_Impl extends VersionedFeature_1_20_R2_Impl{
@@ -18,5 +23,8 @@ public class VersionedFeature_1_20_R3_Impl extends VersionedFeature_1_20_R2_Impl
     public Enchantment getEnchantment(String name) {
         name=convertLegacy(name);
         return Enchantment.getByName(remappingEnchantId.getOrDefault(name,name));
+    }
+    public <T extends Entity> T spawnEntity(Location location, Class<T> clazz, Consumer<T> consumer, CreatureSpawnEvent.SpawnReason reason) {
+        return  location.getChunk().getWorld().spawn(location,clazz,consumer,reason);
     }
 }

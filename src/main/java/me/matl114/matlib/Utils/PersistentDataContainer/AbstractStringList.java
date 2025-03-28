@@ -1,18 +1,23 @@
 package me.matl114.matlib.Utils.PersistentDataContainer;
 
+import me.matl114.matlib.Algorithms.DataStructures.Struct.Union;
 import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AbstractStringList implements PersistentDataType<PersistentDataContainer, List<String>> {
-    String namespace;
+    Union<String,Plugin> namespace;
+    public AbstractStringList(Plugin namespace) {
+        this.namespace = Union.ofB(namespace);
+    }
     public AbstractStringList(String namespace) {
-        this.namespace = namespace;
+        this.namespace = Union.ofA(namespace);
     }
 
     @Nonnull
@@ -25,13 +30,15 @@ public class AbstractStringList implements PersistentDataType<PersistentDataCont
 
         return (Class<List<String>>)clazz;
     }
-
+    private NamespacedKey ofNS(String val){
+        return this.namespace.isA()?new NamespacedKey(this.namespace.getA(), val):new NamespacedKey(this.namespace.getB(), val);
+    }
     @Nonnull
     public PersistentDataContainer toPrimitive(@Nonnull List<String> complex, @Nonnull PersistentDataAdapterContext context) {
         PersistentDataContainer container = context.newPersistentDataContainer();
 
         for(int i = 0; i < complex.size(); ++i) {
-            NamespacedKey key = new NamespacedKey(namespace, "i_"+i);
+            NamespacedKey key = ofNS( "i_"+i);
             container.set(key, STRING, (String)complex.get(i));
         }
 
@@ -42,7 +49,7 @@ public class AbstractStringList implements PersistentDataType<PersistentDataCont
     public List<String> fromPrimitive(@Nonnull PersistentDataContainer primitive, @Nonnull PersistentDataAdapterContext context) {
         List<String> strings = new ArrayList<>();
         for(int i=0;true;++i){
-            NamespacedKey key = new NamespacedKey(namespace, "i_"+i);
+            NamespacedKey key = ofNS("i_"+i);
             if(primitive.has(key, STRING)){
                 strings.add(primitive.get(key, STRING));
             }else {

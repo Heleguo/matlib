@@ -1,4 +1,4 @@
-package me.matl114.matlib.Algorithms.DataStructures.Complex;
+package me.matl114.matlib.Algorithms.DataStructures.Complex.LockFactory;
 
 import me.matl114.matlib.Algorithms.Algorithm.ThreadUtils;
 import me.matl114.matlibAdaptor.Algorithms.DataStructures.LockFactory;
