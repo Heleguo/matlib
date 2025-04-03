@@ -1,12 +1,13 @@
 package me.matl114.matlib.core;
 
 import lombok.Getter;
-import me.matl114.matlib.Common.Lang.Annotations.Note;
-import me.matl114.matlib.Utils.ConfigLoader;
-import me.matl114.matlib.Utils.Debug;
-import me.matl114.matlibAdaptor.Algorithms.Interfaces.Initialization;
+import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.utils.ConfigLoader;
+import me.matl114.matlib.utils.Debug;
+import me.matl114.matlibAdaptor.algorithms.interfaces.Initialization;
 import org.bukkit.plugin.Plugin;
 
+import java.lang.reflect.Method;
 import java.util.logging.Logger;
 
 @Note("Manage class marked as @AutoInit(level = \"Util\")")
@@ -40,7 +41,13 @@ public class UtilInitialization implements Initialization {
     }
     public UtilInitialization onEnable(){
         Manager.onEnable();
-        Debug.init(name);
+        try{
+            Method init = Debug.class.getDeclaredMethod("init",String.class);
+            init.setAccessible(true);
+            init.invoke(null, name);
+        }catch (Throwable e){
+            throw new RuntimeException(e);
+        }
         Debug.setDebugMod(this.testMode);
         if(this.plugin!=null){
             ConfigLoader.init(plugin);
@@ -59,7 +66,7 @@ public class UtilInitialization implements Initialization {
 
     @Override
     public Logger getLogger() {
-        return Debug.log;
+        return Debug.getLog();
     }
 
 

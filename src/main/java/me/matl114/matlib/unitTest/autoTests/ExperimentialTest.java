@@ -1,0 +1,120 @@
+package me.matl114.matlib.unitTest.autoTests;
+
+import me.matl114.matlib.unitTest.OnlineTest;
+import me.matl114.matlib.unitTest.TestCase;
+import me.matl114.matlib.utils.Debug;
+import me.matl114.matlib.utils.experimential.FakeSchedular;
+import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
+import me.matl114.matlib.utils.reflect.MethodAccess;
+import me.matl114.matlib.utils.reflect.MethodInvoker;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
+
+import java.lang.reflect.Constructor;
+import java.util.List;
+import java.util.Random;
+
+public class ExperimentialTest implements TestCase {
+    private static Constructor<? extends Thread> threadConstructor;
+    @OnlineTest(name = "Tick Thread Test")
+    public void test_constructTickThread() throws Throwable {
+        Thread taskThread = FakeSchedular.runSync(()->{
+            Debug.logger("Running on Thread",Thread.currentThread(),"is Primary?", Bukkit.isPrimaryThread());
+            Location testLocation = new Location(testWorld(),0,130,0);
+            //NOT RECOMMENDED
+            Debug.logger("test setType and checkEntity");
+            int counter = 0;
+            for (int i=0;i<24_000;++i){
+                testLocation.getChunk().setForceLoaded(true);
+                counter+= testWorld().getNearbyEntities(new Location(testWorld(),0,0,0),128,128,128).size();
+//                var re= testWorld().spawnEntity(testLocation, EntityType.MARKER);
+//                re.remove();
+                testLocation.getChunk().setForceLoaded(false);
+                testLocation.getBlock().setType(randGenMaterial());
+                testLocation.getBlock().getType();
+            }
+            Debug.logger(counter);
+            //ThreadUtils.sleep(1_000);
+            Debug.logger("test block NBT get");
+            testLocation.getBlock().setType(Material.CHEST);
+            Chest chestState = (Chest) testLocation.getBlock().getState(false);
+            String value = "testvalue_"+new Random().nextInt(114);
+            chestState.getPersistentDataContainer().set(new NamespacedKey("minecraft","testkey"),PersistentDataType.STRING,value);
+            chestState.update();
+            for (int i=0;i<24_000;++i){
+                Chest chestState1 = (Chest) testLocation.getBlock().getState(false);
+                Assert(chestState1.getPersistentDataContainer().get(new NamespacedKey("minecraft","testkey"),PersistentDataType.STRING).equals(value));
+                String newValue = "testvalue_"+new Random().nextInt(114514);
+                chestState.getPersistentDataContainer().set(new NamespacedKey("minecraft","testkey"),PersistentDataType.STRING,newValue);
+                chestState.update();
+                value = newValue;
+            }
+            Debug.logger("test Finish");
+        });
+        taskThread.join();
+        Debug.logger("Test getType speed");
+        Location testLocation = new Location(testWorld(),0,130,0);
+        Material mat = testLocation.getBlock().getType();
+        Block block = testLocation.getBlock();
+        long a=System.nanoTime();
+        for (int i=0; i< 100_000;++i){
+            block.getType();
+        }
+        long b=System.nanoTime();
+        Debug.logger("async getType speed",b-a);
+        Thread thread = FakeSchedular.runSync(()->{
+            long at=System.nanoTime();
+            for (int i=0; i< 100_000;++i){
+                block.getType();
+            }
+            long bt=System.nanoTime();
+            Debug.logger("sync getType speed",bt-at);
+        });
+        thread.join();
+        Debug.logger("test tickThread finish");
+    }
+    private Material randGenMaterial(){
+        Random rand=new Random();
+        Material mat ;
+        do{
+            mat=Material.values()[rand.nextInt(Material.values().length)];
+        }while(!(mat.isBlock()&&!mat.isAir()));
+        return mat;
+    }
+    @OnlineTest(name = "Versioned ItemStack Method test")
+    public void test_itemstackMethod() throws Throwable {
+        MethodAccess<?> access = MethodAccess.ofName(ItemStack.class,"getPersistentDataContainer").printError(true).initWithNull();
+        Debug.logger(access.getMethodOrDefault(()->null));
+        Debug.logger(access.getMethodOrDefault(()->null).getReturnType());
+        ItemStack testItemStack = new CleanItemStack(Material.BOOK,1,(meta)->{
+            meta.setDisplayName("&6测试&c小踏马的物品");
+            meta.setLore(List.of("&6666","&7777"));
+            meta.getPersistentDataContainer().set(new NamespacedKey("minecraft","testkey"),PersistentDataType.STRING,"testvalue");
+            return meta;
+        });
+        MethodInvoker<?> invoker = access.getInvoker();
+
+        Object  obj = invoker.invoke(testItemStack);
+        Debug.logger(obj);
+        Debug.logger(obj.getClass());
+        Debug.logger(obj.getClass().getMethod("get",NamespacedKey.class,PersistentDataType.class).invoke(obj,new Object[]{ new NamespacedKey("minecraft","testkey"),PersistentDataType.STRING}));
+        long start = System.nanoTime();
+        for (int i=0; i< 100_000;++i){
+            invoker.invoke(testItemStack);
+        }
+        long end = System.nanoTime();
+        Debug.logger("time used ",end-start);
+        long start1 = System.nanoTime();
+        for (int i=0; i< 100_000;++i){
+            testItemStack.getItemMeta().getPersistentDataContainer();
+        }
+        long end1 = System.nanoTime();
+        Debug.logger("time used ",end1-start1);
+    }
+}

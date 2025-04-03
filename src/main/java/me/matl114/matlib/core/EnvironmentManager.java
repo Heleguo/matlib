@@ -1,9 +1,9 @@
 package me.matl114.matlib.core;
 
 import lombok.Getter;
-import me.matl114.matlib.Utils.Debug;
-import me.matl114.matlib.Utils.Version.Version;
-import me.matl114.matlib.Utils.Version.VersionedFeature;
+import me.matl114.matlib.utils.Debug;
+import me.matl114.matlib.utils.version.Version;
+import me.matl114.matlib.utils.version.VersionedFeature;
 import org.bukkit.plugin.Plugin;
 
 @AutoInit(level = "Util")

@@ -1,18 +1,15 @@
 package me.matl114.matlib;
 
-import me.matl114.matlib.Algorithms.Algorithm.TransformationUtils;
-import me.matl114.matlib.Algorithms.DataStructures.Frames.HashContainer;
-import me.matl114.matlib.Algorithms.DataStructures.Struct.Pair;
-import me.matl114.matlib.Algorithms.DataStructures.Struct.Triplet;
-import me.matl114.matlib.Utils.Command.CommandGroup.AbstractMainCommand;
-import me.matl114.matlib.Utils.Command.CommandGroup.SubCommand;
-import me.matl114.matlib.Utils.Command.Params.SimpleCommandArgs;
-import me.matl114.matlib.Utils.Language.ComponentCompiler.BuildContent;
-import me.matl114.matlib.Utils.Language.ComponentCompiler.ComponentAST;
-import me.matl114.matlib.Utils.Language.ComponentCompiler.ComponentFormatParser;
-import me.matl114.matlib.Utils.Language.ComponentCompiler.Parameter;
-import me.matl114.matlib.Utils.Language.Lan.DefaultPlaceholderProviderImpl;
-import me.matl114.matlib.Utils.Reflect.*;
+import me.matl114.matlib.algorithms.algorithm.TransformationUtils;
+import me.matl114.matlib.algorithms.dataStructures.frames.HashContainer;
+import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
+import me.matl114.matlib.algorithms.dataStructures.struct.Triplet;
+import me.matl114.matlib.utils.language.componentCompiler.BuildContent;
+import me.matl114.matlib.utils.language.componentCompiler.ComponentAST;
+import me.matl114.matlib.utils.language.componentCompiler.ComponentFormatParser;
+import me.matl114.matlib.utils.language.componentCompiler.Parameter;
+import me.matl114.matlib.utils.language.lan.DefaultPlaceholderProviderImpl;
+import me.matl114.matlib.utils.reflect.*;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
@@ -22,7 +19,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Random;
 
 public class Tests {
