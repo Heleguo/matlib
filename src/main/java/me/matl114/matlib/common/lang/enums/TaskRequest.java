@@ -1,4 +1,4 @@
-package me.matl114.matlib.common.lang.Enums;
+package me.matl114.matlib.common.lang.enums;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;

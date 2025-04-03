@@ -1,7 +1,7 @@
 package me.matl114.matlib.utils.reflect.descriptor.Reflect;
 
-import me.matl114.matlib.common.lang.Annotations.ConstVal;
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.ConstVal;
+import me.matl114.matlib.common.lang.annotations.Note;
 
 /**
  * descriptor 用于让使用者通过注解描述目标类的方法和字段,并使用paper reobf工具对运行时类进行反混淆以匹配，同时生成快速调用的方法体以支持高效反射

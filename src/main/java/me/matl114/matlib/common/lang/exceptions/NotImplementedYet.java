@@ -1,4 +1,4 @@
-package me.matl114.matlib.common.lang.Exceptions;
+package me.matl114.matlib.common.lang.exceptions;
 
 public class NotImplementedYet extends RuntimeException {
     public NotImplementedYet() {

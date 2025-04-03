@@ -1,8 +1,8 @@
 package me.matl114.matlib.utils;
 
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializeSafeProvider;
-import me.matl114.matlib.common.lang.Annotations.ForceOnMainThread;
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
+import me.matl114.matlib.common.lang.annotations.Note;
 import org.bukkit.block.Container;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.Lectern;

@@ -1,6 +1,6 @@
 package me.matl114.matlib.slimefunUtils.blockInventory.records;
 
-import me.matl114.matlib.common.lang.Annotations.NotRecommended;
+import me.matl114.matlib.common.lang.annotations.NotRecommended;
 import me.matl114.matlib.utils.inventory.inventoryRecords.InventoryRecord;
 import me.matl114.matlib.utils.inventory.inventoryRecords.SimpleInventoryRecord;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;

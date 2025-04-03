@@ -9,7 +9,7 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.core.attributes.MachineProcessHolder;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import lombok.Getter;
-import me.matl114.matlib.common.lang.Annotations.UnsafeOperation;
+import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
 import me.matl114.matlib.utils.AddUtils;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.FieldAccess;

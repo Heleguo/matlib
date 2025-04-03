@@ -2,7 +2,7 @@ package me.matl114.matlib.algorithms.algorithm;
 
 import io.papermc.paper.plugin.configuration.PluginMeta;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
-import me.matl114.matlib.common.lang.Exceptions.NotImplementedYet;
+import me.matl114.matlib.common.lang.exceptions.NotImplementedYet;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.Command;

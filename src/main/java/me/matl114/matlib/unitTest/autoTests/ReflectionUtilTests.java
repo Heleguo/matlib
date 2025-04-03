@@ -145,9 +145,7 @@ public class ReflectionUtilTests implements TestCase {
 
         //DO NOT CALL METHOD WITH OUR CLASS RETURN VALUE ,OTHERWISE CLASS CAST EXCEPTION WILL OCCURS
         Debug.logger(init.isTestMode());
-        Object access = me.matl114.matlib.utils.reflect.MethodAccess.ofName(Slimefun.class,"getCargoLockFactory")
-            .noSnapShot()
-            .initWithNull()
+        Object access = me.matl114.matlib.utils.reflect.MethodAccess.reflect("getCargoLockFactory", Slimefun.class)
             .invoke(null);
         Debug.logger(access);
         LockFactory<Location> locationLockFactory = ProxyUtils.buildAdaptorOf(LockFactory.class, access);

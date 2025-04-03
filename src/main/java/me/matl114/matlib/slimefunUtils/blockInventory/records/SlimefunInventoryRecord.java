@@ -1,7 +1,7 @@
 package me.matl114.matlib.slimefunUtils.blockInventory.records;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
-import me.matl114.matlib.common.lang.Annotations.ForceOnMainThread;
+import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
 import me.matl114.matlib.implement.slimefun.manager.BlockDataCache;
 import me.matl114.matlib.utils.inventory.inventoryRecords.InventoryRecord;
 import me.matl114.matlib.utils.inventory.inventoryRecords.SimpleInventoryRecord;

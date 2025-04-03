@@ -3,7 +3,7 @@ package me.matl114.matlib.utils.language.componentCompiler;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import me.matl114.matlib.common.lang.Exceptions.NoLongerSupport;
+import me.matl114.matlib.common.lang.exceptions.NoLongerSupport;
 import me.matl114.matlib.utils.language.PlaceholderProvider;
 import net.kyori.adventure.text.format.Style;
 

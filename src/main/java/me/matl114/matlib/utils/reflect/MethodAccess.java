@@ -45,6 +45,11 @@ public class MethodAccess<T extends Object> {
         this.createSnapshot = false;
         return this;
     }
+
+    public static <T> MethodAccess<T> reflect(String name, Class tar, Class... param){
+        return ofName(tar, name, param).noSnapShot().printError(true).initWithNull();
+    }
+
     public static MethodAccess ofName(Class clazz ,String fieldName){
         return new MethodAccess((obj)->{
             var result=ReflectUtils.getMethodsByName(clazz,fieldName);

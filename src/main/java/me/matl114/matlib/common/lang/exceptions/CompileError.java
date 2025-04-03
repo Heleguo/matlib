@@ -1,4 +1,4 @@
-package me.matl114.matlib.common.lang.Exceptions;
+package me.matl114.matlib.common.lang.exceptions;
 
 public class CompileError extends RuntimeException{
     public CompileError(CompilePeriod period,int i,String message){

@@ -4,7 +4,7 @@ import lombok.Getter;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializeProvider;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializeSafeProvider;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializingTasks;
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.utils.itemCache.ItemStackCache;
 import me.matl114.matlib.utils.reflect.FieldAccess;
 import me.matl114.matlib.utils.reflect.FieldAccessor;

@@ -1,6 +1,6 @@
 package me.matl114.matlib.algorithms.dataStructures.frames;
 
-import me.matl114.matlib.common.lang.Annotations.NotCompleted;
+import me.matl114.matlib.common.lang.annotations.NotCompleted;
 
 import java.util.AbstractSet;
 import java.util.Iterator;

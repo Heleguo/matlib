@@ -1,9 +1,9 @@
 package me.matl114.matlibAdaptor.implement.bukkit;
 
 import lombok.Getter;
-import me.matl114.matlib.common.lang.Annotations.Note;
-import me.matl114.matlib.common.lang.Annotations.UnsafeOperation;
-import me.matl114.matlib.common.lang.Enums.TaskRequest;
+import me.matl114.matlib.common.lang.annotations.Note;
+import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
+import me.matl114.matlib.common.lang.enums.TaskRequest;
 import me.matl114.matlibAdaptor.proxy.Annotations.AdaptorInterface;
 import me.matl114.matlibAdaptor.proxy.Annotations.InternalMethod;
 import org.bukkit.entity.Player;

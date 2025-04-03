@@ -2,8 +2,8 @@ package me.matl114.matlib.utils;
 
 import lombok.Getter;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializeSafeProvider;
-import me.matl114.matlib.common.lang.Annotations.ForceOnMainThread;
-import me.matl114.matlib.common.lang.Annotations.UnsafeOperation;
+import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
+import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
 import me.matl114.matlib.utils.reflect.FieldAccess;
 import me.matl114.matlib.utils.reflect.MethodAccess;
 import me.matl114.matlib.utils.reflect.MethodInvoker;

@@ -1,6 +1,6 @@
 package me.matl114.matlib.utils.entity.preprocess;
 
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.Note;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;

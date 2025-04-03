@@ -1,8 +1,8 @@
 package me.matl114.matlib.utils.inventory.inventorys;
 
-import me.matl114.matlib.common.lang.Annotations.NotRecommended;
-import me.matl114.matlib.common.lang.Annotations.Note;
-import me.matl114.matlib.common.lang.Annotations.UnsafeOperation;
+import me.matl114.matlib.common.lang.annotations.NotRecommended;
+import me.matl114.matlib.common.lang.annotations.Note;
+import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
 import me.matl114.matlib.utils.inventory.inventoryRecords.InventoryRecord;
 import me.matl114.matlib.utils.inventory.inventoryRecords.SimpleInventoryRecord;
 import me.matl114.matlib.utils.NMSInventoryUtils;

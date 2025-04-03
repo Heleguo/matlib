@@ -1,6 +1,6 @@
 package me.matl114.matlib.utils.entity.display;
 
-import me.matl114.matlib.common.lang.Annotations.ForceOnMainThread;
+import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
 import me.matl114.matlib.utils.entity.groups.EntityGroup;
 import me.matl114.matlib.utils.entity.groups.EntityGroupManager;
 import org.bukkit.Location;

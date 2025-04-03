@@ -1,9 +1,9 @@
 package me.matl114.matlib.utils.inventory.inventoryRecords;
 
-import me.matl114.matlib.common.lang.Annotations.Experimental;
-import me.matl114.matlib.common.lang.Annotations.ForceOnMainThread;
-import me.matl114.matlib.common.lang.Annotations.Internal;
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.Experimental;
+import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
+import me.matl114.matlib.common.lang.annotations.Internal;
+import me.matl114.matlib.common.lang.annotations.Note;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;

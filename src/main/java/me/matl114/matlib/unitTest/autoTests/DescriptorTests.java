@@ -1,6 +1,6 @@
 package me.matl114.matlib.unitTest.autoTests;
 
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.unitTest.demo.DemoTargetClass;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;

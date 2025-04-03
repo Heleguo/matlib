@@ -1,6 +1,6 @@
 package me.matl114.matlib.utils.chat;
 
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.utils.command.commandGroup.AbstractMainCommand;
 import me.matl114.matlibAdaptor.implement.bukkit.InputManager;
 import org.bukkit.entity.Player;

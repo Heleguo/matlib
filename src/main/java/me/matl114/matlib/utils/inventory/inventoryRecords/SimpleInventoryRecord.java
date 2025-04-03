@@ -1,8 +1,8 @@
 package me.matl114.matlib.utils.inventory.inventoryRecords;
 
 import com.google.common.base.Preconditions;
-import me.matl114.matlib.common.lang.Annotations.ForceOnMainThread;
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
+import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.utils.InventoryUtils;
 import me.matl114.matlib.utils.WorldUtils;
 import org.bukkit.Bukkit;

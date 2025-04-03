@@ -1,8 +1,8 @@
 package me.matl114.matlib.algorithms.dataStructures.frames;
 
-import me.matl114.matlib.common.lang.Annotations.Experimental;
-import me.matl114.matlib.common.lang.Annotations.NotCompleted;
-import me.matl114.matlib.common.lang.Exceptions.NotImplementedYet;
+import me.matl114.matlib.common.lang.annotations.Experimental;
+import me.matl114.matlib.common.lang.annotations.NotCompleted;
+import me.matl114.matlib.common.lang.exceptions.NotImplementedYet;
 
 import java.util.*;
 import java.util.function.Predicate;

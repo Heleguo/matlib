@@ -1,6 +1,6 @@
 package me.matl114.matlib.utils.entity.display;
 
-import me.matl114.matlib.common.lang.Annotations.Protected;
+import me.matl114.matlib.common.lang.annotations.Protected;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 

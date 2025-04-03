@@ -2,7 +2,7 @@ package me.matl114.matlib.utils.entity.entityRecords;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.utils.entity.EntityUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

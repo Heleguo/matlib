@@ -3,9 +3,9 @@ package me.matl114.matlib.utils.entity.display;
 import lombok.Getter;
 import me.matl114.matlib.algorithms.algorithm.TransformationUtils;
 import me.matl114.matlib.algorithms.dataStructures.complex.transformation.MatrixStack;
-import me.matl114.matlib.common.lang.Annotations.ConstVal;
-import me.matl114.matlib.common.lang.Annotations.Note;
-import me.matl114.matlib.common.lang.Annotations.Protected;
+import me.matl114.matlib.common.lang.annotations.ConstVal;
+import me.matl114.matlib.common.lang.annotations.Note;
+import me.matl114.matlib.common.lang.annotations.Protected;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 

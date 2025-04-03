@@ -53,6 +53,10 @@ public class FieldAccess {
     private static final boolean useHandle=true;
     private FieldGetter getter = null;
     private FieldSetter setter = null;
+
+    public static FieldAccess reflect(String fieldname, Class<?> tar){
+        return ofName(tar, fieldname).noSnapShot().printError(true).initWithNull();
+    }
     public static FieldAccess ofName(String fieldName){
         return new FieldAccess((obj)->{
             var result=ReflectUtils.getFieldsRecursively(obj.getClass(),fieldName);

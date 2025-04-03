@@ -2,8 +2,8 @@ package me.matl114.matlib.utils.reflect;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
-import me.matl114.matlib.common.lang.Annotations.Note;
-import me.matl114.matlib.common.lang.Annotations.Protected;
+import me.matl114.matlib.common.lang.annotations.Note;
+import me.matl114.matlib.common.lang.annotations.Protected;
 
 import java.util.function.BiFunction;
 

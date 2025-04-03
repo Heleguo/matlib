@@ -1,7 +1,7 @@
 package me.matl114.matlib.utils.entity.entityRecords;
 
-import me.matl114.matlib.common.lang.Annotations.ForceOnMainThread;
-import me.matl114.matlib.common.lang.Annotations.Internal;
+import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
+import me.matl114.matlib.common.lang.annotations.Internal;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 

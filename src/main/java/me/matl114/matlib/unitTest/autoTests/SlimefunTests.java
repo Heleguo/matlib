@@ -64,7 +64,7 @@ public class SlimefunTests implements TestCase {
         HashMap<String,String> dna2Name = new HashMap<>();
         Class utilClass =  Class.forName("net.guizhanss.gcereborn.utils.ChickenUtils");
 
-        MethodAccess<ItemStack> access = MethodAccess.ofName(utilClass,"getResource",ItemStack.class).initWithNull().printError(true);
+        MethodAccess<ItemStack> access = MethodAccess.reflect("getResource", utilClass, ItemStack.class);//ofName(utilClass,"getResource",ItemStack.class).initWithNull().printError(true);
         for (SlimefunItem items : Slimefun.getRegistry().getAllSlimefunItems()){
             if(items.getId().startsWith("GCE_")&& items.getId().endsWith("_CHICKEN_ICON")){
                 String materialId = items.getId().substring("GCE_".length(),items.getId().length()-"_CHICKEN_ICON".length());

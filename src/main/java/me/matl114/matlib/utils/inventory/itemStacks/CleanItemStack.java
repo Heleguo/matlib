@@ -1,6 +1,6 @@
 package me.matl114.matlib.utils.inventory.itemStacks;
 
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.Note;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;

@@ -1,4 +1,4 @@
-package me.matl114.matlib.common.lang.Annotations;
+package me.matl114.matlib.common.lang.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

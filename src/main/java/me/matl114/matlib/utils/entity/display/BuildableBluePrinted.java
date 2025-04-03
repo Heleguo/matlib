@@ -1,8 +1,8 @@
 package me.matl114.matlib.utils.entity.display;
 
 import me.matl114.matlib.algorithms.algorithm.TransformationUtils;
-import me.matl114.matlib.common.lang.Annotations.ForceOnMainThread;
-import me.matl114.matlib.common.lang.Annotations.Protected;
+import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
+import me.matl114.matlib.common.lang.annotations.Protected;
 import me.matl114.matlib.utils.entity.groups.EntityGroup;
 import org.bukkit.Location;
 import org.bukkit.entity.Display;

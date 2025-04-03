@@ -89,7 +89,7 @@ public class ExperimentialTest implements TestCase {
     }
     @OnlineTest(name = "Versioned ItemStack Method test")
     public void test_itemstackMethod() throws Throwable {
-        MethodAccess<?> access = MethodAccess.ofName(ItemStack.class,"getPersistentDataContainer").printError(true).initWithNull();
+        MethodAccess<?> access = MethodAccess.reflect("getPersistentDataContainer",ItemStack.class);//.printError(true).initWithNull();
         Debug.logger(access.getMethodOrDefault(()->null));
         Debug.logger(access.getMethodOrDefault(()->null).getReturnType());
         ItemStack testItemStack = new CleanItemStack(Material.BOOK,1,(meta)->{
@@ -104,17 +104,17 @@ public class ExperimentialTest implements TestCase {
         Debug.logger(obj);
         Debug.logger(obj.getClass());
         Debug.logger(obj.getClass().getMethod("get",NamespacedKey.class,PersistentDataType.class).invoke(obj,new Object[]{ new NamespacedKey("minecraft","testkey"),PersistentDataType.STRING}));
-        long start = System.nanoTime();
-        for (int i=0; i< 100_000;++i){
-            invoker.invoke(testItemStack);
-        }
-        long end = System.nanoTime();
-        Debug.logger("time used ",end-start);
-        long start1 = System.nanoTime();
-        for (int i=0; i< 100_000;++i){
-            testItemStack.getItemMeta().getPersistentDataContainer();
-        }
-        long end1 = System.nanoTime();
-        Debug.logger("time used ",end1-start1);
+//        long start = System.nanoTime();
+//        for (int i=0; i< 100_000;++i){
+//            invoker.invoke(testItemStack);
+//        }
+//        long end = System.nanoTime();
+//        Debug.logger("time used ",end-start);
+//        long start1 = System.nanoTime();
+//        for (int i=0; i< 100_000;++i){
+//            testItemStack.getItemMeta().getPersistentDataContainer();
+//        }
+//        long end1 = System.nanoTime();
+//        Debug.logger("time used ",end1-start1);
     }
 }

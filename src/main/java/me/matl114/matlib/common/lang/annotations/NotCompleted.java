@@ -1,11 +1,14 @@
-package me.matl114.matlib.common.lang.Annotations;
+package me.matl114.matlib.common.lang.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+@Target({ElementType.TYPE,ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)
-@Target({ElementType.METHOD})
-public @interface Protected {
+public @interface NotCompleted {
+    /**
+     * mark as not completed
+     */
 }

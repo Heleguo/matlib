@@ -1,7 +1,7 @@
 package me.matl114.matlib.core;
 
 import lombok.Getter;
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.implement.bukkit.ScheduleManager;
 import org.bukkit.plugin.Plugin;
 

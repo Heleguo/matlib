@@ -1,7 +1,7 @@
 package me.matl114.matlib.algorithms.algorithm;
 
 import lombok.NoArgsConstructor;
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.utils.Debug;
 import org.bukkit.util.Transformation;
 import org.joml.Math;

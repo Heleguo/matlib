@@ -1,7 +1,7 @@
 package me.matl114.matlib.utils.command.interruption;
 
 import lombok.AllArgsConstructor;
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.utils.command.params.SimpleCommandArgs;
 import org.bukkit.command.CommandSender;
 

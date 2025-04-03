@@ -1,7 +1,7 @@
 package me.matl114.matlib.core;
 
 import lombok.Getter;
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.implement.slimefun.manager.BlockDataCache;
 import me.matl114.matlib.implement.slimefun.core.CustomRegistries;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializeSafeProvider;

@@ -1,6 +1,6 @@
 package me.matl114.matlib.utils.language.componentCompiler;
 
-import me.matl114.matlib.common.lang.Exceptions.CompileError;
+import me.matl114.matlib.common.lang.exceptions.CompileError;
 import me.matl114.matlib.utils.chat.EnumFormat;
 import me.matl114.matlib.utils.language.PlaceholderProvider;
 import net.kyori.adventure.text.Component;

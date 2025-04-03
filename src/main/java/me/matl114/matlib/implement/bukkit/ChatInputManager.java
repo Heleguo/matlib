@@ -3,7 +3,7 @@ package me.matl114.matlib.implement.bukkit;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import lombok.Getter;
-import me.matl114.matlib.common.lang.Enums.TaskRequest;
+import me.matl114.matlib.common.lang.enums.TaskRequest;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.core.Manager;
 import me.matl114.matlibAdaptor.implement.bukkit.InputManager;

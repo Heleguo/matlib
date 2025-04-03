@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.matl114.matlib.algorithms.algorithm.TransformationUtils;
-import me.matl114.matlib.common.lang.Annotations.ConstVal;
+import me.matl114.matlib.common.lang.annotations.ConstVal;
 import me.matl114.matlib.utils.entity.preprocess.DisplayEntityBuilder;
 import org.bukkit.util.Transformation;
 

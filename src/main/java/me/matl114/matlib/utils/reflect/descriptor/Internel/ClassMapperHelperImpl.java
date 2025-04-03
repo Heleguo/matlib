@@ -2,8 +2,8 @@ package me.matl114.matlib.utils.reflect.descriptor.Internel;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 import lombok.Getter;
-import me.matl114.matlib.common.lang.Annotations.Internal;
-import me.matl114.matlib.common.lang.Annotations.Note;
+import me.matl114.matlib.common.lang.annotations.Internal;
+import me.matl114.matlib.common.lang.annotations.Note;
 
 import java.util.Map;
 

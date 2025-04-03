@@ -1,4 +1,4 @@
-package me.matl114.matlib.common.lang.Exceptions;
+package me.matl114.matlib.common.lang.exceptions;
 
 public class NoLongerSupport extends UnsupportedOperationException {
     public NoLongerSupport() {

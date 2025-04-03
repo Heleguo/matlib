@@ -12,7 +12,7 @@ import lombok.ToString;
 import me.matl114.matlib.algorithms.algorithm.CollectionUtils;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializeProvider;
 import me.matl114.matlib.algorithms.dataStructures.frames.PairList;
-import me.matl114.matlib.common.lang.Exceptions.CompileError;
+import me.matl114.matlib.common.lang.exceptions.CompileError;
 
 import java.util.*;
 import java.util.function.BiConsumer;
