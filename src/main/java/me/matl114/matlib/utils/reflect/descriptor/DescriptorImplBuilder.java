@@ -3,6 +3,7 @@ package me.matl114.matlib.utils.reflect.descriptor;
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
+import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.*;
 import me.matl114.matlib.utils.reflect.asm.CustomClassLoader;
 import me.matl114.matlib.utils.reflect.descriptor.Annotations.*;
@@ -246,7 +247,9 @@ public class DescriptorImplBuilder {
 
         }
         //resolve constructors
-
+        uncompletedMethod.forEach(m ->{
+            Debug.warn("Target absent for method", m);
+        });
         //start creating clazz
         T result = null;
         synchronized (CustomClassLoader.getInstance()){
