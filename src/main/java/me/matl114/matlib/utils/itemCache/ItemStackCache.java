@@ -27,7 +27,8 @@ public class ItemStackCache implements Cloneable{
         this.metaRef = LazyInitReference.ofEmpty();
     }
     /**
-     * get meta info ,if havn't get ,getItemMeta() clone one
+     * get meta info ,if havn't get ,getItemMeta()
+     * if !hasItemMeta(), return null;
      * @return
      */
     public ItemMeta getMeta() {

@@ -3,11 +3,13 @@ package me.matl114.matlib.utils.reflect;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializeProvider;
 import me.matl114.matlib.utils.Debug;
 
-import me.matl114.matlib.utils.reflect.descriptor.Internel.ObfManagerImpl;
+import me.matl114.matlib.utils.reflect.descriptor.internel.ObfManagerImpl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @SuppressWarnings("all")
@@ -34,7 +36,7 @@ public interface ObfManager  {
      * @return
      */
     public String deobfClassName(String obfName);
-
+    //fixme fix craftbukkit relocation ,
     /**
      * used for deobf clazz types in params and returnType where there exists fucking  primitive type and fucking arrays
      * @param clazz
@@ -57,7 +59,20 @@ public interface ObfManager  {
      */
     public String reobfClassName(String mojangName);
 
-
+    default Class<?> reobfClass(String mojangName) throws Throwable{
+        String obfName = reobfClassName(mojangName);
+        try{
+            //try check obf
+            return Class.forName(obfName);
+        }catch (NoClassDefFoundError error){
+            if(Objects.equals(mojangName, obfName)){
+                //nmd 没有obf,就是不对
+                throw error;
+            }
+            //no obf present
+            return Class.forName(mojangName);
+        }
+    }
     /**
      * this method return the mojang methodName of a obf method descriptor, you should check mapping and return deobf value or self
      * make sure that argument and return value are also deobf
@@ -83,6 +98,41 @@ public interface ObfManager  {
         return Objects.equals(deobfFieldInClass(mojangName, targetDescriptor), fieldName);
     }
 
+    default Field matchFieldOrThrow(List<Field> fields, String name){
+        if(fields.isEmpty()){
+            return null;
+        }
+        try{
+            return fields.stream()
+                .filter( f -> deobfField(f).equals(name))
+                .peek(f-> f.setAccessible(true))
+                .findFirst()
+                .orElseThrow();
+        }catch (Throwable e){
+            Debug.logger(e, "Exception while reflecting field",name,"in",fields.get(0).getDeclaringClass().getSimpleName()+":");
+            return null;
+        }
+
+    }
+    default Field lookupFieldInClass(Class<?> clazz, String name){
+        Field[] fields = clazz.getDeclaredFields();
+        if(fields.length == 0)return null;
+
+        String mojangName = deobfClassName(clazz.getName());
+
+        try{
+            return Arrays.stream(fields)
+                .filter( f -> {
+                    return deobfFieldInClass(mojangName, ByteCodeUtils.getFieldDescriptor(f.getName(), f.getType())).equals(name);
+                })
+                .peek(f-> f.setAccessible(true))
+                .findFirst()
+                .orElseThrow(null);
+        }catch (Throwable e){
+            Debug.logger(e, "Exception while reflecting field",name,"in" ,fields[0].getDeclaringClass().getSimpleName()+":");
+            return null;
+        }
+    }
 //    default String deobfFieldInClass(String reobf){
 //        throw new  NotImplementedYet();
 //    }

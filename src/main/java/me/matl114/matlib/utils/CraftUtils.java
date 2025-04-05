@@ -25,7 +25,6 @@ import java.lang.invoke.VarHandle;
 import java.util.*;
 
 public class CraftUtils {
-
     private static final EnumSet<Material> COMPLEX_MATERIALS = EnumSet.noneOf(Material.class);
     static{
         ItemMeta sampleMeta=new ItemStack(Material.STONE).getItemMeta();
@@ -63,6 +62,7 @@ public class CraftUtils {
            return null;
        }
    }).v();
+   @Getter
     private static final Class craftItemStackClass =  new InitializeProvider<Class>(()->{
         return craftItemStack !=null ? craftItemStack.getClass() : null;
     }).v();
@@ -311,6 +311,10 @@ public class CraftUtils {
         if(INDISTINGUISHABLE_MATERIALS.contains(stack1.getType())){
             return false;
         }
+        return matchItemMeta(meta1, meta2, strictCheck);
+    }
+    public static boolean matchItemMeta(@Nonnull ItemMeta meta1,@Nonnull ItemMeta meta2, boolean strictCheck){
+
         //match display name
         if(!matchDisplayNameField(meta1,meta2)) {
             return false;

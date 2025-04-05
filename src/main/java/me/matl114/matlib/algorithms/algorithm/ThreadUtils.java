@@ -193,6 +193,8 @@ public class ThreadUtils {
     public static FutureTask<Void> getFutureTask(Runnable runnable) {
         return new FutureTask<>(runnable,(Void) null);
     }
+
+
     public static <T extends Object> T awaitFuture(FutureTask<T> futureTask) {
         try{
             return futureTask.get();

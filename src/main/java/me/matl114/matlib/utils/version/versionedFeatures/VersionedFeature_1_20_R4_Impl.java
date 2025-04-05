@@ -1,15 +1,24 @@
 package me.matl114.matlib.utils.version.versionedFeatures;
 
+import me.matl114.matlib.algorithms.dataStructures.frames.InitializeSafeProvider;
+import me.matl114.matlib.utils.Debug;
+import me.matl114.matlib.utils.reflect.ReflectUtils;
 import me.matl114.matlib.utils.version.Version;
+import org.bukkit.Material;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.EquipmentSlotGroup;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.WritableBookMeta;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
+import java.lang.reflect.Field;
 import java.util.Objects;
 
 public class VersionedFeature_1_20_R4_Impl extends VersionedFeature_1_20_R3_Impl{
@@ -32,6 +41,18 @@ public class VersionedFeature_1_20_R4_Impl extends VersionedFeature_1_20_R3_Impl
         }catch(Throwable e){
             return super.copyBlockStateTo( state1, target );
         }
+    }
+    private static final VarHandle componentsHandle = new InitializeSafeProvider<>(()->{
+        ItemMeta meta = new ItemStack(Material.SPAWNER).getItemMeta();
+        BlockStateMeta blockState = (BlockStateMeta)meta;
+        Field targetField = ReflectUtils.getFieldsRecursively(blockState.getClass(),"components").getA();
+        return MethodHandles.privateLookupIn(targetField.getDeclaringClass(), MethodHandles.lookup()).unreflectVarHandle(targetField);
+    }).runNonnullAndNoError(()-> Debug.logger("Successfully initialize CraftMetaBlockState.components VarHandle")).v();
+    protected boolean matchBlockStateMeta0(BlockStateMeta meta1, BlockStateMeta meta2){
+        if(!super.matchBlockStateMeta0(meta1, meta2)){
+            return false;
+        }
+        return Objects.equals( componentsHandle.get(meta1), componentsHandle.get(meta2));
     }
 
     @Override

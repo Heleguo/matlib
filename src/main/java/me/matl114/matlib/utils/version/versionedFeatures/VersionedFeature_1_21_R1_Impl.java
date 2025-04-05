@@ -50,16 +50,16 @@ public class VersionedFeature_1_21_R1_Impl extends VersionedFeature_1_20_R4_Impl
         }
         return false;
     }
-     public boolean matchBlockStateMeta(BlockStateMeta meta1, BlockStateMeta meta2){
+     protected boolean matchBlockStateMeta0(BlockStateMeta meta1, BlockStateMeta meta2){
         if(meta1.getClass()!=meta2.getClass()){
             return false;
         }
         if(hasShieldMetaInterface && (meta1 instanceof ShieldMeta meta11 && meta2 instanceof ShieldMeta meta22)){
-            return true;
+            return  true;//Objects.equals( meta11.getBaseColor(),meta22.getBaseColor())
             //just let then gooooooooooooooooooooo fuck
            // return ;
         }else{
-            return super.matchBlockStateMeta(meta1, meta2);
+            return super.matchBlockStateMeta0(meta1, meta2);
         }
      }
     public AttributeModifier createAttributeModifier(UUID uid, String name, double amount, AttributeModifier.Operation operation, EquipmentSlot slot){

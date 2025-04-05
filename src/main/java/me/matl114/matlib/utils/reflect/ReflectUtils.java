@@ -116,7 +116,8 @@ public class ReflectUtils {
             }
         }
         for (Class<?> iface : clazz.getInterfaces()) {
-            fieldList.addAll(getAllDefaultMethodRecursively(iface));
+            //should include abstract methods as well ,
+            fieldList.addAll(getAllMethodsRecursively(iface));
         }
         fieldList.addAll(getAllMethodsRecursively(clazz.getSuperclass()));
         return fieldList;

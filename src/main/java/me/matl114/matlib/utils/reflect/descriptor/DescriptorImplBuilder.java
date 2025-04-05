@@ -3,13 +3,14 @@ package me.matl114.matlib.utils.reflect.descriptor;
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
+import me.matl114.matlib.core.EnvironmentManager;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.*;
 import me.matl114.matlib.utils.reflect.asm.CustomClassLoader;
-import me.matl114.matlib.utils.reflect.descriptor.Annotations.*;
-import me.matl114.matlib.utils.reflect.descriptor.Reflect.DescriptorBuildException;
-import me.matl114.matlib.utils.reflect.descriptor.Reflect.DescriptorException;
-import me.matl114.matlib.utils.reflect.descriptor.Reflect.TargetDescriptor;
+import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
+import me.matl114.matlib.utils.reflect.descriptor.buildTools.DescriptorBuildException;
+import me.matl114.matlib.utils.reflect.descriptor.buildTools.DescriptorException;
+import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import org.objectweb.asm.*;
 
 import java.lang.invoke.MethodHandle;
@@ -50,7 +51,7 @@ public class DescriptorImplBuilder {
         Preconditions.checkNotNull(re, "No descriptor annotation found!");
         String val = re.target();
         try{
-            Class<?> clazz = Class.forName(ObfManager.getManager().reobfClassName(val));
+            Class<?> clazz = ObfManager.getManager().reobfClass(val);
             return createHelperImplAt(clazz, descriptiveInterface);
         }catch (Throwable e){
             throw DescriptorBuildException.warp(e);
@@ -184,7 +185,7 @@ public class DescriptorImplBuilder {
             Class[] paramsCls = methodAccess.getParameterTypes();
             for (int i= 0; i< arguCount; ++i){
                 var redirect3 = params[i + startArgument].getAnnotation(RedirectType.class);
-                if(redirect3 == null){
+                if(redirect3 != null){
                     paramI[i] = redirect3.value();
                 }else {
                     paramI[i] = ObfManager.getManager().deobfToJvm(paramsCls[i + startArgument]);
@@ -222,13 +223,14 @@ public class DescriptorImplBuilder {
             Class[] paramsCls = constructorAccess.getParameterTypes();
             for (int i= 0; i< arguCount; ++i){
                 var redirect3 = params[i].getAnnotation(RedirectType.class);
-                if(redirect3 == null){
+                if(redirect3 != null){
                     paramI[i] = redirect3.value();
                 }else {
                     paramI[i] = ObfManager.getManager().deobfToJvm(paramsCls[i]);
                 }
             }
             List<Constructor<?>> constructors1 = Arrays.stream(targetClass.getDeclaredConstructors())
+                .filter(c -> c.getParameterCount() == arguCount)
                 .filter(c -> {
                     var paramsTypes = c.getParameterTypes();
                     for (int i=0; i< arguCount ;++i){
@@ -248,7 +250,8 @@ public class DescriptorImplBuilder {
         }
         //resolve constructors
         uncompletedMethod.forEach(m ->{
-            Debug.warn("Target absent for method", m);
+            if(!ignoreFailure(m))
+                Debug.warn("Target absent for method", m);
         });
         //start creating clazz
         T result = null;
@@ -586,8 +589,8 @@ public class DescriptorImplBuilder {
                         }
                         for (int i=1;i<count ;++i){
                             ASMUtils.createSuitableLoad(mv, getInternalName(itfType[i]), i+1);
-                            if(!tarType[i].isAssignableFrom(itfType[i])){
-                                ASMUtils.castType(mv, getInternalName(itfType[i]), getInternalName(tarType[i]));
+                            if(!tarType[i-1].isAssignableFrom(itfType[i])){
+                                ASMUtils.castType(mv, getInternalName(itfType[i]), getInternalName(tarType[i-1]));
                             }
                         }
                     }
@@ -693,6 +696,11 @@ public class DescriptorImplBuilder {
                         index = handledConstructor.getInt(cons);
                         mv.visitFieldInsn(GETSTATIC, implPath, "handle"+index, "Ljava/lang/invoke/MethodHandle;");
                     }
+                    String tarClass = getInternalName(cons.getDeclaringClass());
+                    if(Modifier.isPublic(mod)){
+                        mv.visitTypeInsn(NEW, tarClass);
+                        mv.visitInsn(DUP);
+                    }
                     //load and cast types
                     for (int i=0;i<count ;++i){
                         ASMUtils.createSuitableLoad(mv, getInternalName(itfType[i]), i+1);
@@ -701,9 +709,6 @@ public class DescriptorImplBuilder {
                         }
                     }
                     if(Modifier.isPublic(mod)){
-                        String tarClass = getInternalName(cons.getDeclaringClass());
-                        mv.visitTypeInsn(NEW, tarClass);
-                        mv.visitInsn(DUP);
                         //load instance
                         mv.visitMethodInsn(
                             INVOKESPECIAL,
@@ -737,6 +742,9 @@ public class DescriptorImplBuilder {
                     }
                     if(!castReturn){
                         mv.visitInsn(POP);
+                    }
+                    if(useHandle){
+                        mv.visitLabel(label1);
                     }
                     if(!castReturn){
                         //ignore return value, to make stack size correct
@@ -898,6 +906,18 @@ public class DescriptorImplBuilder {
         }
 
         return result;
+    }
+
+    private static boolean ignoreFailure(Method method){
+        var re = method.getAnnotation(IgnoreFailure.class);
+        if(re != null){
+            var version = re.thresholdInclude();
+            boolean below = re.below();
+            if(EnvironmentManager.getManager().getVersion().isAtLeast(version) != below){
+                return true;
+            }
+        }
+        return false;
     }
     private static String randStr(){
         String val;

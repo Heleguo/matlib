@@ -348,7 +348,14 @@ public class DefaultVersionedFeatureImpl implements VersionedFeature{
         return blockEntityTagAccess.finalizeHandleOrDefault(blockState,()->null);
     }).runNonnullAndNoError(()-> Debug.logger("Successfully initialize CraftMetaBlockState.blockEntityTag VarHandle")).v();
     public boolean matchBlockStateMeta(BlockStateMeta meta1,BlockStateMeta meta2){
-        return blockEntityTagAccess.compareFieldOrDefault(meta1,meta2,()->meta1.equals(meta2));
+        try{
+            return matchBlockStateMeta0(meta1, meta2);
+        } catch (Throwable e){
+            return Objects.equals(meta1, meta2);
+        }
+    }
+    protected boolean matchBlockStateMeta0(BlockStateMeta meta1,BlockStateMeta meta2){
+        return Objects.equals(handle.get(meta1),handle.get(meta2)); //blockEntityTagAccess.compareFieldOrDefault(meta1,meta2,()->meta1.equals(meta2));
 //        .ofAccess(meta1).computeIf((b)->{
 //            return Objects.equals(b, blockEntityTagAccess.ofAccess(meta2).getRawOrDefault(()->null));
 //        },()->meta1.equals(meta2));

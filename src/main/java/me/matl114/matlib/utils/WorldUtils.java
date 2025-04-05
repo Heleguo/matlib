@@ -18,6 +18,7 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nonnull;
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -74,6 +75,21 @@ public class WorldUtils {
         return weakWorldFieldAccess.getVarHandleOrDefault(()->null);
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize Blockstate.weakWorld VarHandle")).v();
     private static final boolean handleBlockStateSuccess = positionHandle!=null&&worldHandle!=null&&weakWorldHandle!=null;
+
+    private static final VarHandle worldWorldHandle = new InitializeSafeProvider<>(VarHandle.class, ()->{
+        Field field = null;
+        try {
+            field = Bukkit.getWorlds().get(0).getClass().getDeclaredField("world");
+            return MethodHandles.privateLookupIn(field.getDeclaringClass(), MethodHandles.lookup()).unreflectVarHandle(field);
+        } catch (Throwable e) {
+            Debug.logger(e);
+            return null;
+        }
+    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftWorld.world VarHandle")).v();
+
+    public static Object getHandledWorld(World world){
+        return worldWorldHandle.get(world);
+    }
     @ForceOnMainThread
     public static BlockState copyBlockState(BlockState state, Block block2){
         if(invokeBlockStateSuccess){

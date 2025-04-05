@@ -1,5 +1,6 @@
 package me.matl114.matlib.unitTest.autoTests;
 
+import me.matl114.matlib.algorithms.algorithm.ThreadUtils;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
 import me.matl114.matlib.utils.Debug;
@@ -7,10 +8,7 @@ import me.matl114.matlib.utils.experimential.FakeSchedular;
 import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
 import me.matl114.matlib.utils.reflect.MethodAccess;
 import me.matl114.matlib.utils.reflect.MethodInvoker;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.inventory.ItemStack;
@@ -19,10 +17,11 @@ import org.bukkit.persistence.PersistentDataType;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExperimentialTest implements TestCase {
     private static Constructor<? extends Thread> threadConstructor;
-    @OnlineTest(name = "Tick Thread Test")
+   // @OnlineTest(name = "Tick Thread Test")
     public void test_constructTickThread() throws Throwable {
         Thread taskThread = FakeSchedular.runSync(()->{
             Debug.logger("Running on Thread",Thread.currentThread(),"is Primary?", Bukkit.isPrimaryThread());
@@ -87,7 +86,7 @@ public class ExperimentialTest implements TestCase {
         }while(!(mat.isBlock()&&!mat.isAir()));
         return mat;
     }
-    @OnlineTest(name = "Versioned ItemStack Method test")
+   // @OnlineTest(name = "Versioned ItemStack Method test")
     public void test_itemstackMethod() throws Throwable {
         MethodAccess<?> access = MethodAccess.reflect("getPersistentDataContainer",ItemStack.class);//.printError(true).initWithNull();
         Debug.logger(access.getMethodOrDefault(()->null));
@@ -116,5 +115,22 @@ public class ExperimentialTest implements TestCase {
 //        }
 //        long end1 = System.nanoTime();
 //        Debug.logger("time used ",end1-start1);
+    }
+
+    //@OnlineTest(name = "Async Chunk Load Test")
+    public void test_asyncChunkLoad() throws  Throwable {
+        AtomicInteger cnt = new AtomicInteger(new Random().nextInt(36667));
+        int y = new Random().nextInt(114514);
+        Thread loadThread = FakeSchedular.runSync(()->{
+            for (int i=0;i<1_000; ++i){
+                int x = cnt.incrementAndGet();
+                Chunk a =testWorld().getChunkAt(x,y);
+                ThreadUtils.sleep(2_00);
+                if(i%10 == 0){
+                    Debug.logger("Task ",i,"complete");
+                }
+            }
+        });
+        loadThread.join();
     }
 }

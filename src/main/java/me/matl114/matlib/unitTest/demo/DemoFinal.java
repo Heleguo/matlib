@@ -1,7 +1,7 @@
 package me.matl114.matlib.unitTest.demo;
 
 import me.matl114.matlib.utils.reflect.descriptor.DescriptorImplBuilder;
-import me.matl114.matlib.utils.reflect.descriptor.Reflect.DescriptorException;
+import me.matl114.matlib.utils.reflect.descriptor.buildTools.DescriptorException;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;

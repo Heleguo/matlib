@@ -175,6 +175,13 @@ public class Debug {
             callback.accept(value);
         }
     }
+    public static void trace0(String val){
+
+    }
+    public static void trace(Object... arguments){
+        trace0(String.join(" ",  Arrays.stream(arguments).map(Debug::s).toArray(String[]::new)));
+    }
+
 
     protected static void init(String name){
         log= Logger.getLogger(name);

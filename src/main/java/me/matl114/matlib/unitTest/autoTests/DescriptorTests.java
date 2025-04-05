@@ -5,9 +5,9 @@ import me.matl114.matlib.unitTest.demo.DemoTargetClass;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
 import me.matl114.matlib.utils.Debug;
-import me.matl114.matlib.utils.reflect.descriptor.Annotations.*;
+import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.DescriptorImplBuilder;
-import me.matl114.matlib.utils.reflect.descriptor.Reflect.TargetDescriptor;
+import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import me.matl114.matlib.utils.reflect.ReflectUtils;
 
 import java.util.Random;
@@ -75,17 +75,9 @@ public class DescriptorTests implements TestCase {
         Debug.logger(ReflectUtils.getAllFieldsRecursively(I.getClass()));
     }
     boolean first;
-    @OnlineTest(name = "ClassLoader test")
-    public void test_classloader() throws Throwable{
-        if(!first){
-            first = true;
-            return;
-        }
-        Debug.logger("Not First");
-        for (int i=0; i<50; ++i){
-            Class.forName("me.matl114.logitech.utils.UtilClass.CommandClass.CommandShell");
-        }
-    }
+
+
+
 
 
     @Descriptive(target = "me.matl114.matlib.UnitTest.Demo.DemoTargetClass")

@@ -16,12 +16,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class MatlibTest extends JavaPlugin {
     public MatlibTest(){
-        Debug.stackTrace();
-        ClassLoader loader = MatlibTest.class.getClassLoader();
-        do{
-            Debug.logger(loader);
-            loader = loader.getParent();
-        }while (loader != null);
     }
     @Getter
     @Setter
@@ -49,12 +43,14 @@ public class MatlibTest extends JavaPlugin {
             //.registerTestCase(new InventoryTests())
 //            .registerTestCase(new SlimefunTests())
             //.registerTestCase(new EntityTests())
-            //.registerTestCase(new ExperimentialTest())
+            .registerTestCase(new ExperimentialTest())
             .registerTestCase(new DisplayManagerTest())
 //            .registerTestCase(new ComponentTests())
             .registerTestCase(new PlayerTest())
-            .registerTestCase(new DescriptorTests())
-            .registerTestCase(new ArgumentedTests())
+           //.registerTestCase(new DescriptorTests())
+//            .registerTestCase(new ArgumentedTests())
+            .registerTestCase(new BukkitTests())
+            .registerTestCase(new NMSTests())
         ;
         this.getServer().getPluginManager().registerEvents(new TestListeners(),this);
     }
