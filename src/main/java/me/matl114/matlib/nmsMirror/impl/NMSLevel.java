@@ -13,6 +13,7 @@ public class NMSLevel {
     public static final LevelChunkHelper LEVEL_CHUNK;
     public static final ServerChunkCacheHelper CHUNK_CACHE_SYSTEM ;
     public static final BlockEntityHelper BLOCK_ENTITY ;
+    public static final BlockEntityAPI TILE_ENTITIES;
     static {
         Version version = EnvironmentManager.getManager().getVersion();
         BLOCK = DescriptorImplBuilder.createHelperImpl(BlockHelper.class);
@@ -25,5 +26,6 @@ public class NMSLevel {
         }else {
             BLOCK_ENTITY = DescriptorImplBuilder.createHelperImpl(BlockEntityHelper.class);
         }
+        TILE_ENTITIES = DescriptorImplBuilder.createMultiHelper(BlockEntityAPI.class);
     }
 }

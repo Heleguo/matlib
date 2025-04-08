@@ -2,14 +2,16 @@ package me.matl114.matlib.unitTest.autoTests;
 
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
-import me.matl114.matlib.implement.bukkit.ScheduleManager;
+import me.matl114.matlib.algorithms.algorithm.ThreadUtils;
 import me.matl114.matlib.nmsMirror.impl.*;
 import me.matl114.matlib.nmsMirror.core.BuiltInRegistryEnum;
 import me.matl114.matlib.nmsMirror.core.RegistriesHelper;
 import me.matl114.matlib.nmsMirror.inventory.ItemStackHelper;
-import me.matl114.matlib.nmsMirror.level.v1_20_R4.BlockEntityHelper_1_20_R4;
+import me.matl114.matlib.nmsMirror.level.LevelEnum;
 import me.matl114.matlib.nmsMirror.nbt.ComponentTagHelper;
 import me.matl114.matlib.nmsMirror.resources.ResourceLocationHelper;
+import me.matl114.matlib.nmsMirror.versionedEnv.Env;
+import me.matl114.matlib.nmsUtils.LevelUtils;
 import me.matl114.matlib.nmsUtils.ServerUtils;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
@@ -17,10 +19,13 @@ import me.matl114.matlib.utils.CraftUtils;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.WorldUtils;
 import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
+import me.matl114.matlib.utils.reflect.descriptor.DescriptorImplBuilder;
+import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
+import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.TileState;
@@ -31,13 +36,18 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.FutureTask;
 
 import static me.matl114.matlib.nmsMirror.impl.NMSLevel.*;
 import static me.matl114.matlib.nmsMirror.impl.NMSCore.*;
 
 public class NMSTests implements TestCase {
-    @OnlineTest(name = "ItemStackHelper Test")
+    static TestReflection TEST = DescriptorImplBuilder.createMultiHelper(TestReflection.class);
+    //@OnlineTest(name = "ItemStackHelper Test")
     public void test_ItemStackHelper(){
         ComponentTagHelper compHelper = NMSCore.COMPONENT_TAG;
         ResourceLocationHelper keyHelper = NMSCore.NAMESPACE_KEY;
@@ -84,7 +94,6 @@ public class NMSTests implements TestCase {
         Assert(itemHelper.matchItem(CraftUtils.getHandled(itemStack2), CraftUtils.getHandled(itemStack3), true, false));
         Assert(!itemHelper.matchItem(CraftUtils.getHandled(itemStack2), CraftUtils.getHandled(itemStack3), true, true));
         Assert(itemHelper.matchItem(CraftUtils.getHandled(itemStack3), CraftUtils.getHandled(itemStack4), true, true));
-
         for (int i=0; i< 30000; ++i){
             itemHelper.matchItem(CraftUtils.getHandled(cis), CraftUtils.getHandled(itemStack2), false, true);
             cis.getItemMeta().equals(itemStack2.getItemMeta());
@@ -124,25 +133,25 @@ public class NMSTests implements TestCase {
         inventory.setItem(1, new ItemStack(Material.BOOK));
         meta.setBlockState((BlockState) holder);
         shulker.setItemMeta(meta);
-        var nmsShulker = CraftBukkit.CRAFT_ITEMSTACK.unwrapToNMS(shulker);
+        var nmsShulker = CraftBukkit.ITEMSTACK.unwrapToNMS(shulker);
         var nbtShulker = NMSItem.ITEMSTACK.save(nmsShulker, COMPONENT_TAG.newComp());
         Debug.logger(nbtShulker);
     }
 
-    @OnlineTest(name = "Env and Enum tests")
+   // @OnlineTest(name = "Env and Enum tests")
     public void test_env() throws Throwable{
         Assert(CraftBukkit.MAGIC_NUMBERS.getBlock(Material.AIR) == EmptyEnum.BLOCK_AIR);
         Assert(CraftBukkit.MAGIC_NUMBERS.getItem(Material.AIR) == EmptyEnum.ITEM_AIR);
-        var itemA  = CraftBukkit.CRAFT_ITEMSTACK.unwrapToNMS(new CleanItemStack(Material.BOOK, 336));
+        var itemA  = CraftBukkit.ITEMSTACK.unwrapToNMS(new CleanItemStack(Material.BOOK, 336));
         Debug.logger(itemA);
         Assert(NMSItem.ITEMSTACK.getCount(itemA) == 336 );
-        var cisA = CraftBukkit.CRAFT_ITEMSTACK.createCraftItemStack(Material.BOOK, 23,null);
+        var cisA = CraftBukkit.ITEMSTACK.createCraftItemStack(Material.BOOK, 23,null);
         Debug.logger(cisA);
         Assert(CraftUtils.isCraftItemStack(cisA));
 
     }
 
-    @OnlineTest(name = "World and blockEntity tests")
+   // @OnlineTest(name = "World and blockEntity tests")
     public void test_worldAndBlockEntity() throws Throwable {
         int x =2;
         int y = 36;
@@ -158,12 +167,12 @@ public class NMSTests implements TestCase {
         }).get();
         int cx = x >> 4;
         int cz = z >> 4;
-        block.getChunk();
         var serverLevel = WorldUtils.getHandledWorld(testWorld());
-        var chunk1 = NMSLevel.LEVEL.getChunkIfLoadedImmediately(serverLevel, cx, cz);
+        testWorld().getChunkAt(cx, cz);
+        var chunk1 = LEVEL.getChunkCustom(serverLevel, cx, cz, true);
         AssertNN(chunk1);
         Debug.logger(chunk1);
-        var entity1 = NMSLevel.LEVEL_CHUNK.getBlockEntity(chunk1, NMSCore.BLOCKPOS.ofVec(x,y,z));
+        var entity1 = LevelUtils.getBlockEntityAsync(block, false);
         AssertNN(entity1);
         Debug.logger(BLOCK_ENTITY.saveWithFullMetadata(entity1));
         Debug.logger(BLOCK_ENTITY.saveWithId(entity1));
@@ -172,5 +181,108 @@ public class NMSTests implements TestCase {
         COMPONENT_TAG.putBoolean(pdc, "testBoolean",true);
         Debug.logger(BLOCK_ENTITY.saveWithFullMetadata(entity1));
 
+        Debug.logger("test block getter");
+        Debug.logger(block.getType());
+        long a = System.nanoTime();
+        for (int i=0; i< 99_999; ++i){
+           block.getType();
+        }
+        long b = System.nanoTime();
+        Debug.logger("using time ",b-a);
+        Debug.logger(LevelUtils.getBlockTypeAsync(block,true));
+        a = System.nanoTime();
+        for (int i=0; i< 99_999; ++i){
+            //LEVEL.getBlockStateCustom(serverLevel, block.getX(), block.getY(), block.getZ(),true);
+            LevelUtils.getBlockTypeAsync(block,true);
+        }
+        b = System.nanoTime();
+        Debug.logger("using time ",b-a);
+    }
+
+    //@OnlineTest(name = "minecraft schedular test")
+    public void test_schedular() throws Throwable {
+        World world =testWorld();
+        for (int i=0;i<10;++i){
+            long a = System.nanoTime();
+            FutureTask<Void> task = ThreadUtils.getFutureTask(()->{
+                long b = System.nanoTime();
+                Debug.logger("Main Executor Response Time", b-a);
+                Assert(Bukkit.isPrimaryThread());
+            });
+            ServerUtils.executeSync(task);
+            task.get();
+        }
+        for (int i=0;i<10;++i){
+            long c = System.nanoTime();
+            FutureTask<Void> task = ThreadUtils.getFutureTask(()->{
+                long b = System.nanoTime();
+                Debug.logger("World Main Executor Response Time", b-c);
+                Assert(Bukkit.isPrimaryThread());
+            });
+            ServerUtils.executeAsChunkTask(world, task);
+            task.get();
+        }
+        for (int i=0;i<10;++i){
+            long c = System.nanoTime();
+            FutureTask<Void> task = ThreadUtils.getFutureTask(()->{
+                long b = System.nanoTime();
+                Debug.logger("Bukkit Schedular Response Time", b-c);
+                Assert(Bukkit.isPrimaryThread());
+            });
+            ThreadUtils.executeSync(task);
+            task.get();
+        }
+        ServerUtils.executeSync(()->{
+            Debug.logger("throw a fucking exception on main ");
+            throw  new RuntimeException();
+        });
+        ThreadUtils.sleep(50);
+
+    }
+    @OnlineTest(name = "special test ",automatic = false)
+    public void test_test() throws Throwable{
+        if(REGISTRIES.containsKey(BuiltInRegistryEnum.ITEM, NAMESPACE_KEY.newNSKey("minecraft","myitem"))){
+            Debug.logger("already registered");
+            return;
+        }
+        TEST.frozenSetter( BuiltInRegistryEnum.ITEM, false);
+        TEST.unregisteredIntrusiveHoldersSetter(BuiltInRegistryEnum.ITEM, new IdentityHashMap<>());
+        Object newItem = TEST.newItem(TEST.newProperties());
+        Object item =  TEST.registerItem("myitem", newItem);
+        TEST.freeze( BuiltInRegistryEnum.ITEM);
+        Debug.logger(item);
+        CraftBukkit.MAGIC_NUMBERS.ITEM_MATERIALGetter().put(item, Material.END_GATEWAY);
+        CraftBukkit.MAGIC_NUMBERS.MATERIAL_ITEMGetter().put(Material.END_GATEWAY, item);
+    }
+
+    //@OnlineTest(name = "package private access test")
+    public void test_access()throws  Throwable{
+        Debug.logger(NMSItem.CONTAINER.newCustomContainer(null, 1, "byd").getClass());
+    }
+    @MultiDescriptive(targetDefault = "wtf")
+    public interface TestReflection extends TargetDescriptor{
+        @FieldTarget
+        @RedirectClass("net.minecraft.core.MappedRegistry")
+        void frozenSetter(Object obj, boolean f);
+        @FieldTarget
+        @RedirectClass("net.minecraft.core.MappedRegistry")
+        void unregisteredIntrusiveHoldersSetter(Object obj, Map<?,?> map);
+
+        @MethodTarget
+        @RedirectClass("net.minecraft.core.MappedRegistry")
+        void freeze(Object reg);
+
+        @MethodTarget(isStatic = true)
+        @RedirectClass("net.minecraft.world.item.Items")
+        Object registerItem(String id,@RedirectType("Lnet/minecraft/world/item/Item;") Object item);
+
+        @ConstructorTarget
+        @RedirectClass("net.minecraft.world.item.Item")
+        Object newItem(@RedirectType("Lnet/minecraft/world/item/Item$Properties;")Object properties);
+
+
+        @ConstructorTarget
+        @RedirectClass("net.minecraft.world.item.Item$Properties")
+        Object newProperties();
     }
 }

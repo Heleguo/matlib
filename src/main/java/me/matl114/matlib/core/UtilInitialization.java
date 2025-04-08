@@ -48,7 +48,8 @@ public class UtilInitialization implements Initialization {
         }catch (Throwable e){
             throw new RuntimeException(e);
         }
-        Debug.setDebugMod(this.testMode);
+
+//        Debug.setDebugMod(this.testMode);
         if(this.plugin!=null){
             ConfigLoader.init(plugin);
             this.environment=new EnvironmentManager().init(plugin);

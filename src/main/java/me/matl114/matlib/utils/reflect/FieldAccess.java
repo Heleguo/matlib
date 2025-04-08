@@ -5,6 +5,7 @@ import lombok.Getter;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializeProvider;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.utils.Debug;
+import sun.misc.Unsafe;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
@@ -374,16 +375,14 @@ public class FieldAccess {
                 if(!staticField ||!finalField){
                     return set(value1);
                 }else{
-                    AtomicBoolean result=new AtomicBoolean(false);
-                    ReflectUtils.getUnsafeSetter(FieldAccess.this.field,((unsafe,staticFieldBase, fieldOffset, field1) -> {
-                        unsafe.putObject(staticFieldBase, fieldOffset,value1);
-                        re=value1;
-                        result.set(true);
-                    }));
-                    if(result.get()){
-                        re=value1;
+                    try{
+                        Unsafe unsafe = ReflectUtils.getUnsafe();
+                        Object staticFieldBase = unsafe.staticFieldBase(field);
+                        long fieldOffset = unsafe.staticFieldOffset(field);
+                        unsafe.putObject(staticFieldBase, fieldOffset, value1);
+                        re = value1;
                         return true;
-                    }else {
+                    }catch (Throwable e){
                         if(printError){
                             Debug.logger("Access with object",value,"occurred an error: setUnsafe");
                         }

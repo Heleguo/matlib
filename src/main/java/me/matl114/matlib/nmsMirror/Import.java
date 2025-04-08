@@ -24,4 +24,10 @@ public class Import {
     public static final String StateProperty = "Lnet/minecraft/world/level/block/state/properties/Property;";
     public static final String RandomSource = "Lnet/minecraft/util/RandomSource;";
     public static final String Entity = "Lnet/minecraft/world/entity/Entity;";
+    public static final String Container = "Lnet/minecraft/world/Container;";
+    public static final String Player = "Lnet/minecraft/world/entity/player/Player;";
+    public static final String HopperBlockEntity = "Lnet/minecraft/world/level/block/entity/HopperBlockEntity;";
+
+    public static final String ContainerClass = "net.minecraft.world.Container";
+    public static final String HopperBlockEntityClass = "net.minecraft.world.level.block.entity.HopperBlockEntity";
 }

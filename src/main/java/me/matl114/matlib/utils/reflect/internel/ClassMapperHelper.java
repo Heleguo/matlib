@@ -1,4 +1,4 @@
-package me.matl114.matlib.utils.reflect.descriptor.internel;
+package me.matl114.matlib.utils.reflect.internel;
 
 import me.matl114.matlib.common.lang.annotations.Internal;
 import me.matl114.matlib.common.lang.annotations.Note;

@@ -1,26 +1,29 @@
 package me.matl114.matlib.nmsMirror.impl;
 
+import me.matl114.matlib.nmsMirror.craftbukkit.configuration.SpigotWorldConfigHelper;
 import me.matl114.matlib.nmsMirror.craftbukkit.inventory.CraftItemStackHelper;
+import me.matl114.matlib.nmsMirror.craftbukkit.inventory.InventoryAPI;
 import me.matl114.matlib.nmsMirror.craftbukkit.persistence.CraftPersistentDataContainerHelper;
-import me.matl114.matlib.nmsMirror.craftbukkit.utils.CraftMagicNumbersHelper;
-import me.matl114.matlib.utils.CraftUtils;
+import me.matl114.matlib.nmsMirror.craftbukkit.utils.MagicNumberAPI;
+import me.matl114.matlib.nmsMirror.craftbukkit.world.CraftBlockHelper;
 import me.matl114.matlib.utils.reflect.descriptor.DescriptorImplBuilder;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.inventory.Inventory;
 
 public class CraftBukkit {
 
-    public static final CraftMagicNumbersHelper MAGIC_NUMBERS ;
-    public static final CraftItemStackHelper CRAFT_ITEMSTACK;
+    public static final MagicNumberAPI MAGIC_NUMBERS ;
+    public static final CraftItemStackHelper ITEMSTACK;
+    public static final CraftBlockHelper BLOCK;
+    public static final InventoryAPI INVENTORYS;
+    public static final SpigotWorldConfigHelper SPIGOT_CONFIG ;
     //should have a persistentDataContainerHelper
     public static final CraftPersistentDataContainerHelper PERSISTENT_DATACONTAINER;
     static {
-        MAGIC_NUMBERS = DescriptorImplBuilder.createHelperImplAt(Bukkit.getUnsafe().getClass(), CraftMagicNumbersHelper.class);
-        CRAFT_ITEMSTACK = DescriptorImplBuilder.createHelperImplAt(CraftUtils.getCraftItemStackClass(), CraftItemStackHelper.class);
-        ItemStack item = new ItemStack(Material.STONE);
-        PersistentDataContainer persistentDataContainer = item.getItemMeta().getPersistentDataContainer();
-        PERSISTENT_DATACONTAINER = DescriptorImplBuilder.createHelperImplAt(persistentDataContainer.getClass(), CraftPersistentDataContainerHelper.class);
+        MAGIC_NUMBERS = DescriptorImplBuilder.createMultiHelper(MagicNumberAPI.class);
+        ITEMSTACK = DescriptorImplBuilder.createHelperImpl(CraftItemStackHelper.class);
+        BLOCK = DescriptorImplBuilder.createHelperImpl(CraftBlockHelper.class);
+        PERSISTENT_DATACONTAINER = DescriptorImplBuilder.createMultiHelper(CraftPersistentDataContainerHelper.class);
+        INVENTORYS = DescriptorImplBuilder.createMultiHelper(InventoryAPI.class);
+        SPIGOT_CONFIG = DescriptorImplBuilder.createHelperImpl(SpigotWorldConfigHelper.class);
     }
 }

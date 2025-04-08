@@ -38,6 +38,9 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
     public int getMaxStackSize(Object itemStack);
 
     @MethodTarget
+    boolean isEmpty(Object itemStack);
+
+    @MethodTarget
     @Note("this is known as \"Duriability\" not attack damage")
     int getDamageValue(Object stack);
 
@@ -46,6 +49,9 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
 
     @MethodTarget
     int getMaxDamage(Object stack);
+
+    @MethodTarget
+    public void setItem(Object stack, @RedirectType(Item)Object item);
 
     @Note("Do not use it, its returnType varies with version, only used for comp")
     @MethodTarget

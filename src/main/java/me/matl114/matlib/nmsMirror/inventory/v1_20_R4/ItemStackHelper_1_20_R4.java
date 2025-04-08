@@ -124,7 +124,8 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
     }
     //need optimize
     default boolean matchComp(@Nonnull Object comp1, @Nonnull Object comp2, boolean matchLore, boolean matchName){
-        if(!Objects.equals(Env1_20_R4.ICOMPONENT.prototypeGetter(comp1), Env1_20_R4.ICOMPONENT.prototypeGetter(comp2))){
+        //prototype is from Item.component, it should be the reference to same object! if itemType is same
+        if(Env1_20_R4.ICOMPONENT.prototypeGetter(comp1) != Env1_20_R4.ICOMPONENT.prototypeGetter(comp2)){
             return false;
         }
         Reference2ObjectMap<Object, Optional<?>> patch1 = Env1_20_R4.ICOMPONENT.patchGetter(comp1);

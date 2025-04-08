@@ -12,20 +12,15 @@ public final class DemoFinal implements DemoInterface {
     static final MethodHandle methodHandle;
 
     @Override
-    public String a(Object instance) throws InvocationTargetException {
-        return (String) ((DemoClass)instance).c;
+    public Boolean a(Object instance) throws InvocationTargetException {
+        return instance instanceof DemoFinal;
     }
     static{
         varhandle = DescriptorImplBuilder.initVarHandle(0,"111");
         methodHandle = DescriptorImplBuilder.initMethodHandle(0,"122");
     }
-    public Class  acc1(Object a, boolean b){
-        try{
-            DemoInterface itf = this;
-            return itf.getClass();
-        }catch (Throwable e){
-            throw DescriptorException.dump(e);
-        }
+    public Class  acc1(String a, boolean b){
+       return (Class)  varhandle.get(a);
 
     }
 //    public int retint(){

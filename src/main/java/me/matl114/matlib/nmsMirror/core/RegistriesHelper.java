@@ -1,6 +1,7 @@
 package me.matl114.matlib.nmsMirror.core;
 
 import me.matl114.matlib.common.lang.annotations.Note;
+import me.matl114.matlib.nmsMirror.impl.NMSCore;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.Descriptive;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.IgnoreFailure;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MethodTarget;
@@ -45,6 +46,9 @@ public interface RegistriesHelper extends TargetDescriptor {
         }
         return getValue(registry, namespacedKey);
     }
+    default Object getRegistryByKey(Object registry, String key){
+        return getRegistryByKey(registry, NMSCore.NAMESPACE_KEY.newNSKey(key));
+    }
 
 
     @Note("Suggested")
@@ -53,6 +57,11 @@ public interface RegistriesHelper extends TargetDescriptor {
 
     @MethodTarget
     boolean containsKey(Object registry, @RedirectType(ResourceLocation)Object id);
+
+
+    default boolean containsKey(Object registry, String id){
+        return containsKey(registry, NMSCore.NAMESPACE_KEY.newNSKey(id));
+    }
 
     @MethodTarget
     Stream stream(Object registry);

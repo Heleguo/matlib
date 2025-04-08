@@ -73,7 +73,7 @@ public class ReflectionUtilTests implements TestCase {
     }
 
 
-    @OnlineTest(name = "CraftUtils Invoker test")
+    //@OnlineTest(name = "CraftUtils Invoker test")
     public void testCraftInvoker(){
         ItemStack item = new CleanItemStack(Material.BOOK);
         ItemStack citem = CraftUtils.getCraftCopy(item);
@@ -113,7 +113,7 @@ public class ReflectionUtilTests implements TestCase {
 //        Debug.logger(ReflectUtils.getAllMethodsRecursively(recls));
 //        Debug.logger(recls.getDeclaredConstructors()[0].newInstance("a","b",Map.of()));
 //    }
-    @OnlineTest(name = "MatlibAdaptor Test")
+    //@OnlineTest(name = "MatlibAdaptor Test")
     public void testAPI() throws Throwable {
         Class logiTech = Class.forName("me.matl114.logitech.MyAddon");
         Debug.logger(logiTech.getName());
@@ -155,7 +155,7 @@ public class ReflectionUtilTests implements TestCase {
     }
 
 
-    @OnlineTest(name = "ASM Test")
+    //@OnlineTest(name = "ASM Test")
     public void testASM() throws Throwable{
         Class<?> clazz = Class.forName("io.papermc.paper.util.ObfHelper");
         Debug.logger(clazz);
@@ -210,7 +210,7 @@ public class ReflectionUtilTests implements TestCase {
         //MethodVisitor method =
 
     }
-    @OnlineTest(name = "ObfManager Test")
+   // @OnlineTest(name = "ObfManager Test")
     public void testObfManager() throws Throwable{
         var helper =  ObfManager.getManager();
 

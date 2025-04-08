@@ -4,19 +4,23 @@ import me.matl114.matlib.algorithms.algorithm.ThreadUtils;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
 import me.matl114.matlib.utils.Debug;
+import me.matl114.matlib.utils.Flags;
 import me.matl114.matlib.utils.experimential.FakeSchedular;
 import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
 import me.matl114.matlib.utils.reflect.MethodAccess;
 import me.matl114.matlib.utils.reflect.MethodInvoker;
+import me.matl114.matlib.utils.reflect.ReflectUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import sun.misc.Unsafe;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
-import java.util.List;
-import java.util.Random;
+import java.lang.reflect.Field;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExperimentialTest implements TestCase {
@@ -132,5 +136,67 @@ public class ExperimentialTest implements TestCase {
             }
         });
         loadThread.join();
+    }
+    @OnlineTest(name = "unsafe test")
+
+    public void test_unsafe() throws Throwable{
+        EnumMap<Flags,Boolean> enumMap = new EnumMap<>(Flags.class);
+        for (var flag : Flags.values()){
+            enumMap.put(flag, Boolean.FALSE);
+        }
+
+//        Debug.logger(enumMap);
+//        Field valuesField = Flags.class.getDeclaredField("$VALUES");
+//        Debug.logger(valuesField);
+//        Unsafe unsafe = ReflectUtils.getUnsafe();
+//        Object staticFieldBase = unsafe.staticFieldBase(valuesField);
+//        Flags a  = Flags.ACCEPT;
+//        Object[] values = (Object[]) unsafe.getObject(staticFieldBase, unsafe.staticFieldOffset(valuesField));
+//        Debug.logger(values);
+//        Debug.logger(values.length);
+//        unsafe.putInt(values, unsafe.arrayBaseOffset(values.getClass())-4, values.length+1);
+//        Debug.logger("now",values.length);
+//        Object[] newValues = values;// Arrays.copyOf(values, values.length + 1);
+////        Constructor<Flags> flag = Flags.class.getDeclaredConstructor(String.class, int.class);
+////        flag.setAccessible(true);
+//        Object newFlag = unsafe.allocateInstance(Flags.class);
+//        Field nameField = Enum.class.getDeclaredField("name");
+//        Field oridinalField = Enum.class.getDeclaredField("ordinal");
+//        ;
+//
+//        Assert(newFlag != null);
+//        unsafe.putObject(newFlag, unsafe.objectFieldOffset(nameField), "SHIT");
+//        unsafe.putInt(newFlag, unsafe.objectFieldOffset(oridinalField), 17);
+//        Field enumDict = Class.class.getDeclaredField("enumConstantDirectory");
+//        Debug.logger(enumDict);
+//        Map enumDictInstance = (Map) unsafe.getObject(Flags.class, unsafe.objectFieldOffset(enumDict));
+//        Debug.logger(enumDictInstance);
+//        if(enumDictInstance != null){
+//
+//            enumDictInstance.put("SHIT", newFlag);
+//        }
+//        Field enumList = Class.class.getDeclaredField("enumConstants");
+//        Debug.logger(enumList);
+//        Object enumArray = unsafe.getObject(Flags.class, unsafe.objectFieldOffset(enumList));
+//        if(enumArray != null){
+//            unsafe.putInt(enumArray, unsafe.arrayBaseOffset(enumArray.getClass())-4, values.length);
+//            unsafe.putObject(enumArray, unsafe.arrayBaseOffset(enumArray.getClass()) +(values.length-1)*unsafe.arrayIndexScale(enumArray.getClass()) ,newFlag);
+//            Debug.logger("check set", Array.get(enumArray, values.length-1));
+//        }
+//
+//       // Object newFlag = Flags.ACCEPT;
+//
+//        newValues[values.length-1] =  newFlag;
+//        Debug.logger(newFlag);
+//        Debug.logger(newValues);
+//        Debug.logger(values);
+//        unsafe.putObject(staticFieldBase, unsafe.staticFieldOffset(valuesField), newValues);
+        Flags newFlag = ReflectUtils.addEnumConst(Flags.class, "SHIT", (u, n)->{});
+        Debug.logger(Flags.values()[17]);
+        ;
+        Debug.logger(Flags.valueOf("SHIT"));
+        Debug.logger((Object[]) Flags.values());
+        enumMap.put((Flags) newFlag,Boolean.TRUE);
+        Debug.logger(enumMap);
     }
 }

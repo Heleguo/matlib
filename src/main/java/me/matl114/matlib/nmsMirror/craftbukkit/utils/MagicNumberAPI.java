@@ -5,11 +5,25 @@ import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import org.bukkit.Material;
 
-@Descriptive(target = "org.bukkit.craftbukkit.util.CraftMagicNumbers")
-public interface CraftMagicNumbersHelper extends TargetDescriptor {
+import java.util.Map;
+
+@MultiDescriptive(targetDefault = "org.bukkit.craftbukkit.util.CraftMagicNumbers")
+public interface MagicNumberAPI extends TargetDescriptor {
     @MethodTarget(isStatic = true)
     @RedirectName("getMaterial")
     Material getMaterialFromBlock(@RedirectType(Import.Block)Object block);
+
+    @FieldTarget(isStatic = true)
+    Map<Object, Material> ITEM_MATERIALGetter();
+
+    @FieldTarget(isStatic = true)
+    Map<Material, Object> MATERIAL_ITEMGetter();
+
+    @FieldTarget(isStatic = true)
+    Map<Object, Material> BLOCK_MATERIALGetter();
+
+    @FieldTarget
+    Map<Material, Object> MATERIAL_BLOCKGetter();
 
     @MethodTarget(isStatic = true)
     @RedirectName("getMaterial")

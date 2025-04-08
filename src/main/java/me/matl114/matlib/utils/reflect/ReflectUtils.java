@@ -1,13 +1,13 @@
 package me.matl114.matlib.utils.reflect;
 
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
+import me.matl114.matlib.common.lang.annotations.NotRecommended;
+import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
+import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.Flags;
 import sun.misc.Unsafe;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
 
 public class ReflectUtils {
@@ -437,18 +437,54 @@ public class ReflectUtils {
     public static boolean copyFirstField(Object to,Object from,Class<?> clazz,Class<?> fieldType){
         return setFirstFitField(to,getFieldValue(from,clazz,fieldType),clazz,fieldType);
     }
-    public interface UnsafeSetter{
-        public void set(Unsafe unsafe,Object fieldBase, long fieldOffset, Field field);
+    public static interface UnsafeAllocateCallback<T extends Object>{
+        public void init(Unsafe unsafe,T newInstance);
     }
-    private static FieldAccess.AccessWithObject<Unsafe> staticUnsafeAccess=FieldAccess.ofName(Unsafe.class,"theUnsafe").printError(false).ofAccess(null);
-    public static void getUnsafeSetter(Field accessibleField,UnsafeSetter setter){
-        staticUnsafeAccess.get((unsafe)->{
-            boolean isStatic=Modifier.isStatic(accessibleField.getModifiers());
-            long fieldOffset = isStatic?unsafe.staticFieldOffset(accessibleField): unsafe.objectFieldOffset(accessibleField);
-            Object staticFieldBase =isStatic? unsafe.staticFieldBase(accessibleField):null;
-            setter.set(unsafe,staticFieldBase,fieldOffset,accessibleField);
-        });
+    private static final FieldAccess.AccessWithObject<Unsafe> staticUnsafeAccess=FieldAccess.ofName(Unsafe.class,"theUnsafe").printError(false).ofAccess(null);
+
+    public static Unsafe getUnsafe(){
+        return staticUnsafeAccess.getRaw();
     }
+    @UnsafeOperation
+    @NotRecommended
+    public static <T extends Enum<T>> T addEnumConst(Class<T> enumClass, String name, UnsafeAllocateCallback<T> initCallback) throws Throwable{
+        Unsafe unsafe = getUnsafe();
+        Field valuesField = Flags.class.getDeclaredField("$VALUES");
+        //ensure clinit
+        Object[] valuesClone = (Object[]) enumClass.getMethod("values").invoke(null);
+        Object valuesShared = unsafe.getObject( unsafe.staticFieldBase(valuesField), unsafe.staticFieldOffset(valuesField));
+        //force change array length
+        resizeArray(valuesShared, valuesClone.length+1);
+        T newEnum = (T)unsafe.allocateInstance(enumClass);
+        Field nameField = Enum.class.getDeclaredField("name");
+        unsafe.putObject(newEnum, unsafe.objectFieldOffset(nameField), name);
+        Field oridinalField = Enum.class.getDeclaredField("ordinal");
+        unsafe.putInt(newEnum, unsafe.objectFieldOffset(oridinalField), valuesClone.length);
+        initCallback.init(unsafe, newEnum);
+        Array.set(valuesShared, valuesClone.length, newEnum);
+        //successfully injected
+        Field enumDict = Class.class.getDeclaredField("enumConstantDirectory");
+        Map enumDictInstance = (Map) unsafe.getObject(Flags.class, unsafe.objectFieldOffset(enumDict));
+        if(enumDictInstance != null){
+            enumDictInstance.put(name, newEnum);
+        }
+        Field enumList = Class.class.getDeclaredField("enumConstants");
+        Object enumArray = unsafe.getObject(Flags.class, unsafe.objectFieldOffset(enumList));
+        if(enumArray != null){
+            resizeArray(enumArray, valuesClone.length+1);
+            Array.set(enumArray, valuesClone.length, newEnum);
+        }
+        return newEnum;
+    }
+    @UnsafeOperation
+    @NotRecommended
+    public static void resizeArray(Object array, int size){
+        Unsafe unsafe = getUnsafe();
+        unsafe.putInt(array, unsafe.arrayBaseOffset(array.getClass())-4, size);
+    }
+
+
+
     public static final Map<String,Integer> objectInvocationIndex = new HashMap<>(){{
         put("getClass",-1);
         put("hashCode",-2);

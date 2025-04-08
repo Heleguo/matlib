@@ -2,8 +2,11 @@ package me.matl114.matlib.nmsMirror.craftbukkit.inventory;
 
 import me.matl114.matlib.nmsMirror.Import;
 import me.matl114.matlib.common.lang.annotations.Note;
+import me.matl114.matlib.nmsMirror.impl.EmptyEnum;
+import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
+import me.matl114.matlib.utils.version.Version;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -23,12 +26,21 @@ public interface CraftItemStackHelper extends TargetDescriptor {
     }
     @FieldTarget
     @RedirectType(Import.ItemStack)
-    Object handleGetter(Object cis);
+    Object handleGetter(ItemStack cis);
 
     @MethodTarget(isStatic = true)
     @RedirectName("unwrap")
     @Note("copy only when bukkit is not a craftItemStack")
-    Object unwrapToNMS(ItemStack bukkit);
+    @IgnoreFailure(thresholdInclude = Version.v1_20_R2, below = true)
+    default Object unwrapToNMS(ItemStack bukkit){
+        Debug.logger("Default Impl called");
+        if(getTargetClass().isInstance(bukkit)){
+            Object nms = handleGetter(bukkit);
+            return nms == null? EmptyEnum.EMPTY_ITEMSTACK: nms;
+        }else {
+            return asNMSCopy(bukkit);
+        }
+    }
 
     @MethodTarget(isStatic = true)
     @Note("create a nmsItem copy")

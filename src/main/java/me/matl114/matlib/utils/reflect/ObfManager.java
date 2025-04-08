@@ -3,7 +3,7 @@ package me.matl114.matlib.utils.reflect;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializeProvider;
 import me.matl114.matlib.utils.Debug;
 
-import me.matl114.matlib.utils.reflect.descriptor.internel.ObfManagerImpl;
+import me.matl114.matlib.utils.reflect.internel.ObfManagerImpl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -36,7 +36,6 @@ public interface ObfManager  {
      * @return
      */
     public String deobfClassName(String obfName);
-    //fixme fix craftbukkit relocation ,
     /**
      * used for deobf clazz types in params and returnType where there exists fucking  primitive type and fucking arrays
      * @param clazz
@@ -76,6 +75,10 @@ public interface ObfManager  {
     /**
      * this method return the mojang methodName of a obf method descriptor, you should check mapping and return deobf value or self
      * make sure that argument and return value are also deobf
+     *
+     * this method could not relocate craftbukkit class in parameters, we are sorry about that
+     * but no craftbukkit method will be obf, yeeeeeeee mother fucker
+     *
      * @param reobfClassName
      * @param methodDescriptor ,should be in jvm method format, you can use ByteCodeUtils to generate these string
      * @return
@@ -127,7 +130,7 @@ public interface ObfManager  {
                 })
                 .peek(f-> f.setAccessible(true))
                 .findFirst()
-                .orElseThrow(null);
+                .orElseThrow();
         }catch (Throwable e){
             Debug.logger(e, "Exception while reflecting field",name,"in" ,fields[0].getDeclaringClass().getSimpleName()+":");
             return null;

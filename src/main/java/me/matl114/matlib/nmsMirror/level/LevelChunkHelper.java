@@ -18,6 +18,9 @@ import static me.matl114.matlib.nmsMirror.Import.*;
 @Descriptive(target = "net.minecraft.world.level.chunk.LevelChunk")
 public interface LevelChunkHelper extends TargetDescriptor {
     @MethodTarget
+    Object getBlockState(Object chunkAccess, int x, int y, int z);
+
+    @MethodTarget
     Object getBlockStateFinal(Object chunk, int x, int y, int z);
 
     @MethodTarget

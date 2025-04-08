@@ -2,10 +2,14 @@ package me.matl114.matlib.unitTest.demo;
 
 import me.matl114.matlib.utils.Debug;
 
-public class DemoTargetClass extends DemoTargetSuper implements DemoTargetInterface{
+class DemoTargetClass extends DemoTargetSuper implements DemoTargetInterface{
     public DemoTargetClass(){
         super();
         Debug.logger("Instance create");
+    }
+    DemoTargetClass(int a){
+        super();
+        Debug.logger("Private Instance create:",a);
     }
     private int a =114;
     public int b;
@@ -28,6 +32,9 @@ public class DemoTargetClass extends DemoTargetSuper implements DemoTargetInterf
     }
     public Object e() throws Throwable {
         return null;
+    }
+    static{
+        Debug.logger("Demo Target Init");
     }
 //    public void f(){
 //        Debug.logger("Target.f called");

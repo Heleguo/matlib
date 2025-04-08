@@ -1,4 +1,4 @@
-package me.matl114.matlib.utils.reflect.descriptor.internel;
+package me.matl114.matlib.utils.reflect.internel;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 import lombok.Getter;

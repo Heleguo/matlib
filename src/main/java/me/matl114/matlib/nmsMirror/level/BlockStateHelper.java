@@ -8,6 +8,7 @@ import me.matl114.matlib.utils.reflect.descriptor.annotations.RedirectType;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import me.matl114.matlib.utils.version.Version;
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 
 import javax.swing.plaf.nimbus.State;
 import java.util.Collection;
@@ -16,7 +17,10 @@ import static me.matl114.matlib.nmsMirror.Import.*;
 @Descriptive(target = "net.minecraft.world.level.block.state.BlockState")
 public interface BlockStateHelper extends TargetDescriptor {
     @MethodTarget
-    Material getBukkitMaterial(Object type);
+    Material getBukkitMaterial(Object state);
+
+    @MethodTarget
+    BlockData createCraftBlockData(Object state);
 
     @MethodTarget
     Object getBlock(Object type);

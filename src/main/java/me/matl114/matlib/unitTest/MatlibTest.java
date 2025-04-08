@@ -6,6 +6,7 @@ import me.matl114.matlib.implement.bukkit.ChatInputManager;
 import me.matl114.matlib.unitTest.autoTests.*;
 import me.matl114.matlib.unitTest.manualTests.ArgumentedTests;
 import me.matl114.matlib.unitTest.manualTests.DisplayManagerTest;
+import me.matl114.matlib.unitTest.manualTests.NMSPlayerTest;
 import me.matl114.matlib.unitTest.manualTests.PlayerTest;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.experimential.FakeSchedular;
@@ -38,7 +39,7 @@ public class MatlibTest extends JavaPlugin {
             .init(this);
         testRunner = new TestRunner()
             .init(this)
-            //.registerTestCase(new ReflectionUtilTests())
+            .registerTestCase(new ReflectionUtilTests())
             //.registerTestCase(new CommonTests())
             //.registerTestCase(new InventoryTests())
 //            .registerTestCase(new SlimefunTests())
@@ -47,10 +48,11 @@ public class MatlibTest extends JavaPlugin {
             .registerTestCase(new DisplayManagerTest())
 //            .registerTestCase(new ComponentTests())
             .registerTestCase(new PlayerTest())
-           //.registerTestCase(new DescriptorTests())
+           .registerTestCase(new DescriptorTests())
 //            .registerTestCase(new ArgumentedTests())
-            .registerTestCase(new BukkitTests())
+            //.registerTestCase(new BukkitTests())
             .registerTestCase(new NMSTests())
+            .registerTestCase(new NMSPlayerTest())
         ;
         this.getServer().getPluginManager().registerEvents(new TestListeners(),this);
     }

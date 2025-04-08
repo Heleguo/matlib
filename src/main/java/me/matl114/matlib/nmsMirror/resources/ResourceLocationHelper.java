@@ -11,6 +11,11 @@ public interface ResourceLocationHelper extends TargetDescriptor {
     @ConstructorTarget
     Object newNSKey(String namespace, String key);
 
+
+    default Object newNSKey( String key){
+        return newNSKey("minecraft",key);
+    }
+
     @MethodTarget(isStatic = true)
     boolean isValidPath(String path);
 

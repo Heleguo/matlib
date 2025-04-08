@@ -1,8 +1,12 @@
 package me.matl114.matlib.utils.reflect.descriptor;
 
 import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.ints.Int2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntArrayMap;
+import lombok.val;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
+import me.matl114.matlib.common.lang.exceptions.NotImplementedYet;
 import me.matl114.matlib.core.EnvironmentManager;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.*;
@@ -13,9 +17,11 @@ import me.matl114.matlib.utils.reflect.descriptor.buildTools.DescriptorException
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import org.objectweb.asm.*;
 
+import javax.annotation.Nullable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
+import java.lang.ref.Reference;
 import java.lang.reflect.*;
 import java.util.*;
 import static org.objectweb.asm.Opcodes.*;
@@ -24,6 +30,7 @@ import static org.objectweb.asm.Type.*;
 @SuppressWarnings("all")
 public class DescriptorImplBuilder {
     private static final Map<Pair<Class<?>, Class<? extends TargetDescriptor>>, TargetDescriptor> CACHE = new HashMap<>();
+    private static final Map<Class<? extends TargetDescriptor>, TargetDescriptor> MULTI_CACHE = new HashMap<>();
     private static final Random rand = new Random();
     /**
      * create a impl for descriptive interface at targetClass
@@ -36,7 +43,7 @@ public class DescriptorImplBuilder {
         synchronized (CACHE){
             return (T)CACHE.computeIfAbsent(Pair.of(targetClass, descriptiveInterface), k-> {
                 try {
-                    return createInternel(k.getA(), k.getB());
+                    return createSingleInternel(k.getA(), k.getB());
                 } catch (DescriptorBuildException e){
                     throw e;
                 } catch (Throwable e) {
@@ -58,7 +65,173 @@ public class DescriptorImplBuilder {
         }
     }
 
-    private static  <T extends TargetDescriptor> T createInternel(Class<?> targetClass, Class<T> descriptiveInterface) throws Throwable{
+    public static <T extends TargetDescriptor> T createMultiHelper(Class<T> descriptiveInterface){
+        var re = descriptiveInterface.getAnnotation(MultiDescriptive.class);
+        Preconditions.checkNotNull(re, "No descriptor annotation found!");
+        String val = re.targetDefault();
+        return (T)MULTI_CACHE.computeIfAbsent(descriptiveInterface, k->{
+            Class<?> clazz;
+            try{
+                clazz = ObfManager.getManager().reobfClass(val);
+            }catch (Throwable e){
+                clazz =null;
+            }
+            try{
+                return createMultiInternel(clazz, descriptiveInterface);
+            } catch (DescriptorBuildException e){
+                throw e;
+            } catch (Throwable e) {
+                throw new DescriptorBuildException(e);
+            }
+        });
+    }
+
+    private static <T extends TargetDescriptor> T createMultiInternel(@Nullable Class<?> defaultClass, Class<T> descriptiveInterface)throws Throwable{
+        Preconditions.checkArgument(descriptiveInterface.isInterface(),"Descriptor should be a interface!");
+        Preconditions.checkNotNull(descriptiveInterface.getAnnotation(MultiDescriptive.class), "No descriptor annotation found!");
+        List<Method> fieldTarget = new ArrayList<>();
+        List<Method> methodTarget = new ArrayList<>();
+        List<Method> constructorTarget = new ArrayList<>();
+        List<Method> uncompletedMethod = new ArrayList<>();
+        List<Method> typeCastTarget = new ArrayList<>();
+
+        Map<Method, Field> fieldGetDescrip = new LinkedHashMap<>();
+        Map<Method, Field> fieldSetDescrip = new LinkedHashMap<>();
+        Map<Method, Method> methodDescrip = new LinkedHashMap<>();
+        Map<Method, Constructor<?>> constructorDescrip = new LinkedHashMap<>();
+        Map<Method, Class<?>> castCheckDescrip = new LinkedHashMap<>();
+        // Map<String, Method> cdToOrigin = new HashMap<>();
+        //collect targets
+        Arrays.stream(descriptiveInterface.getMethods())
+            .filter(m -> !(m.getName().equals( "getTargetClass") && m.getParameterCount() == 0 && m.getReturnType() == Class.class))
+            .filter(m -> {
+                var mod = m.getModifiers();
+                //can complete default methods
+                return !Modifier.isStatic(mod) && !Modifier.isPrivate(mod);
+            })
+            .forEach(m->{
+                var a1 =  m.getAnnotation(FieldTarget.class);
+                if(a1 != null){
+                    fieldTarget.add(m);
+                    return;
+                }
+                var a2 = m.getAnnotation(MethodTarget.class);
+                if(a2 != null){
+                    methodTarget.add(m);
+                    return;
+                }
+                var a3 = m.getAnnotation(ConstructorTarget.class);
+                if(a3 != null){
+                    constructorTarget.add(m);
+                    return;
+                }
+                var a4 = m.getAnnotation(CastCheck.class);
+                if(a4 != null){
+                    typeCastTarget.add(m);
+                    return;
+                }
+                //only collect uncompleted abstract Method!
+                if(!m.isSynthetic() && !m.isBridge() && Modifier.isAbstract(m.getModifiers())){
+                    uncompletedMethod.add(m);
+                    return;
+                }
+            });
+        for (Method fieldAccess: fieldTarget){
+            Class<?> targetClass;
+            var redirectClass = fieldAccess.getAnnotation(RedirectClass.class);
+            if(redirectClass != null){
+                try{
+                    targetClass = ObfManager.getManager().reobfClass(redirectClass.value());
+                }catch (Throwable e){
+                    targetClass = defaultClass;
+                }
+            }else {
+                targetClass = defaultClass;
+            }
+            if(targetClass == null){
+                uncompletedMethod.add(fieldAccess);
+                continue;
+            }
+            List<Field> fields = ReflectUtils.getAllFieldsRecursively(targetClass);
+            var tar = matchFields(fieldAccess, fields);
+            //get tar here
+            if(tar == null){
+                uncompletedMethod.add(fieldAccess);
+            }else {
+                if(tar.getB()){
+                    fieldGetDescrip.put(fieldAccess, tar.getA());
+                }else {
+                    fieldSetDescrip.put(fieldAccess, tar.getA());
+                }
+            }
+        }
+        for (Method methodAccess : methodTarget){
+            Class<?> targetClass;
+            var redirectClass = methodAccess.getAnnotation(RedirectClass.class);
+            if(redirectClass != null){
+                try{
+                    targetClass = ObfManager.getManager().reobfClass(redirectClass.value());
+                }catch (Throwable e){
+                    targetClass = defaultClass;
+                }
+            }else {
+                targetClass = defaultClass;
+            }
+
+            if(targetClass == null){
+                uncompletedMethod.add(methodAccess);
+                continue;
+            }
+            List<Method> methods = ReflectUtils.getAllMethodsRecursively(targetClass).stream().filter(m-> !m.isBridge() && !m.isSynthetic()).toList();
+            List<Method> filter1 = matchMethods(methodAccess,methods );
+            if(filter1.isEmpty()){
+                uncompletedMethod.add(methodAccess);
+            }else {
+                methodDescrip.put(methodAccess, filter1.getFirst());
+            }
+        }
+        //resolve methods
+        for (Method constructorAccess : constructorTarget){
+            Class<?> targetClass;
+            var redirectClass = constructorAccess.getAnnotation(RedirectClass.class);
+            if(redirectClass != null){
+                try{
+                    targetClass = ObfManager.getManager().reobfClass(redirectClass.value());
+                }catch (Throwable e){
+                    targetClass = defaultClass;
+                }
+            }else {
+                targetClass = defaultClass;
+            }
+            if(targetClass == null){
+                uncompletedMethod.add(constructorAccess);
+                continue;
+            }
+            List<Constructor<?>> constructors1 = matchConstructors(constructorAccess, targetClass.getDeclaredConstructors());
+            if(constructors1.isEmpty()){
+                uncompletedMethod.add(constructorAccess);
+            }else {
+                constructorDescrip.put(constructorAccess, constructors1.getFirst());
+            }
+
+        }
+        for (Method typeCast: typeCastTarget){
+            Class<?> targetClass = null;
+            var cast = typeCast.getAnnotation(CastCheck.class);
+            try{
+                targetClass = ObfManager.getManager().reobfClass(cast.value());
+            }catch (Throwable e){
+            }
+            if(targetClass != null){
+                castCheckDescrip.put(typeCast, targetClass);
+            }else {
+                uncompletedMethod.add(typeCast);
+            }
+        }
+       return buildClassImplInternel(defaultClass, descriptiveInterface, fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, uncompletedMethod);
+    }
+
+    private static  <T extends TargetDescriptor> T createSingleInternel(Class<?> targetClass, Class<T> descriptiveInterface) throws Throwable{
         Preconditions.checkArgument(descriptiveInterface.isInterface(),"Descriptor should be a interface!");
         Preconditions.checkNotNull(descriptiveInterface.getAnnotation(Descriptive.class), "No descriptor annotation found!");
         List<Method> fieldTarget = new ArrayList<>();
@@ -69,14 +242,16 @@ public class DescriptorImplBuilder {
         List<Method> constructorTarget = new ArrayList<>();
         Map<Method, Constructor<?>> constructorDescrip = new LinkedHashMap<>();
         List<Method> uncompletedMethod = new ArrayList<>();
+        List<Method> typeCastTarget = new ArrayList<>();
+        Map<Method, Class<?>> castCheckDescrip = new LinkedHashMap<>();
        // Map<String, Method> cdToOrigin = new HashMap<>();
         //collect targets
         Arrays.stream(descriptiveInterface.getMethods())
             .filter(m -> !(m.getName().equals( "getTargetClass") && m.getParameterCount() == 0 && m.getReturnType() == Class.class))
             .filter(m -> {
                 var mod = m.getModifiers();
-                //only complete abstract methods
-                return !Modifier.isStatic(mod) && !Modifier.isPrivate(mod) && Modifier.isAbstract(mod);
+                //can complete default methods
+                return !Modifier.isStatic(mod) && !Modifier.isPrivate(mod) ;
             })
            // .filter(m -> )
             .forEach(m->{
@@ -95,118 +270,38 @@ public class DescriptorImplBuilder {
                     constructorTarget.add(m);
                     return;
                 }
-                if(!m.isSynthetic() && !m.isBridge()){
+                var a4 = m.getAnnotation(CastCheck.class);
+                if(a4 != null){
+                    typeCastTarget.add(m);
+                    return;
+                }
+                //only collect uncompleted abstract methods
+                if(!m.isSynthetic() && !m.isBridge() && Modifier.isAbstract(m.getModifiers())){
                     uncompletedMethod.add(m);
                     return;
                 }
             });
+
         //resolve target
         //collect fields first
         List<Field> fields = ReflectUtils.getAllFieldsRecursively(targetClass);
-        LinkedHashMap<Pair<String, String>,Field> deobfCache = new LinkedHashMap<>();
-        LinkedHashMap<Pair<String, String>,Field> staticDeobfCache = new LinkedHashMap<>();
-        for (var test: fields){
-            String deobfName = ObfManager.getManager().deobfField(test);
-            String typeName = ObfManager.getManager().deobfToJvm(test.getType());
-            //get the first field seen, avoid overriding
-            if(Modifier.isStatic(test.getModifiers())){
-                staticDeobfCache.putIfAbsent(Pair.of(deobfName, typeName), test);
-            }else {
-                deobfCache.putIfAbsent(Pair.of(deobfName, typeName), test);
-            }
-        }
         //resolve fields
         for (Method fieldAccess: fieldTarget){
-            String targetName;
-            boolean isGetter;
-            var redirect1 = fieldAccess.getAnnotation(RedirectName.class);
-            String name1 = fieldAccess.getName();
-            if(name1.endsWith("Getter")){
-                isGetter = true;
-            }else if (name1.endsWith("Setter")){
-                isGetter = false;
-            }else {
-                throw new DescriptorBuildException("Illegal field target name "+ name1 +", can not resolve Getter or Setter");
-            }
-            if(redirect1 != null){
-                targetName = redirect1.value();
-            }else {
-                targetName = name1.substring(0, name1.length() - "Netter".length());
-            }
-            var static1 =fieldAccess.getAnnotation(FieldTarget.class).isStatic();
-            var type = fieldAccess.getAnnotation(RedirectType.class);
-            Field tar;
-            var cache = static1? staticDeobfCache:deobfCache;
-            if(type != null){
-                tar = cache.get(Pair.of(targetName, type.value()));
-            }else {
-                tar = null;
-                for (var re : cache.entrySet()){
-                    if(re.getKey().getA().equals(targetName)){
-                        tar  = re.getValue();
-                        break;
-                    }
-                }
-            }
+            var tar = matchFields(fieldAccess, fields);
             //get tar here
             if(tar == null){
                 uncompletedMethod.add(fieldAccess);
             }else {
-                if(isGetter){
-                    fieldGetDescrip.put(fieldAccess, tar);
+                if(tar.getB()){
+                    fieldGetDescrip.put(fieldAccess, tar.getA());
                 }else {
-                    fieldSetDescrip.put(fieldAccess, tar);
+                    fieldSetDescrip.put(fieldAccess, tar.getA());
                 }
             }
-
         }
         List<Method> methods = ReflectUtils.getAllMethodsRecursively(targetClass).stream().filter(m-> !m.isBridge() && !m.isSynthetic()).toList();
         for (Method methodAccess : methodTarget){
-            String targetName ;
-            var redirect1 = methodAccess.getAnnotation(RedirectName.class);
-            if(redirect1 != null){
-                targetName = redirect1.value();
-            }else {
-                targetName = methodAccess.getName();
-            }
-            var static1 = methodAccess.getAnnotation(MethodTarget.class).isStatic();
-            //what returns does not matter
-//            String returnType;
-//            if(redirect2 != null){
-//                returnType = ObfManager.getManager().reobfClassName( redirect2.value() );
-//            }else {
-//                returnType = ByteCodeUtils.toJvmType( methodAccess.getReturnType() );
-//            }
-            var arguCount = static1? methodAccess.getParameterCount(): methodAccess.getParameterCount()-1;
-            var startArgument = static1?0:1;
-            Method tar = null;
-            String[] paramI = new String[arguCount];
-            Parameter[] params = methodAccess.getParameters();
-            Class[] paramsCls = methodAccess.getParameterTypes();
-            for (int i= 0; i< arguCount; ++i){
-                var redirect3 = params[i + startArgument].getAnnotation(RedirectType.class);
-                if(redirect3 != null){
-                    paramI[i] = redirect3.value();
-                }else {
-                    paramI[i] = ObfManager.getManager().deobfToJvm(paramsCls[i + startArgument]);
-                }
-            }
-            List<Method> filter1 = methods.stream()
-                .filter(m -> Modifier.isStatic(m.getModifiers()) == static1)
-                .filter(m->m.getParameterCount() == arguCount)
-                .filter(test->ObfManager.getManager().deobfMethod(test).equals(targetName))
-                .filter(test ->{
-                    //match every type after deobf
-                    var paramTypes = test.getParameterTypes();
-                    for (int i=0; i< arguCount ;++i ){
-
-                        if(!ObfManager.getManager().deobfToJvm(paramTypes[i]).equals(paramI[i])){
-                            return false;
-                        }
-                    }
-                    return true;
-                })
-                .toList();
+            List<Method> filter1 = matchMethods(methodAccess,methods );
             if(filter1.isEmpty()){
                 uncompletedMethod.add(methodAccess);
             }else {
@@ -214,33 +309,8 @@ public class DescriptorImplBuilder {
             }
         }
         //resolve methods
-        List<Constructor<?>> constructors = Arrays.asList(targetClass.getDeclaredConstructors());
         for (Method constructorAccess : constructorTarget){
-            var arguCount = constructorAccess.getParameterCount();
-            Method tar = null;
-            String[] paramI = new String[arguCount];
-            Parameter[] params = constructorAccess.getParameters();
-            Class[] paramsCls = constructorAccess.getParameterTypes();
-            for (int i= 0; i< arguCount; ++i){
-                var redirect3 = params[i].getAnnotation(RedirectType.class);
-                if(redirect3 != null){
-                    paramI[i] = redirect3.value();
-                }else {
-                    paramI[i] = ObfManager.getManager().deobfToJvm(paramsCls[i]);
-                }
-            }
-            List<Constructor<?>> constructors1 = Arrays.stream(targetClass.getDeclaredConstructors())
-                .filter(c -> c.getParameterCount() == arguCount)
-                .filter(c -> {
-                    var paramsTypes = c.getParameterTypes();
-                    for (int i=0; i< arguCount ;++i){
-                        if(!ObfManager.getManager().deobfToJvm(paramsTypes[i]).equals(paramI[i])){
-                            return false;
-                        }
-                    }
-                    return true;
-                })
-                .toList();
+            List<Constructor<?>> constructors1 = matchConstructors(constructorAccess, targetClass.getDeclaredConstructors());
             if(constructors1.isEmpty()){
                 uncompletedMethod.add(constructorAccess);
             }else {
@@ -248,10 +318,50 @@ public class DescriptorImplBuilder {
             }
 
         }
-        //resolve constructors
-        uncompletedMethod.forEach(m ->{
-            if(!ignoreFailure(m))
-                Debug.warn("Target absent for method", m);
+        for (Method typeCast: typeCastTarget){
+            Class<?> castCls = null;
+            var cast = typeCast.getAnnotation(CastCheck.class);
+            try{
+                castCls = ObfManager.getManager().reobfClass(cast.value());
+            }catch (Throwable e){
+            }
+            if(castCls != null){
+                castCheckDescrip.put(typeCast, castCls);
+            }else {
+                uncompletedMethod.add(typeCast);
+            }
+        }
+        return buildClassImplInternel(targetClass, descriptiveInterface, fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, uncompletedMethod);
+    }
+
+
+    /**
+     * core building , pieces of shit,
+     * @param targetClass
+     * @param descriptiveInterface
+     * @param fieldGetDescrip
+     * @param fieldSetDescrip
+     * @param methodDescrip
+     * @param constructorDescrip
+     * @param uncompletedMethod
+     * @return
+     * @param <T>
+     * @throws Throwable
+     */
+    private static synchronized  <T extends TargetDescriptor> T buildClassImplInternel(@Nullable Class<?> targetClass, Class<T> descriptiveInterface, Map<Method,Field> fieldGetDescrip, Map<Method,Field> fieldSetDescrip, Map<Method,Method> methodDescrip, Map<Method, Constructor<?>> constructorDescrip, Map<Method, Class<?>> typeCastDescrip, List<Method> uncompletedMethod) throws Throwable{
+        //remove all completed methods as a faillback mechanism
+        uncompletedMethod.removeIf(m->{
+            if(!Modifier.isAbstract(m.getModifiers()) ){
+                if(!processFailure(m, descriptiveInterface)){
+                    Debug.warn("Target absent for method:",m, ",fallback to its default Impl!");
+                }
+                return true;
+            }else {
+                if (!processFailure(m, descriptiveInterface)) {
+                    Debug.warn("Target absent for method", m);
+                }
+            }
+            return false;
         });
         //start creating clazz
         T result = null;
@@ -274,28 +384,33 @@ public class DescriptorImplBuilder {
                 //create 内部类
                 int index = 0 ;
                 String fieldAccessorPath = getInternalName(FieldAccessor.class);
-                Object2IntArrayMap<Field> handledField = new Object2IntArrayMap<>();
-                Object2IntArrayMap<Method> handledMethod = new Object2IntArrayMap<>();
-                Object2IntArrayMap<Constructor<?>> handledConstructor = new Object2IntArrayMap<>();
+                Reference2IntArrayMap<Field> handledField = new Reference2IntArrayMap<>();
+                Reference2IntArrayMap<Method> handledMethod = new Reference2IntArrayMap<>();
+                Reference2IntArrayMap<Constructor<?>> handledConstructor = new Reference2IntArrayMap<>();
                 HashSet<Field> relatedFields = new HashSet<>();
                 relatedFields.addAll(fieldGetDescrip.values());
                 relatedFields.addAll(fieldSetDescrip.values());
                 FieldVisitor fv ;
                 fv = cw.visitField(
                     ACC_FINAL | ACC_STATIC,
-                        "delegate",
+                    "delegate",
                     "Ljava/lang/Class;",
                     null,
                     null
                 );
                 fv.visitEnd();
+                //fix the bug of generating exact cast to package-private class
+                Int2BooleanArrayMap exactAccessible = new Int2BooleanArrayMap();
                 for (var entry: relatedFields){
                     int mod = entry.getModifiers();
-                    if(Modifier.isPublic(mod)){
+                    //fix access to owner
+                    if(Modifier.isPublic(mod) && Modifier.isPublic(entry.getDeclaringClass().getModifiers())){
                         continue;
                     }else {
                         //catch need-handle fields
                         handledField.put(entry, index);
+                        //exactAccess if class is public, and
+                        exactAccessible.put(index, Modifier.isPublic(entry.getDeclaringClass().getModifiers()));
                         String fieldName = "handle"+index;
                         {
                             fv = cw.visitField(
@@ -308,16 +423,17 @@ public class DescriptorImplBuilder {
                             fv.visitEnd();
                         }
                         index ++;
-
                     }
                 }
+
                 for (var entry: methodDescrip.entrySet()){
                     int mod = entry.getValue().getModifiers();
-                    if(Modifier.isPublic(mod)){
+                    if(Modifier.isPublic(mod) && Modifier.isPublic(entry.getValue().getDeclaringClass().getModifiers())){
                         continue;
                     }else {
                         //catch need-handle methods
                         handledMethod.put(entry.getValue(), index);
+                        exactAccessible.put(index, Modifier.isPublic(entry.getValue().getDeclaringClass().getModifiers()));
                         String fieldName = "handle" + index;
                         {
                             fv = cw.visitField(
@@ -335,10 +451,12 @@ public class DescriptorImplBuilder {
                 }
                 for (var entry: constructorDescrip.entrySet()){
                     int mod = entry.getValue().getModifiers();
-                    if(Modifier.isPublic(mod)){
+                    //fix: check class access
+                    if(Modifier.isPublic(mod) && Modifier.isPublic(entry.getValue().getDeclaringClass().getModifiers())){
                         continue;
                     }else {
                         handledConstructor.put(entry.getValue(), index);
+                        exactAccessible.put(index, Modifier.isPublic(entry.getValue().getDeclaringClass().getModifiers()));
                         String fieldName = "handle" + index;
                         {
                             fv = cw.visitField(
@@ -382,7 +500,7 @@ public class DescriptorImplBuilder {
                     Field tarField = entry.getValue();
                     int mod = tarField.getModifiers();
                     mv = ASMUtils.createOverrideMethodImpl(cw, itfMethod);
-                    if(Modifier.isPublic(mod)){
+                    if(Modifier.isPublic(mod) && Modifier.isPublic(tarField.getDeclaringClass().getModifiers())){
                         //create bytecode access directly
                         if(Modifier.isStatic(mod)){
                             mv.visitCode();
@@ -392,7 +510,7 @@ public class DescriptorImplBuilder {
                                 tarField.getName(),
                                 ByteCodeUtils.toJvmType(tarField.getType())
                             );
-                            if(tarField.getType() != itfMethod.getReturnType()){
+                            if(!itfMethod.getReturnType().isAssignableFrom(tarField.getType())){
                                 //cast
                                 ASMUtils.castType(mv, getInternalName(tarField.getType()), getInternalName(itfMethod.getReturnType()));
                             }
@@ -420,7 +538,7 @@ public class DescriptorImplBuilder {
                                 tarField.getName(),
                                 ByteCodeUtils.toJvmType(tarField.getType())
                             );
-                            if(tarField.getType() != itfMethod.getReturnType()){
+                            if(!itfMethod.getReturnType().isAssignableFrom(tarField.getType())){
                                 ASMUtils.castType(mv, getInternalName(tarField.getType()), getInternalName(itfMethod.getReturnType()));
                             }
                             ASMUtils.createSuitableReturn(mv, getInternalName(itfMethod.getReturnType()));
@@ -433,6 +551,7 @@ public class DescriptorImplBuilder {
                         //using handlei
                         index = handledField.getInt(tarField);
                         String fieldName = "handle"+index;
+                        boolean exactInvoke = exactAccessible.get(index);
                         mv.visitCode();
                         if(!Modifier.isStatic(mod) &&  itfMethod.getParameterCount() == 0){
                             throw new DescriptorBuildException("Illegal parameter detected at "+itfMethod.toString() +", getter of a non-static field, There should be more than one parameter");
@@ -444,22 +563,33 @@ public class DescriptorImplBuilder {
                             "Ljava/lang/invoke/VarHandle;"
                         );
                         if(!Modifier.isStatic(mod)){
-                           mv.visitVarInsn(ALOAD, 1);
-                           mv.visitMethodInsn(
-                               INVOKEVIRTUAL,
-                               "java/lang/invoke/VarHandle",
-                               "get",
-                               "(Ljava/lang/Object;)"+ByteCodeUtils.toJvmType(itfMethod.getReturnType()),
-                               false);
+                            mv.visitVarInsn(ALOAD, 1);
+                            Class<?> instanecType = itfMethod.getParameterTypes()[0];
+                            if(exactInvoke && !tarField.getDeclaringClass().isAssignableFrom(instanecType)){
+                                ASMUtils.castType(mv, getInternalName(instanecType), getInternalName(tarField.getDeclaringClass()));
+                            }
+                            mv.visitMethodInsn(
+                                INVOKEVIRTUAL,
+                                "java/lang/invoke/VarHandle",
+                                "get",
+                                "("+(exactInvoke? ByteCodeUtils.toJvmType(tarField.getDeclaringClass()):ByteCodeUtils.toJvmType(instanecType) )+")"+(exactInvoke? ByteCodeUtils.toJvmType(tarField.getType()): ByteCodeUtils.toJvmType(itfMethod.getReturnType())),
+                                false
+                            );
+                            if(exactInvoke && !itfMethod.getReturnType().isAssignableFrom(tarField.getType())){
+                                ASMUtils.castType(mv, getInternalName(tarField.getType()), getInternalName(itfMethod.getReturnType()));
+                            }
 
                         }else {
                             mv.visitMethodInsn(
                                 INVOKEVIRTUAL,
                                 "java/lang/invoke/VarHandle",
                                 "get",
-                                "()"+ByteCodeUtils.toJvmType(itfMethod.getReturnType()),
+                                "()"+(exactInvoke? ByteCodeUtils.toJvmType(tarField.getType()): ByteCodeUtils.toJvmType(itfMethod.getReturnType())),
                                 false
-                                );
+                            );
+                            if(exactInvoke && !itfMethod.getReturnType().isAssignableFrom(tarField.getType())){
+                                ASMUtils.castType(mv, getInternalName(tarField.getType()), getInternalName(itfMethod.getReturnType()));
+                            }
                         }
                         ASMUtils.createSuitableReturn(mv, getInternalName(itfMethod.getReturnType()));
                         mv.visitMaxs(0,0);
@@ -476,7 +606,7 @@ public class DescriptorImplBuilder {
                     if(itfMethod.getParameterCount() + (Modifier.isStatic(mod)? 1:0)<2){
                         throw new DescriptorBuildException("Illegal parameter detected at "+itfMethod.toString() +", setter should have more parameters");
                     }
-                    if(Modifier.isPublic(mod)){
+                    if(Modifier.isPublic(mod) && Modifier.isPublic(tarField.getDeclaringClass().getModifiers())){
                         if(Modifier.isStatic(mod)){
                             //如果参数类型不能直接赋值给tarField
                             Class<?> valType = itfMethod.getParameterTypes()[0];
@@ -511,6 +641,7 @@ public class DescriptorImplBuilder {
                     }else {
                         index = handledField.getInt(tarField);
                         String fieldName = "handle"+index;
+                        boolean exactInvoke = exactAccessible.get(index);
                         mv.visitCode();
                         mv.visitFieldInsn(
                             GETSTATIC,
@@ -521,22 +652,32 @@ public class DescriptorImplBuilder {
                         if(!Modifier.isStatic(mod)){
                             Class<?> valType = itfMethod.getParameterTypes()[1];
                             mv.visitVarInsn(ALOAD, 1);
+                            Class<?> instanecType = itfMethod.getParameterTypes()[0];
+                            if(exactInvoke && !tarField.getDeclaringClass().isAssignableFrom(instanecType)){
+                                ASMUtils.castType(mv, getInternalName(instanecType), getInternalName(tarField.getDeclaringClass()));
+                            }
                             ASMUtils.createSuitableLoad(mv, getInternalName(valType), 2);
+                            if(!tarField.getType().isAssignableFrom(valType)){
+                                ASMUtils.castType(mv, getInternalName(valType), getInternalName(tarField.getType()));
+                            }
                             mv.visitMethodInsn(
                                 INVOKEVIRTUAL,
                                 "java/lang/invoke/VarHandle",
                                 "set",
-                                "(Ljava/lang/Object;"+ ByteCodeUtils.toJvmType(valType) +")V",
+                                "("+(exactInvoke? ByteCodeUtils.toJvmType(tarField.getDeclaringClass()): ByteCodeUtils.toJvmType(instanecType))+ ByteCodeUtils.toJvmType(tarField.getType()) +")V",
                                 false
                             );
                         }else {
                             Class<?> valType = itfMethod.getParameterTypes()[0];
                             ASMUtils.createSuitableLoad(mv, getInternalName(valType), 1);
+                            if(!tarField.getType().isAssignableFrom(valType)){
+                                ASMUtils.castType(mv, getInternalName(valType), getInternalName(tarField.getType()));
+                            }
                             mv.visitMethodInsn(
                                 INVOKEVIRTUAL,
                                 "java/lang/invoke/VarHandle",
                                 "set",
-                                "("+ ByteCodeUtils.toJvmType(valType) +")V",
+                                "("+ ByteCodeUtils.toJvmType(tarField.getType()) +")V",
                                 false
                             );
                         }
@@ -558,13 +699,14 @@ public class DescriptorImplBuilder {
                     Class<?> returnType = tarMethod.getReturnType();
                     Class<?> itfReturnType = itfMethod.getReturnType();
                     //itf has int return value, but target return void
-                    boolean castReturn = returnType!=void.class && itfReturnType != void.class;
+                    final boolean castReturn = returnType!=void.class && itfReturnType != void.class;
                     //load all invoke arguments
                     //if not public, load MethodHandle here, also load fucking try-catch block
-                    boolean useHandle = !Modifier.isPublic(mod);
+                    boolean useHandle = !Modifier.isPublic(mod) || !Modifier.isPublic(tarMethod.getDeclaringClass().getModifiers());
                     Label label0 = null;
                     Label label1 = null;
                     Label label2 = null;
+                    boolean exactInvoke = true;
                     if(useHandle){
                         label0 = new Label();
                         label1 = new Label();
@@ -572,6 +714,7 @@ public class DescriptorImplBuilder {
                         mv.visitTryCatchBlock(label0, label1, label2, "java/lang/Throwable");
                         mv.visitLabel(label0);
                         index = handledMethod.getInt(tarMethod);
+                        exactInvoke = exactAccessible.get(index);
                         mv.visitFieldInsn(GETSTATIC, implPath, "handle"+index, "Ljava/lang/invoke/MethodHandle;");
                     }
                     //load
@@ -584,7 +727,8 @@ public class DescriptorImplBuilder {
                         }
                     }else {
                         mv.visitVarInsn(ALOAD, 1);
-                        if(!tarMethod.getDeclaringClass().isAssignableFrom(itfType[0])){
+                        //care about exactInvoke
+                        if(exactInvoke && !tarMethod.getDeclaringClass().isAssignableFrom(itfType[0])){
                             ASMUtils.castType(mv, getInternalName(itfType[0]), getInternalName(tarMethod.getDeclaringClass()));
                         }
                         for (int i=1;i<count ;++i){
@@ -595,7 +739,8 @@ public class DescriptorImplBuilder {
                         }
                     }
                     //execute invoke
-                    if(Modifier.isPublic(mod)){
+                    //care about exactCast
+                    if(!useHandle){
                         //use pure bytecode
                         if(Modifier.isStatic(mod)){
                             //invokestatic
@@ -610,37 +755,38 @@ public class DescriptorImplBuilder {
                         }else {
                             //load instance
                             mv.visitMethodInsn(
-                               tarMethod.getDeclaringClass().isInterface()?INVOKEINTERFACE: INVOKEVIRTUAL,
+                                tarMethod.getDeclaringClass().isInterface()?INVOKEINTERFACE: INVOKEVIRTUAL,
                                 getInternalName(tarMethod.getDeclaringClass()),
                                 tarMethod.getName(),
                                 getMethodDescriptor(tarMethod),
                                 tarMethod.getDeclaringClass().isInterface()
                             );
                         }
-                        if(castReturn){
-                            if(!itfReturnType.isAssignableFrom(returnType)){
-                                ASMUtils.castType(mv, getInternalName(returnType), getInternalName(itfReturnType));
-                            }
-                        }
                     }else{
                         //use MethodHandle.invokeExact
                         StringBuilder builder = new StringBuilder();
                         builder.append('(');
                         if(!Modifier.isStatic(mod)){
-                            builder.append(ByteCodeUtils.toJvmType(tarMethod.getDeclaringClass()));
+                            builder.append(exactInvoke?ByteCodeUtils.toJvmType(tarMethod.getDeclaringClass()) :ByteCodeUtils.toJvmType(itfType[0]));
                         }
                         for (Class<?> arg: tarMethod.getParameterTypes()){
                             builder.append(ByteCodeUtils.toJvmType(arg));
                         }
                         builder.append(')');
-                        builder.append(ByteCodeUtils.toJvmType(tarMethod.getReturnType()));
+                        builder.append(exactInvoke? ByteCodeUtils.toJvmType(tarMethod.getReturnType()) : ByteCodeUtils.toJvmType(itfReturnType));
                         mv.visitMethodInsn(
                             INVOKEVIRTUAL,
                             "java/lang/invoke/MethodHandle",
-                            "invokeExact",
+                            exactInvoke? "invokeExact" :"invoke",
                             builder.toString(),
                             false
                         );
+                        //invoke with no Exact, gen matched return type
+                    }
+                    if(castReturn){
+                        if(exactInvoke && !itfReturnType.isAssignableFrom(returnType)){
+                            ASMUtils.castType(mv, getInternalName(returnType), getInternalName(itfReturnType));
+                        }
                     }
                     if(!castReturn && returnType != void.class){
                         mv.visitInsn(POP);
@@ -680,13 +826,15 @@ public class DescriptorImplBuilder {
                     Class<?>[] itfType = itfMethod.getParameterTypes();
                     Class<?>[] tarType = cons.getParameterTypes();
                     Class<?> itfReturnType = itfMethod.getReturnType();
-                    boolean castReturn =  itfReturnType != void.class;
+                    final boolean castReturn =  itfReturnType != void.class;
                     Preconditions.checkArgument(count == cons.getParameterCount(),"Parameters not match for method "+itfMethod+" with constructor "+cons);
                     mv = ASMUtils.createOverrideMethodImpl(cw, itfMethod);
-                    boolean useHandle = !Modifier.isPublic(mod);
+                    //fix: 增加对类的访问权限的检查
+                    boolean useHandle = !Modifier.isPublic(mod) || !Modifier.isPublic(cons.getDeclaringClass().getModifiers());
                     Label label0 = null;
                     Label label1 = null;
                     Label label2 = null;
+                    boolean exactInvoke = true;
                     if(useHandle){
                         label0 = new Label();
                         label1 = new Label();
@@ -694,10 +842,11 @@ public class DescriptorImplBuilder {
                         mv.visitTryCatchBlock(label0, label1, label2, "java/lang/Throwable");
                         mv.visitLabel(label0);
                         index = handledConstructor.getInt(cons);
+                        exactInvoke = exactAccessible.get(index);
                         mv.visitFieldInsn(GETSTATIC, implPath, "handle"+index, "Ljava/lang/invoke/MethodHandle;");
                     }
                     String tarClass = getInternalName(cons.getDeclaringClass());
-                    if(Modifier.isPublic(mod)){
+                    if(!useHandle){
                         mv.visitTypeInsn(NEW, tarClass);
                         mv.visitInsn(DUP);
                     }
@@ -708,7 +857,7 @@ public class DescriptorImplBuilder {
                             ASMUtils.castType(mv, getInternalName(itfType[i]), getInternalName(tarType[i]));
                         }
                     }
-                    if(Modifier.isPublic(mod)){
+                    if(!useHandle){
                         //load instance
                         mv.visitMethodInsn(
                             INVOKESPECIAL,
@@ -731,11 +880,11 @@ public class DescriptorImplBuilder {
                             builder.append(ByteCodeUtils.toJvmType(arg));
                         }
                         builder.append(')');
-                        builder.append(ByteCodeUtils.toJvmType(cons.getDeclaringClass()));
+                        builder.append(exactInvoke? ByteCodeUtils.toJvmType(cons.getDeclaringClass()): ByteCodeUtils.toJvmType(itfReturnType));
                         mv.visitMethodInsn(
                             INVOKEVIRTUAL,
                             "java/lang/invoke/MethodHandle",
-                            "invokeExact",
+                             exactInvoke? "invokeExact":"invoke",
                             builder.toString(),
                             false
                         );
@@ -746,7 +895,7 @@ public class DescriptorImplBuilder {
                     if(useHandle){
                         mv.visitLabel(label1);
                     }
-                    if(!castReturn){
+                    if(!castReturn && exactInvoke){
                         //ignore return value, to make stack size correct
                         ASMUtils.createSuitableDefaultValueReturn(mv, getInternalName(itfReturnType));
                     }else {
@@ -769,6 +918,22 @@ public class DescriptorImplBuilder {
                     mv.visitMaxs(0,0);
                     mv.visitEnd();
                 }
+                for (var cast: typeCastDescrip.entrySet()){
+                    Method itfMethod = cast.getKey();
+                    Class<?> castClass = cast.getValue();
+                    Class<?> itfReturnType = itfMethod.getReturnType();
+                    Class<?>[] paramTypes = itfMethod.getParameterTypes();
+                    Preconditions.checkArgument(paramTypes.length >= 1);
+                    boolean castReturn =  itfReturnType != void.class;
+                    mv =  ASMUtils.createOverrideMethodImpl(cw, itfMethod);
+                    ASMUtils.createSuitableLoad(mv, getInternalName(paramTypes[0]), 1);
+                    mv.visitTypeInsn(INSTANCEOF, getInternalName(castClass));
+                    ASMUtils.createSuitableReturn(mv, getInternalName(itfMethod.getReturnType()));
+                    mv.visitMaxs(0,0);
+                    mv.visitEnd();
+                }
+
+
                 for(Method tar: uncompletedMethod){
                     mv = ASMUtils.createOverrideMethodImpl(cw, tar);
                     mv.visitCode();
@@ -798,11 +963,16 @@ public class DescriptorImplBuilder {
                     for (Field entry: handledField.keySet()){
                         index = handledField.getInt(entry);
                         String fieldName = "handle"+index;
+                        boolean invokeExact = exactAccessible.get(index);
                         MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(
                             entry.getDeclaringClass(),
                             MethodHandles.lookup()
                         );
+                        //creating invokeExact VarHandle
                         VarHandle handle = lookup.unreflectVarHandle(entry);
+                        if(!invokeExact){
+                            handle = handle.withInvokeExactBehavior();
+                        }
                         String randId = randStr();
                         values0.put(randId, handle);
                         mv.visitLdcInsn(randCode);
@@ -908,13 +1078,169 @@ public class DescriptorImplBuilder {
         return result;
     }
 
-    private static boolean ignoreFailure(Method method){
-        var re = method.getAnnotation(IgnoreFailure.class);
-        if(re != null){
-            var version = re.thresholdInclude();
-            boolean below = re.below();
+    private static Pair<Field,Boolean> matchFields(Method fieldAccess, List<Field> fields){
+        String targetName;
+        boolean isGetter;
+        var redirect1 = fieldAccess.getAnnotation(RedirectName.class);
+        String name1 ;
+        if(redirect1 != null){
+            name1 = redirect1.value();
+        }else {
+            name1 = fieldAccess.getName();
+        }
+        if(name1.endsWith("Getter")){
+            isGetter = true;
+        }else if (name1.endsWith("Setter")){
+            isGetter = false;
+        }else {
+            throw new DescriptorBuildException("Illegal field target name "+ name1 +", can not resolve Getter or Setter");
+        }
+        targetName = name1.substring(0, name1.length() - "Netter".length());
+        var static1 =fieldAccess.getAnnotation(FieldTarget.class).isStatic();
+        var type = fieldAccess.getAnnotation(RedirectType.class);
+        Field tar = null;
+        for (Field test: fields){
+            String deobfName = ObfManager.getManager().deobfField(test);
+            if(!deobfName.equals(targetName)){
+                continue;
+            }
+            if(type != null){
+                String typeName = ObfManager.getManager().deobfToJvm(test.getType());
+                if(type.value().equals(typeName)){
+                    tar = test;
+                    break;
+                }
+            }else {
+                tar = test;
+                break;
+            }
+        }
+        if(tar != null){
+            tar.setAccessible(true);
+            return Pair.of(tar, isGetter);
+        }else {
+            return null;
+        }
+    }
+    private static List<Method> matchMethods(Method methodAccess, List<Method> methods){
+        String targetName;
+        var redirect1 = methodAccess.getAnnotation(RedirectName.class);
+        if(redirect1 != null){
+            targetName = redirect1.value();
+        }else {
+            targetName = methodAccess.getName();
+        }
+        var static1 = methodAccess.getAnnotation(MethodTarget.class).isStatic();
+        //what returns does not matter
+//            String returnType;
+//            if(redirect2 != null){
+//                returnType = ObfManager.getManager().reobfClassName( redirect2.value() );
+//            }else {
+//                returnType = ByteCodeUtils.toJvmType( methodAccess.getReturnType() );
+//            }
+        var arguCount = static1? methodAccess.getParameterCount(): methodAccess.getParameterCount()-1;
+        var startArgument = static1?0:1;
+        Method tar = null;
+        String[] paramI = new String[arguCount];
+        Parameter[] params = methodAccess.getParameters();
+        Class[] paramsCls = methodAccess.getParameterTypes();
+        for (int i= 0; i< arguCount; ++i){
+            var redirect3 = params[i + startArgument].getAnnotation(RedirectType.class);
+            if(redirect3 != null){
+                paramI[i] = redirect3.value();
+            }else {
+                paramI[i] = ObfManager.getManager().deobfToJvm(paramsCls[i + startArgument]);
+            }
+        }
+//        if(Debug.isDebugMod()){
+//            Debug.logger("matching methodAccess",methodAccess, methods);
+//        }
+        return methods.stream()
+            .filter(m -> Modifier.isStatic(m.getModifiers()) == static1)
+            .filter(m->m.getParameterCount() == arguCount)
+            .filter(test->{
+//                if(Debug.isDebugMod() && ObfManager.getManager().deobfMethod(test).equals(targetName))
+//                    Debug.logger(test,ObfManager.getManager().deobfMethod(test),"matches",targetName);
+                return ObfManager.getManager().deobfMethod(test).equals(targetName);
+            })
+            .filter(test ->{
+                //match every type after deobf
+                var paramTypes = test.getParameterTypes();
+                for (int i=0; i< arguCount ;++i ){
+//                    if(Debug.isDebugMod()){
+//                        Debug.logger("match param ",ObfManager.getManager().deobfToJvm(paramTypes[i]),paramI[i]);
+//
+//                    }
+                    if(!ObfManager.getManager().deobfToJvm(paramTypes[i]).equals(paramI[i])){
+                        return false;
+                    }
+                }
+                return true;
+            })
+            .peek(c->c.setAccessible(true))
+            .toList();
+    }
+    private static List<Constructor<?>> matchConstructors(Method constructorAccess, Constructor<?>[] targetConstructors){
+        var arguCount = constructorAccess.getParameterCount();
+        Method tar = null;
+        String[] paramI = new String[arguCount];
+        Parameter[] params = constructorAccess.getParameters();
+        Class[] paramsCls = constructorAccess.getParameterTypes();
+        for (int i= 0; i< arguCount; ++i){
+            var redirect3 = params[i].getAnnotation(RedirectType.class);
+            if(redirect3 != null){
+                paramI[i] = redirect3.value();
+            }else {
+                paramI[i] = ObfManager.getManager().deobfToJvm(paramsCls[i]);
+            }
+        }
+        return Arrays.stream(targetConstructors)
+            .filter(c -> c.getParameterCount() == arguCount)
+            .filter(c -> {
+                var paramsTypes = c.getParameterTypes();
+                for (int i=0; i< arguCount ;++i){
+                    if(!ObfManager.getManager().deobfToJvm(paramsTypes[i]).equals(paramI[i])){
+                        return false;
+                    }
+                }
+                return true;
+            })
+            .peek(c->c.setAccessible(true))
+            .toList();
+    }
+
+    private static boolean processFailure(Method method, Class<? extends TargetDescriptor> descriptive){
+        boolean passFailure;
+        var re0 = descriptive.getAnnotation(IgnoreFailure.class);
+        if(re0 != null){
+            var version = re0.thresholdInclude();
+            boolean below = re0.below();
             if(EnvironmentManager.getManager().getVersion().isAtLeast(version) != below){
                 return true;
+            }
+        }
+        var re1 = method.getAnnotation(IgnoreFailure.class);
+        if(re1 != null){
+            var version = re1.thresholdInclude();
+            boolean below = re1.below();
+            if(EnvironmentManager.getManager().getVersion().isAtLeast(version) != below){
+                return true;
+            }
+        }
+        var re2 = descriptive.getAnnotation(FailHard.class);
+        if(re2 != null){
+            var version = re2.thresholdInclude();
+            boolean below = re2.below();
+            if(EnvironmentManager.getManager().getVersion().isAtLeast(version) != below){
+                throw new DescriptorBuildException("Fail Hard in class "+descriptive+" at method "+method);
+            }
+        }
+        var re3 = method.getAnnotation(FailHard.class);
+        if(re3 != null){
+            var version = re3.thresholdInclude();
+            boolean below = re3.below();
+            if(EnvironmentManager.getManager().getVersion().isAtLeast(version) != below){
+                throw new DescriptorBuildException("Fail Hard in class "+descriptive+" at method "+method);
             }
         }
         return false;
@@ -948,7 +1274,7 @@ public class DescriptorImplBuilder {
     }
     public static Class initDelegate(int code, String value){
         Preconditions.checkArgument(code == randCode,"IllegalAccess!");
-        return Objects.requireNonNull(values2.remove(value));
+        return values2.remove(value);
     }
     static{
         reset0(randCode);

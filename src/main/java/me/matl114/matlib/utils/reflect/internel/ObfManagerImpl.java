@@ -1,4 +1,4 @@
-package me.matl114.matlib.utils.reflect.descriptor.internel;
+package me.matl114.matlib.utils.reflect.internel;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 import me.matl114.matlib.utils.Debug;
@@ -6,6 +6,10 @@ import me.matl114.matlib.utils.reflect.ASMUtils;
 import me.matl114.matlib.utils.reflect.asm.CustomClassLoader;
 import me.matl114.matlib.utils.reflect.ByteCodeUtils;
 import me.matl114.matlib.utils.reflect.ObfManager;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+import org.apache.commons.collections4.bidimap.UnmodifiableBidiMap;
+import org.bukkit.Bukkit;
 import org.objectweb.asm.*;
 
 import java.lang.reflect.Method;
@@ -25,7 +29,26 @@ public class ObfManagerImpl implements ObfManager {
     int optionalFieldMappingAccess;
     Map<String, ?> mappingsFieldByObf;
     Map<String, ?> mappingsFieldByMojang;
+    static final String originCraftbukkitPackageName = "org.bukkit.craftbukkit";
+    final String craftbukkitPackageName;
+    //map from higher version to lower version
+    //we all use high version mojang name here
+    //
+    final Map<String,String> mojangVersionedPath = Map.of(
+        "net.minecraft.world.level.chunk.status.ChunkStatus",
+        "net.minecraft.world.level.chunk.ChunkStatus"
+    );
+    final BidiMap<String, String> mojangVersionedPathMapper;
+    final BidiMap<String, String> mojangVersionedPathMapperInverse;
     ObfManagerImpl(){
+        String[] path=Bukkit.getServer().getClass().getPackage().getName().split("\\.");
+        if(path.length >= 4){
+            craftbukkitPackageName = Bukkit.getServer().getClass().getPackage().getName();
+        }else {
+            //upper than 1_20_v4, paper no longer relocation craftbukkit package , at least through reflection
+            craftbukkitPackageName = originCraftbukkitPackageName;
+        }
+
         try{
             obfClass = Class.forName("io.papermc.paper.util.ObfHelper");
             classMapperHelper = new ClassMapperHelperImpl();
@@ -57,7 +80,12 @@ public class ObfManagerImpl implements ObfManager {
         }catch (Throwable e){
             throw new RuntimeException(e);
         }
+        Map<String,String> pathValidation = new HashMap<>();
+        b(pathValidation);
+        mojangVersionedPathMapper = UnmodifiableBidiMap.unmodifiableBidiMap(new DualHashBidiMap<>(pathValidation));
+        mojangVersionedPathMapperInverse = mojangVersionedPathMapper.inverseBidiMap();
     }
+
 
 
     private Set a() throws Throwable{
@@ -88,33 +116,60 @@ public class ObfManagerImpl implements ObfManager {
         newDefined.setAccessible(true);
         return (Set) newDefined.invoke(inst);
     }
+    private void b(Map<String,String> map){
+        for (var pathPair :mojangVersionedPath.entrySet()){
+           Object reobfName = this.mappingsByMojangName.get(pathPair.getValue());
+           String realPath = reobfName == null ? pathPair.getValue() : classMapperHelper.obfNameGetter(reobfName);
+           try{
+               Class.forName(realPath);
+           }catch (Throwable e){
+               continue;
+           }
+           //valid versioned path
+           map.put(pathPair.getKey(), pathPair.getValue());
+        }
+    }
+
+    public String demapCraftBukkitAndMojangVersionedPath(String currentName){
+        if(currentName.startsWith(craftbukkitPackageName)){
+            return currentName.replaceFirst(craftbukkitPackageName, originCraftbukkitPackageName);
+        }
+        return mojangVersionedPathMapperInverse.getOrDefault(currentName, currentName);
+    }
+    public String remapCraftBukkitAndMojangVersionedPath(String currentName){
+        if(currentName.startsWith(originCraftbukkitPackageName)){
+            return currentName.replaceFirst(originCraftbukkitPackageName, craftbukkitPackageName);
+        }
+
+        return mojangVersionedPathMapper.getOrDefault(currentName, currentName);
+    }
 
     @Override
     public String deobfClassName(String currentName) {
         if (this.mappingsByObfName == null) {
-            return currentName;
+            return demapCraftBukkitAndMojangVersionedPath(currentName);
         }
 
         final Object map = this.mappingsByObfName.get(currentName);
         if (map == null) {
-            return currentName;
+            return demapCraftBukkitAndMojangVersionedPath(currentName);
         }
 
-        return classMapperHelper.mojangNameGetter(map);
+        return demapCraftBukkitAndMojangVersionedPath( classMapperHelper.mojangNameGetter(map));
     }
 
     @Override
     public String reobfClassName(String mojangName) {
         if (this.mappingsByMojangName == null) {
-            return mojangName;
+            return remapCraftBukkitAndMojangVersionedPath(mojangName);
         }
 
         final Object map = this.mappingsByMojangName.get(mojangName);
         if (map == null) {
-            return mojangName;
+            return remapCraftBukkitAndMojangVersionedPath(mojangName);
         }
 
-        return classMapperHelper.obfNameGetter(map);
+        return remapCraftBukkitAndMojangVersionedPath( classMapperHelper.obfNameGetter(map));
     }
 
     @Override
@@ -123,7 +178,8 @@ public class ObfManagerImpl implements ObfManager {
         if (this.mappingsByMojangName == null) {
             return methodName;
         }
-        final Object map = this.mappingsByMojangName.get(reobfClassName);
+        //using versioned path of mojang name
+        final Object map = this.mappingsByMojangName.get(remapCraftBukkitAndMojangVersionedPath( reobfClassName) );
         if(map == null){
             //no obf,
             return methodName;
@@ -139,14 +195,16 @@ public class ObfManagerImpl implements ObfManager {
             if(optionalFieldMappingAccess < 0){
                 return fieldName;
             }
-            final Object map = this.mappingsByMojangName.get(mojangClassName);
+            //using versioned mojang path
+            final Object map = this.mappingsByMojangName.get(remapCraftBukkitAndMojangVersionedPath( mojangClassName ));
             if(map == null){
                 return fieldName;
             }
             Map<String,String> fieldMapper = (Map<String, String>) access.invoke(map, optionalFieldMappingAccess);
             return fieldMapper.getOrDefault(obfFieldDescriptor, fieldName);
         }
-        final Object map = this.mappingsFieldByMojang.get(mojangClassName);
+        //using versioned mojang path, it stores versioned path of mojang Name
+        final Object map = this.mappingsFieldByMojang.get(remapCraftBukkitAndMojangVersionedPath( mojangClassName) );
         if(map == null){
             return fieldName;
         }

@@ -4,9 +4,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.Descriptive;
+import me.matl114.matlib.utils.reflect.descriptor.annotations.IgnoreFailure;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MethodTarget;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.RedirectType;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
+import me.matl114.matlib.utils.version.Version;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -31,9 +33,16 @@ public interface BlockHelper extends TargetDescriptor {
     @MethodTarget(isStatic = true)
     List<?> getDrops(@RedirectType(BlockState) Object state, @RedirectType(ServerLevel)Object world, @RedirectType(BlockPos) Object pos, @RedirectType(BlockEntity)Object blockEntity, @Nullable @RedirectType(Entity) Object entity, @RedirectType(ItemStack)Object stack);
 
+
+    @MethodTarget(isStatic = true)
+    @Note("fuck you, 1.20.1, experience is not considered in 1.20.1")
+    void dropResources(@RedirectType(BlockState)Object state, @RedirectType(Level)Object level, @RedirectType(BlockPos)Object pos, @RedirectType(BlockEntity)Object optionalEntity, @RedirectType(Entity)Object executor, @RedirectType(ItemStack)Object tool);
     @MethodTarget(isStatic = true)
     @Note("break naturally")
-    void dropResources(@RedirectType(BlockState)Object state, @RedirectType(Level)Object level, @RedirectType(BlockPos)Object pos, @RedirectType(BlockEntity)Object optionalEntity, @RedirectType(Entity)Object executor, @RedirectType(ItemStack)Object tool, boolean doDropExp);
+    @IgnoreFailure(thresholdInclude = Version.v1_20_R3, below = true)
+    default void dropResources(@RedirectType(BlockState)Object state, @RedirectType(Level)Object level, @RedirectType(BlockPos)Object pos, @RedirectType(BlockEntity)Object optionalEntity, @RedirectType(Entity)Object executor, @RedirectType(ItemStack)Object tool, boolean doDropExp){
+        dropResources(state, level, pos, optionalEntity, executor, tool);
+    }
 
     @MethodTarget
     float getExplosionResistance(Object block);
