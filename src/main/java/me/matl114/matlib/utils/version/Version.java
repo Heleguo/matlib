@@ -2,37 +2,24 @@ package me.matl114.matlib.utils.version;
 
 import lombok.Getter;
 import me.matl114.matlib.utils.Debug;
-import me.matl114.matlib.utils.version.versionedFeatures.*;
 import org.bukkit.Bukkit;
-
 import javax.annotation.Nonnull;
-import java.util.function.Supplier;
 
 public enum Version {
-    unknown("unknown", DefaultVersionedFeatureImpl::new,-1),
-    v1_20_R1("v1_20_R1", VersionedFeature_1_20_R1_Impl::new,15),
-    v1_20_R2("v1_20_R2", VersionedFeature_1_20_R2_Impl::new,18),
-    v1_20_R3("v1_20_R3", VersionedFeature_1_20_R3_Impl::new,26),
-    v1_20_R4("v1_20_R4", VersionedFeature_1_20_R4_Impl::new,41),
-    v1_21_R1("v1_21_R1", VersionedFeature_1_21_R1_Impl::new,48),
-    v1_21_R2("v1_21_R2",VersionedFeature_1_21_R2_Impl::new,57);
-    private Version(String name, Supplier<VersionedFeature> feature,int datapackNumber){
+    unknown("unknown", -1),
+    v1_20_R1("v1_20_R1", 15),
+    v1_20_R2("v1_20_R2", 18),
+    v1_20_R3("v1_20_R3", 26),
+    v1_20_R4("v1_20_R4", 41),
+    v1_21_R1("v1_21_R1", 48),
+    v1_21_R2("v1_21_R2",57);
+    private Version(String name, int datapackNumber){
         this.name = name;
-        this.feature = feature;
         this.datapackNumber = datapackNumber;
     }
     private String name;
-    private Supplier<VersionedFeature> feature;
     @Getter
     private int datapackNumber;
-    private VersionedFeature featureInstance;
-    @Nonnull
-    public VersionedFeature getFeature(){
-        if(featureInstance == null){
-            featureInstance = feature.get();
-        }
-        return featureInstance;
-    }
     static Version INSTANCE;
     public static Version getVersionInstance(){
         if(INSTANCE == null){

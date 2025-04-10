@@ -1,5 +1,8 @@
 package me.matl114.matlib.utils.version;
 
+import lombok.Getter;
+import me.matl114.matlib.algorithms.dataStructures.frames.InitializeProvider;
+import me.matl114.matlib.utils.version.versionedFeatures.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.AttributeModifier;
@@ -19,6 +22,22 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public interface VersionedFeature {
+
+    static VersionedFeature feature = new InitializeProvider<>(()->{
+        Version version = Version.getVersionInstance();
+        return switch (version){
+            case v1_20_R1 -> new VersionedFeature_1_20_R1_Impl();
+            case v1_20_R2 -> new VersionedFeature_1_20_R2_Impl();
+            case v1_20_R3 -> new VersionedFeature_1_20_R3_Impl();
+            case v1_20_R4 -> new VersionedFeature_1_20_R4_Impl();
+            case v1_21_R1 -> new VersionedFeature_1_21_R1_Impl();
+            case v1_21_R2 -> new VersionedFeature_1_21_R2_Impl();
+            default -> new DefaultVersionedFeatureImpl();
+        };
+    }).v();
+    static VersionedFeature getFeature(){
+        return feature;
+    }
     public Version getVersion();
     public Enchantment getEnchantment(String name);
     public Material getMaterial(String name);

@@ -38,7 +38,7 @@ public class EnvironmentManager implements Manager {
     public VersionedFeature getVersioned() {
         //lazily init
         if (versioned == null) {
-            versioned= version.getFeature();
+            versioned= VersionedFeature.getFeature();
         }
         return versioned;
     }

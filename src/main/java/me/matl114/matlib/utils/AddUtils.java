@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import me.matl114.matlib.algorithms.algorithm.Utils;
 import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
 import me.matl114.matlib.utils.version.Version;
+import me.matl114.matlib.utils.version.VersionedFeature;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -41,7 +42,7 @@ public class AddUtils {
     public static final boolean USE_IDDECORATOR=true;
     private static final DecimalFormat FORMAT = new DecimalFormat("###,###,###,###,###,###.#");
     private static final Random random=new Random();
-    private static final Enchantment GLOW_EFFECT= Version.getVersionInstance().getFeature().getEnchantment("infinity");
+    private static final Enchantment GLOW_EFFECT= VersionedFeature.getFeature().getEnchantment("infinity");
     public static final ItemStack RESOLVE_FAILED=AddUtils.addGlow( new CleanItemStack(Material.BARRIER,"&c解析物品失败"));
     public static final String PLACEHOLDER = "†";
     public static String formatDouble(double s){
