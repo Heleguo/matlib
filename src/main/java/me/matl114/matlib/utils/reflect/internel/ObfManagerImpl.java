@@ -6,13 +6,11 @@ import me.matl114.matlib.utils.reflect.asm.CustomClassLoader;
 import me.matl114.matlib.utils.reflect.ByteCodeUtils;
 import me.matl114.matlib.utils.reflect.ObfManager;
 import me.matl114.matlib.utils.reflect.reflectasm.MethodAccess;
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-import org.apache.commons.collections4.bidimap.UnmodifiableBidiMap;
 import org.bukkit.Bukkit;
 import org.objectweb.asm.*;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -38,8 +36,8 @@ public class ObfManagerImpl implements ObfManager {
         "net.minecraft.world.level.chunk.status.ChunkStatus",
         "net.minecraft.world.level.chunk.ChunkStatus"
     );
-    final BidiMap<String, String> mojangVersionedPathMapper;
-    final BidiMap<String, String> mojangVersionedPathMapperInverse;
+    final Map<String, String> mojangVersionedPathMapper;
+    final Map<String, String> mojangVersionedPathMapperInverse;
     ObfManagerImpl(){
         String[] path=Bukkit.getServer().getClass().getPackage().getName().split("\\.");
         if(path.length >= 4){
@@ -82,8 +80,11 @@ public class ObfManagerImpl implements ObfManager {
         }
         Map<String,String> pathValidation = new HashMap<>();
         b(pathValidation);
-        mojangVersionedPathMapper = UnmodifiableBidiMap.unmodifiableBidiMap(new DualHashBidiMap<>(pathValidation));
-        mojangVersionedPathMapperInverse = mojangVersionedPathMapper.inverseBidiMap();
+        mojangVersionedPathMapper = Collections.unmodifiableMap(pathValidation);
+        mojangVersionedPathMapperInverse = Collections.unmodifiableMap(
+            pathValidation.entrySet().stream()
+                .collect(Collectors.toUnmodifiableMap(entry-> entry.getValue(), entry->entry.getKey(), (oldvalue, newValue)->oldvalue))
+        );
     }
 
 
