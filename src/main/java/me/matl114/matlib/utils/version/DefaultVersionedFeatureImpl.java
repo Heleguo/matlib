@@ -8,7 +8,6 @@ import me.matl114.matlib.utils.reflect.FieldAccess;
 import me.matl114.matlib.utils.WorldUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -28,82 +27,32 @@ import java.util.function.Consumer;
 public class DefaultVersionedFeatureImpl implements VersionedFeature{
     @Getter
     protected Version version;
+    VersionedRegistry registry;
     public DefaultVersionedFeatureImpl() {
-
+        registry = VersionedRegistry.getInstance();
     }
-    protected final HashMap<String,String> remappingEnchantId=new HashMap<>();
-    protected final EnumSet<Material> blockItemWithDifferentId=EnumSet.noneOf(Material.class);
+
+//    protected final EnumSet<Material> blockItemWithDifferentId=EnumSet.noneOf(Material.class);
 
     @Override
     public Enchantment getEnchantment(String name) {
-        name=convertLegacy(name);
-        return Enchantment.getByName(remappingEnchantId.getOrDefault(name,name));
+       return registry.getEnchantment(name);
     }
-    public static String convertLegacy(String from) {
-        if (from == null) {
-            return null;
-        } else {
-            switch (from.toLowerCase()) {
-                case "damage_all":
-                    return "sharpness";
-                case "arrow_fire":
-                    return "flame";
-                case "protection_explosions":
-                    return "blast_protection";
-                case "sweeping_edge":
-                    return "sweeping";
-                case "oxygen":
-                    return "respiration";
-                case "protection_projectile":
-                    return "projectile_protection";
-                case "loot_bonus_blocks":
-                    return "fortune";
-                case "water_worker":
-                    return "aqua_affinity";
-                case "arrow_damage":
-                    return "power";
-                case "luck":
-                    return "luck_of_the_sea";
-                case "damage_arthropods":
-                    return "bane_of_arthropods";
-                case "damage_undead":
-                    return "smite";
-                case "durability":
-                    return "unbreaking";
-                case "arrow_knockback":
-                    return "punch";
-                case "arrow_infinite":
-                    return "infinity";
-                case "loot_bonus_mobs":
-                    return "looting";
-                case "protection_environmental":
-                    return "protection";
-                case "dig_speed":
-                    return "efficiency";
-                case "protection_fall":
-                    return "feather_falling";
-                case "protection_fire":
-                    return "fire_protection";
-            }
-
-            return from;
-        }
-    }
-
-
-    protected final HashMap<String,String> remappingMaterialId=new HashMap<>();
     public Material getMaterial(String name) {
-        return Material.getMaterial(remappingMaterialId.getOrDefault(name,name));
+        return registry.getMaterial(name);
+    }
+    public EntityType getEntityType(String name){
+        return registry.getEntityType(name);
+    }
+
+    public PotionEffectType getPotionEffectType(String key){
+        return registry.getPotionEffectType(key);
     }
 
     public BlockState copyBlockStateTo(BlockState state1, Block target){
         return WorldUtils.copyBlockState(state1,target);
     }
-    protected final HashMap<String,String> remappingEntityId=new HashMap<>();
-    public EntityType getEntityType(String name){
-        name=name.toLowerCase(Locale.ROOT);
-        return EntityType.fromName(remappingEntityId.getOrDefault(name,name));
-    }
+
 
     public boolean comparePotionType(PotionMeta instanceOne, PotionMeta instanceTwo){
         return Objects.equals(instanceOne.getBasePotionData(), instanceTwo.getBasePotionData());
@@ -360,19 +309,7 @@ public class DefaultVersionedFeatureImpl implements VersionedFeature{
 //            return Objects.equals(b, blockEntityTagAccess.ofAccess(meta2).getRawOrDefault(()->null));
 //        },()->meta1.equals(meta2));
     }
-    protected final HashMap<NamespacedKey,NamespacedKey> remappingPotionEffect = new HashMap<>();
-    protected PotionEffectType getPotionEffectByNSK(NamespacedKey key){
-        return PotionEffectType.getByKey(remappingPotionEffect.getOrDefault(key,key));
-    }
-    public PotionEffectType getPotionEffectType(String key){
-        String[] splited=key.split(":");
-        if(splited.length==2){
-            return getPotionEffectByNSK(new NamespacedKey(splited[0],splited[1]));
-        }else{
-            return getPotionEffectByNSK(NamespacedKey.minecraft(key));
-        }
 
-    }
 
     @Override
     public <T extends Entity> T spawnEntity(Location location, Class<T> clazz, Consumer<T> consumer, CreatureSpawnEvent.SpawnReason reason) {

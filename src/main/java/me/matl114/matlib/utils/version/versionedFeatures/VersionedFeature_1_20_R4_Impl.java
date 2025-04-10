@@ -25,11 +25,7 @@ public class VersionedFeature_1_20_R4_Impl extends VersionedFeature_1_20_R3_Impl
     public VersionedFeature_1_20_R4_Impl() {
         this.version= Version.v1_20_R4;
     }
-    {
-        remappingMaterialId.put("SCUTE","TURTLE_SCUTE");
-        remappingEntityId.put("mushroom_cow","mooshroom");
-        remappingEntityId.put("snowman","snow_golem");
-    }
+
     public boolean comparePotionType(PotionMeta instanceOne, PotionMeta instanceTwo){
         return instanceOne.getBasePotionType() == instanceTwo.getBasePotionType();
     }
