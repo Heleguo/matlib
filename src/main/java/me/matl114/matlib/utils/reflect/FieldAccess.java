@@ -37,18 +37,6 @@ public class FieldAccess {
         this.createSnapshot = false;
         return this;
     }
-    private static HashMap<Class<?>, me.matl114.matlib.utils.reflect.reflectasm.FieldAccess> cachedAccess = new HashMap<>();
-    public static me.matl114.matlib.utils.reflect.reflectasm.FieldAccess getOrCreateAccess(Class<?> targetClass){
-        return cachedAccess.computeIfAbsent(targetClass, (clz)->//Debug.interceptAllOutputs(()->
-            me.matl114.matlib.utils.reflect.reflectasm.FieldAccess.get(clz)
-//            ,(output)->{
-//                if (output !=null && !output.isEmpty()){
-//                    Debug.warn("Console output is intercepted:",output);
-//                    Debug.warn("It is not a BUG and you can ignore it");
-//                }
-//            })
-        );
-    }
     private me.matl114.matlib.utils.reflect.reflectasm.FieldAccess fastAccessInternal;
     private int fastAccessIndex;
     private boolean failPublicAccess=true;
@@ -138,7 +126,7 @@ public class FieldAccess {
     }
     private void initFastAccess(){
         try{
-            this.fastAccessInternal = getOrCreateAccess(field.getDeclaringClass());
+            this.fastAccessInternal = me.matl114.matlib.utils.reflect.reflectasm.FieldAccess.get(field.getDeclaringClass());
             this.fastAccessIndex = this.fastAccessInternal.getIndex(this.field);
             this.failPublicAccess = !this.publicField;
         }catch (Throwable e){

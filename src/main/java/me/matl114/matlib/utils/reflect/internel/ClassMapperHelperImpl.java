@@ -5,6 +5,7 @@ import me.matl114.matlib.common.lang.annotations.Internal;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.utils.reflect.reflectasm.MethodAccess;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
 @Note("this is a HAND-MADE impl for ObfHelper because we need to get the ObfSource before anything")
@@ -19,7 +20,7 @@ class ClassMapperHelperImpl implements ClassMapperHelper {
     //private final Constructor<?> init0;
     public ClassMapperHelperImpl() throws Throwable{
         clazz0 = Class.forName("io.papermc.paper.util.ObfHelper$ClassMapping");
-        classMappingAccess = me.matl114.matlib.utils.reflect.MethodAccess.getOrCreateAccess(clazz0);// MethodAccess.get(clazz0);
+        classMappingAccess = MethodAccess.get(clazz0);// MethodAccess.get(clazz0);
         method1 = classMappingAccess.getIndex("obfName",0);
         method2 = classMappingAccess.getIndex("mojangName",0);
         method3 = classMappingAccess.getIndex("methodsByObf",0);

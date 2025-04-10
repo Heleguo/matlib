@@ -8,6 +8,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 @Note("copied from com.esotericsoftware.reflectasm")
@@ -76,8 +78,11 @@ public abstract class MethodAccess {
     public Class[] getReturnTypes() {
         return this.returnTypes;
     }
-
-    public static MethodAccess get(Class type) {
+    private static Map<Class<?>, MethodAccess> CACHE = new LinkedHashMap<>();
+    public static MethodAccess get(Class type){
+        return CACHE.computeIfAbsent(type, MethodAccess::get0);
+    }
+    private static MethodAccess get0(Class type) {
         boolean isInterface = type.isInterface();
         if (!isInterface && type.getSuperclass() == null && type != Object.class) {
             throw new IllegalArgumentException("The type must not be an interface, a primitive type, or void.");

@@ -34,7 +34,7 @@ public class AdaptorInvocation implements InvocationHandler {
         }
         Preconditions.checkState(AnnotationUtils.getAdaptorInstance(targetClass).isPresent(),"Illegal Adaptor class! Interface {0} in invoke target class is not marked as AdaptorInterface!",targetClass);
         Preconditions.checkNotNull(targetClass,"Invoke target does not contains Interface named {0}!",simpleName);
-        this.fastAccess = me.matl114.matlib.utils.reflect.MethodAccess.getOrCreateAccess(targetClass);
+        this.fastAccess = MethodAccess.get(targetClass);
         //save the mapping from targetInterface to invokeTarget fastAccess index;
          Map<Method,Integer> methodSnapshot = new HashMap<>();
 

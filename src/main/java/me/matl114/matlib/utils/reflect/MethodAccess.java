@@ -9,24 +9,11 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 @SuppressWarnings("unchecked")
 public class MethodAccess<T extends Object> {
-    private static HashMap<Class, me.matl114.matlib.utils.reflect.reflectasm.MethodAccess> cachedAccess = new HashMap<>();
-    public static me.matl114.matlib.utils.reflect.reflectasm.MethodAccess getOrCreateAccess(Class<?> targetClass){
-        return cachedAccess.computeIfAbsent(targetClass, (clz)->//Debug.interceptAllOutputs(()->
-                me.matl114.matlib.utils.reflect.reflectasm.MethodAccess.get(clz)
-//            ,(output)->{
-//                if (output !=null && !output.isEmpty()){
-//                    Debug.warn("Console output is intercepted:",output);
-//                    Debug.warn("It is not a BUG and you can ignore it ");
-//                }
-//            })
-        );
-    }
     private boolean printError = false;
     @Getter
     private boolean failInitialization=false;
@@ -141,7 +128,7 @@ public class MethodAccess<T extends Object> {
 
     private void initFastAccess(){
         try{
-            this.fastAccessInternal = getOrCreateAccess(field.getDeclaringClass());
+            this.fastAccessInternal = me.matl114.matlib.utils.reflect.reflectasm.MethodAccess.get(field.getDeclaringClass());
             this.fastAccessIndex = this.fastAccessInternal.getIndex(this.field.getName(),this.field.getParameterTypes());
             this.failPublicAccess = !this.isPublic;
         }catch (Throwable e){
