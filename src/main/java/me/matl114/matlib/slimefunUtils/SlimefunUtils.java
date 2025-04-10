@@ -11,8 +11,7 @@ import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.Flags;
 import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
-import me.matl114.matlib.utils.version.Version;
-import me.matl114.matlib.utils.version.VersionedFeature;
+import me.matl114.matlib.utils.version.VersionedRegistry;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -77,7 +76,7 @@ public class SlimefunUtils {
                 return b;
             }catch (Exception e){
                 try{
-                    ItemStack b=new ItemStack(VersionedFeature.getFeature().getMaterial(id));
+                    ItemStack b=new ItemStack(VersionedRegistry.getInstance().getMaterial(id));
                     if(cnt>0&&cnt!=b.getAmount()){
                         b=b.clone();
                         b.setAmount(cnt);

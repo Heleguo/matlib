@@ -2,7 +2,6 @@ package me.matl114.matlib.utils.version;
 
 import lombok.Getter;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializeProvider;
-import me.matl114.matlib.utils.version.versionedFeatures.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.AttributeModifier;
@@ -23,18 +22,7 @@ import java.util.function.Consumer;
 
 public interface VersionedFeature {
 
-    static VersionedFeature feature = new InitializeProvider<>(()->{
-        Version version = Version.getVersionInstance();
-        return switch (version){
-            case v1_20_R1 -> new VersionedFeature_1_20_R1_Impl();
-            case v1_20_R2 -> new VersionedFeature_1_20_R2_Impl();
-            case v1_20_R3 -> new VersionedFeature_1_20_R3_Impl();
-            case v1_20_R4 -> new VersionedFeature_1_20_R4_Impl();
-            case v1_21_R1 -> new VersionedFeature_1_21_R1_Impl();
-            case v1_21_R2 -> new VersionedFeature_1_21_R2_Impl();
-            default -> new DefaultVersionedFeatureImpl();
-        };
-    }).v();
+    static VersionedFeature feature = new VersionedFeatureImpl();
     static VersionedFeature getFeature(){
         return feature;
     }
@@ -53,4 +41,92 @@ public interface VersionedFeature {
     public boolean matchBlockStateMeta(BlockStateMeta meta1,BlockStateMeta meta2);
     public PotionEffectType getPotionEffectType(String key);
     public <T extends Entity> T spawnEntity(Location location, Class<T> clazz, Consumer<T> consumer, CreatureSpawnEvent.SpawnReason reason);
+
+    static   class VersionedFeatureImpl implements VersionedFeature{
+        @Getter
+        protected Version version;
+        VersionedRegistry registry;
+        VersionedAttribute attribute;
+        VersionedMeta meta;
+        VersionedWorld world;
+
+        public VersionedFeatureImpl() {
+            registry = VersionedRegistry.getInstance();
+            attribute = VersionedAttribute.getInstance();
+            meta = VersionedMeta.getInstance();
+            world = VersionedWorld.getInstance();
+        }
+
+//    protected final EnumSet<Material> blockItemWithDifferentId=EnumSet.noneOf(Material.class);
+
+        @Override
+        public Enchantment getEnchantment(String name) {
+            return registry.getEnchantment(name);
+        }
+        public Material getMaterial(String name) {
+            return registry.getMaterial(name);
+        }
+
+
+
+        public EntityType getEntityType(String name){
+            return registry.getEntityType(name);
+        }
+
+        public PotionEffectType getPotionEffectType(String key){
+            return registry.getPotionEffectType(key);
+        }
+
+        @Override
+        public <T extends Entity> T spawnEntity(Location location, Class<T> clazz, Consumer<T> consumer, CreatureSpawnEvent.SpawnReason reason) {
+            return null;
+        }
+
+        @Override
+        public AttributeModifier createAttributeModifier(UUID uuid, String name, double amount, AttributeModifier.Operation operation, EquipmentSlot slot) {
+            return attribute.createAttributeModifier(uuid, name, amount, operation, slot);
+        }
+
+        @Override
+        public String getAttributeModifierName(AttributeModifier modifier) {
+            return attribute.getAttributeModifierName(modifier);
+        }
+
+        @Override
+        public boolean setAttributeModifierValue(AttributeModifier modifier, double value) {
+            return attribute.setAttributeModifierValue(modifier, value);
+        }
+
+        @Override
+        public UUID getAttributeModifierUid(AttributeModifier modifier) {
+            return attribute.getAttributeModifierUid(modifier);
+        }
+
+        @Override
+        public EquipmentSlot getAttributeModifierSlot(AttributeModifier modifier) {
+            return attribute.getAttributeModifierSlot(modifier);
+        }
+
+        @Override
+        public boolean comparePotionMeta(PotionMeta meta1, PotionMeta meta2) {
+            return meta.comparePotionMeta(meta1, meta2);
+        }
+
+        @Override
+        public BlockState copyBlockStateTo(BlockState state1, Block block) {
+            return null;
+        }
+
+        @Override
+        public boolean matchBlockStateMeta(BlockStateMeta meta1, BlockStateMeta meta2) {
+            return meta.matchBlockStateMeta(meta1, meta2);
+        }
+
+        @Override
+        public boolean differentSpecialMeta(ItemMeta meta1, ItemMeta meta2) {
+            return meta.differentSpecialMeta(meta1, meta2);
+        }
+
+
+    }
 }

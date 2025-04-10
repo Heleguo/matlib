@@ -1,7 +1,9 @@
 package me.matl114.matlib.utils.version;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
@@ -17,7 +19,11 @@ public abstract class VersionedAttribute {
     }
 
     private static void init0(){
-
+        Instance = switch (Version.getVersionInstance()){
+            case v1_20_R4 -> new v1_20_R4();
+            case v1_21_R1 , v1_21_R2-> new v1_21_R1();
+            default -> new Default();
+        };
     }
     public abstract AttributeModifier createAttributeModifier(UUID uid, String name, double amount, AttributeModifier.Operation operation, EquipmentSlot slot);
     public abstract String getAttributeModifierName(AttributeModifier modifier);
@@ -65,4 +71,22 @@ public abstract class VersionedAttribute {
             return modifier.getSlot();
         }
     }
+    static class v1_20_R4 extends Default{
+        public EquipmentSlot getAttributeModifierSlot(AttributeModifier modifier){
+            var slotGrop=modifier.getSlotGroup();
+            return slotGrop == EquipmentSlotGroup.ANY ? null : slotGrop.getExample();
+        }
+    }
+    static class v1_21_R1 extends v1_20_R4{
+        public AttributeModifier createAttributeModifier(UUID uid, String name, double amount, AttributeModifier.Operation operation, EquipmentSlot slot){
+            return new AttributeModifier(new NamespacedKey("minecraft",name),amount,operation,slot == null ? EquipmentSlotGroup.ANY : slot.getGroup());
+        }
+        public String getAttributeModifierName(AttributeModifier modifier){
+            return modifier.getName();
+        }
+        public UUID getAttributeModifierUid(AttributeModifier modifier){
+            return null;
+        }
+    }
+
 }

@@ -11,7 +11,6 @@ import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
 import me.matl114.matlib.utils.reflect.*;
 import me.matl114.matlib.utils.reflect.asm.CustomClassLoader;
-import me.matl114.matlib.utils.version.DefaultVersionedFeatureImpl;
 import me.matl114.matlib.utils.version.Version;
 import me.matl114.matlib.utils.version.VersionAtMost;
 import me.matl114.matlib.utils.WorldUtils;
@@ -62,13 +61,6 @@ public class ReflectionUtilTests implements TestCase {
         spawner.setSpawnRange(114);
         blockState.setBlockState(spawner);
         Assert(CraftUtils.matchBlockStateMetaField(blockState,blockState));
-        var reflectAsm = DefaultVersionedFeatureImpl.getBlockEntityTagAccess().getReflectAsm();
-        AssertNN( reflectAsm );
-        Debug.logger(reflectAsm.getA(),reflectAsm.getA().getClass(),reflectAsm.getB());
-        try{
-            reflectAsm.getA().get(blockState,reflectAsm.getB());
-        }catch (Throwable protect){
-        }
         Debug.logger(blockState.getClass(),blockState.getClass().getClassLoader(), ClassLoader.getSystemClassLoader());
     }
 
