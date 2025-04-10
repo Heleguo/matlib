@@ -4,7 +4,7 @@ import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.ConstructorTarget;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.Descriptive;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MethodTarget;
-import me.matl114.matlib.utils.reflect.descriptor.annotations.RedirectType;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import org.jetbrains.annotations.Contract;
 

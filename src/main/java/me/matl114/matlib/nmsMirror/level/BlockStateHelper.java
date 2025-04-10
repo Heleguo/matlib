@@ -2,15 +2,14 @@ package me.matl114.matlib.nmsMirror.level;
 
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.Descriptive;
-import me.matl114.matlib.utils.reflect.descriptor.annotations.IgnoreFailure;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.IgnoreFailure;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MethodTarget;
-import me.matl114.matlib.utils.reflect.descriptor.annotations.RedirectType;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import me.matl114.matlib.utils.version.Version;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 
-import javax.swing.plaf.nimbus.State;
 import java.util.Collection;
 import static me.matl114.matlib.nmsMirror.Import.*;
 

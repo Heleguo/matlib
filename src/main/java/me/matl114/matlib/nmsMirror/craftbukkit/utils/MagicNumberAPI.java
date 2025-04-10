@@ -3,6 +3,8 @@ package me.matl114.matlib.nmsMirror.craftbukkit.utils;
 import me.matl114.matlib.nmsMirror.Import;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectName;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 import org.bukkit.Material;
 
 import java.util.Map;
@@ -22,7 +24,7 @@ public interface MagicNumberAPI extends TargetDescriptor {
     @FieldTarget(isStatic = true)
     Map<Object, Material> BLOCK_MATERIALGetter();
 
-    @FieldTarget
+    @FieldTarget(isStatic = true)
     Map<Material, Object> MATERIAL_BLOCKGetter();
 
     @MethodTarget(isStatic = true)

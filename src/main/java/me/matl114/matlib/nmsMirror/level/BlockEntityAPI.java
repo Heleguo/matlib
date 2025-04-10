@@ -1,8 +1,12 @@
 package me.matl114.matlib.nmsMirror.level;
 
 import me.matl114.matlib.nmsMirror.impl.NMSItem;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.IgnoreFailure;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectClass;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectName;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 import me.matl114.matlib.utils.version.Version;
 
 import static me.matl114.matlib.nmsMirror.Import.*;
@@ -20,7 +24,7 @@ public interface BlockEntityAPI extends TargetDescriptor {
     @RedirectClass(HopperBlockEntityClass)
     @RedirectName("tryTakeInItemFromSlot")
     @IgnoreFailure(below = true, thresholdInclude = Version.v1_20_R4)
-    default boolean hopper$tryTakeInItemFromSlot(@RedirectType("Lnet/minecraft/world/level/block/entity/Hopper;")Object hopper,@RedirectType(Container)Object container, int index, @RedirectType(Direction)Object direction, @RedirectType(Level)Object world ){
+    default boolean hopper$tryTakeInItemFromSlot(@RedirectType("Lnet/minecraft/world/level/block/entity/Hopper;")Object hopper, @RedirectType(Container)Object container, int index, @RedirectType(Direction)Object direction, @RedirectType(Level)Object world ){
         var itemStack = NMSItem.CONTAINER.getItem(container, index);
         if(!NMSItem.ITEMSTACK.isEmpty(itemStack) &&  hopper$canTakeItemFromContainer(hopper, container, itemStack, index, direction)){
             return hopper$hopperPull(world, hopper, container, itemStack, index);

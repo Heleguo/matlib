@@ -2,6 +2,8 @@ package me.matl114.matlib.nmsMirror.craftbukkit.inventory;
 
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectClass;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 

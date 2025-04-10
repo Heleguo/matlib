@@ -10,7 +10,7 @@ import me.matl114.matlib.utils.reflect.FieldAccess;
 import me.matl114.matlib.utils.reflect.FieldAccessor;
 import me.matl114.matlib.utils.reflect.MethodAccess;
 import me.matl114.matlib.utils.reflect.MethodInvoker;
-import me.matl114.matlib.core.EnvironmentManager;
+import me.matl114.matlib.utils.version.Version;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryType;
@@ -336,7 +336,7 @@ public class CraftUtils {
             return false;
         }
 
-        if(EnvironmentManager.getManager().getVersioned().differentSpecialMeta(meta1,meta2)){
+        if(Version.getVersionInstance().getFeature().differentSpecialMeta(meta1,meta2)){
             return false;
         }
         //check pdc
@@ -464,7 +464,7 @@ public class CraftUtils {
 
 
     public static boolean matchBlockStateMetaField(BlockStateMeta meta1, BlockStateMeta meta2){
-        return EnvironmentManager.getManager().getVersioned().matchBlockStateMeta(meta1,meta2);
+        return Version.getVersionInstance().getFeature().matchBlockStateMeta(meta1,meta2);
 //        if(!hasFailed){
 //            try{
 //                if(CraftMetaBlockState==null){

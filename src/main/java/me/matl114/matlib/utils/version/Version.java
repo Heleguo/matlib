@@ -5,16 +5,17 @@ import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.version.versionedFeatures.*;
 import org.bukkit.Bukkit;
 
+import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 public enum Version {
+    unknown("unknown", DefaultVersionedFeatureImpl::new,-1),
     v1_20_R1("v1_20_R1", VersionedFeature_1_20_R1_Impl::new,15),
     v1_20_R2("v1_20_R2", VersionedFeature_1_20_R2_Impl::new,18),
     v1_20_R3("v1_20_R3", VersionedFeature_1_20_R3_Impl::new,26),
     v1_20_R4("v1_20_R4", VersionedFeature_1_20_R4_Impl::new,41),
     v1_21_R1("v1_21_R1", VersionedFeature_1_21_R1_Impl::new,48),
-    v1_21_R2("v1_21_R2",VersionedFeature_1_21_R2_Impl::new,57),
-    unknown("unknown", DefaultVersionedFeatureImpl::new,-1);
+    v1_21_R2("v1_21_R2",VersionedFeature_1_21_R2_Impl::new,57);
     private Version(String name, Supplier<VersionedFeature> feature,int datapackNumber){
         this.name = name;
         this.feature = feature;
@@ -24,10 +25,23 @@ public enum Version {
     private Supplier<VersionedFeature> feature;
     @Getter
     private int datapackNumber;
+    private VersionedFeature featureInstance;
+    @Nonnull
     public VersionedFeature getFeature(){
-        return feature.get();
+        if(featureInstance == null){
+            featureInstance = feature.get();
+        }
+        return featureInstance;
     }
+    static Version INSTANCE;
     public static Version getVersionInstance(){
+        if(INSTANCE == null){
+            INSTANCE = getVersionInstance0();
+        }
+        return INSTANCE;
+    }
+    @Nonnull
+    private static Version getVersionInstance0(){
         String version=null;
         try{
             String[] path=Bukkit.getServer().getClass().getPackage().getName().split("\\.");

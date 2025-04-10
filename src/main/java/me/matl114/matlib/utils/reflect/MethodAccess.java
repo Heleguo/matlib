@@ -15,14 +15,17 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 @SuppressWarnings("unchecked")
 public class MethodAccess<T extends Object> {
-    private static HashMap<Class, com.esotericsoftware.reflectasm.MethodAccess> cachedAccess = new HashMap<>();
-    public static com.esotericsoftware.reflectasm.MethodAccess getOrCreateAccess(Class<?> targetClass){
-        return cachedAccess.computeIfAbsent(targetClass, (clz)->Debug.interceptAllOutputs(()-> com.esotericsoftware.reflectasm.MethodAccess.get(clz),(output)->{
-            if (output !=null && !output.isEmpty()){
-                Debug.warn("Console output is intercepted:",output);
-                Debug.warn("It is not a BUG and you can ignore it ");
-            }
-        }))    ;
+    private static HashMap<Class, me.matl114.matlib.utils.reflect.reflectasm.MethodAccess> cachedAccess = new HashMap<>();
+    public static me.matl114.matlib.utils.reflect.reflectasm.MethodAccess getOrCreateAccess(Class<?> targetClass){
+        return cachedAccess.computeIfAbsent(targetClass, (clz)->//Debug.interceptAllOutputs(()->
+                me.matl114.matlib.utils.reflect.reflectasm.MethodAccess.get(clz)
+//            ,(output)->{
+//                if (output !=null && !output.isEmpty()){
+//                    Debug.warn("Console output is intercepted:",output);
+//                    Debug.warn("It is not a BUG and you can ignore it ");
+//                }
+//            })
+        );
     }
     private boolean printError = false;
     @Getter
@@ -37,7 +40,7 @@ public class MethodAccess<T extends Object> {
     private boolean isVoidReturn;
     private static final boolean useHandle=false;
     private boolean createSnapshot = true;
-    private com.esotericsoftware.reflectasm.MethodAccess fastAccessInternal;
+    private me.matl114.matlib.utils.reflect.reflectasm.MethodAccess fastAccessInternal;
     private int fastAccessIndex;
     private boolean failPublicAccess = true;
     private MethodInvoker<T> invoker;

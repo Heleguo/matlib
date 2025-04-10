@@ -6,12 +6,9 @@ import me.matl114.matlib.nmsMirror.impl.NMSLevel;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.Descriptive;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.FieldTarget;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MethodTarget;
-import me.matl114.matlib.utils.reflect.descriptor.annotations.RedirectType;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
-import org.bukkit.Server;
 import org.bukkit.World;
-import org.bukkit.block.BlockState;
-import org.checkerframework.checker.units.qual.N;
 import org.jetbrains.annotations.Contract;
 
 import java.util.List;

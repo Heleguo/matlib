@@ -1,6 +1,5 @@
 package me.matl114.matlib.unitTest.autoTests;
 
-import com.google.errorprone.annotations.Var;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
@@ -9,24 +8,21 @@ import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.DescriptorImplBuilder;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
-import me.matl114.matlib.utils.reflect.ReflectUtils;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectName;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
-import java.util.Random;
+import java.lang.reflect.Method;
 
 public class DescriptorTests implements TestCase {
     volatile int tmp = 0;
 
-    //@OnlineTest(name = "Descriptor Build Test")
+   // @OnlineTest(name = "Descriptor Build Test")
     public void test_descriptor() throws Throwable{
-        Class<?> clazz =  DemoLoad.initDemo();;
-        Field field = clazz.getDeclaredField("d");
-        field.setAccessible(true);
-        Debug.logger(field.get(null));
-        VarHandle handle = MethodHandles.privateLookupIn(clazz, MethodHandles.lookup()).unreflectVarHandle(field);
-        Debug.logger(handle.get());
+        Class clazz =Class.forName("me.matl114.matlib.unitTest.demo.DemoTargetClass");
+        Debug.logger("fetched");
         DemoDescriptor I = DescriptorImplBuilder.createHelperImpl( DemoDescriptor.class);
         Debug.logger(I);
         I.c();

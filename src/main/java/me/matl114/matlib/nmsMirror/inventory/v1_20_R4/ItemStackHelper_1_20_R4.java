@@ -11,8 +11,8 @@ import me.matl114.matlib.common.lang.annotations.Internal;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.Descriptive;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MethodTarget;
-import me.matl114.matlib.utils.reflect.descriptor.annotations.RedirectName;
-import me.matl114.matlib.utils.reflect.descriptor.annotations.RedirectType;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectName;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 import me.matl114.matlib.utils.version.Version;
 import me.matl114.matlib.utils.version.VersionAtLeast;
 
@@ -55,18 +55,18 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
 
     @MethodTarget(isStatic = true)
     @RedirectName("parseOptional")
-    Object parseV1_20_R4(@RedirectType("Lnet/minecraft/core/HolderLookup$Provider;")Object registries, @RedirectType(NbtCompound) Object nbt);
+    Object parseV1_20_R4(@RedirectType("Lnet/minecraft/core/HolderLookup$Provider;")Object registries, @RedirectType(CompoundTag) Object nbt);
 
     @MethodTarget
     @Internal
     Object getComponents(Object stack);
 
-    default Object ofNbt(@RedirectType(NbtCompound) Object nbt){
+    default Object ofNbt(@RedirectType(CompoundTag) Object nbt){
         return parseV1_20_R4(Env.REGISTRY_FROZEN, nbt);
     }
 
     @Override
-    default Object save(Object stack,@RedirectType(NbtCompound) Object tag){
+    default Object save(Object stack,@RedirectType(CompoundTag) Object tag){
         return saveV1_20_R4(stack, Env.REGISTRY_FROZEN, tag);
     }
     @Override
@@ -91,7 +91,7 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
     }
 
     @Override
-    default void setTag(Object stack, @RedirectType(NbtCompound)@Nullable Object nbt){
+    default void setTag(Object stack, @RedirectType(CompoundTag)@Nullable Object nbt){
         if(NMSCore.COMPONENT_TAG.isEmpty(nbt)){
             removeDataComponentValue(stack, DataComponentEnum.CUSTOM_DATA);
         }else {
@@ -133,6 +133,9 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
 //        if(matchLore && matchName){
 //            return Objects.equals(patch1, patch2);
 //        }
+        if(patch1 == patch2){
+            return true;
+        }
         int size1 = patch1.size();
         int size2 = patch2.size();
         if(!matchName){
@@ -155,7 +158,7 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
         ObjectSet<Reference2ObjectMap.Entry<Object, Optional<?>>> entryset1 = patch1.reference2ObjectEntrySet();
         ObjectIterator<Reference2ObjectMap.Entry<Object,Optional<?>>> iter =
             entryset1 instanceof Reference2ObjectMap.FastEntrySet fast?fast.fastIterator():
-                entryset1.iterator();
+            entryset1.iterator();
 
         while (iter.hasNext()){
             var entry = iter.next();

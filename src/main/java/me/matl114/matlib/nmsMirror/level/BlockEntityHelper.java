@@ -4,8 +4,10 @@ import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.nmsMirror.impl.CraftBukkit;
 import me.matl114.matlib.nmsMirror.interfaces.PdcCompoundHolder;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.IgnoreFailure;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 import me.matl114.matlib.utils.version.Version;
 import org.bukkit.persistence.PersistentDataContainer;
 
@@ -55,8 +57,8 @@ public interface BlockEntityHelper extends TargetDescriptor , PdcCompoundHolder 
     Object saveWithFullMetadata(Object be);
 
     @MethodTarget(isStatic = true)
-    Object loadStatic(@RedirectType(BlockPos)Object pos, @RedirectType(BlockState)Object state, @RedirectType(NbtCompound) Object nbt);
+    Object loadStatic(@RedirectType(BlockPos)Object pos, @RedirectType(BlockState)Object state, @RedirectType(CompoundTag) Object nbt);
 
     @MethodTarget
-    void load(Object entity, @RedirectType(NbtCompound)Object rewritingNBT);
+    void load(Object entity, @RedirectType(CompoundTag)Object rewritingNBT);
 }

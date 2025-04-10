@@ -34,7 +34,7 @@ class DemoTargetClass extends DemoTargetSuper implements DemoTargetInterface{
         return null;
     }
     static{
-        Debug.logger("Demo Target Init");
+        Debug.logger("Demo Target Class Init");
     }
 //    public void f(){
 //        Debug.logger("Target.f called");

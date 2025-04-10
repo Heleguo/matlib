@@ -7,10 +7,8 @@ import me.matl114.matlib.nmsMirror.impl.*;
 import me.matl114.matlib.nmsMirror.core.BuiltInRegistryEnum;
 import me.matl114.matlib.nmsMirror.core.RegistriesHelper;
 import me.matl114.matlib.nmsMirror.inventory.ItemStackHelper;
-import me.matl114.matlib.nmsMirror.level.LevelEnum;
-import me.matl114.matlib.nmsMirror.nbt.ComponentTagHelper;
+import me.matl114.matlib.nmsMirror.nbt.CompoundTagHelper;
 import me.matl114.matlib.nmsMirror.resources.ResourceLocationHelper;
-import me.matl114.matlib.nmsMirror.versionedEnv.Env;
 import me.matl114.matlib.nmsUtils.LevelUtils;
 import me.matl114.matlib.nmsUtils.ServerUtils;
 import me.matl114.matlib.unitTest.OnlineTest;
@@ -22,6 +20,8 @@ import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
 import me.matl114.matlib.utils.reflect.descriptor.DescriptorImplBuilder;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectClass;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -39,7 +39,6 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 
 import static me.matl114.matlib.nmsMirror.impl.NMSLevel.*;
@@ -47,9 +46,9 @@ import static me.matl114.matlib.nmsMirror.impl.NMSCore.*;
 
 public class NMSTests implements TestCase {
     static TestReflection TEST = DescriptorImplBuilder.createMultiHelper(TestReflection.class);
-    //@OnlineTest(name = "ItemStackHelper Test")
+    @OnlineTest(name = "ItemStackHelper Test")
     public void test_ItemStackHelper(){
-        ComponentTagHelper compHelper = NMSCore.COMPONENT_TAG;
+        CompoundTagHelper compHelper = NMSCore.COMPONENT_TAG;
         ResourceLocationHelper keyHelper = NMSCore.NAMESPACE_KEY;
         RegistriesHelper regHelper = NMSCore.REGISTRIES;
         ItemStackHelper itemHelper = NMSItem.ITEMSTACK;
@@ -103,6 +102,8 @@ public class NMSTests implements TestCase {
         Object handle2 = CraftUtils.getHandled(itemStack4);
         Assert(handle1 != handle2);
         for (int i=0;i<1_000_000;++i){
+            handle1 =  CraftUtils.getHandled(itemStack3);
+            handle2 = CraftUtils.getHandled(itemStack4);
             itemHelper.matchItem(handle1, handle2, true, true);
         }
         long b= System.nanoTime();
@@ -112,9 +113,9 @@ public class NMSTests implements TestCase {
         ItemMeta meta1 = itemStack3.getItemMeta();
         ItemMeta meta2 = itemStack4.getItemMeta();
         for (int i=0;i<1_000_000;++i){
-            //itemStack3.getItemMeta().equals(itemStack4.getItemMeta());
-            //meta1.equals(meta2);
-            CraftUtils.matchItemMeta(meta1, meta2, true);
+           // itemStack3.getItemMeta().equals(itemStack4.getItemMeta());
+            meta1.equals(meta2);
+//            CraftUtils.matchItemMeta(meta1, meta2, true);
         }
         b = System.nanoTime();
         Debug.logger("meta match time",b-a);

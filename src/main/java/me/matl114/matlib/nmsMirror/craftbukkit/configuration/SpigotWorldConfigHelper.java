@@ -18,6 +18,8 @@ public interface SpigotWorldConfigHelper extends TargetDescriptor {
     void hopperTransferSetter(Object config, int val);
     @FieldTarget
     int hopperAmountGetter(Object config);
+
+
     @FieldTarget
     void hopperAmountSetter(Object config, int val);
 }

@@ -1,11 +1,11 @@
 package me.matl114.matlib.utils.reflect.internel;
 
-import com.esotericsoftware.reflectasm.MethodAccess;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.ASMUtils;
 import me.matl114.matlib.utils.reflect.asm.CustomClassLoader;
 import me.matl114.matlib.utils.reflect.ByteCodeUtils;
 import me.matl114.matlib.utils.reflect.ObfManager;
+import me.matl114.matlib.utils.reflect.reflectasm.MethodAccess;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.collections4.bidimap.UnmodifiableBidiMap;

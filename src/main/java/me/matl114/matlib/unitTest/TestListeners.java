@@ -59,30 +59,30 @@ public class TestListeners implements Listener {
     static{
         FULL_INVENTORY.setItem(0, ChestMenuUtils.getBackground().clone());
     }
-    @EventHandler
-    public void testSlimefunInventoryHopper(HopperInventorySearchEvent hopper){
-
-        Location loc = hopper.getSearchBlock().getLocation();
-        BlockMenu menu = BlockDataCache.getManager().getMenu(loc);
-        if(menu != null){
-            if(hopper.getContainerType() == HopperInventorySearchEvent.ContainerType.SOURCE){
-                limitGrabbingSlots(menu, hopper.getBlock());
-                hopper.setInventory(EMPTY_INVENTORY);
-            }else {
-                limitPushingSlots(hopper.getBlock(), menu);
-//                if(){
-//                    //successfully push, set on cooldown
-//                }else {
-//                    //no push, let it go,
-//                    hopper.setInventory(null);
-//                }
-                //whatever, let on Cooldown
-                hopper.setInventory(FULL_INVENTORY);
-
-            }
-        }
-
-    }
+//    @EventHandler
+//    public void testSlimefunInventoryHopper(HopperInventorySearchEvent hopper){
+//
+//        Location loc = hopper.getSearchBlock().getLocation();
+//        BlockMenu menu = BlockDataCache.getManager().getMenu(loc);
+//        if(menu != null){
+//            if(hopper.getContainerType() == HopperInventorySearchEvent.ContainerType.SOURCE){
+//                limitGrabbingSlots(menu, hopper.getBlock());
+//                hopper.setInventory(EMPTY_INVENTORY);
+//            }else {
+//                limitPushingSlots(hopper.getBlock(), menu);
+////                if(){
+////                    //successfully push, set on cooldown
+////                }else {
+////                    //no push, let it go,
+////                    hopper.setInventory(null);
+////                }
+//                //whatever, let on Cooldown
+//                hopper.setInventory(FULL_INVENTORY);
+//
+//            }
+//        }
+//
+//    }
 
     public void limitGrabbingSlots(BlockMenu sf, Block hopperBlock){
         Object slimefunContainer = CraftBukkit.INVENTORYS.getInventory(sf.getInventory());

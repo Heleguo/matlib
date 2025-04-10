@@ -5,7 +5,6 @@ import me.matl114.matlib.common.lang.annotations.*;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.version.Version;
 import me.matl114.matlib.utils.version.VersionAtLeast;
-import me.matl114.matlib.core.EnvironmentManager;
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.Constructor;
@@ -23,7 +22,7 @@ public class FakeSchedular {
     @ForceOnMainThread
     public static void init(){
         Version v = FakeSchedular.class.getAnnotation(VersionAtLeast.class).value();
-        if(!EnvironmentManager.getManager().getVersion().isAtLeast(v)){
+        if(!Version.getVersionInstance().isAtLeast(v)){
             enabled = false;
             Debug.logger("Fake Schedular thread not enabled");
 //            throw new UnsupportedOperationException("Version should be at least " + FakeSchedular.class.getAnnotation(VersionAtLeast.class).value());

@@ -2,9 +2,10 @@ package me.matl114.matlib.nmsMirror.inventory;
 
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectClass;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 import org.bukkit.Location;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 
 import java.util.List;

@@ -4,7 +4,7 @@ import me.matl114.matlib.nmsMirror.versionedEnv.Env;
 import me.matl114.matlib.nmsMirror.level.BlockEntityHelper;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.Descriptive;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MethodTarget;
-import me.matl114.matlib.utils.reflect.descriptor.annotations.RedirectType;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 
 import static me.matl114.matlib.nmsMirror.Import.*;
 
@@ -21,7 +21,7 @@ public interface BlockEntityHelper_1_20_R4 extends BlockEntityHelper {
     }
 
     @Override
-    default void load(Object entity, @RedirectType(NbtCompound)Object rewritingNBT){
+    default void load(Object entity, @RedirectType(CompoundTag)Object rewritingNBT){
         loadWithComponents(entity, rewritingNBT, Env.REGISTRY_FROZEN);
     }
 
@@ -37,10 +37,10 @@ public interface BlockEntityHelper_1_20_R4 extends BlockEntityHelper {
     void setComponents(Object entity, @RedirectType(DataComponentMap)Object map);
 
     @MethodTarget(isStatic = true)
-    Object loadStatic(@RedirectType(BlockPos)Object pos, @RedirectType(BlockState)Object state, @RedirectType(NbtCompound) Object nbt, @RedirectType("Lnet/minecraft/core/HolderLookup$Provider;")Object reg);
+    Object loadStatic(@RedirectType(BlockPos)Object pos, @RedirectType(BlockState)Object state, @RedirectType(CompoundTag) Object nbt, @RedirectType("Lnet/minecraft/core/HolderLookup$Provider;")Object reg);
 
     @MethodTarget
-    void loadWithComponents(Object entity, @RedirectType(NbtCompound)Object rewritingNBT, @RedirectType("Lnet/minecraft/core/HolderLookup$Provider;")Object reg );
+    void loadWithComponents(Object entity, @RedirectType(CompoundTag)Object rewritingNBT, @RedirectType("Lnet/minecraft/core/HolderLookup$Provider;")Object reg );
 
     @MethodTarget
     Object saveWithId(Object be, @RedirectType("Lnet/minecraft/core/HolderLookup$Provider;")Object reg);

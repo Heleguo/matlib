@@ -3,7 +3,7 @@ package me.matl114.matlib.nmsMirror;
 public class Import {
     public static final String Tag = "Lnet/minecraft/nbt/Tag;";
     public static final String ListTag = "Lnet/minecraft/nbt/ListTag;";
-    public static final String NbtCompound = "Lnet/minecraft/nbt/CompoundTag;";
+    public static final String CompoundTag = "Lnet/minecraft/nbt/CompoundTag;";
     public static final String Item = "Lnet/minecraft/world/item/Item;";
     public static final String Block = "Lnet/minecraft/world/level/block/Block;";
     public static final String ItemStack = "Lnet/minecraft/world/item/ItemStack;";
@@ -30,4 +30,5 @@ public class Import {
 
     public static final String ContainerClass = "net.minecraft.world.Container";
     public static final String HopperBlockEntityClass = "net.minecraft.world.level.block.entity.HopperBlockEntity";
+    public static final String NbtCompoundClass = "net.minecraft.nbt.CompoundTag";
 }

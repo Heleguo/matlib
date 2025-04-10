@@ -2,8 +2,8 @@ package me.matl114.matlib.nmsMirror.craftbukkit.utils;
 
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MethodTarget;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MultiDescriptive;
-import me.matl114.matlib.utils.reflect.descriptor.annotations.RedirectClass;
-import me.matl114.matlib.utils.reflect.descriptor.annotations.RedirectType;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectClass;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;

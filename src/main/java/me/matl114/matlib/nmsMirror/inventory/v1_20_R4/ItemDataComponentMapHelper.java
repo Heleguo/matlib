@@ -2,6 +2,7 @@ package me.matl114.matlib.nmsMirror.inventory.v1_20_R4;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 
 import java.util.Optional;
 

@@ -49,12 +49,12 @@
               <shadedPattern>me.matl114.matlib.libs.reflectasm</shadedPattern>
             </relocation>
             <relocation>
-              <pattern>com.esotericsoftware.asm</pattern>
-              <shadedPattern>me.matl114.matlib.libs.reflasm</shadedPattern>
-            </relocation>
-            <relocation>
               <pattern>org.objectweb.asm</pattern>
               <shadedPattern>me.matl114.matlib.libs.libasm</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.apache.commons.collections4</pattern>
+              <shadedPattern>me.matl114.matlib.libs.collections4</shadedPattern>
             </relocation>
           </relocations>
           <filters>

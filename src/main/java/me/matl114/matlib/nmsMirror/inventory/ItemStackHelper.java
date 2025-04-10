@@ -7,6 +7,8 @@ import me.matl114.matlib.nmsMirror.impl.EmptyEnum;
 import me.matl114.matlib.nmsMirror.interfaces.PdcCompoundHolder;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectName;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -26,7 +28,7 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
 
     @MethodTarget(isStatic = true)
     @RedirectName("of")
-    public Object ofNbt(@RedirectType(NbtCompound) Object nbt);
+    public Object ofNbt(@RedirectType(CompoundTag) Object nbt);
 
     @MethodTarget
     public Object copyAndClear(Object itemStack);
@@ -59,7 +61,7 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
     Object getEnchantments(Object stack);
 
     @MethodTarget
-    public Object save(Object itemStack, @RedirectType(NbtCompound) Object nbt);
+    public Object save(Object itemStack, @RedirectType(CompoundTag) Object nbt);
 
     @MethodTarget
     public Object copy(Object itemSTack, boolean originItem);
@@ -88,7 +90,8 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
     public Object getOrCreateCustomTag(Object stack);
 
     @MethodTarget
-    public void setTag(Object stack, @RedirectType(NbtCompound)@Nullable Object nbt);
+    public void setTag(Object stack, @RedirectType(CompoundTag)@Nullable Object nbt);
+
 
     @MethodTarget
     public int getCount(Object stack);
@@ -144,15 +147,13 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
         Set<? extends Map.Entry<String, ?>> key1 = map1.entrySet();
         int size1 = map1.size();
         int size2 = map2.size();
-        boolean hasDisplay1 = false;
-        if(map1.containsKey(DISPLAY)){
+        boolean hasDisplay1 = map1.containsKey(DISPLAY);
+        if(hasDisplay1){
             size1 -= 1;
-            hasDisplay1 = true;
         }
-        boolean hasDisplay2 = false;
-        if(map2.containsKey(DISPLAY)){
+        boolean hasDisplay2 = map2.containsKey(DISPLAY);
+        if(hasDisplay2){
             size2 -= 1;
-            hasDisplay2 = true;
         }
         if(size1 != size2){
             return false;
@@ -179,8 +180,8 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
         }
         Object obj1 = map1.get(DISPLAY);
         Object obj2 = map2.get(DISPLAY);
-        Class<?> nbtCompClass = NMSCore.COMPONENT_TAG.getTargetClass();
-        if(nbtCompClass.isInstance(obj1) && nbtCompClass.isInstance(obj2)){
+       // Class<?> nbtCompClass = NMSCore.COMPONENT_TAG.getTargetClass();
+        if(isCompoundTag(obj1) && isCompoundTag(obj2)){
             if(matchName && !Objects.equals(NMSCore.COMPONENT_TAG.get(obj1, NAME), NMSCore.COMPONENT_TAG.get(obj2, NAME))){
                 return false;
             }
@@ -192,5 +193,7 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
             return obj1.getClass() == obj2.getClass();
         }
     }
+    @CastCheck(NbtCompoundClass)
+    public boolean isCompoundTag(Object unknown);
 }
 

@@ -37,17 +37,19 @@ public class FieldAccess {
         this.createSnapshot = false;
         return this;
     }
-    private static HashMap<Class<?>, com.esotericsoftware.reflectasm.FieldAccess> cachedAccess = new HashMap<>();
-    public static com.esotericsoftware.reflectasm.FieldAccess getOrCreateAccess(Class<?> targetClass){
-        return cachedAccess.computeIfAbsent(targetClass, (clz)->Debug.interceptAllOutputs(()-> com.esotericsoftware.reflectasm.FieldAccess.get(clz),(output)->{
-            if (output !=null && !output.isEmpty()){
-                Debug.warn("Console output is intercepted:",output);
-                Debug.warn("It is not a BUG and you can ignore it");
-            }
-        }))
-                ;
+    private static HashMap<Class<?>, me.matl114.matlib.utils.reflect.reflectasm.FieldAccess> cachedAccess = new HashMap<>();
+    public static me.matl114.matlib.utils.reflect.reflectasm.FieldAccess getOrCreateAccess(Class<?> targetClass){
+        return cachedAccess.computeIfAbsent(targetClass, (clz)->//Debug.interceptAllOutputs(()->
+            me.matl114.matlib.utils.reflect.reflectasm.FieldAccess.get(clz)
+//            ,(output)->{
+//                if (output !=null && !output.isEmpty()){
+//                    Debug.warn("Console output is intercepted:",output);
+//                    Debug.warn("It is not a BUG and you can ignore it");
+//                }
+//            })
+        );
     }
-    private com.esotericsoftware.reflectasm.FieldAccess fastAccessInternal;
+    private me.matl114.matlib.utils.reflect.reflectasm.FieldAccess fastAccessInternal;
     private int fastAccessIndex;
     private boolean failPublicAccess=true;
     private Class<?> definedType=null;
@@ -162,10 +164,10 @@ public class FieldAccess {
         init(initializeObject);
         return failHandle?defa.get():handle;
     }
-    public Pair<com.esotericsoftware.reflectasm.FieldAccess,Integer> getReflectAsm(){
+    public Pair<me.matl114.matlib.utils.reflect.reflectasm.FieldAccess,Integer> getReflectAsm(){
         return getReflectAsm(null);
     }
-    public Pair<com.esotericsoftware.reflectasm.FieldAccess,Integer> getReflectAsm(Object initializeObject){
+    public Pair<me.matl114.matlib.utils.reflect.reflectasm.FieldAccess,Integer> getReflectAsm(Object initializeObject){
         init(initializeObject);
         Preconditions.checkArgument(!staticField &&!isPrivate,"Private and Static field can not be accessed from FieldAccess");
         if(!publicField){

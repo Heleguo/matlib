@@ -1,6 +1,5 @@
 package me.matl114.matlib.nmsMirror.impl;
 
-import me.matl114.matlib.core.EnvironmentManager;
 import me.matl114.matlib.nmsMirror.level.*;
 import me.matl114.matlib.nmsMirror.level.v1_20_R4.BlockEntityHelper_1_20_R4;
 import me.matl114.matlib.utils.reflect.descriptor.DescriptorImplBuilder;
@@ -15,7 +14,7 @@ public class NMSLevel {
     public static final BlockEntityHelper BLOCK_ENTITY ;
     public static final BlockEntityAPI TILE_ENTITIES;
     static {
-        Version version = EnvironmentManager.getManager().getVersion();
+        Version version = Version.getVersionInstance();
         BLOCK = DescriptorImplBuilder.createHelperImpl(BlockHelper.class);
         BLOCK_STATE =DescriptorImplBuilder.createHelperImpl(BlockStateHelper.class);
         LEVEL = DescriptorImplBuilder.createHelperImpl(LevelHelper.class);

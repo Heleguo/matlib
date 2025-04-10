@@ -33,6 +33,13 @@ public class CustomClassLoader extends ClassLoader {
             return null;
         }
     }
+
+    public boolean isClassPresent(String name){
+        if(this.loadedClassNames.contains(name)){
+            return true;
+        }
+        return super.findLoadedClass(name) != null;
+    }
     Class<?> defineClass(String name, byte[] bytes) throws ClassFormatError {
         return this.defineClass(name, bytes, 0, bytes.length, this.getClass().getProtectionDomain());
     }

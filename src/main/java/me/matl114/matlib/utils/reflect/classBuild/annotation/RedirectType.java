@@ -1,4 +1,4 @@
-package me.matl114.matlib.utils.reflect.descriptor.annotations;
+package me.matl114.matlib.utils.reflect.classBuild.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

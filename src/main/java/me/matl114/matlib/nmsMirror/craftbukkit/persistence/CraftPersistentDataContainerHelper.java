@@ -5,6 +5,7 @@ import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.nmsMirror.impl.NMSCore;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectClass;
 import org.bukkit.persistence.PersistentDataContainer;
 
 import java.util.Map;

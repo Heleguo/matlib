@@ -4,6 +4,7 @@ import me.matl114.matlib.common.lang.annotations.Internal;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 
 import java.util.Map;
 

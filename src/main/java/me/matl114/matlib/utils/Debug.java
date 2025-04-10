@@ -23,7 +23,7 @@ public class Debug {
     private static boolean start=false;
     private static boolean pos=false;
     @Getter
-    private static final boolean debugMod=false;
+    private static boolean debugMod=false;
     private static boolean interceptorRegistered = false;
     private static boolean interceptLogger = false;
     private static List<String> interceptionString = new ArrayList<>();

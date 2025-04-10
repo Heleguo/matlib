@@ -1,6 +1,8 @@
 package me.matl114.matlib.nmsMirror.nbt;
 
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectName;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 
 import java.util.List;
 

@@ -3,7 +3,7 @@ package me.matl114.matlib.utils.reflect.descriptor.buildTools;
 import java.lang.reflect.InvocationTargetException;
 
 public class DescriptorException extends RuntimeException{
-    static Throwable handled(Throwable e){
+    public static Throwable handled(Throwable e){
         if(e instanceof InvocationTargetException || e instanceof IllegalAccessException){
             var re =e.getCause();
             return re== null?e:re;

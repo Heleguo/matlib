@@ -1,19 +1,23 @@
 package me.matl114.matlib.slimefunUtils;
 
+import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.chat.ChatInput;
+import io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib;
 import io.github.thebusybiscuit.slimefun4.utils.LoreBuilder;
 import me.matl114.matlib.utils.AddUtils;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.Flags;
 import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
-import me.matl114.matlib.core.EnvironmentManager;
+import me.matl114.matlib.utils.version.Version;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -21,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,7 +76,7 @@ public class SlimefunUtils {
                 return b;
             }catch (Exception e){
                 try{
-                    ItemStack b=new ItemStack( EnvironmentManager.getManager().getVersioned().getMaterial(id));
+                    ItemStack b=new ItemStack(Version.getVersionInstance().getFeature().getMaterial(id));
                     if(cnt>0&&cnt!=b.getAmount()){
                         b=b.clone();
                         b.setAmount(cnt);
@@ -210,6 +215,21 @@ public class SlimefunUtils {
             return new CleanItemStack(Material.RED_STAINED_GLASS_PANE,"&a未发电",
                     "&7类型:&6 %s".formatted(type),"&7&7电量: &6%s/%sJ".formatted(FORMAT.format((double)charge),FORMAT.format((double)buffer)));
         }
+    }
+    public static boolean checkAddonEnvironment(SlimefunAddon addon){
+        if(!PaperLib.isPaper()){
+            addon.getLogger().log(Level.WARNING, "#######################################################");
+            addon.getLogger().log(Level.WARNING, "");
+            addon.getLogger().log(Level.WARNING, "自 25/2/1 起 Slimefun及其附属");
+            addon.getLogger().log(Level.WARNING, "转为 Paper 插件, 你必须要使用 Paper");
+            addon.getLogger().log(Level.WARNING, "或其分支才可使用 Slimefun及其附属");
+            addon.getLogger().log(Level.WARNING, "立即下载 Paper: https://papermc.io/downloads/paper");
+            addon.getLogger().log(Level.WARNING, "");
+            addon.getLogger().log(Level.WARNING, "#######################################################");
+            Bukkit.getServer().getPluginManager().disablePlugin((Plugin) addon);
+            return false;
+        }
+        return true;
     }
 
 }

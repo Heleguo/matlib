@@ -1,4 +1,4 @@
-package me.matl114.matlib.utils.reflect.descriptor.annotations;
+package me.matl114.matlib.utils.reflect.classBuild.annotation;
 
 import me.matl114.matlib.utils.version.Version;
 

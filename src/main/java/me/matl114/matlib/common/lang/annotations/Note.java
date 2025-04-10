@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 public @interface Note {
     String value() default "";
+    String[] extra() default {};
 }

@@ -1,11 +1,11 @@
 package me.matl114.matlib.utils.reflect.adaptors;
 
-import com.esotericsoftware.reflectasm.MethodAccess;
 import com.google.common.base.Preconditions;
 import lombok.AllArgsConstructor;
 import me.matl114.matlib.algorithms.dataStructures.frames.HashContainer;
 import me.matl114.matlib.utils.reflect.MethodSignature;
 import me.matl114.matlib.utils.reflect.ReflectUtils;
+import me.matl114.matlib.utils.reflect.reflectasm.MethodAccess;
 import me.matl114.matlibAdaptor.proxy.Utils.AnnotationUtils;
 
 import javax.annotation.Nonnull;
