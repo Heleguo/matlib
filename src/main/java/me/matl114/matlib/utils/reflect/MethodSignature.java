@@ -1,16 +1,11 @@
 package me.matl114.matlib.utils.reflect;
 
-import com.esotericsoftware.reflectasm.MethodAccess;
-
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
 public record MethodSignature(String methodName, Class<?>[] parameterTypes){
     public static MethodSignature getSignature(Method method){
         return new MethodSignature(method.getName(), method.getParameterTypes());
-    }
-    public int getSignatureIndex(MethodAccess access){
-        return access.getIndex(methodName,parameterTypes);
     }
     public int getParameterCount(){
         return parameterTypes.length;

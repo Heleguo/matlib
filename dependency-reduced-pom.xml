@@ -45,10 +45,6 @@
               <shadedPattern>me.matl114.matlib.libs.morepersistentdatatypes</shadedPattern>
             </relocation>
             <relocation>
-              <pattern>com.esotericsoftware.reflectasm</pattern>
-              <shadedPattern>me.matl114.matlib.libs.reflectasm</shadedPattern>
-            </relocation>
-            <relocation>
               <pattern>org.objectweb.asm</pattern>
               <shadedPattern>me.matl114.matlib.libs.libasm</shadedPattern>
             </relocation>

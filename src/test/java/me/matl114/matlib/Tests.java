@@ -173,7 +173,7 @@ public class Tests {
         }
         end = System.nanoTime();
         log("Test Handle time: "+(end-start));
-        com.esotericsoftware.reflectasm.FieldAccess fieldAccess = com.esotericsoftware.reflectasm.FieldAccess.get(TestClass.class);
+       me.matl114.matlib.utils.reflect.reflectasm.FieldAccess fieldAccess = me.matl114.matlib.utils.reflect.reflectasm.FieldAccess.get(TestClass.class);
         log(fieldAccess.getClass());
         int index = fieldAccess.getIndex("d");
         start = System.nanoTime();
