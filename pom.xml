@@ -63,10 +63,6 @@
                             <shadedPattern>me.matl114.matlib.libs.morepersistentdatatypes</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.esotericsoftware.reflectasm</pattern>
-                            <shadedPattern>me.matl114.matlib.libs.reflectasm</shadedPattern>
-                        </relocation>
-                        <relocation>
                             <pattern>org.objectweb.asm</pattern>
                             <shadedPattern>me.matl114.matlib.libs.libasm</shadedPattern>
                         </relocation>
@@ -168,12 +164,6 @@
             <artifactId>junit-jupiter</artifactId>
             <version>5.7.2</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.esotericsoftware</groupId>
-            <artifactId>reflectasm</artifactId>
-            <version>1.11.9</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
