@@ -6,33 +6,13 @@ import me.matl114.matlib.utils.version.Version;
 import me.matl114.matlib.utils.version.VersionedFeature;
 import org.bukkit.plugin.Plugin;
 
+@Deprecated(forRemoval = true)
 @AutoInit(level = "Util")
-public class EnvironmentManager implements Manager {
-    private Plugin plugin;
+public class EnvironmentManager {
     @Getter
-    private static EnvironmentManager manager;
+    private static EnvironmentManager manager = new EnvironmentManager();
     @Getter
     private Version version;
-    public EnvironmentManager() {
-        manager = this;
-    }
-    @Override
-    public EnvironmentManager init(Plugin pl, String... path) {
-        this.plugin = pl;
-        Debug.logger("Initializing environment manager...");
-        version = Version.getVersionInstance();
-        this.addToRegistry();
-        return this;
-    }
-    @Override
-    public EnvironmentManager reload() {
-        deconstruct();
-        return init(plugin);
-    }
-    @Override
-    public void deconstruct() {
-        this.removeFromRegistry();
-    }
 
     private VersionedFeature versioned;
     public VersionedFeature getVersioned() {

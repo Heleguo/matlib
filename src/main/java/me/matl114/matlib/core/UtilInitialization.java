@@ -19,8 +19,7 @@ public class UtilInitialization implements Initialization {
     protected String displayName;
     @Getter
     protected boolean testMode = false;
-    @Getter
-    protected EnvironmentManager environment;
+
     public UtilInitialization testMode(boolean testMode){
         this.testMode = testMode;
         return this;
@@ -52,8 +51,6 @@ public class UtilInitialization implements Initialization {
 //        Debug.setDebugMod(this.testMode);
         if(this.plugin!=null){
             ConfigLoader.init(plugin);
-            this.environment=new EnvironmentManager().init(plugin);
-            //AddUtils.init(name,displayName==null?name:displayName,plugin);
         }
 //        else{
 //            //in test
