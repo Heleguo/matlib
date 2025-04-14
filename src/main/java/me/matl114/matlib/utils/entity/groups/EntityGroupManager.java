@@ -1,6 +1,6 @@
 package me.matl114.matlib.utils.entity.groups;
 
-import me.matl114.matlib.algorithms.algorithm.ThreadUtils;
+import me.matl114.matlib.utils.ThreadUtils;
 import me.matl114.matlib.utils.entity.groups.implement.SimpleGroupManager;
 import me.matl114.matlib.core.Manager;
 

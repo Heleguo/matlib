@@ -1,7 +1,7 @@
 package me.matl114.matlib.unitTest.manualTests;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-import me.matl114.matlib.algorithms.algorithm.ThreadUtils;
+import me.matl114.matlib.utils.ThreadUtils;
 import me.matl114.matlib.algorithms.algorithm.TransformationUtils;
 import me.matl114.matlib.algorithms.algorithm.Vectors;
 import me.matl114.matlib.implement.bukkit.ChatInputManager;

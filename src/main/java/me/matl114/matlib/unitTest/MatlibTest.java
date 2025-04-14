@@ -4,11 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import me.matl114.matlib.implement.bukkit.ChatInputManager;
 import me.matl114.matlib.unitTest.autoTests.*;
-import me.matl114.matlib.unitTest.manualTests.ArgumentedTests;
 import me.matl114.matlib.unitTest.manualTests.DisplayManagerTest;
 import me.matl114.matlib.unitTest.manualTests.NMSPlayerTest;
 import me.matl114.matlib.unitTest.manualTests.PlayerTest;
-import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.experimential.FakeSchedular;
 import me.matl114.matlib.core.AddonInitialization;
 import org.bukkit.event.HandlerList;
@@ -48,11 +46,12 @@ public class MatlibTest extends JavaPlugin {
             .registerTestCase(new DisplayManagerTest())
 //            .registerTestCase(new ComponentTests())
             .registerTestCase(new PlayerTest())
-           .registerTestCase(new DescriptorTests())
+           .registerTestCase(new ASMUtilsTests())
 //            .registerTestCase(new ArgumentedTests())
             //.registerTestCase(new BukkitTests())
             .registerTestCase(new NMSTests())
             .registerTestCase(new NMSPlayerTest())
+            .registerTestCase(new ThreadUtilTests())
         ;
         this.getServer().getPluginManager().registerEvents(new TestListeners(),this);
     }

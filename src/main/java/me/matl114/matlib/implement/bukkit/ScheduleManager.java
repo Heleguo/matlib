@@ -2,7 +2,7 @@ package me.matl114.matlib.implement.bukkit;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
-import me.matl114.matlib.algorithms.algorithm.ThreadUtils;
+import me.matl114.matlib.utils.ThreadUtils;
 import me.matl114.matlib.core.AutoInit;
 import me.matl114.matlib.core.Manager;
 import org.bukkit.Bukkit;

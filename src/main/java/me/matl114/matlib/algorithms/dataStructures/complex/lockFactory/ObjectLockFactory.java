@@ -1,6 +1,6 @@
 package me.matl114.matlib.algorithms.dataStructures.complex.lockFactory;
 
-import me.matl114.matlib.algorithms.algorithm.ThreadUtils;
+import me.matl114.matlib.utils.ThreadUtils;
 import me.matl114.matlibAdaptor.algorithms.dataStructures.LockFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;

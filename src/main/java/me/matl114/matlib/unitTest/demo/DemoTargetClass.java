@@ -36,6 +36,13 @@ class DemoTargetClass extends DemoTargetSuper implements DemoTargetInterface{
     static{
         Debug.logger("Demo Target Class Init");
     }
+
+    @Override
+    public void abs() {
+        DemoTargetInterface.super.abs();
+        super.abs();
+        Debug.logger("Target.abs called");
+    }
 //    public void f(){
 //        Debug.logger("Target.f called");
 //    }

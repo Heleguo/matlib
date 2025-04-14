@@ -83,7 +83,7 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
         if(customData != null){
             return customData;
         }else {
-            Object newComp = NMSCore.COMPONENT_TAG.newComp();
+            Object newComp = NMSCore.COMPOUND_TAG.newComp();
             Object newCustomData = Env1_20_R4.ICUSTOMDATA.ofNoCopy(newComp);
             setDataComponentValue(stack, DataComponentEnum.CUSTOM_DATA, newCustomData);
             return newComp;
@@ -92,7 +92,7 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
 
     @Override
     default void setTag(Object stack, @RedirectType(CompoundTag)@Nullable Object nbt){
-        if(NMSCore.COMPONENT_TAG.isEmpty(nbt)){
+        if(NMSCore.COMPOUND_TAG.isEmpty(nbt)){
             removeDataComponentValue(stack, DataComponentEnum.CUSTOM_DATA);
         }else {
             setDataComponentValue(stack, DataComponentEnum.CUSTOM_DATA, Env1_20_R4.ICUSTOMDATA.of(nbt));

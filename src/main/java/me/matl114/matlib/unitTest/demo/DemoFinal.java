@@ -10,6 +10,10 @@ import java.lang.invoke.VarHandle;
 import java.lang.reflect.InvocationTargetException;
 
 public final class DemoFinal implements DemoInterface {
+    public static DemoFinal ins(){
+        int[][] a = new int[2][2];
+        return new DemoFinal();
+    }
     static final VarHandle varhandle;
     static final MethodHandle methodHandle;
     {

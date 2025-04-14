@@ -1,6 +1,6 @@
 package me.matl114.matlib.utils.entity.display.Implementation;
 
-import me.matl114.matlib.algorithms.algorithm.ThreadUtils;
+import me.matl114.matlib.utils.ThreadUtils;
 import me.matl114.matlib.algorithms.dataStructures.frames.PairList;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.utils.entity.display.Joint;

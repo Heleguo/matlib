@@ -3,20 +3,31 @@ package me.matl114.matlib.unitTest.autoTests;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
-import me.matl114.matlib.unitTest.demo.DemoLoad;
+import me.matl114.matlib.unitTest.demo.DemoTargetInterface;
+import me.matl114.matlib.unitTest.demo.DemoTargetSuper;
 import me.matl114.matlib.utils.Debug;
+import me.matl114.matlib.utils.reflect.ASMUtils;
+import me.matl114.matlib.utils.reflect.ByteCodeUtils;
+import me.matl114.matlib.utils.reflect.asm.CustomClassLoader;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.DescriptorImplBuilder;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectName;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
-public class DescriptorTests implements TestCase {
+import static org.objectweb.asm.Opcodes.*;
+
+public class ASMUtilsTests implements TestCase {
     volatile int tmp = 0;
 
    // @OnlineTest(name = "Descriptor Build Test")
@@ -95,9 +106,64 @@ public class DescriptorTests implements TestCase {
     }
     private boolean first;
 
+   // @OnlineTest(name = "test class building")
+    public void  test_classbuilder() throws Throwable{
+        //shit it fails
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS|ClassWriter.COMPUTE_FRAMES);
+        cw.visit(
+            Opcodes.V21,
+            ACC_PUBLIC,
+            "me/matl114/matlib/unitTest/demo/DemoImpl",
+            null,
+            Type.getInternalName(DemoTargetSuper.class),
+            new String[]{Type.getInternalName(DemoTargetInterface.class)}
+        );
+        String parentCls = Type.getInternalName(DemoTargetSuper.class);
+        var methodVisitor = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+        {
+            methodVisitor.visitCode();
+            methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+            methodVisitor.visitMethodInsn(INVOKESPECIAL,Type.getInternalName(DemoTargetSuper.class), "<init>","()V",false );
+//            methodVisitor.visitMethodInsn(
+//                Opcodes.INVOKESPECIAL,
+//                parentCls == null?"java/lang/Object":parentCls.replace(".","/"),
+//                "<init>",
+//                "()V",
+//                false);
+            methodVisitor.visitInsn(Opcodes.RETURN);
+            methodVisitor.visitMaxs(0,0);
+            methodVisitor.visitEnd();
+        }
+        var mv =  cw.visitMethod(ACC_PUBLIC, "abs","()V",null, null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(DemoTargetSuper.class), "abs","()V",false);
+        mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(DemoTargetInterface.class), "abs","()V",true);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0,0);
+        mv.visitEnd();
+//        mv = cw.visitMethod(ACC_PUBLIC, "test","()"+ ByteCodeUtils.toJvmType(DemoTargetSuper.class), null, null);
+//        mv.visitCode();
+//        mv.visitTypeInsn(NEW,"me/matl114/matlib/unitTest/demo/DemoImpl");
+//        mv.visitInsn(ARETURN);
+//        mv.visitMaxs(0,0);
+//        mv.visitEnd();
+        cw.visitEnd();
+
+        byte[] cls = cw.toByteArray();
+        Debug.logger(bytecodeToString(cls));
+        var cl= CustomClassLoader.getInstance().defineAccessClass("me.matl114.matlib.unitTest.demo.DemoImpl", cls);
+        Object val = cl.getConstructor().newInstance();
+        Debug.logger(val);
+        ((DemoTargetInterface)val).abs();
+
+    }
 
 
-
+    public static String bytecodeToString(byte[] bytecode) {
+        return null;
+    }
 
     @Descriptive(target = "me.matl114.matlib.unitTest.demo.DemoTargetClass")
     public static interface DemoDescriptor extends TargetDescriptor {

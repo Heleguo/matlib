@@ -10,7 +10,7 @@ import me.matl114.matlib.utils.command.commandGroup.SubCommand;
 import me.matl114.matlib.utils.command.params.SimpleCommandArgs;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.ReflectUtils;
-import me.matl114.matlib.algorithms.algorithm.ThreadUtils;
+import me.matl114.matlib.utils.ThreadUtils;
 import me.matl114.matlib.core.Manager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;

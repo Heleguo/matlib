@@ -2,7 +2,7 @@ package me.matl114.matlib.unitTest.autoTests;
 
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
-import me.matl114.matlib.algorithms.algorithm.ThreadUtils;
+import me.matl114.matlib.utils.ThreadUtils;
 import me.matl114.matlib.nmsMirror.impl.*;
 import me.matl114.matlib.nmsMirror.core.BuiltInRegistryEnum;
 import me.matl114.matlib.nmsMirror.core.RegistriesHelper;
@@ -48,7 +48,7 @@ public class NMSTests implements TestCase {
     static TestReflection TEST = DescriptorImplBuilder.createMultiHelper(TestReflection.class);
     @OnlineTest(name = "ItemStackHelper Test")
     public void test_ItemStackHelper(){
-        CompoundTagHelper compHelper = NMSCore.COMPONENT_TAG;
+        CompoundTagHelper compHelper = NMSCore.COMPOUND_TAG;
         ResourceLocationHelper keyHelper = NMSCore.NAMESPACE_KEY;
         RegistriesHelper regHelper = NMSCore.REGISTRIES;
         ItemStackHelper itemHelper = NMSItem.ITEMSTACK;
@@ -93,18 +93,17 @@ public class NMSTests implements TestCase {
         Assert(itemHelper.matchItem(CraftUtils.getHandled(itemStack2), CraftUtils.getHandled(itemStack3), true, false));
         Assert(!itemHelper.matchItem(CraftUtils.getHandled(itemStack2), CraftUtils.getHandled(itemStack3), true, true));
         Assert(itemHelper.matchItem(CraftUtils.getHandled(itemStack3), CraftUtils.getHandled(itemStack4), true, true));
-        for (int i=0; i< 30000; ++i){
-            itemHelper.matchItem(CraftUtils.getHandled(cis), CraftUtils.getHandled(itemStack2), false, true);
-            cis.getItemMeta().equals(itemStack2.getItemMeta());
+        for (int i=0; i< 3; ++i){
+            itemHelper.matchItem(CraftUtils.getHandled(itemStack3), CraftUtils.getHandled(itemStack4), true, true);
+            itemStack3.getItemMeta().equals(itemStack4.getItemMeta());
+            itemStack3.isSimilar(itemStack4);
         }
         long a= System.nanoTime();
         Object handle1 =  CraftUtils.getHandled(itemStack3);
         Object handle2 = CraftUtils.getHandled(itemStack4);
         Assert(handle1 != handle2);
-        for (int i=0;i<1_000_000;++i){
-            handle1 =  CraftUtils.getHandled(itemStack3);
-            handle2 = CraftUtils.getHandled(itemStack4);
-            itemHelper.matchItem(handle1, handle2, true, true);
+        for (int i=0;i<1_000;++i){
+            itemHelper.matchItem(handle1, handle2, false, true);
         }
         long b= System.nanoTime();
         Debug.logger("check nbt time",b-a);
@@ -112,7 +111,7 @@ public class NMSTests implements TestCase {
         a = System.nanoTime();
         ItemMeta meta1 = itemStack3.getItemMeta();
         ItemMeta meta2 = itemStack4.getItemMeta();
-        for (int i=0;i<1_000_000;++i){
+        for (int i=0;i<1_000;++i){
            // itemStack3.getItemMeta().equals(itemStack4.getItemMeta());
             meta1.equals(meta2);
 //            CraftUtils.matchItemMeta(meta1, meta2, true);
@@ -120,7 +119,7 @@ public class NMSTests implements TestCase {
         b = System.nanoTime();
         Debug.logger("meta match time",b-a);
         a = System.nanoTime();
-        for (int i=0;i<1_000_000;++i){
+        for (int i=0;i<1_000;++i){
             itemStack3.isSimilar(itemStack4);
         }
         b = System.nanoTime();
@@ -135,7 +134,7 @@ public class NMSTests implements TestCase {
         meta.setBlockState((BlockState) holder);
         shulker.setItemMeta(meta);
         var nmsShulker = CraftBukkit.ITEMSTACK.unwrapToNMS(shulker);
-        var nbtShulker = NMSItem.ITEMSTACK.save(nmsShulker, COMPONENT_TAG.newComp());
+        var nbtShulker = NMSItem.ITEMSTACK.save(nmsShulker, COMPOUND_TAG.newComp());
         Debug.logger(nbtShulker);
     }
 
@@ -178,8 +177,8 @@ public class NMSTests implements TestCase {
         Debug.logger(BLOCK_ENTITY.saveWithFullMetadata(entity1));
         Debug.logger(BLOCK_ENTITY.saveWithId(entity1));
         Object pdc =  BLOCK_ENTITY.getPersistentDataCompound(entity1, true);
-        COMPONENT_TAG.clear(pdc);
-        COMPONENT_TAG.putBoolean(pdc, "testBoolean",true);
+        COMPOUND_TAG.clear(pdc);
+        COMPOUND_TAG.putBoolean(pdc, "testBoolean",true);
         Debug.logger(BLOCK_ENTITY.saveWithFullMetadata(entity1));
 
         Debug.logger("test block getter");
@@ -200,19 +199,9 @@ public class NMSTests implements TestCase {
         Debug.logger("using time ",b-a);
     }
 
-    //@OnlineTest(name = "minecraft schedular test")
-    public void test_schedular() throws Throwable {
+    //@OnlineTest(name = "minecraft chunk schedular test")
+    public void test_chunkschedular() throws Throwable {
         World world =testWorld();
-        for (int i=0;i<10;++i){
-            long a = System.nanoTime();
-            FutureTask<Void> task = ThreadUtils.getFutureTask(()->{
-                long b = System.nanoTime();
-                Debug.logger("Main Executor Response Time", b-a);
-                Assert(Bukkit.isPrimaryThread());
-            });
-            ServerUtils.executeSync(task);
-            task.get();
-        }
         for (int i=0;i<10;++i){
             long c = System.nanoTime();
             FutureTask<Void> task = ThreadUtils.getFutureTask(()->{
@@ -221,16 +210,6 @@ public class NMSTests implements TestCase {
                 Assert(Bukkit.isPrimaryThread());
             });
             ServerUtils.executeAsChunkTask(world, task);
-            task.get();
-        }
-        for (int i=0;i<10;++i){
-            long c = System.nanoTime();
-            FutureTask<Void> task = ThreadUtils.getFutureTask(()->{
-                long b = System.nanoTime();
-                Debug.logger("Bukkit Schedular Response Time", b-c);
-                Assert(Bukkit.isPrimaryThread());
-            });
-            ThreadUtils.executeSync(task);
             task.get();
         }
         ServerUtils.executeSync(()->{

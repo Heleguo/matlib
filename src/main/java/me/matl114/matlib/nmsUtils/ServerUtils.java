@@ -1,6 +1,5 @@
 package me.matl114.matlib.nmsUtils;
 
-import me.matl114.matlib.algorithms.algorithm.ThreadUtils;
 import me.matl114.matlib.nmsMirror.impl.NMSLevel;
 import me.matl114.matlib.nmsMirror.versionedEnv.Env;
 import me.matl114.matlib.utils.WorldUtils;
@@ -11,7 +10,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
-import java.util.function.Supplier;
 
 public class ServerUtils {
     private static final Map<World, Executor> cachedWorldExecutor = new HashMap<>();

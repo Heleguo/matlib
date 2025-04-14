@@ -1,4 +1,4 @@
-package me.matl114.matlib.algorithms.algorithm;
+package me.matl114.matlib.utils;
 
 import io.papermc.paper.plugin.configuration.PluginMeta;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
@@ -20,9 +20,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
@@ -147,7 +149,9 @@ public class ThreadUtils {
         }
     };
     private static final int MAX_CACHED_LOCK=8000;
-    private static ConcurrentHashMap<Class<?>, ConcurrentHashMap<Object, AtomicBoolean>> lockedSet = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Class<?>, ConcurrentHashMap<Object, AtomicBoolean>> lockedSet = new ConcurrentHashMap<>();
+
+    private static final Executor MAIN_THREAD_EXECUTOR ;
     public static boolean runAsyncOrBlocked(Object lock,Runnable runnable) {
         var set=lockedSet.computeIfAbsent(lock.getClass(),i->new ConcurrentHashMap<>());
         var locker=set.computeIfAbsent(lock,i->new AtomicBoolean(false));
@@ -165,6 +169,10 @@ public class ThreadUtils {
         }
         return false;
     }
+
+    public static void test(){
+
+    }
     public static BukkitRunnable getRunnable(Runnable runnable) {
         return runnable instanceof BukkitRunnable ?(BukkitRunnable)runnable: new BukkitRunnable() {
             public void run() {
@@ -172,9 +180,7 @@ public class ThreadUtils {
             }
         };
     }
-    public static CompletableFuture<?> runAsyncLater(Runnable runnable, long delay) {
-        return null;
-    }
+
     public static void sleep(long ms){
         try{
             Thread.sleep(ms);
@@ -183,9 +189,10 @@ public class ThreadUtils {
     public static void sleepNs(long ns){
         long ms = ns/1_000_000;
         long left = ns%1_000_000;
-        sleep(ms);
-        long endTime = System.nanoTime()+left;
-        LockSupport.parkNanos(endTime);
+        if(ms > 0){
+            sleep(ms);
+        }
+        LockSupport.parkNanos(left);
 //        do{
 //
 //        }while(System.nanoTime()<endTime);
@@ -206,21 +213,38 @@ public class ThreadUtils {
         if(Bukkit.isPrimaryThread()){
             runnable.run();
         }else {
-            runSync(runnable,MOCK_PLUGIN);
+            runSyncNMS(runnable);
         }
     }
+    @Deprecated(forRemoval = true)
     public static void executeSync(Runnable runnable, Plugin pl) {
-        if(Bukkit.isPrimaryThread()){
-            runnable.run();
-        }else {
-            runSync(runnable,pl);
-        }
+        executeSync(runnable);
+//        if(Bukkit.isPrimaryThread()){
+//            runnable.run();
+//        }else {
+//            runSync(runnable,pl);
+//        }
     }
-    private static void runSync(Runnable runnable,Plugin pl) {
-        Bukkit.getScheduler().runTask(pl,runnable);
+//    private static void runSync(Runnable runnable,Plugin pl) {
+//        Bukkit.getScheduler().runTask(pl,runnable);
+//    }
+
+    private static void runSyncNMS(Runnable runnable){
+        MAIN_THREAD_EXECUTOR.execute(runnable);
     }
     public static Plugin getMockPlugin(){
         return MOCK_PLUGIN;
+    }
+
+    static {
+        try {
+            Class<?> mcUtils = Class.forName("io.papermc.paper.util.MCUtil");
+            Field field = mcUtils.getDeclaredField("MAIN_EXECUTOR");
+            field.setAccessible(true);
+            MAIN_THREAD_EXECUTOR = (Executor) field.get(null);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

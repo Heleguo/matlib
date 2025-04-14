@@ -1,6 +1,8 @@
 package me.matl114.matlib.unitTest.autoTests;
 
-import me.matl114.matlib.algorithms.algorithm.ThreadUtils;
+import me.matl114.matlib.utils.ThreadUtils;
+import me.matl114.matlib.common.lang.annotations.NotRecommended;
+import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
 import me.matl114.matlib.utils.Debug;
@@ -17,7 +19,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import sun.misc.Unsafe;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -145,58 +146,62 @@ public class ExperimentialTest implements TestCase {
             enumMap.put(flag, Boolean.FALSE);
         }
 
-//        Debug.logger(enumMap);
-//        Field valuesField = Flags.class.getDeclaredField("$VALUES");
-//        Debug.logger(valuesField);
-//        Unsafe unsafe = ReflectUtils.getUnsafe();
-//        Object staticFieldBase = unsafe.staticFieldBase(valuesField);
-//        Flags a  = Flags.ACCEPT;
-//        Object[] values = (Object[]) unsafe.getObject(staticFieldBase, unsafe.staticFieldOffset(valuesField));
-//        Debug.logger(values);
-//        Debug.logger(values.length);
-//        unsafe.putInt(values, unsafe.arrayBaseOffset(values.getClass())-4, values.length+1);
-//        Debug.logger("now",values.length);
-//        Object[] newValues = values;// Arrays.copyOf(values, values.length + 1);
-////        Constructor<Flags> flag = Flags.class.getDeclaredConstructor(String.class, int.class);
-////        flag.setAccessible(true);
-//        Object newFlag = unsafe.allocateInstance(Flags.class);
-//        Field nameField = Enum.class.getDeclaredField("name");
-//        Field oridinalField = Enum.class.getDeclaredField("ordinal");
-//        ;
-//
-//        Assert(newFlag != null);
-//        unsafe.putObject(newFlag, unsafe.objectFieldOffset(nameField), "SHIT");
-//        unsafe.putInt(newFlag, unsafe.objectFieldOffset(oridinalField), 17);
-//        Field enumDict = Class.class.getDeclaredField("enumConstantDirectory");
-//        Debug.logger(enumDict);
-//        Map enumDictInstance = (Map) unsafe.getObject(Flags.class, unsafe.objectFieldOffset(enumDict));
-//        Debug.logger(enumDictInstance);
-//        if(enumDictInstance != null){
-//
-//            enumDictInstance.put("SHIT", newFlag);
-//        }
-//        Field enumList = Class.class.getDeclaredField("enumConstants");
-//        Debug.logger(enumList);
-//        Object enumArray = unsafe.getObject(Flags.class, unsafe.objectFieldOffset(enumList));
-//        if(enumArray != null){
-//            unsafe.putInt(enumArray, unsafe.arrayBaseOffset(enumArray.getClass())-4, values.length);
-//            unsafe.putObject(enumArray, unsafe.arrayBaseOffset(enumArray.getClass()) +(values.length-1)*unsafe.arrayIndexScale(enumArray.getClass()) ,newFlag);
-//            Debug.logger("check set", Array.get(enumArray, values.length-1));
-//        }
-//
-//       // Object newFlag = Flags.ACCEPT;
-//
-//        newValues[values.length-1] =  newFlag;
-//        Debug.logger(newFlag);
-//        Debug.logger(newValues);
-//        Debug.logger(values);
-//        unsafe.putObject(staticFieldBase, unsafe.staticFieldOffset(valuesField), newValues);
-        Flags newFlag = ReflectUtils.addEnumConst(Flags.class, "SHIT", (u, n)->{});
+        Flags newFlag = ReflectUtils.addEnumConst(Flags.class, "SHIT", (u, n)->{}, true);
         Debug.logger(Flags.values()[17]);
         ;
         Debug.logger(Flags.valueOf("SHIT"));
         Debug.logger((Object[]) Flags.values());
         enumMap.put((Flags) newFlag,Boolean.TRUE);
         Debug.logger(enumMap);
+    }
+
+    //@OnlineTest(name = "unsafe test 2")
+    @UnsafeOperation
+    @NotRecommended
+    public void test_unsafe2() throws Throwable{
+        Class<?> enumClass = Flags.class;
+        Unsafe unsafe = ReflectUtils.getUnsafe();
+        Field valuesField = Flags.class.getDeclaredField("$VALUES");
+        //ensure clinit
+        Object[] valuesClone = (Object[]) enumClass.getMethod("values").invoke(null);
+        Object[] valuesShared = (Object[]) unsafe.getObject( unsafe.staticFieldBase(valuesField), unsafe.staticFieldOffset(valuesField));
+        long offset = unsafe.arrayBaseOffset(valuesShared.getClass());
+        long value = unsafe.arrayIndexScale(valuesShared.getClass());
+        Debug.logger(valuesClone);
+        Debug.logger(offset ,value);
+        Object val = unsafe.getObject(valuesShared, offset + value);
+        Debug.logger(val);
+        Thread.sleep(2_000);
+        System.out.println("start");
+        Thread.sleep(2_000);
+        for (long i = 0 ; i< 16 ;++i){
+            try{
+                Object val2 = unsafe.getObject(valuesShared, offset + i*value);
+               System.out.println("fucking enum "+ val2);
+            }catch (Throwable e){
+                System.out.println("shit , it's bug");
+                e.printStackTrace();
+            }
+
+        }
+       System.out.println("shit ,I am here");
+        Thread.sleep(2_000);
+        ReflectUtils.resizeArray(valuesShared, 1700);
+        for (long i = 16; i < 1680; ++ i) {
+            unsafe.putObject(valuesShared, offset + i*value, null);
+        }
+        System.out.println("shit, I pull shit in it");
+
+        for (long i = 16 ; i< 1680 ;++i){
+            try{
+                Object val2 = valuesShared[(int) i];//unsafe.getObject(valuesShared, offset + i*value);
+               System.out.println("shit shit " +i +"" + val2);
+            }catch (Throwable e){
+                System.out.println("shit , it's bug");
+                e.printStackTrace();
+            }
+
+        }
+        Debug.logger((Object[]) Flags.values());
     }
 }

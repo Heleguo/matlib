@@ -6,7 +6,6 @@ import me.matl114.matlib.nmsMirror.level.LevelEnum;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 
 import static me.matl114.matlib.nmsMirror.impl.NMSLevel.*;

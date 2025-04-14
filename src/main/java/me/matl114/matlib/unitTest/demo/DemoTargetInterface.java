@@ -7,4 +7,7 @@ public interface DemoTargetInterface {
     default void f(){
         Debug.logger("Interface.f called");
     }
+    default void abs(){
+        Debug.logger("Interface.abs called");
+    }
 }

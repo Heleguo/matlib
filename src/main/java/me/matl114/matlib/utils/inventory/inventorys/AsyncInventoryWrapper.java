@@ -3,6 +3,7 @@ package me.matl114.matlib.utils.inventory.inventorys;
 import me.matl114.matlib.common.lang.annotations.NotRecommended;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
+import me.matl114.matlib.utils.ThreadUtils;
 import me.matl114.matlib.utils.inventory.inventoryRecords.InventoryRecord;
 import me.matl114.matlib.utils.inventory.inventoryRecords.SimpleInventoryRecord;
 import me.matl114.matlib.utils.NMSInventoryUtils;
@@ -28,8 +29,12 @@ public abstract class AsyncInventoryWrapper implements Inventory {
     boolean triggerDelayUpdate =false;
     Inventory handle;
     InventoryRecord record = null;
+    @Deprecated(forRemoval = true)
+    public static Inventory wrapOfCurrentThread(Plugin pl,@Nullable Inventory blockInventory){
+        return wrapOfCurrentThread(blockInventory);
+    }
     @NotRecommended("use Inventory Record instead")
-    public static Inventory wrapOfCurrentThread(Plugin pl,@Nullable Inventory blockInventory) {
+    public static Inventory wrapOfCurrentThread(@Nullable Inventory blockInventory) {
         if(blockInventory == null) {
             return null;
         }
@@ -39,7 +44,7 @@ public abstract class AsyncInventoryWrapper implements Inventory {
             return new AsyncInventoryWrapper(blockInventory) {
                 @Override
                 public void delayChangeUpdateInternal() {
-                    Bukkit.getScheduler().runTask(pl,()->{
+                    ThreadUtils.executeSync(()->{
                         if(blockInventory.getHolder(false) instanceof TileState tile) {
                             WorldUtils.tileEntitySetChange(tile);
                         }
@@ -48,26 +53,30 @@ public abstract class AsyncInventoryWrapper implements Inventory {
             };
         }
     }
-    public static Inventory wrapOfCurrentThread(Plugin pl, InventoryRecord record) {
+    @Deprecated(forRemoval = true)
+    public static Inventory wrapOfCurrentThread(Plugin pl, InventoryRecord record){
+        return wrapOfCurrentThread(record);
+    }
+    public static Inventory wrapOfCurrentThread( InventoryRecord record) {
         if(!record.isVanillaInv()||Bukkit.isPrimaryThread()){
             return record.inventory();
         }else {
             return record.hasInv()?new AsyncInventoryWrapper(record) {
                 @Override
                 public void delayChangeUpdateInternal() {
-                    Bukkit.getScheduler().runTask(pl, record::setChange);
+                    ThreadUtils.executeSync(record::setChange);
                 }
             }:null;
         }
     }
-    public static Inventory wrapOfThread(Plugin pl, InventoryRecord record, boolean isMainThread) {
+    public static Inventory wrapOfThread(InventoryRecord record, boolean isMainThread) {
         if(!record.isVanillaInv()||isMainThread){
             return record.inventory();
         }else {
             return record.hasInv()?new AsyncInventoryWrapper(record) {
                 @Override
                 public void delayChangeUpdateInternal() {
-                    Bukkit.getScheduler().runTask(pl, record::setChange);
+                    ThreadUtils.executeSync(record::setChange);
                 }
             }:null;
         }

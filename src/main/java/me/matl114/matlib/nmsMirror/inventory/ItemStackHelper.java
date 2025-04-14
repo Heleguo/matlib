@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -113,10 +114,10 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
 
         if(create){
             Object custom = getOrCreateCustomTag(val);
-            return NMSCore.COMPONENT_TAG.getOrCreateCompound(custom, "PublicBukkitValues");
+            return NMSCore.COMPOUND_TAG.getOrCreateCompound(custom, "PublicBukkitValues");
         }else {
             Object custom = getCustomTag(val);
-            return custom == null ? null: NMSCore.COMPONENT_TAG.get(custom, "PublicBukkitValues");
+            return custom == null ? null: NMSCore.COMPOUND_TAG.get(custom, "PublicBukkitValues");
         }
     }
 
@@ -142,50 +143,51 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
     }
     @Protected
     default boolean matchTag(@Nonnull Object nbt1,@Nonnull Object nbt2, boolean matchLore, boolean matchName){
-        Map<String, ?> map1 = NMSCore.COMPONENT_TAG.tagsGetter(nbt1);
-        Map<String, ?> map2 = NMSCore.COMPONENT_TAG.tagsGetter(nbt2);
-        Set<? extends Map.Entry<String, ?>> key1 = map1.entrySet();
+        if(matchLore && matchName){
+            return Objects.equals(nbt1, nbt2);
+        }
+        Map<String, ?> map1 = NMSCore.COMPOUND_TAG.tagsGetter(nbt1);
+        Map<String, ?> map2 = NMSCore.COMPOUND_TAG.tagsGetter(nbt2);
         int size1 = map1.size();
         int size2 = map2.size();
-        boolean hasDisplay1 = map1.containsKey(DISPLAY);
-        if(hasDisplay1){
+        //get the DISPLAY tag here
+        Object obj1 = map1.get(DISPLAY);
+        Object obj2 = map2.get(DISPLAY);
+        if(obj1 != null){
             size1 -= 1;
         }
-        boolean hasDisplay2 = map2.containsKey(DISPLAY);
-        if(hasDisplay2){
+        if(obj2 != null){
             size2 -= 1;
         }
         if(size1 != size2){
             return false;
         }
+        Set<? extends Map.Entry<String, ?>> key1 = map1.entrySet();
         for (var val: key1){
-            String key = val.getKey();
-            if(hasDisplay1 && DISPLAY.equals(key)){
+            Object value = val.getValue();
+            //escape certain tag value, which its key is DISPLAY, using Reference == instead of String.equals
+            //in this situation, values are different from each other
+            if(value == obj1){
                 continue;
-            }else {
-                var re = map2.get(key);
-                if(re == null){
-                    return false;
-                }else if(!Objects.equals(val.getValue(), re)){
-                    return false;
-                }
+                //not equal, otherside null(key absent) or sth(value not match)
+            }else if(!Objects.equals(value, map2.get(val.getKey()))){
+                return false;
             }
         }
         //key-value都匹配
         //考虑Display
         //有一方没有display
-        if(!hasDisplay2 || !hasDisplay1){
+        if(obj1 == null || obj2 == null){
             //如果不匹配任何display, 或者均没有,返回true
-            return hasDisplay1 == hasDisplay2 || (!matchLore && !matchName);
+            return obj1 == obj2 || (!matchLore && !matchName);
         }
-        Object obj1 = map1.get(DISPLAY);
-        Object obj2 = map2.get(DISPLAY);
-       // Class<?> nbtCompClass = NMSCore.COMPONENT_TAG.getTargetClass();
+
+       // Class<?> nbtCompClass = NMSCore.COMPOUND_TAG.getTargetClass();
         if(isCompoundTag(obj1) && isCompoundTag(obj2)){
-            if(matchName && !Objects.equals(NMSCore.COMPONENT_TAG.get(obj1, NAME), NMSCore.COMPONENT_TAG.get(obj2, NAME))){
+            if(matchName && !Objects.equals(NMSCore.COMPOUND_TAG.get(obj1, NAME), NMSCore.COMPOUND_TAG.get(obj2, NAME))){
                 return false;
             }
-            if(matchLore && !Objects.equals(NMSCore.COMPONENT_TAG.get(obj1, LORE), NMSCore.COMPONENT_TAG.get(obj2, LORE))){
+            if(matchLore && !Objects.equals(NMSCore.COMPOUND_TAG.get(obj1, LORE), NMSCore.COMPOUND_TAG.get(obj2, LORE))){
                 return false;
             }
             return true;

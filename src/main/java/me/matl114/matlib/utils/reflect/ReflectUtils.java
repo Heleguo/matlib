@@ -2,6 +2,7 @@ package me.matl114.matlib.utils.reflect;
 
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.common.lang.annotations.NotRecommended;
+import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.Flags;
@@ -447,21 +448,26 @@ public class ReflectUtils {
     }
     @UnsafeOperation
     @NotRecommended
-    public static <T extends Enum<T>> T addEnumConst(Class<T> enumClass, String name, UnsafeAllocateCallback<T> initCallback) throws Throwable{
+    public static <T extends Enum<T>> T addEnumConst(Class<T> enumClass, String name, UnsafeAllocateCallback<T> initCallback,@Note("expanding array may cause jvm core dump") boolean expandOriginalArray) throws Throwable{
         Unsafe unsafe = getUnsafe();
         Field valuesField = Flags.class.getDeclaredField("$VALUES");
         //ensure clinit
         Object[] valuesClone = (Object[]) enumClass.getMethod("values").invoke(null);
         Object valuesShared = unsafe.getObject( unsafe.staticFieldBase(valuesField), unsafe.staticFieldOffset(valuesField));
         //force change array length
-        resizeArray(valuesShared, valuesClone.length+1);
+
+
         T newEnum = (T)unsafe.allocateInstance(enumClass);
         Field nameField = Enum.class.getDeclaredField("name");
         unsafe.putObject(newEnum, unsafe.objectFieldOffset(nameField), name);
         Field oridinalField = Enum.class.getDeclaredField("ordinal");
         unsafe.putInt(newEnum, unsafe.objectFieldOffset(oridinalField), valuesClone.length);
         initCallback.init(unsafe, newEnum);
-        Array.set(valuesShared, valuesClone.length, newEnum);
+        if(expandOriginalArray){
+            resizeArray(valuesShared, valuesClone.length+1);
+            Array.set(valuesShared, valuesClone.length, newEnum);
+        }
+
         //successfully injected
         Field enumDict = Class.class.getDeclaredField("enumConstantDirectory");
         Map enumDictInstance = (Map) unsafe.getObject(Flags.class, unsafe.objectFieldOffset(enumDict));
@@ -470,7 +476,7 @@ public class ReflectUtils {
         }
         Field enumList = Class.class.getDeclaredField("enumConstants");
         Object enumArray = unsafe.getObject(Flags.class, unsafe.objectFieldOffset(enumList));
-        if(enumArray != null){
+        if(enumArray != null && expandOriginalArray){
             resizeArray(enumArray, valuesClone.length+1);
             Array.set(enumArray, valuesClone.length, newEnum);
         }
