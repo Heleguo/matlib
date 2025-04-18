@@ -27,6 +27,7 @@ public class Import {
     public static final String Container = "Lnet/minecraft/world/Container;";
     public static final String Player = "Lnet/minecraft/world/entity/player/Player;";
     public static final String HopperBlockEntity = "Lnet/minecraft/world/level/block/entity/HopperBlockEntity;";
+    public static final String CraftPersistentDataContainer = "Lorg/bukkit/craftbukkit/persistence/CraftPersistentDataContainer;";
 
     public static final String ContainerClass = "net.minecraft.world.Container";
     public static final String HopperBlockEntityClass = "net.minecraft.world.level.block.entity.HopperBlockEntity";

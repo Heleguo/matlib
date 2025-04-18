@@ -3,7 +3,7 @@ package me.matl114.matlib.unitTest;
 import com.google.common.base.Preconditions;
 import lombok.Getter;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
-import me.matl114.matlib.implement.bukkit.ScheduleManager;
+import me.matl114.matlib.implement.bukkit.schedule.ScheduleManager;
 import me.matl114.matlib.utils.AddUtils;
 import me.matl114.matlib.utils.command.commandGroup.AbstractMainCommand;
 import me.matl114.matlib.utils.command.commandGroup.SubCommand;
@@ -19,6 +19,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 public class TestRunner extends AbstractMainCommand implements Manager {
@@ -28,7 +29,7 @@ public class TestRunner extends AbstractMainCommand implements Manager {
     @Override
     public TestRunner init(Plugin pl, String... path) {
         this.plugin = pl;
-        ScheduleManager.getManager().launchScheduled(this::runAutomaticTests,30,false,0);
+        ScheduleManager.getManager().launchScheduled(this::runAutomaticTests,2,false,0);
         registerFunctional();
         this.addToRegistry();
         return this;
@@ -56,6 +57,9 @@ public class TestRunner extends AbstractMainCommand implements Manager {
     private final HashMap<String, Pair<TestRunnable,TestCase>> testCases = new LinkedHashMap<>();
     private final HashMap<String, Pair<BiConsumer<CommandSender,String[]>,TestCase>> manuallyExecutedCase = new LinkedHashMap<>();
     public TestRunner registerTestCase(TestCase testCase) {
+        if(testCase instanceof TestSet set){
+            set.getTests().forEach(this::registerTestCase);
+        }
         var methods = ReflectUtils.getAllMethodsRecursively(testCase.getClass());
         for (var method : methods) {
             if(method.isSynthetic()||method.isBridge()||method.getParameterTypes().length>=3) {continue;}
@@ -184,10 +188,42 @@ public class TestRunner extends AbstractMainCommand implements Manager {
         }
         boolean isAsync();
     }
-    public void runAutomaticTests(){
-        runAutomaticTests(this.testCases.values().stream().map(Pair::getA).toList());
+    @Getter
+    private boolean warmup = true;
+    public TestRunner setWarmup(boolean a){
+        warmup = a;
+        return this;
     }
-    public void runAutomaticTests(List<TestRunnable> tests) {
+    public void autoTestsWarmUp(List<TestRunnable> tests){
+        if(warmup){
+            Debug.logger("Starting test warm up for the first time");
+            Debug.interceptAllOutputs(()->{
+                for (int i=0 ;i<3 ;++i){
+                    List<CompletableFuture> futures = new ArrayList<>();
+                    for (var runnable: tests){
+                        futures.add(CompletableFuture.runAsync(runnable::executeAwait));
+                    }
+                    CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+                }
+                return null;
+            });
+            warmup = false;
+            Debug.logger("Warm up completed");
+            ThreadUtils.sleep(4000);
+        }else {
+            Debug.logger("Escape warm up before test!");
+        }
+
+        runAutomaticTests0(tests);
+
+    }
+    public void runAutomaticTests(){
+        autoTestsWarmUp(this.testCases.values().stream().map(Pair::getA).toList());
+    }
+    public void runAutomaticTests(List<TestRunnable> tests){
+        autoTestsWarmUp(tests);
+    }
+    private void runAutomaticTests0(List<TestRunnable> tests) {
         Debug.logger("Starting automatic tests");
         Debug.logger("--------------------------------------------------------------------------------------");
         for (var runnable : tests) {

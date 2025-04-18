@@ -4,12 +4,14 @@ import lombok.Getter;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializeProvider;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializeSafeProvider;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializingTasks;
+import me.matl114.matlib.algorithms.dataStructures.struct.Holder;
+import me.matl114.matlib.common.functions.FuncUtils;
+import me.matl114.matlib.common.functions.reflect.FieldAccessor;
+import me.matl114.matlib.common.functions.reflect.MethodInvoker;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.utils.itemCache.ItemStackCache;
-import me.matl114.matlib.utils.reflect.FieldAccess;
-import me.matl114.matlib.utils.reflect.FieldAccessor;
-import me.matl114.matlib.utils.reflect.MethodAccess;
-import me.matl114.matlib.utils.reflect.MethodInvoker;
+import me.matl114.matlib.utils.reflect.LambdaUtils;
+import me.matl114.matlib.utils.reflect.wrapper.*;
 import me.matl114.matlib.utils.version.VersionedMeta;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -22,7 +24,9 @@ import org.bukkit.inventory.meta.*;
 
 import javax.annotation.Nonnull;
 import java.lang.invoke.VarHandle;
+import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Function;
 
 public class CraftUtils {
     private static final EnumSet<Material> COMPLEX_MATERIALS = EnumSet.noneOf(Material.class);
@@ -40,151 +44,169 @@ public class CraftUtils {
     private static final HashSet<Material> INDISTINGUISHABLE_MATERIALS = new HashSet<>() {{
         add(Material.BUNDLE);
     }};
-    public static final ItemStack DEFAULT_ITEMSTACK=new ItemStack(Material.STONE);
-    private static final InitializingTasks INIT_TASK = new InitializingTasks(()->{
+    public static final ItemStack DEFAULT_ITEMSTACK= new ItemStack(Material.STONE);
+    private static final InitializingTasks INIT_TASK = InitializingTasks.of(()->{
         Debug.logger("Initializing CraftUtils...");
     });
     public static final ItemMeta NULL_META=(DEFAULT_ITEMSTACK.getItemMeta());
     public static final Class craftMetaItemClass =NULL_META.getClass();
-    private static final ThreadLocal<Inventory> threadLocalInventory = ThreadLocal.withInitial(()->Bukkit.createInventory(new InventoryHolder() {
-        Inventory inv;
-        @Override
-        public Inventory getInventory() {
-            return inv;
-        }
-    }, InventoryType.CHEST));
-   private static final ItemStack craftItemStack = new InitializeSafeProvider<>(ItemStack.class,()->{
-       try{
-           Inventory a = threadLocalInventory.get();
-           a.setItem(0,DEFAULT_ITEMSTACK);
-           return a.getItem(0);
-       }catch (Throwable e){
-           return null;
-       }
-   }).v();
+    private static final ThreadLocal<Inventory> threadLocalInventory =
+        ThreadLocal.withInitial(()->Bukkit.createInventory(new InventoryHolder() {
+            Inventory inv;
+            @Override
+            public Inventory getInventory() {
+                return inv;
+            }
+        }, InventoryType.CHEST));
+   private static final ItemStack craftItemStack =
+       Holder.of(threadLocalInventory)
+           .thenApply(ThreadLocal::get)
+           .thenPeek(inv->inv.setItem(0,DEFAULT_ITEMSTACK))
+           .thenApply(Inventory::getItem,0)
+           .get();
+
    @Getter
-    private static final Class craftItemStackClass =  new InitializeProvider<Class>(()->{
-        return craftItemStack !=null ? craftItemStack.getClass() : null;
-    }).v();
+    private static final Class craftItemStackClass =
+       Holder.of(craftItemStack)
+           .thenApply(FuncUtils.ifPresent(Object::getClass))
+           .get();
+
     @Getter
-    private static final FieldAccess loreAccess = new InitializeSafeProvider<>(FieldAccess.class,()->{
-        try{
-            var CRAFTLORE= craftMetaItemClass.getDeclaredField("lore");
-            CRAFTLORE.setAccessible(true);
-            return FieldAccess.of(CRAFTLORE);
-        }catch (Throwable e){
-            Debug.logger(e,"Meta reflection failed,please check the error:");
-            return FieldAccess.ofFailure();
-        }
-    }).v();
+    private static final FieldAccess loreAccess =
+        Holder.of(craftMetaItemClass)
+            .thenApplyCaught(Class::getDeclaredField, "lore")
+            .failHard()
+            .thenPeek(Field::setAccessible, true)
+            .thenApply(FieldAccess::of)
+            .peekFail((e)->Debug.logger(e,"Meta reflection failed,please check the error:"))
+            .ifFail((e)->FieldAccess.ofFailure())
+            .get();
+
     @Getter
-    private static final FieldAccess displayNameAccess =  new InitializeSafeProvider<>(FieldAccess.class,()->{
-        try{
-            var CRAFTDISPLAYNAME= craftMetaItemClass.getDeclaredField("displayName");
-            CRAFTDISPLAYNAME.setAccessible(true);
-            return FieldAccess.of(CRAFTDISPLAYNAME);
-        }catch (Throwable e){
-            Debug.logger(e,"ItemMeta reflection failed,please check the error");
-            return FieldAccess.ofFailure();
-        }
-    }).v();
+    private static final FieldAccess displayNameAccess =
+        Holder.of(craftMetaItemClass)
+            .thenApplyCaught(Class::getDeclaredField, "displayName")
+            .failHard()
+            .thenPeek(Field::setAccessible, true)
+            .thenApply(FieldAccess::of)
+            .peekFail((e)->Debug.logger(e,"ItemMeta reflection failed,please check the error"))
+            .ifFail((e)->FieldAccess.ofFailure())
+            .get();
+
     @Getter
-    private static final FieldAccess enchantmentAccess = new InitializeSafeProvider<>(FieldAccess.class,()->{
-        try{
-            var CRAFTDISPLAYNAME= craftMetaItemClass.getDeclaredField("enchantments");
-            CRAFTDISPLAYNAME.setAccessible(true);
-            return FieldAccess.of(CRAFTDISPLAYNAME);
-        }catch (Throwable e){
-            Debug.logger(e,"ItemMeta reflection failed,please check the error");
-            return FieldAccess.ofFailure();
-        }
-    }).v();
+    private static final FieldAccess enchantmentAccess =
+        Holder.of(craftMetaItemClass)
+            .thenApplyCaught(Class::getDeclaredField, "enchantments")
+            .failHard()
+            .thenPeek(Field::setAccessible, true)
+            .thenApply(FieldAccess::of)
+            .peekFail((e)->Debug.logger(e,"ItemMeta reflection failed,please check the error"))
+            .ifFail((e)-> FieldAccess.ofFailure())
+            .get();
+
     @Getter
-    private static final FieldAccess handledAccess = new InitializeSafeProvider<>(FieldAccess.class,()->{
-        try{
-            var CRAFTHANDLER= craftItemStackClass.getDeclaredField("handle");
-            CRAFTHANDLER.setAccessible(true);
-            return FieldAccess.of(CRAFTHANDLER);
-        }catch (Throwable e){
-            Debug.logger(e,"ItemStack reflection failed,please check the error:");
-            return FieldAccess.ofFailure();
-        }
-    }).v();
-   // public static Field CRAFTHANDLER;
-    private static final Class NMSItemStackClass = new InitializeSafeProvider<>(Class.class,()->{
-       try {
-           return (Class) handledAccess.getValue(craftItemStack).getClass() ;
-       } catch (Throwable e) {
-           return null;
-       }
-    }).v();
+    private static final FieldAccess handledAccess =
+        Holder.of(craftItemStackClass)
+            .thenApplyCaught(Class::getDeclaredField, "handle")
+            .failHard()
+            .thenPeek(Field::setAccessible, true)
+            .thenApply(FieldAccess::of)
+            .peekFail((e)->Debug.logger(e,"ItemStack reflection failed,please check the error:"))
+            .ifFail((e)->FieldAccess.ofFailure())
+            .get();
+
+    private static final Class NMSItemStackClass =
+       Holder.of(handledAccess)
+           .thenApplyCaught(FieldAccess::getValue,craftItemStack)
+           .whenComplete((o,e)->{
+               if(e == null){
+                   return o.getClass();
+               }else {
+                   return null;
+               }
+           })
+           .get();
+
     @Getter
-    private static final VarHandle loreHandle = new InitializeSafeProvider<>(()->{
-        return loreAccess.getVarHandleOrDefault(()->null);
-    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftMetaItem.lore VarHandle")).v();
+    private static final VarHandle loreHandle =
+        Holder.of(loreAccess)
+            .thenApply(FieldAccess::getVarHandleOrDefault, FuncUtils.nullSupplier())
+            .thenPeek((e)->Debug.logger("Successfully initialize CraftMetaItem.lore VarHandle"))
+            .get();
+
     @Getter
-    private static final VarHandle displayNameHandle = new InitializeSafeProvider<>(()->{
-        return displayNameAccess.getVarHandleOrDefault(()->null);
-    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftMetaItem.displayName VarHandle")).v();
+    private static final VarHandle displayNameHandle =
+        Holder.of(displayNameAccess)
+            .thenApply(FieldAccess::getVarHandleOrDefault, FuncUtils.nullSupplier())
+            .thenPeek((e)->Debug.logger("Successfully initialize CraftMetaItem.displayName VarHandle"))
+            .get();
+
     @Getter
-    private static final VarHandle enchantmentsHandle = new InitializeSafeProvider<>(()->{
-        return enchantmentAccess.getVarHandleOrDefault(()->null);
-    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftMetaItem.enchantments VarHandle")).v();
+    private static final VarHandle enchantmentsHandle =
+        Holder.of(enchantmentAccess)
+            .thenApply(FieldAccess::getVarHandleOrDefault, FuncUtils.nullSupplier())
+            .thenPeek((e)->Debug.logger("Successfully initialize CraftMetaItem.enchantments VarHandle"))
+            .get();
 
     @Note("net.minecraft.ItemStack handle;")
-    private static final VarHandle handleHandle = new InitializeSafeProvider<>(()->{
-        return handledAccess.getVarHandleOrDefault(()->null);
-    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftItemStack.handle VarHandle")).v();
+    private static final VarHandle handleHandle =
+        Holder.of(handledAccess)
+            .thenApply( FieldAccess::getVarHandleOrDefault, FuncUtils.nullSupplier())
+            .thenPeek((e)->Debug.logger("Successfully initialize CraftItemStack.handle VarHandle"))
+            .get();
 
 
     @Note("net.minecraft.ItemStack handle may be public")
-    private static final FieldAccessor<?> handleAccessor = new InitializeSafeProvider<>(()->{
-        if(handledAccess.isPublicField()){
-            var re = FieldAccessor.ofASM(handledAccess.getReflectAsm(null));
-            Debug.logger("Detect handle field public! using asm Accessor");
-            return re;
-        }else {
-            return new FieldAccessor() {
-                @Override
-                public void set(Object obj, Object value) {
-                    CraftUtils.handleHandle.set(obj,value);
-                }
-
-                @Override
-                public Object get(Object obj) {
-                    return CraftUtils.handleHandle.get(obj);
-                }
-            };
+    private static final FieldAccessor<?> handleAccessor = new FieldAccessor() {
+        @Override
+        public void set(Object obj, Object value) {
+            CraftUtils.handleHandle.set(obj,value);
         }
-    }).v();
 
-    private static final FieldAccess craftDelegateAccess = new InitializeSafeProvider<>(FieldAccess.class,()->{
-        return null;
-    }).runNonnullAndNoError(()->Debug.logger("Detected ItemStack.craftDelegate field")).v();
+        @Override
+        public Object get(Object obj) {
+            return CraftUtils.handleHandle.get(obj);
+        }
+    };
+
+
     @Getter
-
-    private static final MethodAccess<ItemStack> asCraftCopyAccess = MethodAccess.ofName(craftItemStackClass,"asCraftCopy",ItemStack.class);
+    private static final MethodAccess<ItemStack> asCraftCopyAccess =
+        MethodAccess.ofName(craftItemStackClass,"asCraftCopy",ItemStack.class);
 
     @Getter
     @Note("public static CraftItemStack asCraftCopy")
-    private static final MethodInvoker<ItemStack> asCraftCopyInvoker = asCraftCopyAccess.getInvoker();
+    private static final MethodInvoker<ItemStack> asCraftCopyInvoker =
+        Holder.of(asCraftCopyAccess.getMethodOrDefault(()->null))
+            .thenApplyUnsafe((m)->{
+                return (Function<ItemStack,ItemStack>)LambdaUtils.createLambdaForStaticMethod(Function.class, m);
+            })
+            .thenApply(MethodInvoker::<ItemStack>staticMethodAsFunc)
+            .get();
 
-    private static final MethodAccess<?> asNMSCopyAccess = MethodAccess.ofName(craftItemStackClass,"asNMSCopy",ItemStack.class);
+    private static final MethodAccess<?> asNMSCopyAccess =
+        MethodAccess.ofName(craftItemStackClass,"asNMSCopy",ItemStack.class);
     @Getter
     @Note("public static net.minecraft.world.item.ItemStack asNMSCopy")
-    private static final MethodInvoker<?> asNMSCopyInvoker = asNMSCopyAccess.getInvoker();
-    private static final InitializingTasks CRAFTITEM_CLASS_FINISH = new InitializingTasks(()->{
+    private static final MethodInvoker<?> asNMSCopyInvoker =
+        Holder.of(asNMSCopyAccess.getMethodOrDefault(()->null))
+            .thenApplyUnsafe((m)->{
+                return (Function<?,?>)LambdaUtils.createLambdaForStaticMethod(Function.class, m);
+            })
+            .thenApply(MethodInvoker::staticMethodAsFunc)
+            .get();
+        ;
+
+
+    private static final InitializingTasks CRAFTITEM_CLASS_FINISH = InitializingTasks.of(()->{
         Debug.logger("Successfully initialize CraftItemStack static methods...");
     });
-    //when running without slimefun:
-    //don't use history record of crafting method
-    //don't use parseSfId
-    private static final InitializingTasks INIT_TASK_FINISH = new InitializingTasks(()->{
+
+    private static final InitializingTasks INIT_TASK_FINISH = InitializingTasks.of(()->{
         Debug.logger("Successfully initialize CraftUtils...");
     });
-    public static void setup(){
 
-    }
+
     public static Object getHandled(ItemStack stack){
         if(craftItemStackClass.isInstance(stack)){
             return handleAccessor.get(stack);

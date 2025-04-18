@@ -2,6 +2,7 @@ package me.matl114.matlib.utils.itemCache;
 
 import lombok.Getter;
 import me.matl114.matlib.algorithms.dataStructures.struct.LazyInitReference;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -25,6 +26,10 @@ public class ItemStackCache implements Cloneable{
     protected void init(ItemStack item){
         this.item = item;
         this.metaRef = LazyInitReference.ofEmpty();
+    }
+
+    public Material getType(){
+        return item.getType();
     }
     /**
      * get meta info ,if havn't get ,getItemMeta()

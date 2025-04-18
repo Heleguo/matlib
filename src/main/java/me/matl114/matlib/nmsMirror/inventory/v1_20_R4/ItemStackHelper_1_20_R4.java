@@ -3,6 +3,7 @@ package me.matl114.matlib.nmsMirror.inventory.v1_20_R4;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
+import me.matl114.matlib.common.lang.annotations.Protected;
 import me.matl114.matlib.nmsMirror.versionedEnv.Env;
 import me.matl114.matlib.nmsMirror.impl.NMSCore;
 import me.matl114.matlib.nmsMirror.inventory.ItemStackHelper;
@@ -81,7 +82,7 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
     default Object getOrCreateCustomTag(Object stack){
         Object customData = getDataComponentValue(stack, DataComponentEnum.CUSTOM_DATA);
         if(customData != null){
-            return customData;
+            return Env1_20_R4.ICUSTOMDATA.tagOrNull(customData);
         }else {
             Object newComp = NMSCore.COMPOUND_TAG.newComp();
             Object newCustomData = Env1_20_R4.ICUSTOMDATA.ofNoCopy(newComp);
@@ -99,16 +100,16 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
         }
     }
 
-    default boolean matchItem(Object item1, Object item2, boolean matchLore, boolean matchName){
+    default boolean matchItem(Object item1, Object item2, @Note("distinct assumed that they both have lore/name, and we don't care about them, BUT if one of then don't have, then it is regarded as not match") boolean distinctLore, boolean distinctName){
         if(item1 == item2){
             return true;
         }
         if(item1 == null || item2 == null){
             return false;
         }
-//        if(matchLore && matchName){
-//            return isSameItemSameTags(item1, item2);
-//        }
+        if(distinctLore && distinctName){
+            return isSameItemSameTags(item1, item2);
+        }
         if(getItem(item1) != getItem(item2)){
             return false;
         }
@@ -120,41 +121,23 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
         if(comp1 == null || comp2 == null){
             return false;
         }
-        return matchComp(comp1, comp2, matchLore, matchName);
+        //should match name , or match lore here
+        return matchComp(comp1, comp2, distinctLore, distinctName);
     }
     //need optimize
+    @Internal
     default boolean matchComp(@Nonnull Object comp1, @Nonnull Object comp2, boolean matchLore, boolean matchName){
         //prototype is from Item.component, it should be the reference to same object! if itemType is same
-        if(Env1_20_R4.ICOMPONENT.prototypeGetter(comp1) != Env1_20_R4.ICOMPONENT.prototypeGetter(comp2)){
-            return false;
-        }
+//        if(Env1_20_R4.ICOMPONENT.prototypeGetter(comp1) != Env1_20_R4.ICOMPONENT.prototypeGetter(comp2)){
+//            return false;
+//        }
         Reference2ObjectMap<Object, Optional<?>> patch1 = Env1_20_R4.ICOMPONENT.patchGetter(comp1);
         Reference2ObjectMap<Object, Optional<?>> patch2 = Env1_20_R4.ICOMPONENT.patchGetter(comp2);
-//        if(matchLore && matchName){
-//            return Objects.equals(patch1, patch2);
-//        }
+
         if(patch1 == patch2){
             return true;
         }
-        int size1 = patch1.size();
-        int size2 = patch2.size();
-        if(!matchName){
-            if(patch2.containsKey(DataComponentEnum.CUSTOM_NAME)){
-                size2 -= 1;
-            }
-            if(patch1.containsKey(DataComponentEnum.CUSTOM_NAME)){
-                size1 -= 1;
-            }
-        }
-        if(!matchLore ){
-            if(patch2.containsKey(DataComponentEnum.LORE)){
-                size2 -= 1;
-            }
-            if(patch1.containsKey(DataComponentEnum.LORE)){
-                size1 -= 1;
-            }
-        }
-        if(size1 != size2)return false;
+        if(patch1.size() != patch2.size())return false;
         ObjectSet<Reference2ObjectMap.Entry<Object, Optional<?>>> entryset1 = patch1.reference2ObjectEntrySet();
         ObjectIterator<Reference2ObjectMap.Entry<Object,Optional<?>>> iter =
             entryset1 instanceof Reference2ObjectMap.FastEntrySet fast?fast.fastIterator():

@@ -2,7 +2,7 @@ package me.matl114.matlib.unitTest;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.matl114.matlib.implement.bukkit.ChatInputManager;
+import me.matl114.matlib.implement.bukkit.chat.ChatInputManager;
 import me.matl114.matlib.unitTest.autoTests.*;
 import me.matl114.matlib.unitTest.manualTests.DisplayManagerTest;
 import me.matl114.matlib.unitTest.manualTests.NMSPlayerTest;
@@ -37,21 +37,20 @@ public class MatlibTest extends JavaPlugin {
             .init(this);
         testRunner = new TestRunner()
             .init(this)
-            .registerTestCase(new ReflectionUtilTests())
-            //.registerTestCase(new CommonTests())
-            //.registerTestCase(new InventoryTests())
-//            .registerTestCase(new SlimefunTests())
-            //.registerTestCase(new EntityTests())
-            .registerTestCase(new ExperimentialTest())
-            .registerTestCase(new DisplayManagerTest())
+            .setWarmup(false)
+            .registerTestCase(new BukkitTestset())
+            .registerTestCase(new CommonTestset())
+            .registerTestCase(new NMSTestset())
+            .registerTestCase(new ReflectionTestset())
+            .registerTestCase(new DependsTestset())
+            //project tests tests that havn't complete
 //            .registerTestCase(new ComponentTests())
+//            .registerTestCase(new EntityTests())
+//            .registerTestCase(new ExperimentialTest())
+            //manual tests
+            .registerTestCase(new DisplayManagerTest())
             .registerTestCase(new PlayerTest())
-           .registerTestCase(new ASMUtilsTests())
-//            .registerTestCase(new ArgumentedTests())
-            //.registerTestCase(new BukkitTests())
-            .registerTestCase(new NMSTests())
             .registerTestCase(new NMSPlayerTest())
-            .registerTestCase(new ThreadUtilTests())
         ;
         this.getServer().getPluginManager().registerEvents(new TestListeners(),this);
     }

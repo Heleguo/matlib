@@ -1,7 +1,7 @@
 package me.matl114.matlib.nmsMirror.impl;
 
 import me.matl114.matlib.nmsMirror.Utils;
-import me.matl114.matlib.utils.reflect.ObfManager;
+import me.matl114.matlib.utils.reflect.internel.ObfManager;
 
 public class EmptyEnum {
     public static final Object EMPTY_ITEMSTACK;

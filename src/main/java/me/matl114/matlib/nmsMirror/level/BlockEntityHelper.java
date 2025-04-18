@@ -1,9 +1,14 @@
 package me.matl114.matlib.nmsMirror.level;
 
+import lombok.val;
 import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
+import me.matl114.matlib.common.lang.annotations.NeedTest;
 import me.matl114.matlib.common.lang.annotations.Note;
+import me.matl114.matlib.nmsMirror.craftbukkit.persistence.CraftPersistentDataContainerHelper;
 import me.matl114.matlib.nmsMirror.impl.CraftBukkit;
+import me.matl114.matlib.nmsMirror.impl.NMSCore;
 import me.matl114.matlib.nmsMirror.interfaces.PdcCompoundHolder;
+import me.matl114.matlib.nmsUtils.CraftBukkitUtils;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.IgnoreFailure;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
@@ -18,10 +23,16 @@ public interface BlockEntityHelper extends TargetDescriptor , PdcCompoundHolder 
     @FieldTarget
 //    @RedirectType(CraftPersistentDataContainer)
     PersistentDataContainer persistentDataContainerGetter(Object be);
+    @FieldTarget
+    void persistentDataContainerSetter(Object be, @RedirectType(CraftPersistentDataContainer)PersistentDataContainer val);
 
     default Object getPersistentDataCompound(Object val, boolean create){
         PersistentDataContainer container = persistentDataContainerGetter(val);
         return CraftBukkit.PERSISTENT_DATACONTAINER.asCompoundMirror(container);
+    }
+    @NeedTest
+    default void setPersistentDataCompound(Object itemStack, Object compound){
+        persistentDataContainerSetter(itemStack, CraftBukkit.PERSISTENT_DATACONTAINER.newPersistentDataContainer(NMSCore.COMPOUND_TAG.tagsGetter(compound), CraftBukkitUtils.getPdcDataTypeRegistry()));
     }
 
     @MethodTarget

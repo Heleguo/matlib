@@ -1,20 +1,22 @@
 package me.matl114.matlib.utils.version;
 
 import lombok.Getter;
+import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.potion.PotionEffectType;
+import org.w3c.dom.Attr;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public abstract class VersionedRegistry {
 
@@ -77,7 +79,8 @@ public abstract class VersionedRegistry {
 
             return from;
         }
-    }protected final HashMap<NamespacedKey,NamespacedKey> remappingPotionEffect = new HashMap<>();
+    }
+    protected final HashMap<NamespacedKey,NamespacedKey> remappingPotionEffect = new HashMap<>();
 
 
     public abstract Enchantment getEnchantment(String name);
@@ -86,8 +89,28 @@ public abstract class VersionedRegistry {
     public abstract EntityType getEntityType(String name);
 
     public abstract PotionEffectType getPotionEffectType(String key);
+    protected Map<String, Attribute> remappingAttribute = new LinkedHashMap<>();
+    public abstract Attribute getAttribute(String key);
+    public abstract Collection<Attribute> getAttributes();
     static class Default extends VersionedRegistry{
-
+        {
+            Attribute[] values ;
+            try {
+                values = (Attribute[]) Attribute.class.getMethod("values").invoke(null);
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+            for (Attribute attr :values){
+                Keyed keyed = (Keyed)attr;
+                String key = keyed.getKey().getKey();
+                String[] val = key .split("\\.");
+                if(val.length == 2){
+                    remappingAttribute.put(val[1], attr);
+                }else {
+                    remappingAttribute.put(key, attr);
+                }
+            }
+        }
         @Override
         public Enchantment getEnchantment(String name) {
             name=this. convertLegacyEnchantment0(name);
@@ -117,6 +140,16 @@ public abstract class VersionedRegistry {
                 return getPotionEffectByNSK(NamespacedKey.minecraft(key));
             }
 
+        }
+
+        @Override
+        public Attribute getAttribute(String key) {
+            return remappingAttribute.get(key);
+        }
+
+        @Override
+        public Collection<Attribute> getAttributes() {
+            return remappingAttribute.values();
         }
     }
     static class v1_20_R1 extends Default{

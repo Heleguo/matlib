@@ -1,56 +1,51 @@
 package me.matl114.matlib.utils.reflect.internel;
 
-import lombok.Getter;
 import me.matl114.matlib.common.lang.annotations.Internal;
 import me.matl114.matlib.common.lang.annotations.Note;
-import me.matl114.matlib.utils.reflect.reflectasm.MethodAccess;
+import me.matl114.matlib.utils.reflect.ReflectUtils;
 
-import java.lang.reflect.Method;
+import java.lang.invoke.MethodHandle;
 import java.util.Map;
 
 @Note("this is a HAND-MADE impl for ObfHelper because we need to get the ObfSource before anything")
 @Internal
 class ClassMapperHelperImpl implements ClassMapperHelper {
-    private final Class<?> clazz0;
-    @Getter
-    private final MethodAccess classMappingAccess;
-    private final int method1;
-    private final int method2;
-    private final int method3;
+
+    static final Class<?> clazz0 = ReflectUtils.findClass("io.papermc.paper.util.ObfHelper$ClassMapping");
+    private static final MethodHandle handle1 = ReflectUtils.getMethodHandle(clazz0, "obfName");
+    private static final MethodHandle handle2 = ReflectUtils.getMethodHandle(clazz0, "mojangName");
+    private static final MethodHandle handle3 = ReflectUtils.getMethodHandle(clazz0, "methodsByObf");
+
     //private final Constructor<?> init0;
-    public ClassMapperHelperImpl() throws Throwable{
-        clazz0 = Class.forName("io.papermc.paper.util.ObfHelper$ClassMapping");
-        classMappingAccess = MethodAccess.get(clazz0);// MethodAccess.get(clazz0);
-        method1 = classMappingAccess.getIndex("obfName",0);
-        method2 = classMappingAccess.getIndex("mojangName",0);
-        method3 = classMappingAccess.getIndex("methodsByObf",0);
-        //init0 = clazz0.getConstructor(String.class, String.class, Map.class);
-
-
+    public ClassMapperHelperImpl() {
     }
 
-//    @Override
-//    public Object newInstance0(String obfName, String mojangName, Map mapping) {
-//        try{
-//            return this.init0.newInstance(obfName, mojangName, mapping);
-//        }catch (Throwable e){
-//            throw new DescriptorException(e);
-//        }
-//    }
 
     @Override
     public String obfNameGetter(Object obj) {
-        return (String) classMappingAccess.invoke(obj, method1);
+        try{
+            return (String) handle1.invoke(obj);
+        }catch (Throwable e ){
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public String mojangNameGetter(Object obj) {
-        return (String) classMappingAccess.invoke(obj, method2);
+        try{
+            return (String) handle2 .invoke(obj);
+        }catch (Throwable e){
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public Map methodsByObf(Object self) {
-        return (Map) classMappingAccess.invoke(self, method3);
+        try{
+            return (Map)handle3.invoke(self);
+        }catch (Throwable e){
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

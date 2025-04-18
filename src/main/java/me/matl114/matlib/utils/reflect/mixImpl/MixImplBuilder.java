@@ -3,7 +3,7 @@ package me.matl114.matlib.utils.reflect.mixImpl;
 import com.google.common.base.Preconditions;
 import lombok.Data;
 import me.matl114.matlib.common.lang.exceptions.NotImplementedYet;
-import me.matl114.matlib.utils.reflect.ObfManager;
+import me.matl114.matlib.utils.reflect.internel.ObfManager;
 import me.matl114.matlib.utils.reflect.asm.CustomClassLoader;
 import me.matl114.matlib.utils.reflect.mixImpl.annotations.MixImpl;
 import me.matl114.matlib.utils.reflect.mixImpl.buildTools.MixBase;

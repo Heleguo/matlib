@@ -2,11 +2,14 @@ package me.matl114.matlib.utils;
 
 import lombok.Getter;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializeSafeProvider;
+import me.matl114.matlib.algorithms.dataStructures.struct.Holder;
+import me.matl114.matlib.common.functions.FuncUtils;
 import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
 import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
-import me.matl114.matlib.utils.reflect.FieldAccess;
-import me.matl114.matlib.utils.reflect.MethodAccess;
-import me.matl114.matlib.utils.reflect.MethodInvoker;
+import me.matl114.matlib.utils.reflect.LambdaUtils;
+import me.matl114.matlib.utils.reflect.wrapper.FieldAccess;
+import me.matl114.matlib.utils.reflect.wrapper.MethodAccess;
+import me.matl114.matlib.common.functions.reflect.MethodInvoker;
 import me.matl114.matlib.utils.reflect.ReflectUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -27,6 +30,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class WorldUtils {
 
@@ -200,9 +204,19 @@ public class WorldUtils {
         }).findFirst();
         return met.orElse(null);
     });
-    private static final MethodInvoker<Void> tileEntitySetChangeMethodInvoker = new InitializeSafeProvider<>(tileEntitySetChangeAccess::getInvoker)
-            .runNonnullAndNoError(()->Debug.logger("Successfully initialize TileEntity.setChange Method Invoker"))
-            .v();
+    private static final MethodInvoker<Void> tileEntitySetChangeMethodInvoker =
+        Holder.of(tileEntitySetChangeAccess)
+            .thenApply(MethodAccess::getMethodOrDefault, FuncUtils.nullTyped(Method.class))
+            .thenApplyCaught((m)-> (Consumer<?>) LambdaUtils.createLambdaForMethod(Consumer.class, m))
+            .thenApply(MethodInvoker::ofSafeNoArgs)
+            .get();
+//        new InitializeSafeProvider<>(()->{
+//        return AccessConvertor.convertMethodAccess(tileEntitySetChangeAccess, true)
+//            .createMethodInvoker()
+//            .<Void>cast();
+//    })
+//            .runNonnullAndNoError(()->Debug.logger("Successfully initialize TileEntity.setChange Method Invoker"))
+//            .v();
     public static boolean isTileEntityStillValid(@Nonnull TileState tile){
         if(craftBlockEntityStateClass.isInstance(tile)){
             Object tileEntity = tileEntityHandle.get(tile);

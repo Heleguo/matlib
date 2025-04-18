@@ -1,7 +1,7 @@
 package me.matl114.matlib.nmsMirror.inventory.v1_20_R4;
 
 import me.matl114.matlib.nmsMirror.Utils;
-import me.matl114.matlib.utils.reflect.ObfManager;
+import me.matl114.matlib.utils.reflect.internel.ObfManager;
 import me.matl114.matlib.utils.version.Version;
 import me.matl114.matlib.utils.version.VersionAtLeast;
 

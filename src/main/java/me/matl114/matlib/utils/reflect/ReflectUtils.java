@@ -1,55 +1,57 @@
 package me.matl114.matlib.utils.reflect;
 
+import me.matl114.matlib.algorithms.dataStructures.frames.InitializeSafeProvider;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.common.lang.annotations.NotRecommended;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
-import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.Flags;
 import sun.misc.Unsafe;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
 import java.util.*;
 
 public class ReflectUtils {
-    public static  Object invokeGetRecursively(Object target, Flags mod, String declared){
-        return invokeGetRecursively(target,target.getClass(),mod,declared);
-    }
-    public static  Object invokeGetRecursively(Object target, Class clazz, Flags mod, String decleared){
-//        if(Debug.debug){
-//            Debug.debug("try invoke ",clazz);
+//    public static  Object invokeGetRecursively(Object target, Flags mod, String declared){
+//        return invokeGetRecursively(target,target.getClass(),mod,declared);
+//    }
+//    public static  Object invokeGetRecursively(Object target, Class clazz, Flags mod, String decleared){
+////        if(Debug.debug){
+////            Debug.debug("try invoke ",clazz);
+////        }
+//        try{
+//            switch (mod){
+//                case FIELD:
+////                    if(clazz.getName().endsWith("AbstractMachineBlock")){
+////                        Debug.debug("try print this");
+////                        Field[] fields=clazz.getDeclaredFields();
+////                        for(Field f:fields){
+////                            Debug.debug(f.getName());
+////                        }
+////                    }
+//                    //Debug.debug("start find field ",decleared);
+//                    Field _hasType=clazz.getDeclaredField(decleared);
+//                    // Debug.debug("find field");
+//                    _hasType.setAccessible(true);
+//                    //  Debug.debug("Access true");
+//                    return  _hasType.get(target);
+//                case METHOD:
+//                    Method _hasMethod=clazz.getDeclaredMethod(decleared);
+//
+//                    _hasMethod.setAccessible(true);
+//                    return _hasMethod.invoke(target);
+//            }
+//        }catch (Throwable e){
 //        }
-        try{
-            switch (mod){
-                case FIELD:
-//                    if(clazz.getName().endsWith("AbstractMachineBlock")){
-//                        Debug.debug("try print this");
-//                        Field[] fields=clazz.getDeclaredFields();
-//                        for(Field f:fields){
-//                            Debug.debug(f.getName());
-//                        }
-//                    }
-                    //Debug.debug("start find field ",decleared);
-                    Field _hasType=clazz.getDeclaredField(decleared);
-                    // Debug.debug("find field");
-                    _hasType.setAccessible(true);
-                    //  Debug.debug("Access true");
-                    return  _hasType.get(target);
-                case METHOD:
-                    Method _hasMethod=clazz.getDeclaredMethod(decleared);
-
-                    _hasMethod.setAccessible(true);
-                    return _hasMethod.invoke(target);
-            }
-        }catch (Throwable e){
-        }
-        clazz=clazz.getSuperclass();
-        if(clazz==null){
-            return null;
-        }else {
-            return invokeGetRecursively(target,clazz,mod,decleared);
-        }
-    }
+//        clazz=clazz.getSuperclass();
+//        if(clazz==null){
+//            return null;
+//        }else {
+//            return invokeGetRecursively(target,clazz,mod,decleared);
+//        }
+//    }
     public static boolean setFieldRecursively(Object target,  String declared,Object value){
         return setFieldRecursively(target,target.getClass(),declared,value);
     }
@@ -184,6 +186,12 @@ public class ReflectUtils {
             field.setAccessible(true);
             return Pair.of(field,clazz);
         }catch (Throwable e){
+            for (var itf: clazz.getInterfaces()){
+                var re = getMethodsRecursively(itf, fieldName, parameterTypes);
+                if(re != null){
+                    return re;
+                }
+            }
             clazz=clazz.getSuperclass();
             if(clazz==null){
                 return null;
@@ -438,13 +446,45 @@ public class ReflectUtils {
     public static boolean copyFirstField(Object to,Object from,Class<?> clazz,Class<?> fieldType){
         return setFirstFitField(to,getFieldValue(from,clazz,fieldType),clazz,fieldType);
     }
+
+    public static Class<?> findClass(String name){
+        try{
+            return Class.forName(name);
+        }catch (Throwable e){
+            return null;
+        }
+    }
+
+    public static MethodHandle getMethodHandle(Class<?> clazz, String name, Class<?>... argments){
+        try{
+            Method method = clazz.getMethod(name, argments);
+            return MethodHandles.lookup().unreflect(method);
+        }catch (Throwable e){
+            return null;
+        }
+    }
+    public static MethodHandle getPrivateMethodHandle(Class<?> clazz, String name, Class<?>... args){
+        try{
+            Method method = clazz.getDeclaredMethod(name, args);
+            return MethodHandles.privateLookupIn(clazz, MethodHandles.lookup()).unreflect(method);
+        }catch (Throwable e){
+            return null;
+        }
+    }
+
+
+
     public static interface UnsafeAllocateCallback<T extends Object>{
         public void init(Unsafe unsafe,T newInstance);
     }
-    private static final FieldAccess.AccessWithObject<Unsafe> staticUnsafeAccess=FieldAccess.ofName(Unsafe.class,"theUnsafe").printError(false).ofAccess(null);
+    private static final Unsafe theUnsafe =  new InitializeSafeProvider<>(()->{
+        Field field = Unsafe.class.getDeclaredField("theUnsafe");
+        field.setAccessible(true);
+        return (Unsafe)field.get(null);
+    }).v();
 
     public static Unsafe getUnsafe(){
-        return staticUnsafeAccess.getRaw();
+        return theUnsafe;
     }
     @UnsafeOperation
     @NotRecommended
@@ -491,18 +531,11 @@ public class ReflectUtils {
 
 
 
-    public static final Map<String,Integer> objectInvocationIndex = new HashMap<>(){{
-        put("getClass",-1);
-        put("hashCode",-2);
-        put("equals",-3);
-        put("clone",-4);
-        put("toString",-5);
-        put("notify",-6);
-        put("notifyAll",-7);
-        put("wait",-8);
-        put("wait0",-9);
-        put("finalize",-10);
-    }};
+    public static final Map<String,Integer> objectInvocationIndex = Map.of(
+        "getClass",-1,"hashCode",-2,"equals",-3,"clone",-4,"toString",-5,"notify",-6,
+        "notifyAll",-7,"wait",-8,"wait0",-9,"finalize",-10
+    ) ;
+
     public static boolean isBaseMethod(Method method){
         return objectInvocationIndex.containsKey(method.getName()); //Object.class.equals(method.getDeclaringClass());
     }

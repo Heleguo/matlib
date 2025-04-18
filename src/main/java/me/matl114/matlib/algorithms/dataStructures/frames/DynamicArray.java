@@ -16,6 +16,9 @@ public class DynamicArray<T> extends AbstractList<T> implements List<T> {
         this.func=indexer;
         this.maxinum=-1;
     }
+
+
+
     public int size(){
         return size;
     }

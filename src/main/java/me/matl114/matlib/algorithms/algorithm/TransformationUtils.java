@@ -45,7 +45,7 @@ public class TransformationUtils {
             throw new RuntimeException(exception);
         }
     }
-    public static Vector3f mulD(Vector3f v1, Vector3f v2) {
+    public static Vector3f mulElem(Vector3f v1, Vector3f v2) {
         return new Vector3f(v1.x*v2.x,v1.y*v2.y,v1.z*v2.z);
     }
 
@@ -122,6 +122,7 @@ public class TransformationUtils {
          * @param other
          * @return
          */
+        @Note("f.compose(g) means f·g ,which f·g(x) = f(g(x))")
         public LCTransformation compositionWith(LCTransformation other) {
             Quaternionf newQ =  cloneQ(q).mul(other.q);
             float newC = c*other.c;
@@ -250,7 +251,7 @@ public class TransformationUtils {
 
 
     public static Transformation shrink(Transformation trans, Vector3f vec){
-        return new Transformation(trans.getTranslation(),trans.getLeftRotation(),mulD(vec,trans.getScale()),trans.getRightRotation() );
+        return new Transformation(trans.getTranslation(),trans.getLeftRotation(), mulElem(vec,trans.getScale()),trans.getRightRotation() );
     }
     public static Transformation rotation(Quaternionf f){
         return new Transformation(ZERO_VEC,f,ID_SCALE,R);

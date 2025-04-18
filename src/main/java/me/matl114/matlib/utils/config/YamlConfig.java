@@ -73,32 +73,32 @@ public class YamlConfig extends Config {
         }
     }
 
-    @Override
-    public Object castWhenLoad(Object val) {
-        for (Function<Object,Object> handler: loadValueHandlers) {
-            val=handler.apply(val);
-        }
-        if(this.useDoublePrecision==this.useFloatPrecision){
-            return val;
-        }else if(this.useDoublePrecision){
-            if(val instanceof Float f){
-                return f.doubleValue();
-            }
-        }else {
-            if(val instanceof Double d){
-                return d.floatValue();
-            }
-        }
-        return val;
-    }
-
-    @Override
-    public Object castWhenDump(Object val) {
-        for (Function<Object,Object> handler: dumpValueHandlers) {
-            val=handler.apply(val);
-        }
-        return val;
-    }
+//    @Override
+//    public Object castWhenLoad(Object val) {
+//        for (Function<Object,Object> handler: loadValueHandlers) {
+//            val=handler.apply(val);
+//        }
+//        if(this.useDoublePrecision==this.useFloatPrecision){
+//            return val;
+//        }else if(this.useDoublePrecision){
+//            if(val instanceof Float f){
+//                return f.doubleValue();
+//            }
+//        }else {
+//            if(val instanceof Double d){
+//                return d.floatValue();
+//            }
+//        }
+//        return val;
+//    }
+//
+//    @Override
+//    public Object castWhenDump(Object val) {
+//        for (Function<Object,Object> handler: dumpValueHandlers) {
+//            val=handler.apply(val);
+//        }
+//        return val;
+//    }
 
     @Override
     public void reload() {

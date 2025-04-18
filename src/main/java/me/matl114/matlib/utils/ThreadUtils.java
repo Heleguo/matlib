@@ -1,7 +1,9 @@
 package me.matl114.matlib.utils;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.papermc.paper.plugin.configuration.PluginMeta;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
+import me.matl114.matlib.common.lang.enums.TaskRequest;
 import me.matl114.matlib.common.lang.exceptions.NotImplementedYet;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
@@ -22,10 +24,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
 import java.util.logging.Logger;
@@ -148,6 +147,10 @@ public class ThreadUtils {
             return List.of();
         }
     };
+//    private static final ThreadPoolExecutor ASYNC_EXECUTOR = new ThreadPoolExecutor(
+//        4, Integer.MAX_VALUE,30L, TimeUnit.SECONDS, new SynchronousQueue<>(),
+//        new ThreadFactoryBuilder().setNameFormat("Matlib Async Tasks - %1$d").build()
+//    );
     private static final int MAX_CACHED_LOCK=8000;
     private static final ConcurrentHashMap<Class<?>, ConcurrentHashMap<Object, AtomicBoolean>> lockedSet = new ConcurrentHashMap<>();
 
@@ -216,6 +219,14 @@ public class ThreadUtils {
             runSyncNMS(runnable);
         }
     }
+    public static void executeSyncSched(Runnable runnable){
+        if(Bukkit.isPrimaryThread()){
+            CompletableFuture.runAsync(runnable, MAIN_THREAD_EXECUTOR);
+        }else {
+            runSyncNMS(runnable);
+        }
+    }
+
     @Deprecated(forRemoval = true)
     public static void executeSync(Runnable runnable, Plugin pl) {
         executeSync(runnable);
@@ -224,6 +235,10 @@ public class ThreadUtils {
 //        }else {
 //            runSync(runnable,pl);
 //        }
+    }
+
+    public static void executeAsync(Runnable runnable){
+        Bukkit.getScheduler().runTaskAsynchronously(MOCK_PLUGIN, runnable);
     }
 //    private static void runSync(Runnable runnable,Plugin pl) {
 //        Bukkit.getScheduler().runTask(pl,runnable);
@@ -234,6 +249,23 @@ public class ThreadUtils {
     }
     public static Plugin getMockPlugin(){
         return MOCK_PLUGIN;
+    }
+
+    public static void runWithRequest(TaskRequest taskRequest, Runnable runnable) {
+        switch (taskRequest) {
+            case RUN_LATER_MAIN:
+                ThreadUtils.executeSyncSched(runnable);
+                break;
+            case RUN_ON_CURRENT:
+                runnable.run();
+                break;
+            case RUN_ASYNC:
+                ThreadUtils.executeAsync(runnable);
+                break;
+            case RUN_ON_CURRENT_OR_LATER_MAIN:
+                executeSync(runnable);
+                break;
+        }
     }
 
     static {

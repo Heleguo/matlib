@@ -1,8 +1,10 @@
 package me.matl114.matlib.utils.reflect.mixImpl.buildTools;
 
+import me.matl114.matlib.utils.reflect.exceptions.ReflectRuntimeException;
+
 import java.lang.reflect.InvocationTargetException;
 
-public class MixImplException extends RuntimeException{
+public class MixImplException extends ReflectRuntimeException {
     public static MixImplException notImpl(){
         return new MixImplException(0);
     }

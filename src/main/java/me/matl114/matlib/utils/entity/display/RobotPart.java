@@ -1,6 +1,6 @@
 package me.matl114.matlib.utils.entity.display;
 
-import me.matl114.matlib.algorithms.dataStructures.complex.transformation.MatrixStack;
+import me.matl114.matlib.algorithms.dataStructures.complex.MatrixStack;
 import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
 import me.matl114.matlib.common.lang.annotations.Note;
 

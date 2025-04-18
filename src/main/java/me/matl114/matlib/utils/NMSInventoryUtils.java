@@ -4,12 +4,15 @@ import com.google.common.base.Preconditions;
 import lombok.Getter;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializeSafeProvider;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializingTasks;
+import me.matl114.matlib.algorithms.dataStructures.struct.Holder;
+import me.matl114.matlib.common.functions.FuncUtils;
 import me.matl114.matlib.common.lang.annotations.NotRecommended;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
 import me.matl114.matlib.utils.inventory.inventoryRecords.InventoryRecord;
-import me.matl114.matlib.utils.reflect.MethodAccess;
-import me.matl114.matlib.utils.reflect.MethodInvoker;
+import me.matl114.matlib.utils.reflect.LambdaUtils;
+import me.matl114.matlib.utils.reflect.wrapper.MethodAccess;
+import me.matl114.matlib.common.functions.reflect.MethodInvoker;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
@@ -20,9 +23,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.function.Function;
 
 public class NMSInventoryUtils {
-    private static final InitializingTasks INIT_TASK = new InitializingTasks(()->{
+    private static final InitializingTasks INIT_TASK = InitializingTasks.of(()->{
         Debug.logger("Initializing NMSInventoryUtils...");
     });
     @Getter
@@ -45,28 +49,54 @@ public class NMSInventoryUtils {
         return craftCustomInv;
     }).v();
     @Getter
-    private static final MethodAccess<?> getIInventoryAccess = MethodAccess.ofName(craftInventoryClass,"getInventory",new Class[0]).initWithNull();
+    private static final MethodAccess<?> getIInventoryAccess =
+        MethodAccess.ofName(craftInventoryClass,"getInventory",new Class[0])
+            .initWithNull();
 
     @Getter
     @Note("public IInventory getInventory()")
-    private static final MethodInvoker<?> getIInventoryInvoker = new InitializeSafeProvider<>(getIInventoryAccess::getInvoker)
-            .runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftInventory.getInventory Method Invoker"))
-            .v();
+    private static final MethodInvoker<?> getIInventoryInvoker =
+        Holder.of(getIInventoryAccess)
+            .thenApply(MethodAccess::getMethodOrDefault, FuncUtils.nullTyped(Method.class))
+            .thenApplyCaught((m)->(Function<Inventory,?>)LambdaUtils.createLambdaForMethod(Function.class,m))
+            .thenApply(MethodInvoker::ofSafeNoArgs)
+            .thenPeek((e)->Debug.logger("Successfully initialize CraftInventory.getInventory Method Invoker"))
+            .get();
+//        new InitializeSafeProvider<>(()->{
+//        return AccessConvertor.convertMethodAccess(getIInventoryAccess, true)
+//            .createMethodInvoker()
+//            .cast();
+//    })
+//            .runNonnullAndNoError(()->)
+//            .v();
 
     @Getter
     @Note("interface IInventory")
-    private static final Class<?> iInventoryClass = new InitializeSafeProvider<>(()->{
-        Method rawMethod = getIInventoryAccess.getMethodOrDefault(()->null);
-//        Debug.debug(rawMethod);
-//        Debug.debug(rawMethod.getDeclaringClass(),rawMethod.getName(),rawMethod.getReturnType());
-        return rawMethod.getReturnType();
-    }).v();
+    private static final Class<?> iInventoryClass =
+        Holder.of(getIInventoryAccess)
+            .thenApply(MethodAccess::getMethodOrDefault, FuncUtils.nullTyped(Method.class))
+            .thenApply(Method::getReturnType)
+            .get();
+//        new InitializeSafeProvider<>(()->{
+//        Method rawMethod = getIInventoryAccess.getMethodOrDefault(()->null);
+////        Debug.debug(rawMethod);
+////        Debug.debug(rawMethod.getDeclaringClass(),rawMethod.getName(),rawMethod.getReturnType());
+//        return rawMethod.getReturnType();
+//    }).v();
 
     @Getter
-    private static final MethodAccess<List<?>> getIIContentsAccess = MethodAccess.ofName(iInventoryClass,"getContents",new Class[0]).initWithNull();
+    private static final MethodAccess<List<?>> getIIContentsAccess =
+        MethodAccess.ofName(iInventoryClass,"getContents",new Class[0])
+            .initWithNull()
+            .cast();
     @Getter
     @Note("public List<net.minecraft.ItemStack> getContents()")
-    private static final MethodInvoker<List<?>> getIIContentsInvoker = getIIContentsAccess.getInvoker();
+    private static final MethodInvoker<List<?>> getIIContentsInvoker =
+        Holder.of(getIIContentsAccess)
+            .thenApply(MethodAccess::getMethodOrDefault, FuncUtils.nullTyped(Method.class))
+            .thenApplyCaught((m)->(Function<?,List<?>>)LambdaUtils.createLambdaForMethod(Function.class, m))
+            .thenApply(MethodInvoker::ofSafeNoArgs)
+            .get();
 
     @UnsafeOperation
     @Note("record must be a vanilla Inv")

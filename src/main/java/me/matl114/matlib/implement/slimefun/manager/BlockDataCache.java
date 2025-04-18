@@ -12,7 +12,7 @@ import lombok.Getter;
 import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
 import me.matl114.matlib.utils.AddUtils;
 import me.matl114.matlib.utils.Debug;
-import me.matl114.matlib.utils.reflect.FieldAccess;
+import me.matl114.matlib.utils.reflect.wrapper.FieldAccess;
 import me.matl114.matlib.core.AutoInit;
 import me.matl114.matlib.core.Manager;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;

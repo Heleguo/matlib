@@ -2,7 +2,7 @@ package me.matl114.matlib.utils.entity.display;
 
 import lombok.Getter;
 import me.matl114.matlib.algorithms.algorithm.TransformationUtils;
-import me.matl114.matlib.algorithms.dataStructures.complex.transformation.MatrixStack;
+import me.matl114.matlib.algorithms.dataStructures.complex.MatrixStack;
 import me.matl114.matlib.common.lang.annotations.ConstVal;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.common.lang.annotations.Protected;

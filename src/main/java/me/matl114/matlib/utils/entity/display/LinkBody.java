@@ -1,7 +1,7 @@
 package me.matl114.matlib.utils.entity.display;
 
 import me.matl114.matlib.algorithms.algorithm.TransformationUtils;
-import me.matl114.matlib.algorithms.dataStructures.complex.transformation.MatrixStack;
+import me.matl114.matlib.algorithms.dataStructures.complex.MatrixStack;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import org.bukkit.Location;
 import org.joml.Vector3f;

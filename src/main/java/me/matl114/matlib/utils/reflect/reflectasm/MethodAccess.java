@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-
+@Deprecated
 @Note("copied from com.esotericsoftware.reflectasm")
 public abstract class MethodAccess {
     private String[] methodNames;
@@ -79,7 +79,7 @@ public abstract class MethodAccess {
         return this.returnTypes;
     }
     private static Map<Class<?>, MethodAccess> CACHE = new LinkedHashMap<>();
-    public static MethodAccess get(Class type){
+    public static synchronized MethodAccess get(Class type){
         return CACHE.computeIfAbsent(type, MethodAccess::get0);
     }
     private static MethodAccess get0(Class type) {
@@ -249,7 +249,6 @@ public abstract class MethodAccess {
                                 case 8:
                                     mv.visitMethodInsn(184, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
                             }
-
                             mv.visitInsn(176);
                         }
 

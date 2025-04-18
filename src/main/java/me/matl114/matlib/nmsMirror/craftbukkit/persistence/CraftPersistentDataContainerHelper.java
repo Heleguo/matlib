@@ -1,6 +1,7 @@
 package me.matl114.matlib.nmsMirror.craftbukkit.persistence;
 
 import com.google.common.base.Preconditions;
+import lombok.Getter;
 import me.matl114.matlib.common.lang.annotations.NeedTest;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.nmsMirror.impl.NMSCore;
@@ -59,7 +60,7 @@ public interface CraftPersistentDataContainerHelper extends TargetDescriptor {
     public void dirty(Object dirtyContainer, final boolean dirty);
 
     @ConstructorTarget
-    public PersistentDataContainer newPersistentDataContainer(Map<String, ?> customTags, @RedirectType("Lorg/bukkit/craftbukkit/persistence/CraftPersistentDataTypeRegistry")Object registry);
+    public PersistentDataContainer newPersistentDataContainer(Map<String, ?> customTags, @RedirectType("Lorg/bukkit/craftbukkit/persistence/CraftPersistentDataTypeRegistry;")Object registry);
 
     @ConstructorTarget
     @RedirectClass("org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry")
@@ -67,7 +68,7 @@ public interface CraftPersistentDataContainerHelper extends TargetDescriptor {
 
     @ConstructorTarget
     @RedirectClass("org.bukkit.craftbukkit.persistence.CraftPersistentDataAdapterContext")
-    public PersistentDataAdapterContext createAdaptorContext(@RedirectType("Lorg/bukkit/craftbukkit/persistence/CraftPersistentDataTypeRegistry")Object registries);
+    public PersistentDataAdapterContext createAdaptorContext(@RedirectType("Lorg/bukkit/craftbukkit/persistence/CraftPersistentDataTypeRegistry;")Object registries);
 
     @MethodTarget
     @RedirectClass("org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry")
@@ -80,135 +81,5 @@ public interface CraftPersistentDataContainerHelper extends TargetDescriptor {
     @MethodTarget
     @RedirectClass("org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry")
     public <T> T extract(Object registries, PersistentDataType<T,?> type,@RedirectType(Tag) Object value);
-
-    @Note("create a view from a raw Compound Tag or a map, No new Map will be created")
-    static class DataContainerView implements PersistentDataContainer{
-        static Object registry;
-        static PersistentDataAdapterContext adapterContext;
-        @Nonnull
-        private static Object getRegistry(){
-            if(registry == null){
-                registry = PERSISTENT_DATACONTAINER.createRegistry();
-                adapterContext = PERSISTENT_DATACONTAINER.createAdaptorContext(registry);
-            }
-            return registry;
-        }
-
-        public static PersistentDataAdapterContext getAdaptorContext(){
-            getRegistry();
-            return adapterContext;
-        }
-
-        private final Map<String, Object> customDataTags ;
-        public DataContainerView(Object compoundTags){
-            customDataTags = (Map<String, Object>) COMPOUND_TAG.tagsGetter(compoundTags);
-        }
-
-        public DataContainerView(Map<String, ?> rawMap){
-            customDataTags = (Map<String, Object>) rawMap;
-        }
-
-        @Override
-        public <P, C> void set(@NotNull NamespacedKey key, @NotNull PersistentDataType<P, C> type, @NotNull C value) {
-            this.customDataTags.put(key.toString(), PERSISTENT_DATACONTAINER.wrap(getRegistry(), type, type.toPrimitive(value, this.adapterContext)));
-        }
-
-        @Override
-        public void remove(@NotNull NamespacedKey namespacedKey) {
-            this.customDataTags.remove(namespacedKey.toString());
-        }
-
-        @Override
-        public void readFromBytes(byte @NotNull [] bytes, boolean b) throws IOException {
-
-            getRegistry();
-            PersistentDataContainer container = adapterContext.newPersistentDataContainer();
-            container.readFromBytes(bytes);
-            if(b){
-                this.customDataTags.clear();
-            }
-            this.customDataTags.putAll(PERSISTENT_DATACONTAINER.getRaw(container));
-
-
-        }
-
-        @Override
-        public <P, C> boolean has(NamespacedKey namespacedKey, PersistentDataType<P, C> persistentDataType) {
-            Object raw = customDataTags.get(namespacedKey.toString());
-            if(raw == null)
-                return false;
-            return PERSISTENT_DATACONTAINER.isInstanceOf(getRegistry(), persistentDataType, raw);
-        }
-
-        @Override
-        public boolean has(NamespacedKey namespacedKey) {
-            return this.customDataTags.get(namespacedKey.toString()) != null;
-        }
-
-        @Override
-        public <P, C> @Nullable C get(NamespacedKey namespacedKey, PersistentDataType<P, C> persistentDataType) {
-            Object raw = customDataTags.get(namespacedKey.toString());
-            if(raw == null)
-                return null;
-            return persistentDataType.fromPrimitive( PERSISTENT_DATACONTAINER.extract(getRegistry(), persistentDataType, raw), adapterContext);
-        }
-
-        @Override
-        public <P, C> C getOrDefault(NamespacedKey namespacedKey, PersistentDataType<P, C> persistentDataType, C c) {
-            C value = get(namespacedKey, persistentDataType);
-            return value == null ? c : value;
-        }
-
-        @Override
-        public Set<NamespacedKey> getKeys() {
-            Set<NamespacedKey> keys = new HashSet<>();
-
-            this.customDataTags.keySet().forEach(key -> {
-                String[] keyData = key.split(":", 2);
-                if (keyData.length == 2) {
-                    keys.add(new NamespacedKey(keyData[0], keyData[1]));
-                }
-            });
-
-            return keys;
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return this.customDataTags.isEmpty();
-        }
-
-        @Override
-        public void copyTo(PersistentDataContainer persistentDataContainer, boolean b) {
-            if(persistentDataContainer instanceof DataContainerView view){
-                if(b){
-                    view.customDataTags.putAll(this.customDataTags);
-                }else {
-                    this.customDataTags.forEach((k,v)->view.customDataTags.putIfAbsent(k,v));
-                }
-            }else if(PERSISTENT_DATACONTAINER.isCraftContainer(persistentDataContainer)){
-                Map<String, ?> tags = PERSISTENT_DATACONTAINER.getRaw(persistentDataContainer);
-                if(b){
-                    tags.putAll((Map) this.customDataTags);
-                }else {
-                    this.customDataTags.forEach((k,v)-> ((Map)tags).putIfAbsent(k,v));
-                }
-            }else {
-                throw new UnsupportedOperationException("Persistent Data Container Class not supported: "+persistentDataContainer.getClass());
-            }
-        }
-
-        @Override
-        public PersistentDataAdapterContext getAdapterContext() {
-            getRegistry();
-            return adapterContext;
-        }
-
-        @Override
-        public byte[] serializeToBytes() throws IOException {
-            PersistentDataContainer craftPersistentDataContainer = PERSISTENT_DATACONTAINER.newPersistentDataContainer(this.customDataTags, getRegistry());
-            return craftPersistentDataContainer.serializeToBytes();
-        }
-    }
 
 }

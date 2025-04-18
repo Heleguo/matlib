@@ -2,7 +2,7 @@ package me.matl114.matlib.core;
 
 import lombok.Getter;
 import me.matl114.matlib.common.lang.annotations.Note;
-import me.matl114.matlib.implement.bukkit.ScheduleManager;
+import me.matl114.matlib.implement.bukkit.schedule.ScheduleManager;
 import org.bukkit.plugin.Plugin;
 
 @Note("Manage class marked as @AutoInit(level = \"Plugin\")")

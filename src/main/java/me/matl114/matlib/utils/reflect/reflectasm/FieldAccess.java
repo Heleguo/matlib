@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Deprecated(forRemoval = true)
 @Note("copied from com.esotericsoftware.reflectasm")
 public abstract class FieldAccess {
     private String[] fieldNames;
@@ -109,7 +110,7 @@ public abstract class FieldAccess {
 
     public abstract float getFloat(Object var1, int var2);
     private static final Map<Class<?>, FieldAccess> CACHE = new LinkedHashMap<>();
-    public static FieldAccess get(Class type){
+    public static synchronized FieldAccess get(Class type){
         return CACHE.computeIfAbsent(type, FieldAccess::get0);
     }
     private static FieldAccess get0(Class type) {

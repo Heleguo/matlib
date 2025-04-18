@@ -47,9 +47,25 @@ public class ByteCodeUtils {
             default -> "L" + clazzName.replace(".", "/") + ";";
         };
     }
-//    public static String fromJvmType(String val){
-//
-//    }
+
+    public static String fromJvmType(String jvm){
+        if(jvm.charAt(0) == '['){
+            //is array
+            return jvm.replace('/','.');
+        }
+        return switch (jvm) {
+            case "V" -> "void";
+            case "I" -> "int";
+            case "Z" -> "boolean";
+            case "B" -> "byte";
+            case "C" -> "char";
+            case "S" -> "short";
+            case "D" -> "double";
+            case "F" -> "float";
+            case "J" -> "long";
+            default -> jvm.substring(1, jvm.length()-1).replace('/','.');
+        };
+    }
     public static Pair<String, String> getComponentType(Class<?> clazz){
         if(clazz.isArray()){
             //is array
@@ -91,17 +107,19 @@ public class ByteCodeUtils {
         builder.append(toJvmType(method.getReturnType()));
         return builder.toString();
     }
-    public static String getMethodDescriptor(MethodSignature signature,Class<?> returnType) {
+
+    public static String getMethodDescriptor(String name, Class[] arguments, Class returnType){
         var builder = new StringBuilder();
-        builder.append(signature.methodName());
+        builder.append(name);
         builder.append("(");
-        for (var arg : signature.parameterTypes()) {
+        for (var arg : arguments) {
             builder.append(toJvmType(arg));
         }
         builder.append(")");
         builder.append(toJvmType(returnType));
         return builder.toString();
     }
+
 
     public static String parseMethodNameFromDescriptor(String descriptor){
         return descriptor.substring(0, descriptor.indexOf('('));

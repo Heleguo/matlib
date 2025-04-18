@@ -10,6 +10,9 @@ import me.matl114.matlib.utils.language.componentCompiler.ComponentFormatParser;
 import me.matl114.matlib.utils.language.componentCompiler.Parameter;
 import me.matl114.matlib.utils.language.lan.DefaultPlaceholderProviderImpl;
 import me.matl114.matlib.utils.reflect.*;
+import me.matl114.matlib.utils.reflect.wrapper.FieldAccess;
+import me.matl114.matlib.common.functions.reflect.FieldGetter;
+import me.matl114.matlib.utils.reflect.wrapper.MethodAccess;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
@@ -156,7 +159,7 @@ public class Tests {
         long start = System.nanoTime();
         try{
             for (int i=0;i<10000;++i){
-                getter.apply(object);
+                getter.getField(object);
                 //field.get(object);
             }
         }catch (Throwable e){

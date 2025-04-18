@@ -1,6 +1,6 @@
 package me.matl114.matlib.nmsMirror.core;
 
-import me.matl114.matlib.utils.reflect.ObfManager;
+import me.matl114.matlib.utils.reflect.internel.ObfManager;
 
 public class PosEnum {
     public static final Object DIR_DOWN;

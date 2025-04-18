@@ -1,6 +1,6 @@
 package me.matl114.matlib.nmsMirror.level;
 
-import me.matl114.matlib.utils.reflect.ObfManager;
+import me.matl114.matlib.utils.reflect.internel.ObfManager;
 import static me.matl114.matlib.nmsMirror.Utils.*;
 
 public class LevelEnum {

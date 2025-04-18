@@ -45,6 +45,19 @@ public interface CraftItemStackHelper extends TargetDescriptor {
         }
     }
 
+    @Note("success only after the item-api change")
+    @MethodTarget(isStatic = true)
+    @IgnoreFailure(thresholdInclude = Version.v1_20_R1)
+    default ItemStack getCraftStack(ItemStack origin){
+        if(isCraftItemStack(origin)){
+            return origin;
+        }else {
+            return asCraftCopy(origin);
+        }
+    }
+    @CastCheck("org.bukkit.craftbukkit.inventory.CraftItemStack")
+    boolean isCraftItemStack(ItemStack stack);
+
     @MethodTarget(isStatic = true)
     @Note("create a nmsItem copy")
     Object asNMSCopy(ItemStack origin);

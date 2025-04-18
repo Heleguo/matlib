@@ -1,7 +1,7 @@
 package me.matl114.matlib.nmsMirror.core;
 
 import me.matl114.matlib.nmsMirror.Utils;
-import me.matl114.matlib.utils.reflect.ObfManager;
+import me.matl114.matlib.utils.reflect.internel.ObfManager;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

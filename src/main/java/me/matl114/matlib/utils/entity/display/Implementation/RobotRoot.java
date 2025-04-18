@@ -3,7 +3,7 @@ package me.matl114.matlib.utils.entity.display.Implementation;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import me.matl114.matlib.algorithms.algorithm.Vectors;
-import me.matl114.matlib.algorithms.dataStructures.complex.transformation.MatrixStack;
+import me.matl114.matlib.algorithms.dataStructures.complex.MatrixStack;
 import me.matl114.matlib.utils.entity.display.RobotConfigure;
 import org.bukkit.Location;
 import org.bukkit.entity.Marker;

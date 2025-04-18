@@ -1,5 +1,6 @@
 package me.matl114.matlib.nmsMirror.inventory;
 
+import me.matl114.matlib.common.lang.annotations.Internal;
 import me.matl114.matlib.nmsMirror.impl.NMSCore;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.common.lang.annotations.Protected;
@@ -121,15 +122,23 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
         }
     }
 
+    default void setPersistentDataCompound(Object itemStack, Object compound){
+        Object custom = getOrCreateCustomTag(itemStack);
+        NMSCore.COMPOUND_TAG.put(custom, "PublicBukkitValues", compound);
+    }
+
     static String DISPLAY = "display";
     static String NAME = "Name";
     static String LORE = "Lore";
-    default boolean matchItem(Object item1, Object item2, boolean matchLore, boolean matchName){
+    default boolean matchItem(Object item1, Object item2,@Note("distinct assumed that they both have lore/name, and we don't care about them, BUT if one of then don't have, then it is regarded as not match") boolean distinctLore, boolean distinctName){
         if(item1 == item2){
             return true;
         }
         if(item1 == null || item2 == null){
             return false;
+        }
+        if(distinctLore && distinctName){
+            return isSameItemSameTags(item1, item2);
         }
         if(getItem(item1) != getItem(item2)){
             return false;
@@ -139,29 +148,17 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
         if(nbt1 == null || nbt2 == null){
             return nbt1 == nbt2;
         }
-        return matchTag(nbt1, nbt2, matchLore, matchName);
+        return matchTag(nbt1, nbt2, distinctLore, distinctName);
     }
-    @Protected
+    @Internal
     default boolean matchTag(@Nonnull Object nbt1,@Nonnull Object nbt2, boolean matchLore, boolean matchName){
-        if(matchLore && matchName){
-            return Objects.equals(nbt1, nbt2);
-        }
         Map<String, ?> map1 = NMSCore.COMPOUND_TAG.tagsGetter(nbt1);
         Map<String, ?> map2 = NMSCore.COMPOUND_TAG.tagsGetter(nbt2);
-        int size1 = map1.size();
-        int size2 = map2.size();
         //get the DISPLAY tag here
-        Object obj1 = map1.get(DISPLAY);
-        Object obj2 = map2.get(DISPLAY);
-        if(obj1 != null){
-            size1 -= 1;
-        }
-        if(obj2 != null){
-            size2 -= 1;
-        }
-        if(size1 != size2){
+        if(map1.size() != map2.size()){
             return false;
         }
+        Object obj1 = map1.get(DISPLAY);
         Set<? extends Map.Entry<String, ?>> key1 = map1.entrySet();
         for (var val: key1){
             Object value = val.getValue();
@@ -177,6 +174,7 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
         //key-value都匹配
         //考虑Display
         //有一方没有display
+        Object obj2 = map2.get(DISPLAY);
         if(obj1 == null || obj2 == null){
             //如果不匹配任何display, 或者均没有,返回true
             return obj1 == obj2 || (!matchLore && !matchName);

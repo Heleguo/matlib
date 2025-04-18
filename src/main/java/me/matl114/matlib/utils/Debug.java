@@ -135,6 +135,12 @@ public class Debug {
             Debug.logger(stackTraceElement.toString());
         }
     }
+    public static void stackTrace(int k){
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        for(int i = 0; i< Math.min(k, stackTraceElements.length); ++i) {
+            Debug.logger(stackTraceElements[i].toString());
+        }
+    }
     public static String catchAllOutputs(Runnable r,boolean returnCatched){
         if(!interceptorRegistered){
             Debug.warn("Warning: No interceptor registered !");
@@ -159,6 +165,13 @@ public class Debug {
     private static final Consumer<String> NULL=(st)->{};
     public static <C> C interceptAllOutputs(Supplier<C> r){
         return interceptAllOutputs(r,NULL);
+    }
+
+    private static void startInterception(){
+        interceptLogger = true;
+    }
+    private static void endInterception(){
+        interceptLogger = false;
     }
     public static <C> C interceptAllOutputs(Supplier<C> r, Consumer<String> callback){
         if(!interceptorRegistered){

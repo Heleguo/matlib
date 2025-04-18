@@ -21,8 +21,8 @@ import me.matl114.matlib.implement.slimefun.menu.menuClickHandler.GuideClickHand
 import me.matl114.matlib.implement.slimefun.menu.menuGroup.CustomMenuGroup;
 import me.matl114.matlib.utils.AddUtils;
 import me.matl114.matlib.implement.slimefun.menu.MenuUtils;
-import me.matl114.matlib.utils.reflect.FieldAccess;
-import me.matl114.matlib.utils.reflect.MethodAccess;
+import me.matl114.matlib.utils.reflect.wrapper.FieldAccess;
+import me.matl114.matlib.utils.reflect.wrapper.MethodAccess;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
