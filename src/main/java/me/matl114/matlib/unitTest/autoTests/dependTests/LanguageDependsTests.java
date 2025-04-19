@@ -25,7 +25,7 @@ public class LanguageDependsTests implements TestCase {
         Debug.logger(helper.getMaterialName(Material.CALIBRATED_SCULK_SENSOR));
         Debug.logger(helper.getItemName(new ItemStack(Material.SPLASH_POTION)));
         Debug.logger(helper.getEnchantmentName(VersionedRegistry.enchantment("aqua_affinity")));
-        Debug.logger(helper.getEntityTypeName(EntityType.SPAWNER_MINECART));
+        Debug.logger(helper.getEntityTypeName(VersionedRegistry.entityType("spawner_minecart")));
         Debug.logger(helper.getDyeColorName(DyeColor.YELLOW));
         Debug.logger(helper.getPotionEffectTypeName(PotionEffectType.FIRE_RESISTANCE));
 
