@@ -1,6 +1,7 @@
 package me.matl114.matlib.utils.reflect.proxy.invocation;
 
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
+import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.proxy.methodMap.MethodIndex;
 import me.matl114.matlib.utils.reflect.reflectasm.MethodAccess;
 
@@ -27,7 +28,17 @@ public class AdaptorInvocation extends FastRemappingInvocation {
             if(val.index() < 0){
                 remappedToASM.add(val);
             }else {
-                remappedToASM.add(new MethodIndex(val.target(), val.signature(), fastAccess.getIndex(val.target().getName(), val.target().getParameterTypes())));
+                try{
+                    remappedToASM.add(new MethodIndex(val.target(), val.signature(), fastAccess.getIndex(val.target().getName(), val.target().getParameterTypes()),false));
+                }catch (Throwable e){
+                    if(val.hasDefault()){
+                        remappedToASM.add(new MethodIndex(val.target(), val.signature(), DEFAULT_INVOCATION_INDEX, true));
+                    }else {
+                        Debug.severe("Error while creating Adaptor invocation context");
+                        throw e;
+                    }
+                }
+
             }
         }
         return new AdaptorInvocation(remappedToASM, fastAccess);

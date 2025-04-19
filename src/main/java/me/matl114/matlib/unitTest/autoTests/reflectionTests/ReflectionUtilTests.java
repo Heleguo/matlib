@@ -111,7 +111,7 @@ public class ReflectionUtilTests implements TestCase {
 //        Debug.logger(ReflectUtils.getAllMethodsRecursively(recls));
 //        Debug.logger(recls.getDeclaredConstructors()[0].newInstance("a","b",Map.of()));
 //    }
-    //@OnlineTest(name = "MatlibAdaptor Test")
+    @OnlineTest(name = "MatlibAdaptor Test")
     public void testAPI() throws Throwable {
         Class logiTech = Class.forName("me.matl114.logitech.MyAddon");
         Debug.logger(logiTech.getName());

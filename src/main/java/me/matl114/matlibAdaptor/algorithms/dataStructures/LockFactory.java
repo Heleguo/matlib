@@ -1,6 +1,7 @@
 package me.matl114.matlibAdaptor.algorithms.dataStructures;
 
 import me.matl114.matlibAdaptor.proxy.annotations.AdaptorInterface;
+import me.matl114.matlibAdaptor.proxy.annotations.DefaultMethod;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
@@ -44,6 +45,8 @@ public interface LockFactory<T extends Object> {
      * @param <C>
      */
     public <C extends Object> FutureTask<C> ensureFuture(int delay, Callable<C> task, T ... objs);
+
+    @DefaultMethod
     default  <C extends Object> FutureTask<C> ensureFuture(Callable<C> task, T ... objs){
         return ensureFuture(0,task,objs);
     }

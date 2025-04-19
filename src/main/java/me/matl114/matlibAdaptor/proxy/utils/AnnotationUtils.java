@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public class AnnotationUtils {
     public static String ADAPTOR_ANNOTATION_IDENTIFIER = "AdaptorInterface";
     public static String INTERNEL_ANNOTATION_IDENTIFIER = "InternalMethod";
+    public static String DEFAULT_ANNOTATION_IDENTIFIER = "DefaultMethod";
     @Nonnull
     public static Optional<Annotation> getAdaptorInstance(Class<?> interfaceClass){
         Preconditions.checkArgument(interfaceClass.isInterface(),"Argument is not an interface");
@@ -33,6 +34,16 @@ public class AnnotationUtils {
 //        methods.removeIf(method -> Arrays.stream(method.getAnnotations()).anyMatch(a->a.annotationType().getName().endsWith( INTERNEL_ANNOTATION_IDENTIFIER )));
 //        return methods;
     }
+    public static Optional<Annotation> getDefaultAnnotation(Method method){
+        Annotation[] annotations = method.getAnnotations();
+        for (Annotation annotation: annotations){
+            if(annotation.annotationType().getName().endsWith( DEFAULT_ANNOTATION_IDENTIFIER)){
+                return Optional.of(annotation);
+            }
+        }
+        return Optional.empty();
+    }
+
     private static void collectMethods0(Class<?> clazz,Collection<Method> methods){
         Arrays.stream(clazz.getInterfaces()).forEach(i->collectMethods0(i,methods));
         //only collect public and default method

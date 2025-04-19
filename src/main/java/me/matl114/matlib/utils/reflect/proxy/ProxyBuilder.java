@@ -43,7 +43,7 @@ public class ProxyBuilder {
             //add base method invoke access
             if(ReflectUtils.isBaseMethod(method)){
                 //require base method like toString and sth
-                methodSnapshot.add(new MethodIndex(method, MethodSignature.getSignature(method), ReflectUtils.getBaseMethodIndex(method)));
+                methodSnapshot.add(new MethodIndex(method, MethodSignature.getSignature(method), ReflectUtils.getBaseMethodIndex(method),false));
 
             }
         }
@@ -55,13 +55,12 @@ public class ProxyBuilder {
                 var params = m.getParameterTypes();
                 int index = ++indexCnt;//fastAccess.getIndex(m.getName(),params);
                 //find matched target
-                methodSnapshot.add(new MethodIndex(proxyClass.getMethod(m.getName(), params), MethodSignature.getSignature(m), index));
+                methodSnapshot.add(new MethodIndex(proxyClass.getMethod(m.getName(), params), MethodSignature.getSignature(m), index, AnnotationUtils.getDefaultAnnotation(m).isPresent()));
 
             }catch (Throwable e){
                 throw new IllegalArgumentException("Method " + m + " not found in invoke target class! using"+targetInterface +" as Adaptor and "+proxyClass+" as invoke target");
             }
         }
-
         return methodSnapshot;
     }
     public static <T> T buildMatlibAdaptorOf(Class<T> interfaceClass, Object invokeTarget, Function<Set<MethodIndex>, InvocationCreator> adaptorBuilder) throws Throwable {

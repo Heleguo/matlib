@@ -118,7 +118,7 @@ public class DescriptorProxyBuilder {
         //create base method indexs
         Method[] baseMethod = Object.class.getMethods();
         for (var me: baseMethod){
-            methodIndexs.add(new MethodIndex(null, MethodSignature.getSignature(me), ReflectUtils.getBaseMethodIndex(me)));
+            methodIndexs.add(new MethodIndex(null, MethodSignature.getSignature(me), ReflectUtils.getBaseMethodIndex(me), false));
         }
         AtomicInteger counter = new AtomicInteger(0);
         //method with default val should be called using invokeSpecial
@@ -126,84 +126,44 @@ public class DescriptorProxyBuilder {
         List<MethodIndex> methodWithFallback = copiedUncompleted
             .stream()
             .filter(m-> !Modifier.isAbstract(m.getModifiers()))
-            .map(m->new MethodIndex(m, MethodSignature.getSignature(m),counter.getAndIncrement()))
+            .map(m->new MethodIndex(m, MethodSignature.getSignature(m),counter.getAndIncrement(), true))
             .toList();
 
         methodIndexs.addAll(methodWithFallback);
         for (var entry: methodDescrip.entrySet()){
-            methodIndexs.add(new MethodIndex(entry.getValue(), MethodSignature.getSignature(entry.getKey()), counter.getAndIncrement()));
+            methodIndexs.add(new MethodIndex(entry.getValue(), MethodSignature.getSignature(entry.getKey()), counter.getAndIncrement(), false));
         }
         Class[] interfaces = new Class[appendedInterfaces.length+1];
         System.arraycopy(appendedInterfaces, 0, interfaces, 1, appendedInterfaces.length);
         interfaces[0] = mainInterfaceImpl;
 
-        DescriptorMapperProxy proxy = new DescriptorMapperProxy(methodIndexs, methodWithFallback, counter.incrementAndGet());
+        DescriptorMapperProxy proxy = new DescriptorMapperProxy(methodIndexs, counter.incrementAndGet());
         T val = (T) Proxy.newProxyInstance(customLoader,interfaces, proxy.bindTo(new Object()));
         return val;
     }
 
     public static class DescriptorMapperProxy extends FastRemappingInvocation{
-        MethodHandle[] fallbackDefaultSpecials;
-        boolean[] notCompleteFlag;
-        boolean[] staticFlag;
-        private DescriptorMapperProxy(Set<MethodIndex> rawData, List<MethodIndex> fallbackIndexs, int size) throws IllegalAccessException {
+
+
+        private DescriptorMapperProxy(Set<MethodIndex> rawData,int size) throws IllegalAccessException {
             super(rawData);
-            if(fallbackIndexs.isEmpty()){
-                fallbackDefaultSpecials = null;
-            }else {
-                fallbackDefaultSpecials = new MethodHandle[size];
-            }
-            notCompleteFlag = new boolean[size];
-            staticFlag = new boolean[size];
-            for (var index: rawData){
-                if(index.index() >=0){
-                    staticFlag[index.index()] = Modifier.isStatic(index.target().getModifiers());
-                }
-            }
-            for (var notComp : fallbackIndexs){
-                notCompleteFlag[notComp.index()] = true;
-                Method specialMethod = notComp.target();
-                MethodHandle handle = MethodHandles.privateLookupIn(specialMethod.getDeclaringClass(),MethodHandles.lookup()).unreflectSpecial(specialMethod, specialMethod.getDeclaringClass());
-                fallbackDefaultSpecials[notComp.index()] = handle;
-            }
 
         }
-
         @Override
         public Object invoke0(Object proxy, Object target, MethodIndex methodIndex, Object[] args) {
             int index1 = methodIndex.index();
-            if(notCompleteFlag[index1]){
-                MethodHandle specialHandle = Objects.requireNonNull(fallbackDefaultSpecials[index1]);
-                if(staticFlag[index1]){
-                    try{
-                        return specialHandle.invokeWithArguments(args);
-                    }catch (Throwable e){
-                        throw new RuntimeException(e);
-                    }
+            try{
+                if(staticFlag.getBoolean(methodIndex)){
+                    return methodIndex.target().invoke(null, args);
                 }else {
-                    Object[] argument = new Object[args.length+1];
-                    System.arraycopy(args, 0, argument, 1,args.length);
-                    argument[0] = proxy;
-                    try{
-                        return specialHandle.invokeWithArguments(argument);
-                    }catch (Throwable e){
-                        throw new RuntimeException(e);
-                    }
+                    Object[] argument = new Object[args.length-1];
+                    System.arraycopy(args,1, argument, 0, argument.length);
+                    return methodIndex.target().invoke(args[0], argument);
                 }
-
-            }else {
-                try{
-                    if(staticFlag[0]){
-                        return methodIndex.target().invoke(null, args);
-                    }else {
-                        Object[] argument = new Object[args.length-1];
-                        System.arraycopy(args,1, argument, 0, argument.length);
-                        return methodIndex.target().invoke(args[0], argument);
-                    }
-                }catch (Throwable e){
-                    throw new RuntimeException(e);
-                }
+            }catch (Throwable e){
+                throw new RuntimeException(e);
             }
+
         }
     }
 

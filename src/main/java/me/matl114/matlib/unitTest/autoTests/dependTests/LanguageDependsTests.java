@@ -30,7 +30,7 @@ public class LanguageDependsTests implements TestCase {
         Debug.logger(helper.getPotionEffectTypeName(PotionEffectType.FIRE_RESISTANCE));
 
         Debug.logger(helper.getBiomeName(Biome.BASALT_DELTAS));
-        Debug.logger(helper.getEnchantmentName(Enchantment.SHARPNESS));
+        Debug.logger(helper.getEnchantmentName(VersionedRegistry.enchantment("sharpness")));
         Debug.logger(helper.getAttributeName(VersionedRegistry.getInstance().getAttribute("step_height")));
     }
 

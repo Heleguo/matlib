@@ -1,6 +1,7 @@
 package me.matl114.matlibAdaptor.algorithms.interfaces;
 
 import me.matl114.matlibAdaptor.proxy.annotations.AdaptorInterface;
+import me.matl114.matlibAdaptor.proxy.annotations.DefaultMethod;
 import me.matl114.matlibAdaptor.proxy.annotations.InternalMethod;
 
 import java.util.logging.Logger;
@@ -30,11 +31,14 @@ public interface Initialization {
      * control the progress's start/stop
      * @return
      */
+    @DefaultMethod
     default void onStart(){
         onEnable();
     }
     @InternalMethod
     public Initialization onEnable();
+
+    @DefaultMethod
     default void onStop(){
         onDisable();
     }
