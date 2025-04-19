@@ -11,8 +11,6 @@ import me.matl114.matlib.utils.version.VersionedRegistry;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
@@ -31,7 +29,7 @@ public class LanguageDependsTests implements TestCase {
 
         Debug.logger(helper.getBiomeName(Biome.BASALT_DELTAS));
         Debug.logger(helper.getEnchantmentName(VersionedRegistry.enchantment("sharpness")));
-        Debug.logger(helper.getAttributeName(VersionedRegistry.getInstance().getAttribute("step_height")));
+//        Debug.logger(helper.getAttributeName(VersionedRegistry.getInstance().getAttribute("step_height")));
     }
 
     @OnlineTest(name = "pinyin lib bridge test")
