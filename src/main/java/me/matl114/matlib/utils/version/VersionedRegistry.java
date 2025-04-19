@@ -84,13 +84,29 @@ public abstract class VersionedRegistry {
 
 
     public abstract Enchantment getEnchantment(String name);
+    public static Enchantment enchantment(String v){
+        return getInstance().getEnchantment(v);
+    }
     public abstract Material getMaterial(String name);
 
+    public static Material material(String name){
+        return getInstance().getMaterial(name);
+    }
+
     public abstract EntityType getEntityType(String name);
+    public static EntityType entityType(String na){
+        return getInstance().getEntityType(na);
+    }
 
     public abstract PotionEffectType getPotionEffectType(String key);
+    public static PotionEffectType potionEffectType(String key){
+        return getInstance().getPotionEffectType(key);
+    }
     protected Map<String, Attribute> remappingAttribute = new LinkedHashMap<>();
     public abstract Attribute getAttribute(String key);
+    public static Attribute attribute(String key){
+        return getInstance().getAttribute(key);
+    }
     public abstract Collection<Attribute> getAttributes();
     static class Default extends VersionedRegistry{
         {

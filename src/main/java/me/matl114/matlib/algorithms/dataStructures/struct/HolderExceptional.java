@@ -128,4 +128,14 @@ class HolderExceptional<T> implements Holder<T>, Cloneable{
     }
 
 
+    @Override
+    protected HolderExceptional<T> clone() {
+        try {
+            HolderExceptional clone = (HolderExceptional) super.clone();
+            // TODO: copy mutable state here, so the clone can't change the internals of the original
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 }

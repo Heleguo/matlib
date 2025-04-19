@@ -121,39 +121,8 @@ public class WorldUtils {
             }else return null;
         }else return null;
     }
-//    private static final Class<?> optionalPaperLibSource = new InitializeSafeProvider<Class<?>>(()->{
-//        return Class.forName("io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib");
-//    }).v();
-//    private static final boolean isPaperLibEnv = new InitializeProvider<>(()->{
-//        try{
-//            if(optionalPaperLibSource!=null){
-//                return (Boolean) optionalPaperLibSource.getMethod("isPaper").invoke(null);
-//            }else {
-//                return false;
-//            }
-//        }catch(Throwable unexpected){
-//            return false;
-//        }
-//    }).v();
-//    //private static final MethodAccess<?> getBlockS
-//    private static final MethodAccess<?> getStateNoSnapshotAccess = new InitializeSafeProvider<>(MethodAccess.class,()->{
-//        try {
-//            return MethodAccess.of( Block.class.getDeclaredMethod("getState",boolean.class) );
-//        } catch (NoSuchMethodException e) {
-//            return MethodAccess.ofFailure();
-//        }
-//    }).v();
-//    //paper environment only;
-//    private static final MethodHandle getStateNoSnapshotHandle = new InitializeSafeProvider<>(MethodHandle.class,()->{
-//        return getStateNoSnapshotAccess.getMethodHandleOrDefault(()->null);
-//    }).runNonnullAndNoError(()->Debug.logger("Successfully initialize Blockstate.getState MethodHandle")).v();
     @ForceOnMainThread
     public static BlockState getBlockStateNoSnapShot(Block block){
-//        if(getStateNoSnapshotHandle!=null){
-//            try{
-//                return (BlockState)getStateNoSnapshotHandle.invokeExact(block,false);
-//            }catch (Throwable ignored){}
-//        }
         return block.getState(false);
     }
     @Getter
@@ -210,13 +179,7 @@ public class WorldUtils {
             .thenApplyCaught((m)-> (Consumer<?>) LambdaUtils.createLambdaForMethod(Consumer.class, m))
             .thenApply(MethodInvoker::ofSafeNoArgs)
             .get();
-//        new InitializeSafeProvider<>(()->{
-//        return AccessConvertor.convertMethodAccess(tileEntitySetChangeAccess, true)
-//            .createMethodInvoker()
-//            .<Void>cast();
-//    })
-//            .runNonnullAndNoError(()->Debug.logger("Successfully initialize TileEntity.setChange Method Invoker"))
-//            .v();
+
     public static boolean isTileEntityStillValid(@Nonnull TileState tile){
         if(craftBlockEntityStateClass.isInstance(tile)){
             Object tileEntity = tileEntityHandle.get(tile);

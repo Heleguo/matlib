@@ -1,5 +1,6 @@
 package me.matl114.matlib.utils.reflect.proxy.invocation;
 
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import me.matl114.matlib.algorithms.dataStructures.frames.HashContainer;
 import me.matl114.matlib.utils.reflect.proxy.methodMap.MethodSignature;
 import me.matl114.matlib.utils.reflect.ReflectUtils;
@@ -9,6 +10,8 @@ import java.lang.reflect.Method;
 import java.util.Set;
 
 public abstract class FastRemappingInvocation implements InvocationCreator {
+    //can we use something like , fastutil or real-hash to compare reference
+    //shit, how can we know whether this is same method instance?
     private final HashContainer<MethodIndex> methods;
     public FastRemappingInvocation(Set<MethodIndex> rawData){
         this.methods = new HashContainer<>(2*rawData.size(),p->p.signature().hashCode());

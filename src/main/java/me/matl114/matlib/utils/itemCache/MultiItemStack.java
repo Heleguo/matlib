@@ -2,7 +2,7 @@ package me.matl114.matlib.utils.itemCache;
 
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializingTasks;
 import me.matl114.matlib.utils.CraftUtils;
-import me.matl114.matlib.utils.Flags;
+import me.matl114.matlib.common.lang.enums.Flags;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;

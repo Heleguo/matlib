@@ -3,6 +3,7 @@ package me.matl114.matlib.utils.reflect.descriptor;
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
+import me.matl114.matlib.common.lang.annotations.VisibleForTesting;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.ByteCodeUtils;
 import me.matl114.matlib.utils.reflect.ReflectUtils;
@@ -34,7 +35,7 @@ public class DescriptorProxyBuilder {
         synchronized (CACHE){
             return (T)CACHE.computeIfAbsent(Pair.of(targetClass, descriptiveInterface), k-> {
                 try {
-                    return createSingleInternel(k.getA(), k.getB());
+                    return createSingleInternel(k.getA(), k.getB(), DescriptorProxyBuilder.class.getClassLoader());
                 } catch (DescriptorBuildException e){
                     throw e;
                 } catch (Throwable e) {
@@ -68,7 +69,7 @@ public class DescriptorProxyBuilder {
                 clazz =null;
             }
             try{
-                return createMultiInternel(clazz, descriptiveInterface);
+                return createMultiInternel(clazz, descriptiveInterface, DescriptorProxyBuilder.class.getClassLoader());
             } catch (DescriptorBuildException e){
                 throw e;
             } catch (Throwable e) {
@@ -77,7 +78,7 @@ public class DescriptorProxyBuilder {
         });
     }
 
-    private static <T extends TargetDescriptor> T createMultiInternel(@Nullable Class<?> defaultClass, Class<T> descriptiveInterface)throws Throwable{
+    private static <T extends TargetDescriptor> T createMultiInternel(@Nullable Class<?> defaultClass, Class<T> descriptiveInterface, ClassLoader customLoader)throws Throwable{
         Preconditions.checkArgument(descriptiveInterface.isInterface(),"Descriptor should be a interface!");
         Preconditions.checkNotNull(descriptiveInterface.getAnnotation(MultiDescriptive.class), "No descriptor annotation found!");
         List<Method> uncompletedMethod = new ArrayList<>();
@@ -89,9 +90,10 @@ public class DescriptorProxyBuilder {
         // Map<String, Method> cdToOrigin = new HashMap<>();
         //collect targets
         collectDescriptorMethodMappingsNoObf(descriptiveInterface, defaultClass, true, fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, uncompletedMethod);
-        return buildProxyForDescriptor(defaultClass, descriptiveInterface, Object.class, new Class[0], fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, uncompletedMethod);
+        return buildProxyForDescriptor(defaultClass, descriptiveInterface, Object.class, new Class[0], fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, uncompletedMethod, customLoader);
     }
-    private static  <T extends TargetDescriptor> T createSingleInternel(Class<?> targetClass, Class<T> descriptiveInterface) throws Throwable{
+    //@VisibleForTesting
+    private static  <T extends TargetDescriptor> T createSingleInternel(Class<?> targetClass, Class<T> descriptiveInterface, ClassLoader customLoader) throws Throwable{
         Preconditions.checkArgument(descriptiveInterface.isInterface(),"Descriptor should be a interface!");
         Preconditions.checkNotNull(descriptiveInterface.getAnnotation(Descriptive.class), "No descriptor annotation found!");
         Map<Method, Field> fieldGetDescrip = new LinkedHashMap<>();
@@ -103,13 +105,13 @@ public class DescriptorProxyBuilder {
         // Map<String, Method> cdToOrigin = new HashMap<>();
         //collect targets
         collectDescriptorMethodMappingsNoObf(descriptiveInterface, targetClass, false, fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, uncompletedMethod);
-        return buildProxyForDescriptor(targetClass, descriptiveInterface, Object.class, new Class[0], fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, uncompletedMethod);
+        return buildProxyForDescriptor(targetClass, descriptiveInterface, Object.class, new Class[0], fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, uncompletedMethod, customLoader);
     }
 
     /**
      * we don't support other proxied descriptive target except method, because it will be in low efficiency
      */
-    private static synchronized  <T extends TargetDescriptor> T buildProxyForDescriptor(@Nullable Class<?> targetClass, Class<T> mainInterfaceImpl, Class<?> superClass,  Class<?>[] appendedInterfaces, Map<Method,Field> fieldGetDescrip, Map<Method,Field> fieldSetDescrip, Map<Method,Method> methodDescrip, Map<Method, Constructor<?>> constructorDescrip, Map<Method, Class<?>> typeCastDescrip, List<Method> uncompletedMethod) throws Throwable{
+    private static synchronized  <T extends TargetDescriptor> T buildProxyForDescriptor(@Nullable Class<?> targetClass, Class<T> mainInterfaceImpl, Class<?> superClass,  Class<?>[] appendedInterfaces, Map<Method,Field> fieldGetDescrip, Map<Method,Field> fieldSetDescrip, Map<Method,Method> methodDescrip, Map<Method, Constructor<?>> constructorDescrip, Map<Method, Class<?>> typeCastDescrip, List<Method> uncompletedMethod, ClassLoader customLoader) throws Throwable{
         List<Method> copiedUncompleted = List.copyOf(uncompletedMethod);
         ClassBuildingUtils.checkUncompleted(uncompletedMethod, mainInterfaceImpl);
         Set<MethodIndex> methodIndexs = new ReferenceArraySet<>();
@@ -136,7 +138,7 @@ public class DescriptorProxyBuilder {
         interfaces[0] = mainInterfaceImpl;
 
         DescriptorMapperProxy proxy = new DescriptorMapperProxy(methodIndexs, methodWithFallback, counter.incrementAndGet());
-        T val = (T) Proxy.newProxyInstance(DescriptorProxyBuilder.class.getClassLoader(),interfaces, proxy.bindTo(new Object()));
+        T val = (T) Proxy.newProxyInstance(customLoader,interfaces, proxy.bindTo(new Object()));
         return val;
     }
 

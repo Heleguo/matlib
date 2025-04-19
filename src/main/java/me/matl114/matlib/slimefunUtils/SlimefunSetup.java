@@ -4,7 +4,7 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.core.attributes.DistinctiveItem;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import me.matl114.matlib.utils.CraftUtils;
-import me.matl114.matlib.utils.Flags;
+import me.matl114.matlib.common.lang.enums.Flags;
 import me.matl114.matlib.core.AutoInit;
 import org.bukkit.inventory.meta.ItemMeta;
 

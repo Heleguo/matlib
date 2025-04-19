@@ -6,7 +6,7 @@ import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
 import me.matl114.matlib.utils.Debug;
-import me.matl114.matlib.utils.Flags;
+import me.matl114.matlib.common.lang.enums.Flags;
 import me.matl114.matlib.utils.experimential.FakeSchedular;
 import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
 import me.matl114.matlib.utils.reflect.wrapper.MethodAccess;

@@ -9,7 +9,7 @@ import io.github.thebusybiscuit.slimefun4.utils.LoreBuilder;
 import me.matl114.matlib.utils.AddUtils;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.utils.Debug;
-import me.matl114.matlib.utils.Flags;
+import me.matl114.matlib.common.lang.enums.Flags;
 import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
 import me.matl114.matlib.utils.version.VersionedRegistry;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
@@ -182,13 +182,13 @@ public class SlimefunUtils {
         return AddUtils.addLore(item, LoreBuilder.powerBuffer(energyBuffer));
     }
     public static  ItemStack machineInfoAdd(ItemStack item,int energyBuffer,int energyConsumption){
-        return machineInfoAdd(item,energyBuffer,energyConsumption, Flags.USE_SEC_EXP);
+        return machineInfoAdd(item,energyBuffer,energyConsumption, Flags.UNIT_SEC);
     }
     public static ItemStack machineInfoAdd(ItemStack item, int energyBuffer, int energyConsumption, Flags type){
-        if(type== Flags.USE_SEC_EXP) {
+        if(type== Flags.UNIT_SEC) {
             return AddUtils.addLore(item, LoreBuilder.powerBuffer(energyBuffer), energyPerSecond(energyConsumption));
         }
-        else if(type== Flags.USE_TICK_EXP) {
+        else if(type== Flags.UNIT_SFT) {
             return  AddUtils.addLore( item, LoreBuilder.powerBuffer(energyBuffer), energyPerTick(energyConsumption));
         }
         else return null;

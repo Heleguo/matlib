@@ -1,14 +1,13 @@
 package me.matl114.matlib.utils;
 
 import lombok.Getter;
-import me.matl114.matlib.algorithms.dataStructures.frames.InitializeProvider;
-import me.matl114.matlib.algorithms.dataStructures.frames.InitializeSafeProvider;
 import me.matl114.matlib.algorithms.dataStructures.frames.InitializingTasks;
 import me.matl114.matlib.algorithms.dataStructures.struct.Holder;
 import me.matl114.matlib.common.functions.FuncUtils;
 import me.matl114.matlib.common.functions.reflect.FieldAccessor;
 import me.matl114.matlib.common.functions.reflect.MethodInvoker;
 import me.matl114.matlib.common.lang.annotations.Note;
+import me.matl114.matlib.common.lang.enums.Flags;
 import me.matl114.matlib.utils.itemCache.ItemStackCache;
 import me.matl114.matlib.utils.reflect.LambdaUtils;
 import me.matl114.matlib.utils.reflect.wrapper.*;
@@ -287,7 +286,7 @@ public class CraftUtils {
     //
     private static final List<ItemMatcher> registeredMatchers=new ArrayList<>();
     public static interface ItemMatcher{
-        public Flags doMatch(ItemStack stack1,ItemStack stack2,boolean strictCheck);
+        public Flags doMatch(ItemStack stack1, ItemStack stack2, boolean strictCheck);
     }
     public static interface CustomItemMatcher {
         public Optional<String> parseId(ItemMeta meta1);

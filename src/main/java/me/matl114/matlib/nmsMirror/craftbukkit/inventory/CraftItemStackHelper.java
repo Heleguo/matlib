@@ -36,8 +36,7 @@ public interface CraftItemStackHelper extends TargetDescriptor {
     @Note("copy only when bukkit is not a craftItemStack")
     @IgnoreFailure(thresholdInclude = Version.v1_20_R2, below = true)
     default Object unwrapToNMS(ItemStack bukkit){
-        Debug.logger("Default Impl called");
-        if(getTargetClass().isInstance(bukkit)){
+        if(isCraftItemStack(bukkit)){
             Object nms = handleGetter(bukkit);
             return nms == null? EmptyEnum.EMPTY_ITEMSTACK: nms;
         }else {

@@ -10,10 +10,7 @@ import org.objectweb.asm.*;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -29,8 +26,10 @@ public class ObfManagerImpl extends SimpleObfManagerImpl implements ObfManager {
         try{
             //higher version with no obf
             Class<?> clazz = ClassMapperHelperImpl.clazz0;
-            optionalFieldMappingAccess = ReflectUtils.getMethodHandle(clazz, "fieldsByObf");
-        }catch (IllegalArgumentException noSuchMethod){
+            optionalFieldMappingAccess = Objects.requireNonNull(ReflectUtils.getMethodHandle(clazz, "fieldsByObf"));
+            Debug.logger("initializing with has fieldsByObf");
+        }catch (Throwable noSuchMethod){
+            Debug.logger("initializing with no fieldsByObf");
             optionalFieldMappingAccess = null;
             try{
                 Set val = a();

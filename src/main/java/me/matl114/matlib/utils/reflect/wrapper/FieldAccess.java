@@ -37,13 +37,8 @@ public class FieldAccess {
         this.createSnapshot = false;
         return this;
     }
-    private int fastAccessIndex;
-    private boolean failPublicAccess=true;
-    private Class<?> definedType=null;
-    private static final boolean useHandle=true;
     FieldGetter getter = null;
     FieldSetter setter = null;
-
     public static FieldAccess reflect(String fieldname, Class<?> tar){
         return ofName(tar, fieldname).noSnapShot().printError(true).initWithNull();
     }
@@ -93,7 +88,6 @@ public class FieldAccess {
                 if(createSnapshot){
                     this.publicField = Modifier.isPublic(modifiers);
                     this.isPrivate = Modifier.isPrivate(modifiers);
-                    this.definedType=this.field.getType();
                     //only the field who has full access can create fast Access throw FieldAccess
 
                     try{
@@ -106,7 +100,6 @@ public class FieldAccess {
                             e.printStackTrace();
                         }
                     }
-
                 }
                 this.getter = getterInternal();
                 this.setter = setterInternal();
@@ -142,17 +135,6 @@ public class FieldAccess {
         return this;
     }
     private Object getInternal(Object obj) throws Throwable {
-//        if(useHandle&& !failHandle){
-//            if(staticField){
-//                return this.handle.get();
-//            }else {
-//                return this.handle.get(obj);
-//            }
-//        }
-//        if( !this.failPublicAccess){
-//            return this.fastAccessInternal.get(obj,fastAccessIndex);
-//        }
-//        return this.field.get(obj);
         return getter.getField(obj);
     }
     private FieldGetter getterInternal(){
@@ -166,8 +148,6 @@ public class FieldAccess {
                 }
             };
         }
-
-
          return  (obj)->{
             try{
                 return this.field.get(obj);
@@ -187,8 +167,6 @@ public class FieldAccess {
                     throw  new RuntimeException(ex);
                 }
             };
-
-
         }
     }
     public FieldGetter getter(Object initialValue){
@@ -202,19 +180,6 @@ public class FieldAccess {
 
     private void setInternal(Object obj, Object value) throws Throwable {
         setter.setField(obj,value);
-//        if(staticField&&finalField){
-//            throw new IllegalAccessException("Static final field can only be set using setUnsafe! Field:"+this.field);
-//        }else {
-//            if(useHandle&& !failHandle&&!finalField){
-//                if(staticField){
-//                    this.handle.set(value);
-//                }else {
-//                    this.handle.set(obj,value);
-//                }
-//            }else {
-//                this.field.set(obj,value);
-//            }
-//        }
     }
     public Object getValue(Object obj) throws Throwable{
         if(this.getter == null){

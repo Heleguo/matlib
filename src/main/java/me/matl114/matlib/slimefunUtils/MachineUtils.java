@@ -5,7 +5,7 @@ import me.matl114.matlib.slimefunUtils.itemCache.*;
 import me.matl114.matlib.algorithms.dataStructures.frames.DynamicArray;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.utils.CraftUtils;
-import me.matl114.matlib.utils.Flags;
+import me.matl114.matlib.common.lang.enums.Flags;
 import me.matl114.matlib.utils.itemCache.*;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
@@ -771,10 +771,10 @@ public class MachineUtils {
      * @return
      */
     public static Pair<MachineRecipe,ItemConsumer[] > findNextRecipe(BlockMenu inv, int[] slots,int[] outs, List<MachineRecipe> recipes,boolean useHistory) {
-        return findNextRecipe(inv,slots,outs,recipes,useHistory, Flags.SEQUNTIAL);
+        return findNextRecipe(inv,slots,outs,recipes,useHistory, Flags.SEQUENTIAL);
     }
     public static Pair<MachineRecipe,ItemConsumer[]> findNextRecipe(BlockMenu inv , int[] slots, int[] outs, List<MachineRecipe> recipes, boolean useHistory, Flags order){
-        return findNextRecipe(inv,slots,outs,recipes,useHistory, Flags.SEQUNTIAL,getpusher);
+        return findNextRecipe(inv,slots,outs,recipes,useHistory, Flags.SEQUENTIAL,getpusher);
     }
     /**
      * general findNextRecipe but modified by meeeeeee to adapt ItemCounter
@@ -790,7 +790,7 @@ public class MachineUtils {
         int delta;
         switch(order){
             case REVERSE:delta=-1;break;
-            case SEQUNTIAL:
+            case SEQUENTIAL:
             default: delta=1;break;
         }
         int len = slots.length;
@@ -874,7 +874,7 @@ public class MachineUtils {
         int delta;
         switch(order){
             case REVERSE:delta=-1;break;
-            case SEQUNTIAL:
+            case SEQUENTIAL:
             default: delta=1;break;
         }
         int len = slots.length;
@@ -970,7 +970,7 @@ public class MachineUtils {
         int delta;
         switch(order){
             case REVERSE:delta=-1;break;
-            case SEQUNTIAL:
+            case SEQUENTIAL:
             default: delta=1;break;
         }
         int len = slots.length;
@@ -1060,18 +1060,18 @@ public class MachineUtils {
     /**
      public static Pair<MachineRecipe,ItemGreedyConsumer[]> findNextMultiRecipe(BlockMenu inv,int[] inputs,int[] outputs,
      List<MachineRecipe> recipes,int limit,boolean useHistory){
-     return findNextMultiRecipe(inv,inputs,outputs,recipes,limit,useHistory,Settings.SEQUNTIAL);
+     return findNextMultiRecipe(inv,inputs,outputs,recipes,limit,useHistory,Settings.SEQUENTIAL);
      }
      public static Pair<MachineRecipe,ItemGreedyConsumer[]> findNextMultiRecipe(BlockMenu inv,int[] inputs,int[] outputs,
      List<MachineRecipe> recipes,int limit,boolean useHistory,Settings order){
-     return findNextMultiRecipe(inv,inputs,outputs,recipes,limit,useHistory,Settings.SEQUNTIAL,getpusher);
+     return findNextMultiRecipe(inv,inputs,outputs,recipes,limit,useHistory,Settings.SEQUENTIAL,getpusher);
      }
      public static Pair<MachineRecipe,ItemGreedyConsumer[]> findNextMultiRecipe(BlockMenu inv,int[] inputs,int[] outputs,
      List<MachineRecipe> recipes,int limit,boolean useHistory,Settings order,ItemPusherProvider pusher){
      int delta;
      switch(order){
      case REVERSE:delta=-1;break;
-     case SEQUNTIAL:
+     case SEQUENTIAL:
      default: delta=1;break;
      }
      int len = inputs.length;
@@ -1159,7 +1159,7 @@ public class MachineUtils {
     }
 //    public static Pair<MachineRecipe,ItemGreedyConsumer[]> findNextShapedRecipe(BlockMenu inv,int[] inputs,int[] outputs,
 //                                                                                List<MachineRecipe> recipes,int limit,boolean useHistory){
-//        return findNextShapedRecipe(inv,inputs,outputs,recipes,limit,useHistory,Settings.SEQUNTIAL);
+//        return findNextShapedRecipe(inv,inputs,outputs,recipes,limit,useHistory,Settings.SEQUENTIAL);
 //    }
 
     public static Pair<MachineRecipe,ItemGreedyConsumer[]> findNextShapedRecipe(BlockMenu inv, int[] inputs, int[] outputs,
@@ -1167,7 +1167,7 @@ public class MachineUtils {
         int delta;
         switch(order){
             case REVERSE:delta=-1;break;
-            case SEQUNTIAL:
+            case SEQUENTIAL:
             default: delta=1;break;
         }
         int len = inputs.length;
@@ -1300,7 +1300,7 @@ public class MachineUtils {
         int delta;
         switch(order){
             case REVERSE:delta=-1;break;
-            case SEQUNTIAL:
+            case SEQUENTIAL:
             default: delta=1;break;
         }
         int len=inputs.length;

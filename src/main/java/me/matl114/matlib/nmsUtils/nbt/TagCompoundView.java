@@ -19,10 +19,12 @@ import static me.matl114.matlib.nmsMirror.impl.CraftBukkit.PERSISTENT_DATACONTAI
 import static me.matl114.matlib.nmsMirror.impl.NMSCore.COMPOUND_TAG;
 import static me.matl114.matlib.nmsUtils.CraftBukkitUtils.*;
 
-@Note("create a view from a raw Compound Tag or a map, No new Map will be created")
+@Note("create a pdc from a Compound Tag or a map, No new Map will be created")
 public class TagCompoundView implements PersistentDataContainer {
     @Getter
     public final Map<String, Object> customDataTags ;
+//    private final Object registry;
+//    private final PersistentDataAdapterContext context;
     public TagCompoundView(Object compoundTags){
         customDataTags = (Map<String, Object>) COMPOUND_TAG.tagsGetter(compoundTags);
     }

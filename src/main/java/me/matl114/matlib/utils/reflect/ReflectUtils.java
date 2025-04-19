@@ -5,7 +5,7 @@ import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.common.lang.annotations.NotRecommended;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
-import me.matl114.matlib.utils.Flags;
+import me.matl114.matlib.common.lang.enums.Flags;
 import sun.misc.Unsafe;
 
 import java.lang.invoke.MethodHandle;

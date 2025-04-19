@@ -18,7 +18,7 @@ public class Utils {
                 .orElseThrow()
                 .get(null);
         }catch (Throwable e){
-            Debug.logger(e, "Exception while reflecting "+ fields.getFirst().getDeclaringClass().getSimpleName()+":");
+            Debug.logger(e, "Exception while reflecting field "+name+" in "+ fields.getFirst().getDeclaringClass().getSimpleName()+":");
             return null;
         }
 

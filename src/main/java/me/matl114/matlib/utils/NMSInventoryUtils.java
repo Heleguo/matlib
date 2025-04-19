@@ -62,13 +62,6 @@ public class NMSInventoryUtils {
             .thenApply(MethodInvoker::ofSafeNoArgs)
             .thenPeek((e)->Debug.logger("Successfully initialize CraftInventory.getInventory Method Invoker"))
             .get();
-//        new InitializeSafeProvider<>(()->{
-//        return AccessConvertor.convertMethodAccess(getIInventoryAccess, true)
-//            .createMethodInvoker()
-//            .cast();
-//    })
-//            .runNonnullAndNoError(()->)
-//            .v();
 
     @Getter
     @Note("interface IInventory")
@@ -77,12 +70,6 @@ public class NMSInventoryUtils {
             .thenApply(MethodAccess::getMethodOrDefault, FuncUtils.nullTyped(Method.class))
             .thenApply(Method::getReturnType)
             .get();
-//        new InitializeSafeProvider<>(()->{
-//        Method rawMethod = getIInventoryAccess.getMethodOrDefault(()->null);
-////        Debug.debug(rawMethod);
-////        Debug.debug(rawMethod.getDeclaringClass(),rawMethod.getName(),rawMethod.getReturnType());
-//        return rawMethod.getReturnType();
-//    }).v();
 
     @Getter
     private static final MethodAccess<List<?>> getIIContentsAccess =

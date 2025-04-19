@@ -1,7 +1,7 @@
 package me.matl114.matlib.slimefunUtils.itemCache;
 
 
-import me.matl114.matlib.utils.Flags;
+import me.matl114.matlib.common.lang.enums.Flags;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.inventory.ItemStack;
 
