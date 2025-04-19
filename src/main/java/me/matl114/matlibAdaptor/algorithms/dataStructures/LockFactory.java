@@ -1,6 +1,6 @@
 package me.matl114.matlibAdaptor.algorithms.dataStructures;
 
-import me.matl114.matlibAdaptor.proxy.Annotations.AdaptorInterface;
+import me.matl114.matlibAdaptor.proxy.annotations.AdaptorInterface;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;

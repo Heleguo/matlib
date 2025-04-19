@@ -6,7 +6,7 @@ import me.matl114.matlib.utils.reflect.proxy.methodMap.MethodSignature;
 import me.matl114.matlib.utils.reflect.ReflectUtils;
 import me.matl114.matlib.utils.reflect.proxy.invocation.InvocationCreator;
 import me.matl114.matlib.utils.reflect.proxy.methodMap.MethodIndex;
-import me.matl114.matlibAdaptor.proxy.Utils.AnnotationUtils;
+import me.matl114.matlibAdaptor.proxy.utils.AnnotationUtils;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -17,8 +17,8 @@ import java.util.function.Function;
  */
 @SuppressWarnings("all")
 public class ProxyBuilder {
-    public static Set<MethodIndex> createMapping(Class<?> targetInterface, Class<?> proxyClass){
-        return createMapping(targetInterface, proxyClass, true);
+    public static Set<MethodIndex> createMappingProxy(Class<?> targetInterface, Class<?> proxyClass){
+        return createMappingProxy(targetInterface, proxyClass, true);
     }
     public static void ensureAdaptor(Class<?> targetInterface, Class<?> proxyClass){
         String simpleName = targetInterface.getSimpleName();
@@ -30,7 +30,7 @@ public class ProxyBuilder {
         Preconditions.checkNotNull(targetClass,"Invoke target does not contains Interface named {0}!",simpleName);
     }
 
-    public static Set<MethodIndex> createMapping(Class<?> targetInterface, Class<?> proxyClass, boolean ensureAdaptor){
+    public static Set<MethodIndex> createMappingProxy(Class<?> targetInterface, Class<?> proxyClass, boolean ensureAdaptor){
         var annotation = AnnotationUtils.getAdaptorInstance(targetInterface);
         Preconditions.checkState(annotation.isPresent(),"Illegal Adaptor class!This is not an AdaptorInterface!");
         if(ensureAdaptor){
@@ -65,7 +65,7 @@ public class ProxyBuilder {
         return methodSnapshot;
     }
     public static <T> T buildMatlibAdaptorOf(Class<T> interfaceClass, Object invokeTarget, Function<Set<MethodIndex>, InvocationCreator> adaptorBuilder) throws Throwable {
-        Set<MethodIndex> context = createMapping(interfaceClass, invokeTarget.getClass());
+        Set<MethodIndex> context = createMappingProxy(interfaceClass, invokeTarget.getClass());
         InvocationCreator invocation = adaptorBuilder.apply(context); //AdaptorInvocation.create(interfaceClass, invokeTarget.getClass());
         T proxy =  (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(),new Class[]{interfaceClass},invocation.bindTo(invokeTarget));
         return proxy;

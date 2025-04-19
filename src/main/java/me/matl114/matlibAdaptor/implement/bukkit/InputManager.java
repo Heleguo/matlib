@@ -4,8 +4,8 @@ import lombok.Getter;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
 import me.matl114.matlib.common.lang.enums.TaskRequest;
-import me.matl114.matlibAdaptor.proxy.Annotations.AdaptorInterface;
-import me.matl114.matlibAdaptor.proxy.Annotations.InternalMethod;
+import me.matl114.matlibAdaptor.proxy.annotations.AdaptorInterface;
+import me.matl114.matlibAdaptor.proxy.annotations.InternalMethod;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 

@@ -1,7 +1,7 @@
 package me.matl114.matlibAdaptor.algorithms.interfaces;
 
-import me.matl114.matlibAdaptor.proxy.Annotations.AdaptorInterface;
-import me.matl114.matlibAdaptor.proxy.Annotations.InternalMethod;
+import me.matl114.matlibAdaptor.proxy.annotations.AdaptorInterface;
+import me.matl114.matlibAdaptor.proxy.annotations.InternalMethod;
 
 import java.util.logging.Logger;
 

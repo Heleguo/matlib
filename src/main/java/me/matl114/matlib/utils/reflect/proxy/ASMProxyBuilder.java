@@ -3,7 +3,7 @@ package me.matl114.matlib.utils.reflect.proxy;
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import me.matl114.matlib.common.lang.exceptions.NotImplementedYet;
-import me.matl114.matlibAdaptor.proxy.Utils.AnnotationUtils;
+import me.matl114.matlibAdaptor.proxy.utils.AnnotationUtils;
 
 import java.lang.reflect.Method;
 import java.util.Iterator;

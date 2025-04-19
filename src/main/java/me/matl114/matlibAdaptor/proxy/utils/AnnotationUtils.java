@@ -1,4 +1,4 @@
-package me.matl114.matlibAdaptor.proxy.Utils;
+package me.matl114.matlibAdaptor.proxy.utils;
 
 import com.google.common.base.Preconditions;
 
@@ -9,8 +9,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class AnnotationUtils {
-    public static String ADAPTOR_ANNOTATION_IDENTIFIER = "matlibAdaptor.Proxy.Annotations.AdaptorInterface";
-    public static String INTERNEL_ANNOTATION_IDENTIFIER = "matlibAdaptor.Proxy.Annotations.InternalMethod";
+    public static String ADAPTOR_ANNOTATION_IDENTIFIER = "AdaptorInterface";
+    public static String INTERNEL_ANNOTATION_IDENTIFIER = "InternalMethod";
     @Nonnull
     public static Optional<Annotation> getAdaptorInstance(Class<?> interfaceClass){
         Preconditions.checkArgument(interfaceClass.isInterface(),"Argument is not an interface");

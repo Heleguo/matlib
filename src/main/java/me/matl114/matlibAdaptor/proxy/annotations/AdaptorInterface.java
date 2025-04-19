@@ -1,4 +1,4 @@
-package me.matl114.matlibAdaptor.proxy.Annotations;
+package me.matl114.matlibAdaptor.proxy.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
