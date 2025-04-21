@@ -1,5 +1,6 @@
 package me.matl114.matlib.unitTest.autoTests.nmsTests;
 
+import me.matl114.matlib.algorithms.algorithm.ExecutorUtils;
 import me.matl114.matlib.nmsUtils.LevelUtils;
 import me.matl114.matlib.nmsUtils.ServerUtils;
 import me.matl114.matlib.unitTest.OnlineTest;
@@ -77,7 +78,7 @@ public class LevelTests implements TestCase {
         World world =testWorld();
         for (int i=0;i<10;++i){
             long c = System.nanoTime();
-            FutureTask<Void> task = ThreadUtils.getFutureTask(()->{
+            FutureTask<Void> task = ExecutorUtils.getFutureTask(()->{
                 long b = System.nanoTime();
                 Debug.logger("World Main Executor Response Time", b-c);
                 Assert(Bukkit.isPrimaryThread());
@@ -89,7 +90,7 @@ public class LevelTests implements TestCase {
             Debug.logger("throw a fucking exception on main ");
             throw  new RuntimeException();
         });
-        ThreadUtils.sleep(50);
+        ExecutorUtils.sleep(50);
 
     }
 }

@@ -1,5 +1,6 @@
 package me.matl114.matlib.unitTest.autoTests;
 
+import me.matl114.matlib.algorithms.algorithm.ExecutorUtils;
 import me.matl114.matlib.utils.ThreadUtils;
 import me.matl114.matlib.implement.bukkit.schedule.ScheduleManager;
 import me.matl114.matlib.unitTest.OnlineTest;
@@ -29,7 +30,7 @@ public class EntityTests implements TestCase {
         },0,true).get();
 
         Debug.logger("Sleep 1_000 ms");
-        ThreadUtils.sleep(1_000);
+        ExecutorUtils.sleep(1_000);
         Assert(!record.stillValid());
         ScheduleManager.getManager().getScheduledFuture(()->{
             Assert(record.loadEntity());

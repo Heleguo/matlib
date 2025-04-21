@@ -25,6 +25,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -138,5 +139,35 @@ public class InventoryTests implements TestCase {
         var nbtShulker = NMSItem.ITEMSTACK.save(nmsShulker, COMPOUND_TAG.newComp());
         Debug.logger(nbtShulker);
     }
-
+    @OnlineTest(name = "inventory mech test")
+    public void test_InventoryMech(){
+        Inventory inventory = CraftBukkit.INVENTORYS.createCustomInventory(new InventoryHolder() {
+            @Override
+            public @NotNull Inventory getInventory() {
+                return null;
+            }
+        }, 1, "shit");
+        Object content = CraftBukkit.INVENTORYS.getInventory(inventory);
+        List itemList = NMSItem.CONTAINER.getContents(content);
+        Debug.logger(itemList);
+        Assert(NMSItem.ITEMSTACK.equalsEmpty(itemList.get(0)));
+        inventory.setItem(0, ItemUtils.copyStack(SlimefunItems.GOLD_18K));
+        Debug.logger(itemList);
+        Debug.logger(NMSItem.ITEMSTACK.save(itemList.get(0)));
+        ItemStack item = inventory.getItem(0);
+        item.setAmount(0);
+        Debug.logger(itemList);
+        Debug.logger(NMSItem.ITEMSTACK.save(itemList.get(0)));
+        Assert(NMSItem.ITEMSTACK.isEmpty(itemList.get(0)));
+        item.setAmount(33);
+        Debug.logger(itemList);
+        Debug.logger(NMSItem.ITEMSTACK.save(itemList.get(0)));
+        item.setAmount(0);
+        item.setType(Material.HOPPER);
+        Debug.logger(itemList);
+        Debug.logger(NMSItem.ITEMSTACK.save(itemList.get(0)));
+        item.setAmount(33);
+        Debug.logger(itemList);
+        Debug.logger(NMSItem.ITEMSTACK.save(itemList.get(0)));
+    }
 }

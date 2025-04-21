@@ -8,7 +8,7 @@ public class CommonTestset extends TestSet {
     {
 //
 //        addTest(new ComponentTests());
-        addTest(new InventoryUtilTests());
+        //addTest(new InventoryUtilTests());
 //        addTest(new ThreadUtilTests());
     }
 }

@@ -65,6 +65,10 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
     @MethodTarget
     public Object save(Object itemStack, @RedirectType(CompoundTag) Object nbt);
 
+    default Object save(Object itemStack){
+        return save(itemStack, NMSCore.COMPOUND_TAG.newComp());
+    }
+
     @MethodTarget
     public Object copy(Object itemSTack, boolean originItem);
 

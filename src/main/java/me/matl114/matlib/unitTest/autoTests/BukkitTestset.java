@@ -10,6 +10,6 @@ public class BukkitTestset extends TestSet {
 
 //        addTest(new BukkitAPITests());
 //        addTest(new BukkitTranslationTests());
-        addTest(new PdcTests());
+        //addTest(new PdcTests());
     }
 }

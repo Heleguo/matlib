@@ -2,6 +2,7 @@ package me.matl114.matlib.unitTest.autoTests.nmsTests;
 
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
+import me.matl114.matlib.algorithms.algorithm.ExecutorUtils;
 import me.matl114.matlib.nmsUtils.ItemUtils;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
@@ -38,7 +39,7 @@ public class CraftBukkitUtilTests implements TestCase {
         for (int i=0 ; i< 300; ++i){
             itemStack.getItemMeta().getPersistentDataContainer();
         }
-        ThreadUtils.sleepNs(23333);
+        ExecutorUtils.sleepNs(23333);
         Debug.logger("creating view");
         long a=System.nanoTime();
         for (int i=0 ;i< 1_000; ++i){

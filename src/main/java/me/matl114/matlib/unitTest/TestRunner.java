@@ -2,6 +2,7 @@ package me.matl114.matlib.unitTest;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
+import me.matl114.matlib.algorithms.algorithm.ExecutorUtils;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.implement.bukkit.schedule.ScheduleManager;
 import me.matl114.matlib.utils.AddUtils;
@@ -182,9 +183,9 @@ public class TestRunner extends AbstractMainCommand implements Manager {
         }
         default void executeAwait(){
             Preconditions.checkArgument(!Bukkit.isPrimaryThread());
-            var future = ThreadUtils.getFutureTask(this);
+            var future =ExecutorUtils.getFutureTask(this);
             ScheduleManager.getManager().execute(future,!isAsync());
-            ThreadUtils.awaitFuture(future);
+            ExecutorUtils.awaitFuture(future);
         }
         boolean isAsync();
     }
@@ -209,7 +210,7 @@ public class TestRunner extends AbstractMainCommand implements Manager {
             });
             warmup = false;
             Debug.logger("Warm up completed");
-            ThreadUtils.sleep(4000);
+            ExecutorUtils.sleep(4000);
         }else {
             Debug.logger("Escape warm up before test!");
         }

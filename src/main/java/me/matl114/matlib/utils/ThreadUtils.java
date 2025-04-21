@@ -173,45 +173,7 @@ public class ThreadUtils {
         return false;
     }
 
-    public static void test(){
 
-    }
-    public static BukkitRunnable getRunnable(Runnable runnable) {
-        return runnable instanceof BukkitRunnable ?(BukkitRunnable)runnable: new BukkitRunnable() {
-            public void run() {
-                runnable.run();
-            }
-        };
-    }
-
-    public static void sleep(long ms){
-        try{
-            Thread.sleep(ms);
-        }catch (Throwable e){}
-    }
-    public static void sleepNs(long ns){
-        long ms = ns/1_000_000;
-        long left = ns%1_000_000;
-        if(ms > 0){
-            sleep(ms);
-        }
-        LockSupport.parkNanos(left);
-//        do{
-//
-//        }while(System.nanoTime()<endTime);
-    }
-    public static FutureTask<Void> getFutureTask(Runnable runnable) {
-        return new FutureTask<>(runnable,(Void) null);
-    }
-
-
-    public static <T extends Object> T awaitFuture(FutureTask<T> futureTask) {
-        try{
-            return futureTask.get();
-        }catch (Throwable e){
-            throw new RuntimeException(e);
-        }
-    }
     public static void executeSync(Runnable runnable){
         if(Bukkit.isPrimaryThread()){
             runnable.run();

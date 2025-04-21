@@ -1,4 +1,4 @@
-package me.matl114.matlib.algorithms.designs.concurrency.lock;
+package me.matl114.matlib.algorithms.designs.concurrency;
 
 import me.matl114.matlibAdaptor.algorithms.dataStructures.LockFactory;
 

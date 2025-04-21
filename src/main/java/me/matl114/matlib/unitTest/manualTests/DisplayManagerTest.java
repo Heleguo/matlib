@@ -1,6 +1,7 @@
 package me.matl114.matlib.unitTest.manualTests;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
+import me.matl114.matlib.algorithms.algorithm.ExecutorUtils;
 import me.matl114.matlib.utils.ThreadUtils;
 import me.matl114.matlib.algorithms.algorithm.TransformationUtils;
 import me.matl114.matlib.algorithms.algorithm.Vectors;
@@ -169,13 +170,13 @@ public class DisplayManagerTest implements TestCase {
             manager.buildDisplay(p.getLocation(),FixedEntityGroup.builder("testcase",null,true));
             return null;
         },0,true).get();
-        ThreadUtils.sleep(2_000);
+        ExecutorUtils.sleep(2_000);
         var vec = new Vector3f(dx,dy,dz);
         Quaternionf q = TransformationUtils.rotateOriginTo(vec,true);
 
         float len = vec.length();
         manager.reshapeBase(1.0f,len,1.0f,true);
-        ThreadUtils.sleep(2_000);
+        ExecutorUtils.sleep(2_000);
         manager.appendTransformation(rotationAsLinear(q),true);
     }
 
@@ -352,7 +353,7 @@ public class DisplayManagerTest implements TestCase {
                         var1.sendMessage("task ID不匹配");
                         return false;
                 }
-                BukkitRunnable taskR = ThreadUtils.getRunnable(t);
+                BukkitRunnable taskR = ExecutorUtils.getRunnable(t);
                 taskR.runTaskTimer(ThreadUtils.getMockPlugin(),0,1);
                 task.put(id,taskR);
                 return true;

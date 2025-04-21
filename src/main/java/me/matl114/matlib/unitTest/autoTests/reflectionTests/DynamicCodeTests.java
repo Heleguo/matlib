@@ -63,7 +63,6 @@ public class DynamicCodeTests implements TestCase {
             .stream()
             .filter(s->s.getReturnType() == boolean.class)
             .filter(s->s.getParameterCount()==0)
-            .peek(s->Debug.logger("left",s))
             .filter(s->ObfManager.getManager().deobfMethod(s).equals("isEmpty"))
             .findAny()
             .orElseThrow();

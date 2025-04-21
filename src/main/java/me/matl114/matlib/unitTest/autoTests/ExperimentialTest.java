@@ -1,5 +1,6 @@
 package me.matl114.matlib.unitTest.autoTests;
 
+import me.matl114.matlib.algorithms.algorithm.ExecutorUtils;
 import me.matl114.matlib.utils.ThreadUtils;
 import me.matl114.matlib.common.lang.annotations.NotRecommended;
 import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
@@ -130,7 +131,7 @@ public class ExperimentialTest implements TestCase {
             for (int i=0;i<1_000; ++i){
                 int x = cnt.incrementAndGet();
                 Chunk a =testWorld().getChunkAt(x,y);
-                ThreadUtils.sleep(2_00);
+                ExecutorUtils.sleep(2_00);
                 if(i%10 == 0){
                     Debug.logger("Task ",i,"complete");
                 }

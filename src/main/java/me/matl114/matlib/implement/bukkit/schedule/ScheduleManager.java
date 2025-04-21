@@ -2,6 +2,7 @@ package me.matl114.matlib.implement.bukkit.schedule;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
+import me.matl114.matlib.algorithms.algorithm.ExecutorUtils;
 import me.matl114.matlib.utils.ThreadUtils;
 import me.matl114.matlib.core.AutoInit;
 import me.matl114.matlib.core.Manager;
@@ -74,7 +75,7 @@ public class ScheduleManager implements Manager {
     }
 
     public <T extends Runnable> void launchScheduled(T r,int delayTick,boolean runSync,int periodTick){
-        launchScheduled(ThreadUtils.getRunnable(r),delayTick,runSync,periodTick);
+        launchScheduled(ExecutorUtils.getRunnable(r),delayTick,runSync,periodTick);
     }
     public void launchScheduled(BukkitRunnable thread, int delay, boolean isSync, int period){
         if(period<=0){

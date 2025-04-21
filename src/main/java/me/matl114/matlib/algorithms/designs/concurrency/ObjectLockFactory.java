@@ -1,5 +1,6 @@
-package me.matl114.matlib.algorithms.designs.concurrency.lock;
+package me.matl114.matlib.algorithms.designs.concurrency;
 
+import me.matl114.matlib.algorithms.algorithm.ExecutorUtils;
 import me.matl114.matlib.utils.ThreadUtils;
 import me.matl114.matlibAdaptor.algorithms.dataStructures.LockFactory;
 import org.bukkit.Bukkit;
@@ -39,7 +40,7 @@ public class ObjectLockFactory<T extends Object> implements LockFactory<T> {
     }
 
     public ObjectLockFactory<T> setupRefreshTask(int tickRefreshPeriod){
-        autoRefreshTask = ThreadUtils.getRunnable(this::onLockRecordRefresh).runTaskTimerAsynchronously(pl, tickRefreshPeriod, tickRefreshPeriod);
+        autoRefreshTask = ExecutorUtils.getRunnable(this::onLockRecordRefresh).runTaskTimerAsynchronously(pl, tickRefreshPeriod, tickRefreshPeriod);
         return this;
     }
 

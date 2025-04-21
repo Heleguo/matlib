@@ -112,6 +112,8 @@ public abstract class AsyncInventoryWrapper implements Inventory {
 
     @Override
     public ItemStack getItem(int i) {
+        //trigger update when getItem to avoid direct count modification
+        delayChangeUpdate();
         return this.handle.getItem(i);
     }
 
