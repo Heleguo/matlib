@@ -57,6 +57,9 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
     @MethodTarget
     public void setItem(Object stack, @RedirectType(Item)Object item);
 
+    @MethodTarget
+    public Object split(Object stack, int amount);
+
     @Note("Do not use it, its returnType varies with version, only used for comp")
     @MethodTarget
     @RedirectName("getEnchantmentTags")

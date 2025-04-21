@@ -1,14 +1,19 @@
 package me.matl114.matlib.nmsUtils;
 
+import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import me.matl114.matlib.algorithms.algorithm.MathUtils;
 import me.matl114.matlib.common.lang.annotations.Note;
+import me.matl114.matlib.nmsMirror.core.BuiltInRegistryEnum;
 import me.matl114.matlib.nmsMirror.craftbukkit.persistence.CraftPersistentDataContainerHelper;
 import me.matl114.matlib.nmsMirror.impl.CraftBukkit;
+import me.matl114.matlib.nmsMirror.impl.EmptyEnum;
 import me.matl114.matlib.nmsMirror.impl.NMSCore;
 import me.matl114.matlib.nmsMirror.impl.NMSItem;
 import me.matl114.matlib.nmsUtils.nbt.TagCompoundView;
 import me.matl114.matlib.utils.CraftUtils;
 import org.bukkit.Material;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -16,6 +21,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.VarHandle;
+import java.util.List;
 import java.util.Map;
 
 import static me.matl114.matlib.nmsMirror.impl.NMSItem.*;
@@ -88,5 +94,134 @@ public class ItemUtils {
         var handle1 = CraftBukkit.ITEMSTACK.unwrapToNMS(item1);
         var handle2 = CraftBukkit.ITEMSTACK.unwrapToNMS(item2);
         return ITEMSTACK.matchItem(handle1, handle2, distinctLore, distinctName);
+    }
+
+    public static ItemStack pushItem(@Note("make sure this is made by craftbukkit, not self-implemented") Inventory craftInventory, ItemStack item, int... slots){
+        Preconditions.checkArgument(CraftBukkit.INVENTORYS.isCraftInventory(craftInventory),"Should pass a craft inventory");
+        if(item == null || item.getType() == Material.AIR){
+            return null;
+        }
+        var content = CraftBukkit.INVENTORYS.getInventory(craftInventory);
+        List<?> lst = CONTAINER.getContents(content);
+        var itemNMS = CraftBukkit.ITEMSTACK.unwrapToNMS(item);
+        if(itemNMS == EmptyEnum.EMPTY_ITEMSTACK){
+            return null;
+        }
+        int amount = item.getAmount();
+        int maxSize = item.getMaxStackSize();
+        for (int slot: slots){
+            if(amount <= 0){
+                break;
+            }
+            var nmsItem = lst.get(slot);
+            //is null or air
+            if(ITEMSTACK.isEmpty(nmsItem)){
+                int received = Math.min(amount, maxSize);
+                var re = ITEMSTACK.split(itemNMS, received);
+
+                   // CraftBukkit.ITEMSTACK.asNMSCopy(item);
+                amount -= received;
+                CONTAINER.setItem(content, slot, re);
+            }else{
+                //nmsItem is not EMPTY
+                int count = ITEMSTACK.getCount(nmsItem);
+                if(count >= maxSize){
+                    continue;
+                }
+                if(!ITEMSTACK.matchItem(nmsItem, itemNMS, false, true)){
+                    continue;
+                }
+                int received = MathUtils.clamp(maxSize - count, 0, amount);
+                amount -= received;
+                ITEMSTACK.setCount(nmsItem, count + received);
+            }
+        }
+        item.setAmount(amount);
+        return amount>0 ? item: null;
+    }
+
+    public static void pushItem(@Note("make sure this is made by craftbukkit, not self-implemented") Inventory craftInventory, int[] slots, ItemStack... items){
+        Preconditions.checkArgument(CraftBukkit.INVENTORYS.isCraftInventory(craftInventory),"Should pass a craft inventory");
+        var content = CraftBukkit.INVENTORYS.getInventory(craftInventory);
+        List<?> lst = CONTAINER.getContents(content);
+        for(var item: items){
+            if(item == null || item.getType() == Material.AIR){
+                continue;
+            }
+            var itemNMS = CraftBukkit.ITEMSTACK.unwrapToNMS(item);
+            if(itemNMS == EmptyEnum.EMPTY_ITEMSTACK){
+                continue;
+            }
+            int amount = item.getAmount();
+            int maxSize = item.getMaxStackSize();
+            for (int slot: slots){
+                if(amount <= 0){
+                    break;
+                }
+                var nmsItem = lst.get(slot);
+                //is null or air
+                if(ITEMSTACK.isEmpty(nmsItem)){
+                    int received = Math.min(amount, maxSize);
+                    var re = ITEMSTACK.split(itemNMS, received);
+
+                    // CraftBukkit.ITEMSTACK.asNMSCopy(item);
+                    amount -= received;
+                    CONTAINER.setItem(content, slot, re);
+                }else{
+                    //nmsItem is not EMPTY
+                    int count = ITEMSTACK.getCount(nmsItem);
+                    if(count >= maxSize){
+                        continue;
+                    }
+                    if(!ITEMSTACK.matchItem(nmsItem, itemNMS, false, true)){
+                        continue;
+                    }
+                    int received = MathUtils.clamp(maxSize - count, 0, amount);
+                    amount -= received;
+                    ITEMSTACK.setCount(nmsItem, count + received);
+                }
+            }
+            item.setAmount(amount);
+        }
+    }
+
+    public static ItemStack pushItemWithoutMatch(@Note("make sure this is made by craftbukkit, not self-implemented") Inventory craftInventory, ItemStack item, int... slots){
+        Preconditions.checkArgument(CraftBukkit.INVENTORYS.isCraftInventory(craftInventory),"Should pass a craft inventory");
+        if(item == null || item.getType() == Material.AIR){
+            return null;
+        }
+        var content = CraftBukkit.INVENTORYS.getInventory(craftInventory);
+        List<?> lst = CONTAINER.getContents(content);
+        var itemNMS = CraftBukkit.ITEMSTACK.unwrapToNMS(item);
+        if(itemNMS == EmptyEnum.EMPTY_ITEMSTACK){
+            return null;
+        }
+        int amount = item.getAmount();
+        int maxSize = item.getMaxStackSize();
+        for (int slot: slots){
+            if(amount <= 0){
+                break;
+            }
+            var nmsItem = lst.get(slot);
+            //is null or air
+            if(ITEMSTACK.isEmpty(nmsItem)){
+                int received = Math.min(amount, maxSize);
+                var re = ITEMSTACK.split(itemNMS, received);
+                // CraftBukkit.ITEMSTACK.asNMSCopy(item);
+                amount -= received;
+                CONTAINER.setItem(content, slot, re);
+            }else{
+                //nmsItem is not EMPTY
+                int count = ITEMSTACK.getCount(nmsItem);
+                if(count >= maxSize){
+                    continue;
+                }
+                int received = MathUtils.clamp(maxSize - count, 0, amount);
+                amount -= received;
+                ITEMSTACK.setCount(nmsItem, count + received);
+            }
+        }
+        item.setAmount(amount);
+        return amount>0 ? item: null;
     }
 }

@@ -217,9 +217,9 @@ public class MathUtils {
     }
 
     public static int clamp(int value,int min ,int max){
-        if (min > max) {
-            throw new IllegalArgumentException(min + " > " + max);
-        }
+//        if (min > max) {
+//            throw new IllegalArgumentException(min + " > " + max);
+//        }
         return (int) Math.min(max, Math.max(value, min));
     }
 
@@ -245,6 +245,9 @@ public class MathUtils {
         return true;
     }
 
+//    public static int clamp(int value, int min, int max) {
+//        return Math.min(Math.max(value, min), max);
+//    }
 
 
 }

@@ -17,6 +17,8 @@ public interface InventoryAPI extends TargetDescriptor {
     @ConstructorTarget
     Inventory createInventory(@RedirectType(Container) Object container);
 
+    @CastCheck("org.bukkit.craftbukkit.inventory.CraftInventory")
+    boolean isCraftInventory(Inventory inv);
 
     @ConstructorTarget
     @RedirectClass("org.bukkit.craftbukkit.inventory.CraftInventoryCustom")
