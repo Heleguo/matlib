@@ -10,6 +10,7 @@ import sun.misc.Unsafe;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -459,6 +460,33 @@ public class ReflectUtils {
         try{
             Method method = clazz.getMethod(name, argments);
             return MethodHandles.lookup().unreflect(method);
+        }catch (Throwable e){
+            return null;
+        }
+    }
+
+    public static MethodHandle getMethodHandlePrivate(Class<?> clazz, String name, Class<?>... argments){
+        try{
+            Method method = clazz.getDeclaredMethod(name, argments);
+            return MethodHandles.privateLookupIn(clazz, MethodHandles.lookup()).unreflect(method);
+        }catch (Throwable e){
+            return null;
+        }
+    }
+
+    public static VarHandle getVarHandle(Class<?> clazz, String name){
+        try{
+            Field field = clazz.getField( name);
+            return MethodHandles.lookup().unreflectVarHandle(field);
+        }catch (Throwable e){
+            return null;
+        }
+    }
+
+    public static VarHandle getVarHandlePrivate(Class<?> clazz, String name){
+        try{
+            Field field = clazz.getDeclaredField(name);
+            return MethodHandles.privateLookupIn(clazz, MethodHandles.lookup()).unreflectVarHandle(field);
         }catch (Throwable e){
             return null;
         }
