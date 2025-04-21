@@ -14,7 +14,9 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 
 @Descriptive(target = "org.bukkit.craftbukkit.inventory.CraftItemStack")
@@ -35,7 +37,7 @@ public interface CraftItemStackHelper extends TargetDescriptor {
     @RedirectName("unwrap")
     @Note("copy only when bukkit is not a craftItemStack")
     @IgnoreFailure(thresholdInclude = Version.v1_20_R2, below = true)
-    default Object unwrapToNMS(ItemStack bukkit){
+    default Object unwrapToNMS(@Nonnull ItemStack bukkit){
         if(isCraftItemStack(bukkit)){
             Object nms = handleGetter(bukkit);
             return nms == null? EmptyEnum.EMPTY_ITEMSTACK: nms;
@@ -47,7 +49,7 @@ public interface CraftItemStackHelper extends TargetDescriptor {
     @Note("success only after the item-api change")
     @MethodTarget(isStatic = true)
     @IgnoreFailure(thresholdInclude = Version.v1_20_R1)
-    default ItemStack getCraftStack(ItemStack origin){
+    default ItemStack getCraftStack(@Nonnull ItemStack origin){
         if(isCraftItemStack(origin)){
             return origin;
         }else {

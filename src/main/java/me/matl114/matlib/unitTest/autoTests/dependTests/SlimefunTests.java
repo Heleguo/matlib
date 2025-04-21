@@ -5,6 +5,7 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
+import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
 import me.matl114.matlib.implement.slimefun.manager.BlockDataCache;
 import me.matl114.matlib.implement.bukkit.schedule.ScheduleManager;
 import me.matl114.matlib.unitTest.OnlineTest;
@@ -14,15 +15,22 @@ import me.matl114.matlib.utils.reflect.wrapper.FieldAccess;
 import me.matl114.matlib.utils.reflect.wrapper.MethodAccess;
 import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
+import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
+import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset;
+import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow;
 import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.IntStream;
 
 public class SlimefunTests implements TestCase {
     @OnlineTest(name = "Slimefun blockData test")
@@ -55,6 +63,29 @@ public class SlimefunTests implements TestCase {
             flag.set(!flag1);
         },10,false,1);
         Debug.logger("launched Machine-BlockStorage-behaviour Simulation Thread");
+    }
+    @OnlineTest(name = "sf block menu test")
+    public void test_blockMenu(){
+        BlockMenuPreset preset = new BlockMenuPreset("BYD","bydbyd") {
+            @Override
+            public void init() {
+                this.addItem(36, ChestMenuUtils.getBackground(), ChestMenuUtils.getEmptyClickHandler());
+            }
+
+            @Override
+            public boolean canOpen(@NotNull Block block, @NotNull Player player) {
+                return true;
+            }
+
+            @Override
+            public int[] getSlotsAccessedByItemTransport(ItemTransportFlow itemTransportFlow) {
+                return IntStream.range(0,37).toArray();
+            }
+        };
+        BlockMenu menu = new BlockMenu(preset, new Location(testWorld(),3,64,3));
+        Debug.logger(menu.getInventory().getSize());
+        menu.addMenuClickHandler(-1,ChestMenuUtils.getEmptyClickHandler());
+        Debug.logger(menu.getInventory().getSize());
     }
     protected static char[] GCE_GENE_DISPLAY_L=new char[]{'b','c','d','f','s','w'};
     protected static char[] GCE_GENE_DISPLAY_U=new char[]{'B','C','D','F','S','W'};

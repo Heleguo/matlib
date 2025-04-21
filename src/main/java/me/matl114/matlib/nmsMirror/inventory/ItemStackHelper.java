@@ -137,7 +137,7 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
     static String DISPLAY = "display";
     static String NAME = "Name";
     static String LORE = "Lore";
-    default boolean matchItem(Object item1, Object item2,@Note("distinct assumed that they both have lore/name, and we don't care about them, BUT if one of then don't have, then it is regarded as not match") boolean distinctLore, boolean distinctName){
+    default boolean matchItem(@Nullable Object item1,@Nullable Object item2,@Note("distinct assumed that they both have lore/name, and we don't care about them, BUT if one of then don't have, then it is regarded as not match") boolean distinctLore, boolean distinctName){
         if(item1 == item2){
             return true;
         }

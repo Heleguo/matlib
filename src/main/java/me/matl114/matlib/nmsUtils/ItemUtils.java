@@ -20,6 +20,8 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.invoke.VarHandle;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +31,7 @@ import static me.matl114.matlib.nmsMirror.impl.NMSCore.*;
 
 public class ItemUtils {
 
-    public static TagCompoundView getPersistentDataContainerView(ItemStack craftItemStack, boolean forceCreate){
+    public static TagCompoundView getPersistentDataContainerView(@Nonnull ItemStack craftItemStack, boolean forceCreate){
         var handle = CraftBukkit.ITEMSTACK.unwrapToNMS(craftItemStack);
 
         var pdc = ITEMSTACK.getPersistentDataCompound(handle, forceCreate);
@@ -75,22 +77,25 @@ public class ItemUtils {
         return CraftBukkit.ITEMSTACK.createCraftItemStack(material, amount, meta);
     }
 
-    public static ItemStack cleanStack(ItemStack whatever){
-        return CraftBukkit.ITEMSTACK.getCraftStack(whatever);
+    public static ItemStack cleanStack(@Nullable ItemStack whatever){
+        return whatever == null ? null : CraftBukkit.ITEMSTACK.getCraftStack(whatever);
     }
-    public static ItemStack copyStack(ItemStack whatever){
-        return CraftBukkit.ITEMSTACK.asCraftCopy(whatever);
+    public static ItemStack copyStack(@javax.annotation.Nullable ItemStack whatever){
+        return whatever == null ? null : CraftBukkit.ITEMSTACK.asCraftCopy(whatever);
     }
-    public static Object unwrapHandle(ItemStack it){
+    public static Object unwrapHandle(@Nonnull ItemStack it){
         return CraftBukkit.ITEMSTACK.unwrapToNMS(it);
     }
-    public static Object getHandle(ItemStack cis){
+    public static Object getHandle(@Nonnull ItemStack cis){
         return CraftBukkit.ITEMSTACK.handleGetter(cis);
     }
-    public static boolean matchItemStack(ItemStack item1, ItemStack item2, boolean distinctLore){
+    public static boolean matchItemStack(@Nullable ItemStack item1,@Nullable ItemStack item2, boolean distinctLore){
         return matchItemStack(item1, item2, distinctLore, true);
     }
-    public static boolean matchItemStack(ItemStack item1, ItemStack item2, boolean distinctLore, boolean distinctName){
+    public static boolean matchItemStack(@Nullable ItemStack item1,@Nullable ItemStack item2, boolean distinctLore, boolean distinctName){
+        if(item1 == null || item2 == null){
+            return item1 == item2;
+        }
         var handle1 = CraftBukkit.ITEMSTACK.unwrapToNMS(item1);
         var handle2 = CraftBukkit.ITEMSTACK.unwrapToNMS(item2);
         return ITEMSTACK.matchItem(handle1, handle2, distinctLore, distinctName);
@@ -149,7 +154,7 @@ public class ItemUtils {
                 continue;
             }
             var itemNMS = CraftBukkit.ITEMSTACK.unwrapToNMS(item);
-            if(itemNMS == EmptyEnum.EMPTY_ITEMSTACK){
+            if(itemNMS == null || itemNMS == EmptyEnum.EMPTY_ITEMSTACK){
                 continue;
             }
             int amount = item.getAmount();
