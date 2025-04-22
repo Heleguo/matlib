@@ -1,8 +1,12 @@
 package me.matl114.matlib.unitTest.autoTests.nmsTests;
 
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
+import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import me.matl114.matlib.nmsMirror.core.BuiltInRegistryEnum;
 import me.matl114.matlib.nmsMirror.core.RegistriesHelper;
 import me.matl114.matlib.nmsMirror.impl.CraftBukkit;
@@ -29,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static me.matl114.matlib.nmsMirror.impl.NMSCore.COMPOUND_TAG;
 
@@ -169,5 +174,32 @@ public class InventoryTests implements TestCase {
         item.setAmount(33);
         Debug.logger(itemList);
         Debug.logger(NMSItem.ITEMSTACK.save(itemList.get(0)));
+    }
+
+    @OnlineTest(name = "item hash test")
+    public void test_itemHash(){
+        Object2IntOpenCustomHashMap<ItemStack> hashMapTest = new Object2IntOpenCustomHashMap<>(300, new Hash.Strategy<ItemStack>() {
+            @Override
+            public int hashCode(ItemStack itemStack) {
+                return ItemUtils.itemStackHashCode(itemStack);
+            }
+
+            @Override
+            public boolean equals(ItemStack itemStack, ItemStack k1) {
+                return ItemUtils.matchItemStack(itemStack, k1, true);
+            }
+        });
+        List<ItemStack> items = Slimefun.getRegistry().getAllSlimefunItems().stream().map(SlimefunItem::getItem).map(ItemUtils::copyStack).toList();
+        for (var it: items){
+
+            hashMapTest.addTo(it, 1);
+        }
+        Slimefun.getRegistry().getAllSlimefunItems().stream().map(SlimefunItem::getItem).forEach(i->hashMapTest.computeInt(i,(j,k)->k+1));
+        for (var re: hashMapTest.object2IntEntrySet()){
+            if(re.getIntValue() != 2){
+                Debug.logger("check multiple item", re.getKey());
+            }
+        }
+
     }
 }

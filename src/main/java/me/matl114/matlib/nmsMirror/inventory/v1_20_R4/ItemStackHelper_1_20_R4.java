@@ -157,6 +157,9 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
         //ensure that no more type that need check in patch2
         return true;
     }
+    @MethodTarget(isStatic = true)
+    @RedirectName("hashItemAndComponents")
+    public int customHashcode(@Nonnull @RedirectType(ItemStack) Object item);
     default boolean presentAt(Reference2ObjectMap<?, Optional<?>> map, Object type){
         var re = map.get(type);
         if(re == null || re.isEmpty()){

@@ -190,7 +190,7 @@ public class ItemUtils {
         }
     }
 
-    public static ItemStack pushItemWithoutMatch(@Note("make sure this is made by craftbukkit, not self-implemented") Inventory craftInventory, ItemStack item, int... slots){
+    public static ItemStack pushItemWithoutMatch(@Note("make sure this is made by craftbukkit, not self-implemented inv") Inventory craftInventory, ItemStack item, int... slots){
         Preconditions.checkArgument(CraftBukkit.INVENTORYS.isCraftInventory(craftInventory),"Should pass a craft inventory");
         if(item == null || item.getType() == Material.AIR){
             return null;
@@ -228,5 +228,45 @@ public class ItemUtils {
         }
         item.setAmount(amount);
         return amount>0 ? item: null;
+    }
+
+    public static ItemStack grabItem(@Note("make sure this is made by craftbukkit, not self-implemented inv")Inventory craftInventory, ItemStack item, int requestedAmount, int... slots){
+        Preconditions.checkArgument(CraftBukkit.INVENTORYS.isCraftInventory(craftInventory),"Should pass a craft inventory");
+        if(item == null || item.getType() == Material.AIR){
+            return null;
+        }
+        var content = CraftBukkit.INVENTORYS.getInventory(craftInventory);
+        List<?> lst = CONTAINER.getContents(content);
+        Object stackToReturnNMS = null;
+        int collected = 0;
+        for (int slot: slots){
+            if(collected >= requestedAmount){
+                break;
+            }
+            var nms = lst.get(slot);
+            if(nms==null || ITEMSTACK.isEmpty(nms)){
+                continue;
+            }else {
+                if(stackToReturnNMS == null){
+                    stackToReturnNMS = CraftBukkit.ITEMSTACK.asNMSCopy(item);
+                }
+                if(ITEMSTACK.matchItem(stackToReturnNMS, nms, false, true)){
+                    int count = ITEMSTACK.getCount(nms);
+                    int withDraw = Math.min(count, requestedAmount - collected);
+                    ITEMSTACK.setCount(nms, count - withDraw);
+                    collected += withDraw;
+                }
+            }
+        }
+        if(stackToReturnNMS == null) {
+            return null;
+        }
+        ITEMSTACK.setCount(stackToReturnNMS, collected);
+        return CraftBukkit.ITEMSTACK.asCraftMirror(stackToReturnNMS);
+    }
+
+    public static int itemStackHashCode(@Note("should pass a CraftItemStack for the best") ItemStack craftItemStack){
+        var handle = CraftBukkit.ITEMSTACK.unwrapToNMS(craftItemStack);
+        return ITEMSTACK.customHashcode(craftItemStack);
     }
 }

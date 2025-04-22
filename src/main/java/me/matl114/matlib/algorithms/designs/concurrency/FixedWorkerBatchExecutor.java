@@ -83,13 +83,17 @@ public class FixedWorkerBatchExecutor extends AbstractExecutorService {
     }
     public CompletableFuture<Void> startRestAsync(){
         Preconditions.checkArgument(busy, "Executor is on resting-state! Can not startRest");
+        List<Future<Void>> restFuture = new ArrayList<>(nWorker +2);
+        for (var worker : workers){
+            restFuture.add(worker.stopWorkFuture());
+        }
+        busy = false;
         return CompletableFuture.runAsync(()->{
-            busy = false;
-            for (int i=0 ;i< nWorker ;++i){
-                try{
-                    workers[i].waitForStopWork();
-                }catch (Throwable e){
-                    Debug.logger("WorkerExecutor: Worker "+i+" failed to stop work!");
+            for (int i = 0, size = restFuture.size(); i < size; i++) {
+                Future<Void> f = restFuture.get(i);
+                if (!f.isDone()) {
+                    try { f.get(); }
+                    catch (Throwable ignore) {Debug.logger("WorkerExecutor: Worker "+i+" failed to stop work!");}
                 }
             }
         });

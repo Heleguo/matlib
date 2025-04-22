@@ -200,6 +200,14 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
             return obj1.getClass() == obj2.getClass();
         }
     }
+
+    default int customHashcode(@Nonnull Object item){
+        int a = 79* getItem(item).hashCode() ;
+        var nbt = getCustomTag(item);
+        return a + (nbt == null ? -1: 31*NMSCore.TAGS.sizeInBytes(nbt));
+
+    }
+
     @CastCheck(NbtCompoundClass)
     public boolean isCompoundTag(Object unknown);
 }

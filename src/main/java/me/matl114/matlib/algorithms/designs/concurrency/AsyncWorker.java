@@ -49,6 +49,12 @@ public class AsyncWorker implements Runnable, Executor {
         submitTask(new StoppingSignalTask());
         this.shutdown = true;
     }
+    public Future<Void> stopWorkFuture(){
+        var signal = new StoppingSignalTask();
+        this.shutdown = true;
+        return signal;
+    }
+
     public void waitForStopWork() throws Throwable{
         StoppingSignalTask task = new StoppingSignalTask();
         submitTask(task);

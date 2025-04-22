@@ -75,4 +75,8 @@ public interface TagAPI extends TargetDescriptor {
     @MethodTarget
     @RedirectClass("net.minecraft.nbt.CollectionTag")
     byte getElementType(AbstractList<?> list);
+
+    @MethodTarget
+    @RedirectClass("net.minecraft.nbt.Tag")
+    int sizeInBytes(Object tag);
 }
