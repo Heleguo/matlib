@@ -1,9 +1,11 @@
 package me.matl114.matlib.nmsMirror.nbt;
 
 import me.matl114.matlib.common.lang.annotations.Note;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.IgnoreFailure;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
+import me.matl114.matlib.utils.version.Version;
 import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nullable;
@@ -154,8 +156,12 @@ public interface CompoundTagHelper extends TargetDescriptor, TagHelper {
 
 //    @MethodTarget
 //    Map<String,?> entries(Object nbt);
+    //below 1.20.6 ignore failed
     @MethodTarget
-    Object shallowCopy(Object nbt);
+    @IgnoreFailure(thresholdInclude = Version.v1_20_R4, below = true)
+    default Object shallowCopy(Object nbt){
+        return newComp(tagsGetter(nbt));
+    }
 
     default void clear(Object nbt){
         tagsGetter(nbt).clear();
