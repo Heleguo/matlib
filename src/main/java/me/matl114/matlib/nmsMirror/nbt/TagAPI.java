@@ -3,6 +3,7 @@ package me.matl114.matlib.nmsMirror.nbt;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectClass;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectName;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
+import me.matl114.matlib.utils.reflect.descriptor.annotations.CastCheck;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.ConstructorTarget;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MethodTarget;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MultiDescriptive;
@@ -79,4 +80,7 @@ public interface TagAPI extends TargetDescriptor {
     @MethodTarget
     @RedirectClass("net.minecraft.nbt.Tag")
     int sizeInBytes(Object tag);
+
+    @CastCheck("net.minecraft.nbt.CompoundTag")
+    boolean isCompound(Object tag);
 }

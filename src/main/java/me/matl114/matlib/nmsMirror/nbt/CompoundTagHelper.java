@@ -154,6 +154,8 @@ public interface CompoundTagHelper extends TargetDescriptor, TagHelper {
 
 //    @MethodTarget
 //    Map<String,?> entries(Object nbt);
+    @MethodTarget
+    Object shallowCopy(Object nbt);
 
     default void clear(Object nbt){
         tagsGetter(nbt).clear();

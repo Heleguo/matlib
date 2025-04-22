@@ -267,6 +267,11 @@ public class ItemUtils {
 
     public static int itemStackHashCode(@Note("should pass a CraftItemStack for the best") ItemStack craftItemStack){
         var handle = CraftBukkit.ITEMSTACK.unwrapToNMS(craftItemStack);
-        return ITEMSTACK.customHashcode(craftItemStack);
+        return ITEMSTACK.customHashcode(handle);
+    }
+
+    public static int itemStackHashCodeWithoutLore(@Note("should pass a CraftItemStack for the best") ItemStack craftItemStack){
+        var handle = CraftBukkit.ITEMSTACK.unwrapToNMS(craftItemStack);
+        return ITEMSTACK.customHashWithoutDisplay(handle);
     }
 }

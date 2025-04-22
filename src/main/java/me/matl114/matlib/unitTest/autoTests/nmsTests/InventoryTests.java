@@ -1,10 +1,16 @@
 package me.matl114.matlib.unitTest.autoTests.nmsTests;
 
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Multimap;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
 import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import me.matl114.matlib.nmsMirror.core.BuiltInRegistryEnum;
@@ -16,6 +22,7 @@ import me.matl114.matlib.nmsMirror.inventory.ItemStackHelper;
 import me.matl114.matlib.nmsMirror.nbt.CompoundTagHelper;
 import me.matl114.matlib.nmsMirror.resources.ResourceLocationHelper;
 import me.matl114.matlib.nmsUtils.ItemUtils;
+import me.matl114.matlib.nmsUtils.inventory.ItemHashMap;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
 import me.matl114.matlib.utils.CraftUtils;
@@ -175,7 +182,7 @@ public class InventoryTests implements TestCase {
         Debug.logger(itemList);
         Debug.logger(NMSItem.ITEMSTACK.save(itemList.get(0)));
     }
-
+    volatile int value;
     @OnlineTest(name = "item hash test")
     public void test_itemHash(){
         Object2IntOpenCustomHashMap<ItemStack> hashMapTest = new Object2IntOpenCustomHashMap<>(300, new Hash.Strategy<ItemStack>() {
@@ -192,7 +199,7 @@ public class InventoryTests implements TestCase {
         List<ItemStack> items = Slimefun.getRegistry().getAllSlimefunItems().stream().map(SlimefunItem::getItem).map(ItemUtils::copyStack).toList();
         for (var it: items){
 
-            hashMapTest.addTo(it, 1);
+            hashMapTest.put(it, 1);
         }
         Slimefun.getRegistry().getAllSlimefunItems().stream().map(SlimefunItem::getItem).forEach(i->hashMapTest.computeInt(i,(j,k)->k+1));
         for (var re: hashMapTest.object2IntEntrySet()){
@@ -200,6 +207,139 @@ public class InventoryTests implements TestCase {
                 Debug.logger("check multiple item", re.getKey());
             }
         }
+        long a= System.nanoTime();
+        for (var item: items){
+            value= ItemUtils.itemStackHashCode(item);
+        }
+        long b =System.nanoTime();
+        Debug.logger("hashing items cost", b-a, "for",items.size(),"items");
+        a= System.nanoTime();
+        for (var item: items){
+             value=  item.hashCode();
+        }
+        b =System.nanoTime();
+        Debug.logger("hashing items cost", b-a, "for",items.size(),"items");
+        Int2IntArrayMap hashMap = new Int2IntArrayMap();
 
+        items.forEach(s->hashMap.compute(ItemUtils.itemStackHashCode(s), (i,j)->{
+            return j == null?1:j+1;
+        }));
+        for (var entry: hashMap.int2IntEntrySet()){
+            if(entry.getIntValue() != 1){
+                Debug.logger("hash Conflict at",entry.getIntValue(), entry.getIntKey());
+            }
+        }
+        //test no display hashcode
+        a= System.nanoTime();
+        for (var item: items){
+            value= ItemUtils.itemStackHashCodeWithoutLore(item);
+        }
+        b =System.nanoTime();
+        Debug.logger("hashing items no display cost", b-a, "for",items.size(),"items");
+        Object2IntOpenCustomHashMap<ItemStack> hashMapTestNoDisplay = new Object2IntOpenCustomHashMap<>(300, new Hash.Strategy<ItemStack>() {
+            @Override
+            public int hashCode(ItemStack itemStack) {
+                return ItemUtils.itemStackHashCodeWithoutLore(itemStack);
+            }
+
+            @Override
+            public boolean equals(ItemStack itemStack, ItemStack k1) {
+                return ItemUtils.matchItemStack(itemStack, k1, false);
+            }
+        });
+        for (var it: items){
+            hashMapTestNoDisplay.put(it, 1);
+        }
+        List<ItemStack> itemsWithLoreModify = Slimefun.getRegistry().getAllSlimefunItems().stream().map(SlimefunItem::getItem)
+            .map(i->{
+                ItemStack i2 = i.clone();
+                var lore = i2.lore();
+                lore = lore == null?new ArrayList<>(): lore;
+                lore.add(Component.text("shit lore check line fucking 1"));
+                i2.lore(lore);
+                return i2;
+            })
+            .peek(i->hashMapTestNoDisplay.computeInt(i.clone(),(j,k)->k==null?1: k+1))
+            .map(i->{
+                ItemStack i2 = i.clone();
+                var lore = i2.lore();
+                lore = lore == null?new ArrayList<>(): lore;
+                lore.add(Component.text("shit lore check line fucking 2"));
+                i2.lore(lore);
+                int hash1 = ItemUtils.itemStackHashCodeWithoutLore(i);
+                int hash2 = ItemUtils.itemStackHashCodeWithoutLore(i2);
+                if(hash1 != hash2 ){
+                    Debug.logger("hash different at",i,i2, hash1, hash2);
+                }
+                if(!ItemUtils.matchItemStack(i,i2,false)){
+                    Debug.logger("equals different at ",i,i2,ItemUtils.cleanStack(i), ItemUtils.cleanStack(i2));
+                    throw new RuntimeException();
+                }
+                return i2;
+            })
+            .peek(i2->{
+                hashMapTestNoDisplay.computeInt(i2, (j,k)->k==null?1: k+1);
+            })
+            .toList();
+        ;
+
+        for (var re: hashMapTestNoDisplay.object2IntEntrySet()){
+            if(re.getIntValue() != 3 ){
+                //pass no-lore , because it is lore-distinct, but the one with no lore is different from haslore
+                if(re.getIntValue() == 1 && re.getKey().lore() == null){
+                    continue;
+                }else if(re.getIntValue() ==2 && re.getKey().lore().size() == 1){
+                    continue;
+                }
+                Debug.logger("check multiple item no display", ItemUtils.cleanStack( re.getKey()), re.getIntValue());
+            }
+        }
+        Int2IntArrayMap hashMap2 = new Int2IntArrayMap();
+        Multimap<Integer, ItemStack> hashToItemStack = LinkedListMultimap.create();
+        items.forEach(s->{
+            int value = ItemUtils.itemStackHashCodeWithoutLore(s);
+            hashMap2.compute(value, (i,j)-> {
+                return j == null ? 1 : j + 1;
+            });
+            hashToItemStack.put(value, s);
+        });
+        for (var entry: hashMap2.int2IntEntrySet()){
+            if(entry.getIntValue() != 1){
+                Debug.logger("hash no display Conflict at",entry.getIntValue(), entry.getIntKey(), hashToItemStack.get(entry.getIntKey()));
+            }
+        }
+
+        ItemHashMap<Integer> itemMap = new ItemHashMap<>(false);
+        List<ItemStack> itemWithLoreAdded = itemsWithLoreModify.stream()
+            .map(i->{
+                ItemStack itemAddLore = ItemUtils.copyStack(CleanItemStack.ofBukkitClean(i));
+                var lore = itemAddLore.lore();
+                lore.add(Component.text("shit lore check line 3"));
+                itemAddLore.lore(lore);
+                return itemAddLore;
+            }).toList();
+        itemsWithLoreModify.forEach(s-> itemMap.put(s,s.getType().ordinal()));
+
+        a = System.nanoTime();
+        for (var item: itemWithLoreAdded){
+            try{
+                Assert(itemMap.get(item) == item.getType().ordinal());
+            }catch (Throwable e){
+                Debug.logger("Assertion failed for ",item);
+            }
+        }
+        b = System.nanoTime();
+        Debug.logger("test pass for itemsHashMap, using",b-a);
+        a = System.nanoTime();
+        for (var item: itemWithLoreAdded){
+            for (var entry: itemMap.entrySet()){
+                if(ItemUtils.matchItemStack(item, entry.getKey(), false)){
+                    Assert(entry.getValue() == item.getType().ordinal());
+                    break;
+                }
+            }
+        }
+        b = System.nanoTime();
+        Debug.logger("test pass for for-loop find, using", b-a);
     }
 }

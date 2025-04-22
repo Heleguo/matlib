@@ -136,6 +136,7 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
 
     static String DISPLAY = "display";
     static String NAME = "Name";
+    static int NAME_HASH = NAME.hashCode();
     static String LORE = "Lore";
     default boolean matchItem(@Nullable Object item1,@Nullable Object item2,@Note("distinct assumed that they both have lore/name, and we don't care about them, BUT if one of then don't have, then it is regarded as not match") boolean distinctLore, boolean distinctName){
         if(item1 == item2){
@@ -204,8 +205,40 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
     default int customHashcode(@Nonnull Object item){
         int a = 79* getItem(item).hashCode() ;
         var nbt = getCustomTag(item);
-        return a + (nbt == null ? -1: 31*NMSCore.TAGS.sizeInBytes(nbt));
-
+        return a + (nbt == null ? -1:
+            31*nbt.hashCode());
+       // 31*NMSCore.TAGS.sizeInBytes(nbt));
+    }
+    default int customHashWithoutDisplay(Object item){
+        int a = 79* getItem(item).hashCode() ;
+        var nbt = getCustomTag(item);
+        if(nbt == null){
+            return a ;
+        }
+        Map<String,?> tag = NMSCore.COMPOUND_TAG.tagsGetter(nbt);
+        Object val = tag.get(DISPLAY);
+        if(val != null && NMSCore.TAGS.isCompound(val)){
+            var map = new HashMap<>(tag);
+            map.remove(DISPLAY);
+            Object nameVal = NMSCore.COMPOUND_TAG.get(val, NAME);
+            return a + map.hashCode() + (nameVal == null ? 0 : NAME_HASH^nameVal.hashCode());
+        }
+        return a + tag.hashCode();
+//        var optionalDisplay = tag.get(DISPLAY);
+//        Object value;
+//        for (var entry: tag.entrySet()){
+//            value = entry.getValue();
+//            if(value != optionalDisplay){
+//                a += entry.getKey().hashCode() ^( value == null ? 0 : value.hashCode());
+//            }
+//        }
+//        if(optionalDisplay != null && NMSCore.TAGS.isCompound(optionalDisplay)){
+//            Object v = NMSCore.COMPOUND_TAG.get(optionalDisplay, NAME);
+//            if(v != null){
+//                a += NAME_HASH^ v.hashCode();
+//            }
+//        }
+//        return  a;
     }
 
     @CastCheck(NbtCompoundClass)

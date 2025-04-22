@@ -3,6 +3,7 @@ package me.matl114.matlib.nmsMirror.inventory.v1_20_R4;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import me.matl114.matlib.common.lang.annotations.Protected;
 import me.matl114.matlib.nmsMirror.versionedEnv.Env;
 import me.matl114.matlib.nmsMirror.impl.NMSCore;
@@ -20,6 +21,8 @@ import me.matl114.matlib.utils.version.VersionAtLeast;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -160,6 +163,32 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
     @MethodTarget(isStatic = true)
     @RedirectName("hashItemAndComponents")
     public int customHashcode(@Nonnull @RedirectType(ItemStack) Object item);
+
+    @Override
+    default int customHashWithoutDisplay(Object item){
+        int a = 79* getItem(item).hashCode() ;
+        Object comp = getComponents(item);
+        if(comp == null){
+            return a;
+        }
+        Reference2ObjectMap<Object, Optional<?>> patch = Env1_20_R4.ICOMPONENT.patchGetter(comp);
+        if(patch.containsKey(DataComponentEnum.LORE)){
+            Map<Object, Optional<?>> patchShallowCopy = new Reference2ObjectOpenHashMap<>(patch);
+            patchShallowCopy.remove(DataComponentEnum.LORE);
+            return a + patchShallowCopy.hashCode();
+        }
+        return a + patch.hashCode();
+//        ObjectSet<Reference2ObjectMap.Entry<Object, Optional<?>>> entryset = patch.reference2ObjectEntrySet();
+//        Object key,value;
+//        for (var entry: entryset){
+//            key = entry.getKey();
+//            if(key != DataComponentEnum.LORE && key != null && (value = entry.getValue()) != null){
+//                a += key.hashCode()^ value.hashCode();
+//            }
+//        }
+//        return a;
+    }
+
     default boolean presentAt(Reference2ObjectMap<?, Optional<?>> map, Object type){
         var re = map.get(type);
         if(re == null || re.isEmpty()){
