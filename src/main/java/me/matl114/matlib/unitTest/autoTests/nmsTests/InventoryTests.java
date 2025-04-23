@@ -41,6 +41,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 import static me.matl114.matlib.nmsMirror.impl.NMSCore.COMPOUND_TAG;
@@ -340,9 +341,10 @@ public class InventoryTests implements TestCase {
         b = System.nanoTime();
         Debug.logger("test pass for itemsHashMap, using",b-a);
         a = System.nanoTime();
+        BiPredicate<ItemStack,ItemStack> matcher = ItemHashMap.NO_LORE_ITEM_STRATEGY::equals;
         for (var item: itemWithLoreAdded){
             for (var entry: itemMap.entrySet()){
-                if(ItemUtils.matchItemStack(item, entry.getKey(), false)){
+                if(matcher.test(item, entry.getKey())){
                     Assert(entry.getValue() == item.getType().ordinal());
                     break;
                 }

@@ -112,12 +112,12 @@ public class ItemHashMap <T> extends Object2ObjectOpenCustomHashMap<ItemStack,T>
         public boolean equals(ItemStack itemStack, ItemStack k1) {
             if(itemStack instanceof ItemStackKey key){
                 if(k1 instanceof ItemStackKey key1){
-                    return ItemUtils.matchItemStack(key.handled, key1.handled,true);
+                    return ItemUtils.matchItemStack(key.handle, key1.handle,true);
                 }
-                return ItemUtils.matchItemStack(key.handled, k1,true);
+                return ItemUtils.matchItemStack(key.handle, k1,true);
             }
 
-            return ItemUtils.matchItemStack(itemStack, k1 instanceof ItemStackKey key2? key2.handled :k1, true);
+            return ItemUtils.matchItemStack(itemStack, k1 instanceof ItemStackKey key2? key2.handle :k1, true);
         }
     }
     public static class StrategyItemNoLoreHash implements Strategy<ItemStack>{
@@ -134,12 +134,12 @@ public class ItemHashMap <T> extends Object2ObjectOpenCustomHashMap<ItemStack,T>
         public boolean equals(ItemStack itemStack, ItemStack k1) {
             if(itemStack instanceof ItemStackKey key){
                 if(k1 instanceof ItemStackKey key1){
-                    return ItemUtils.matchItemStack(key.handled, key1.handled,false);
+                    return ItemUtils.matchItemStack(key.handle, key1.handle,false);
                 }
-                return ItemUtils.matchItemStack(key.handled, k1,false);
+                return ItemUtils.matchItemStack(key.handle, k1,false);
             }
 
-            return ItemUtils.matchItemStack(itemStack, k1 instanceof ItemStackKey key2? key2.handled :k1, false);
+            return ItemUtils.matchItemStack(itemStack, k1 instanceof ItemStackKey key2? key2.handle :k1, false);
         }
     }
 }
