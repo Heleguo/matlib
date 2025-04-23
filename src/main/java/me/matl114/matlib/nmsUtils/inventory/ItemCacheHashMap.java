@@ -101,12 +101,13 @@ public class ItemCacheHashMap <K extends ItemHashCache, T> extends Object2Object
 
         @Override
         public int hashCode(ItemHashCache itemStack) {
-            return itemStack.getHashCodeNoLore();
+            return itemStack == null ? 0 : itemStack.getHashCodeNoLore();
         }
 
         @Override
         public boolean equals(ItemHashCache itemStack, ItemHashCache k1) {
-            return ItemUtils.matchItemStack(itemStack.getCraftStack(), k1.getCraftStack(), false);
+            //null case
+            return (itemStack == null || k1 == null)? (itemStack == k1): ItemUtils.matchItemStack(itemStack.getCraftStack(), k1.getCraftStack(), false);
         }
     }
 }

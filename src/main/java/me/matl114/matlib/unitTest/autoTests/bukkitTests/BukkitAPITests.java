@@ -73,10 +73,10 @@ public class BukkitAPITests implements TestCase {
     }
     @OnlineTest(name = "component item test")
     public void test_component_item()throws Throwable {
-        ItemStack stack = new CleanItemStack(Material.DIAMOND, "shit, it is a name",  List.of("&rShit, it is a lore with RESET flag"));
+        ItemStack stack = new CleanItemStack(Material.DIAMOND, "shit, it is a name",  List.of("&rShit, it is a lore with &aRESET flag"));
         ItemStack stackCopy = ItemUtils.copyStack(stack);
         Debug.logger(stackCopy);
-        Component component = ComponentUtils.fromLegacyString(AddUtils.color("&ashit, it is a fucking lore with green color"));//Component.empty().append(Component.text("shit, it is a fucking lore"));
+        Component component = ComponentUtils.fromLegacyString(AddUtils.resolveColor("&ashit, it is a fucking lore with green color"));//Component.empty().append(Component.text("shit, it is a fucking lore"));
         Debug.logger(stackCopy.getLore());
         Debug.logger(stackCopy.lore());
         ItemStack stackCopy1 = stackCopy.clone();

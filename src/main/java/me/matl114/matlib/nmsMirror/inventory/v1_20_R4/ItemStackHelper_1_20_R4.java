@@ -137,6 +137,9 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
         if(comp1 == null || comp2 == null){
             return false;
         }
+        if(distinctLore && distinctName){
+            return comp1.equals(comp2);
+        }
         //should match name , or match lore here
         return matchComp(comp1, comp2, distinctLore, distinctName);
     }

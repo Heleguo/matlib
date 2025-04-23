@@ -159,10 +159,14 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
         return matchTag(nbt1, nbt2, distinctLore, distinctName);
     }
     default boolean matchNbt(Object item1, Object item2, boolean distinctLore, boolean distinctName){
+
         Object nbt1 = getCustomTag(item1);
         Object nbt2 = getCustomTag(item2);
         if(nbt1 == null || nbt2 == null){
             return nbt1 == nbt2;
+        }
+        if(distinctLore && distinctName){
+            return nbt1.equals(nbt2);
         }
         return matchTag(nbt1, nbt2, distinctLore, distinctName);
     }
