@@ -9,7 +9,7 @@ import me.matl114.matlib.unitTest.autoTests.reflectionTests.ReflectionUtilTests;
 public class ReflectionTestset extends TestSet {
     {
         //addTest(new DynamicCodeTests());
-        //addTest(new ReflectionUtilTests());
+        addTest(new ReflectionUtilTests());
         addTest(new ProxyUtilTests());
         //addTest(new ASMUtilsTests());
 

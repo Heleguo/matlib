@@ -79,7 +79,7 @@ public interface VersionedFeature {
 
         @Override
         public <T extends Entity> T spawnEntity(Location location, Class<T> clazz, Consumer<T> consumer, CreatureSpawnEvent.SpawnReason reason) {
-            return null;
+            return world.spawnEntity(location, clazz, consumer, reason);
         }
 
         @Override
@@ -114,7 +114,7 @@ public interface VersionedFeature {
 
         @Override
         public BlockState copyBlockStateTo(BlockState state1, Block block) {
-            return null;
+            return world.copyBlockStateTo(state1, block);
         }
 
         @Override

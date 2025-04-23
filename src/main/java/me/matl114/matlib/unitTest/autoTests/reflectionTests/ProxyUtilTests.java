@@ -1,5 +1,6 @@
 package me.matl114.matlib.unitTest.autoTests.reflectionTests;
 
+import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
 import me.matl114.matlib.unitTest.demo.DemoLoad;
@@ -10,9 +11,18 @@ import me.matl114.matlib.utils.reflect.descriptor.annotations.Descriptive;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MethodTarget;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import me.matl114.matlib.utils.reflect.internel.ObfManager;
+import me.matl114.matlib.utils.reflect.proxy.ProxyBuilder;
+import me.matl114.matlib.utils.reflect.proxy.invocation.AdaptorInvocation;
+import me.matl114.matlib.utils.reflect.proxy.invocation.SimpleRemappingInvocation;
+import me.matl114.matlib.utils.reflect.wrapper.FieldAccess;
+import me.matl114.matlib.utils.reflect.wrapper.MethodAccess;
+import me.matl114.matlibAdaptor.algorithms.dataStructures.LockFactory;
+import me.matl114.matlibAdaptor.algorithms.interfaces.Initialization;
+import org.bukkit.Location;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
 
 public class ProxyUtilTests implements TestCase {
     @OnlineTest(name = "Proxy descriptor test")
@@ -27,6 +37,46 @@ public class ProxyUtilTests implements TestCase {
         handle.a(val);
         handle.notComplete(val, true);
         Debug.logger(ReflectUtils.getAllFieldsRecursively(handle.getClass()));
+    }
+    @OnlineTest(name = "Proxy builder test")
+    public void test_simple_proxy()throws Throwable{
+        Class logiTech = Class.forName("me.matl114.logitech.MyAddon");
+        Debug.logger(logiTech.getName());
+        FieldAccess initAccess = FieldAccess.ofName(logiTech,"matlibInstance");
+        Object instance= initAccess.initWithNull().getValue(null);
+        Debug.logger(instance.getClass().getName());
+        Debug.logger(instance instanceof Initialization);
+        Initialization init = ProxyBuilder.buildMatlibAdaptorOf(Initialization.class, instance, SimpleRemappingInvocation::new);
+        Debug.logger(init);
+        Debug.logger(init.getClass());
+        Debug.logger(init.getClass().getSimpleName());
+        Debug.logger(init.getDisplayName());
+        Debug.logger(init.getLogger());
+        long start = System.nanoTime();
+        String value = null;
+        for (int i=0;i<1_000;++i){
+            value = init.getDisplayName();
+        }
+        long end = System.nanoTime();
+        Debug.logger("time cost for 1_000_000 invocation",end-start,value);
+        Method method = instance.getClass().getMethod("getDisplayName");
+        start = System.nanoTime();
+        value = null;
+        for (int i=0;i<1_000;++i){
+            method.invoke(instance);
+        }
+        end = System.nanoTime();
+        Debug.logger("time cost for 1_000_000 reflection",end-start,value);
+
+        //DO NOT CALL METHOD WITH OUR CLASS RETURN VALUE ,OTHERWISE CLASS CAST EXCEPTION WILL OCCURS
+        Debug.logger(init.isTestMode());
+        Object access = MethodAccess.reflect("getCargoLockFactory", Slimefun.class)
+            .invoke(null);
+        Debug.logger(access);
+        LockFactory<Location> locationLockFactory = ProxyBuilder.buildMatlibAdaptorOf(LockFactory.class, access,SimpleRemappingInvocation::new);
+        Debug.logger(locationLockFactory);
+        Debug.logger(locationLockFactory.getClass().getSimpleName());
+        Debug.logger(locationLockFactory.checkThreadStatus(new Location(testWorld(),0,0,0)));
     }
 
     @OnlineTest(name = "Proxy module test")

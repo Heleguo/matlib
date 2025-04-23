@@ -1,8 +1,11 @@
 package me.matl114.matlib.utils.reflect.proxy.invocation;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import me.matl114.matlib.algorithms.dataStructures.frames.HashContainer;
+import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.proxy.methodMap.MethodSignature;
 import me.matl114.matlib.utils.reflect.ReflectUtils;
 import me.matl114.matlib.utils.reflect.proxy.methodMap.MethodIndex;
@@ -17,13 +20,19 @@ import java.util.Set;
 
 public abstract class FastRemappingInvocation implements InvocationCreator {
     public static final int DEFAULT_INVOCATION_INDEX = -336;
+    public static final int USE_HASH_THRESHOLD = 512;
     //can we use something like , fastutil or real-hash to compare reference
     //shit, how can we know whether this is same method instance?
-    private final HashContainer<MethodIndex> methods;
+    private final Reference2ReferenceOpenHashMap<Method, MethodIndex> methods = new Reference2ReferenceOpenHashMap<>();
+    // HashContainer<MethodIndex> methods;
+    private final Set<MethodIndex> methodIndexs;
+    private Object2ObjectOpenHashMap<Method, MethodIndex> methodsHashMap;
     private final Reference2ReferenceOpenHashMap<MethodIndex, MethodHandle> defaultInvocation = new Reference2ReferenceOpenHashMap<>();
     protected final Reference2BooleanOpenHashMap<MethodIndex> staticFlag = new Reference2BooleanOpenHashMap<>();
+    boolean methodDynamicGenerated =false;
     public FastRemappingInvocation(Set<MethodIndex> rawData){
-        this.methods = new HashContainer<>(2*rawData.size(),p->p.signature().hashCode());
+        //this.methods = new HashContainer<>(2*rawData.size(),p->p.signature().hashCode());
+        this.methodIndexs = Set.copyOf(rawData);
         Set<MethodIndex> defaulta = new HashSet<>();
         for (MethodIndex rawDatum : rawData) {
             Method tar = rawDatum.target();
@@ -34,7 +43,6 @@ public abstract class FastRemappingInvocation implements InvocationCreator {
                 defaulta.add(rawDatum);
             }
         }
-        this.methods.addAll(rawData);
         for (var raw : defaulta){
             try{
                 MethodHandle handle = MethodHandles.privateLookupIn(raw.target().getDeclaringClass(),MethodHandles.lookup()).unreflectSpecial(raw.target(), raw.target().getDeclaringClass());
@@ -44,10 +52,26 @@ public abstract class FastRemappingInvocation implements InvocationCreator {
             }
         }
     }
-
+    private MethodIndex findMapping(Method method){
+        return this.methodIndexs.stream().filter(index->index.signature().ofSameSignature(method)).findFirst().orElseThrow(()->{
+            return new IllegalArgumentException("Method " + method + " not Accessible in this InvocationHandler!");
+        });
+    }
     @Override
     public Object invoke(Object proxy, Object target, Method method, Object[] args) throws Throwable {
-        MethodIndex info = this.methods.findFirst(MethodSignature.getHash(method),index->index.signature().ofSameSignature(method));
+        MethodIndex info ;
+        if(!methodDynamicGenerated){
+            info = this.methods.computeIfAbsent(method,this::findMapping);
+            if(this.methods.size() > USE_HASH_THRESHOLD){
+                this.methods.clear();
+                methodDynamicGenerated = true;
+                this.methodsHashMap = new Object2ObjectOpenHashMap<>();
+            }
+        }else {
+            info =this.methodsHashMap.computeIfAbsent(method, this::findMapping);
+        }
+
+            //findFirst(MethodSignature.getHash(method),index->index.signature().ofSameSignature(method));
         if(info!=null){
             if(info.hasDefault()){
                 MethodHandle handle0 = Objects.requireNonNull(defaultInvocation.get(info));
@@ -75,7 +99,7 @@ public abstract class FastRemappingInvocation implements InvocationCreator {
                 return invoke0(proxy, target, info, args);
             }
         }
-        throw new IllegalArgumentException("Method " + method + " not Accessible in this Adaptor!");
+        throw new IllegalArgumentException("Method " + method + " not Accessible in this InvocationHandler!");
     }
     public abstract Object invoke0(Object proxy, Object target, MethodIndex methodIndex, Object[] args);
 

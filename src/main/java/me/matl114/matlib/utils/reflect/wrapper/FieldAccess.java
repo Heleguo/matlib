@@ -114,7 +114,7 @@ public class FieldAccess {
     }
     public Field getFieldOrDefault(Supplier<Field> defa){
         init(null);
-        Debug.logger("getField called" + field);
+       // Debug.logger("getField called" + field);
         return failInitialization?defa.get():field;
     }
     public Field finalizeFieldOrDefault(Object initializeObject,Supplier<Field> defa){
