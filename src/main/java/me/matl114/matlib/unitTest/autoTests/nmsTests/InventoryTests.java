@@ -23,6 +23,7 @@ import me.matl114.matlib.nmsMirror.nbt.CompoundTagHelper;
 import me.matl114.matlib.nmsMirror.resources.ResourceLocationHelper;
 import me.matl114.matlib.nmsUtils.ItemUtils;
 import me.matl114.matlib.nmsUtils.inventory.ItemHashMap;
+import me.matl114.matlib.nmsUtils.inventory.ItemStackKey;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
 import me.matl114.matlib.utils.CraftUtils;
@@ -309,7 +310,7 @@ public class InventoryTests implements TestCase {
             }
         }
 
-        ItemHashMap<Integer> itemMap = new ItemHashMap<>(false);
+        ItemHashMap<Integer> itemMap = new ItemHashMap<>(12800,false);
         List<ItemStack> itemWithLoreAdded = itemsWithLoreModify.stream()
             .map(i->{
                 ItemStack itemAddLore = ItemUtils.copyStack(CleanItemStack.ofBukkitClean(i));
@@ -318,8 +319,16 @@ public class InventoryTests implements TestCase {
                 itemAddLore.lore(lore);
                 return itemAddLore;
             }).toList();
-        itemsWithLoreModify.forEach(s-> itemMap.put(s,s.getType().ordinal()));
-
+        List<ItemStackKey> itemStackKeys = itemsWithLoreModify.stream()
+            .map(ItemStackKey::of)
+            .peek(ItemStackKey::getHashCodeNoLore)
+            .toList();
+        List<Integer> itemWithLoreInteger = itemsWithLoreModify.stream().map(s->s.getType().ordinal()).toList();
+        a = System.nanoTime();
+        //itemMap = new ItemHashMap<>(itemsWithLoreModify.toArray(ItemStack[]::new), itemWithLoreInteger.toArray(Integer[]::new),false);
+        itemStackKeys.forEach(s-> itemMap.put(s,s.getType().ordinal()));
+        b = System.nanoTime();
+        Debug.logger("itemHashMap construct, using",b-a, "size", itemMap.size());
         a = System.nanoTime();
         for (var item: itemWithLoreAdded){
             try{
@@ -334,6 +343,17 @@ public class InventoryTests implements TestCase {
         for (var item: itemWithLoreAdded){
             for (var entry: itemMap.entrySet()){
                 if(ItemUtils.matchItemStack(item, entry.getKey(), false)){
+                    Assert(entry.getValue() == item.getType().ordinal());
+                    break;
+                }
+            }
+        }
+        b = System.nanoTime();
+        Debug.logger("test pass for for-loop find, using", b-a);
+        a = System.nanoTime();
+        for (var item: itemWithLoreAdded){
+            for (var entry: itemMap.entrySet()){
+                if(item.getType() == entry.getKey().getType() && ItemUtils.matchItemStack(item, entry.getKey(), false)){
                     Assert(entry.getValue() == item.getType().ordinal());
                     break;
                 }

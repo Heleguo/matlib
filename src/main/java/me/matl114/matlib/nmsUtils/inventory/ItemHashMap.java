@@ -2,6 +2,7 @@ package me.matl114.matlib.nmsUtils.inventory;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
+import lombok.val;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.nmsUtils.ItemUtils;
 import org.bukkit.inventory.ItemStack;
@@ -29,16 +30,24 @@ public class ItemHashMap <T> extends Object2ObjectOpenCustomHashMap<ItemStack,T>
     public ItemHashMap(ItemStack[] key, T[] value, boolean considerLore){
         super(key, value, considerLore? DEFAULT_ITEM_STRATEGY: NO_LORE_ITEM_STRATEGY);
     }
-
+    public static ItemStack unwrapCommon(ItemStack stack){
+        if(stack instanceof ItemStackKey key){
+            return key;
+        }
+        return ItemUtils.cleanStack(stack);
+    }
+    private ItemStack unwrap(ItemStack stack){
+        return unwrapCommon(stack);
+    }
     @Override
     public T put(ItemStack itemStack, T t) {
-        return super.put(ItemUtils.cleanStack(itemStack), t);
+        return super.put(this.unwrap(itemStack), t);
     }
 
     @Override
     public boolean remove(Object k, Object v) {
         if(k instanceof ItemStack stack){
-            return super.remove(ItemUtils.cleanStack(stack), v);
+            return super.remove(this.unwrap(stack), v);
         }else {
             return false;
         }
@@ -46,7 +55,7 @@ public class ItemHashMap <T> extends Object2ObjectOpenCustomHashMap<ItemStack,T>
     @Override
     public T get(Object val){
         if(val instanceof ItemStack stack){
-            return super.get(ItemUtils.cleanStack(stack));
+            return super.get(this.unwrap(stack));
         }
         return null;
     }
@@ -54,7 +63,7 @@ public class ItemHashMap <T> extends Object2ObjectOpenCustomHashMap<ItemStack,T>
     @Override
     public boolean containsKey(Object k) {
         if(k instanceof ItemStack stack){
-            return super.containsKey(ItemUtils.cleanStack(stack));
+            return super.containsKey(this.unwrap(stack));
         }else {
             return false;
         }
@@ -62,23 +71,24 @@ public class ItemHashMap <T> extends Object2ObjectOpenCustomHashMap<ItemStack,T>
 
     @Override
     public boolean replace(ItemStack itemStack, T oldValue, T t) {
-        return super.replace(ItemUtils.cleanStack(itemStack), oldValue, t);
+        return super.replace(this.unwrap(itemStack), oldValue, t);
     }
 
     @Override
     public T compute(ItemStack itemStack, BiFunction<? super ItemStack, ? super T, ? extends T> remappingFunction) {
-        return super.compute(ItemUtils.cleanStack(itemStack), remappingFunction);
+        
+        return super.compute(this.unwrap(itemStack), remappingFunction);
     }
 
     @Override
     public T computeIfPresent(ItemStack itemStack, BiFunction<? super ItemStack, ? super T, ? extends T> remappingFunction) {
-        return super.computeIfPresent(ItemUtils.cleanStack(itemStack), remappingFunction);
+        return super.computeIfPresent(this.unwrap(itemStack), remappingFunction);
     }
 
     @Override
     public T getOrDefault(Object k, T defaultValue) {
         if(k instanceof ItemStack stack){
-            return super.getOrDefault(ItemUtils.cleanStack(stack), defaultValue);
+            return super.getOrDefault(this.unwrap(stack), defaultValue);
         }else {
             return defaultValue;
         }
@@ -86,30 +96,50 @@ public class ItemHashMap <T> extends Object2ObjectOpenCustomHashMap<ItemStack,T>
 
     @Override
     public T putIfAbsent(ItemStack itemStack, T t) {
-        return super.putIfAbsent(ItemUtils.cleanStack(itemStack), t);
+        return super.putIfAbsent(this.unwrap(itemStack), t);
     }
 
     public static class StrategyItemHash implements Strategy<ItemStack>{
         @Override
         public int hashCode(ItemStack itemStack) {
+            if(itemStack instanceof ItemStackKey key){
+                return key.getHashCode();
+            }
             return ItemUtils.itemStackHashCode(itemStack);
         }
 
         @Override
         public boolean equals(ItemStack itemStack, ItemStack k1) {
-            return ItemUtils.matchItemStack(itemStack, k1, true);
+            if(itemStack instanceof ItemStackKey key){
+                if(k1 instanceof ItemStackKey key1){
+                    return ItemUtils.matchItemStack(key.handled, key1.handled,true);
+                }
+                return ItemUtils.matchItemStack(key.handled, k1,true);
+            }
+
+            return ItemUtils.matchItemStack(itemStack, k1 instanceof ItemStackKey key2? key2.handled :k1, true);
         }
     }
     public static class StrategyItemNoLoreHash implements Strategy<ItemStack>{
 
         @Override
         public int hashCode(ItemStack itemStack) {
+            if(itemStack instanceof ItemStackKey key){
+                return key.getHashCodeNoLore();
+            }
             return ItemUtils.itemStackHashCodeWithoutLore(itemStack);
         }
 
         @Override
         public boolean equals(ItemStack itemStack, ItemStack k1) {
-            return ItemUtils.matchItemStack(itemStack, k1, false);
+            if(itemStack instanceof ItemStackKey key){
+                if(k1 instanceof ItemStackKey key1){
+                    return ItemUtils.matchItemStack(key.handled, key1.handled,false);
+                }
+                return ItemUtils.matchItemStack(key.handled, k1,false);
+            }
+
+            return ItemUtils.matchItemStack(itemStack, k1 instanceof ItemStackKey key2? key2.handled :k1, false);
         }
     }
 }
