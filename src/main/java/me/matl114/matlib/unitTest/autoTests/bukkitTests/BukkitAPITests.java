@@ -12,6 +12,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import java.io.ByteArrayInputStream;
@@ -87,6 +88,18 @@ public class BukkitAPITests implements TestCase {
         lore.add(component);
         stackCopy2.lore(lore);
         Debug.logger(stackCopy2);
+        ItemMeta meta = stackCopy2.getItemMeta();
+        meta.setDisplayName("");
+        Debug.logger(meta.displayName());
+        Debug.logger(meta.getDisplayName());
+        meta.setLore(List.of(""));
+        Debug.logger(meta.lore());
+        Debug.logger(meta.getLore());
+        meta.displayName(ComponentUtils.EMPTY);
+        Debug.logger(meta.getDisplayName());
+        Debug.logger(meta.displayName());
+        meta.lore(List.of(ComponentUtils.EMPTY));
+        Debug.logger(meta.getLore());
     }
 
 
