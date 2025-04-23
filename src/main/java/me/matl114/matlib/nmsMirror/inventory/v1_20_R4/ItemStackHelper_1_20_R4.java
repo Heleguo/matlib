@@ -102,7 +102,7 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
             setDataComponentValue(stack, DataComponentEnum.CUSTOM_DATA, Env1_20_R4.ICUSTOMDATA.of(nbt));
         }
     }
-
+    @Override
     default boolean matchItem(Object item1, Object item2, @Note("distinct assumed that they both have lore/name, and we don't care about them, BUT if one of then don't have, then it is regarded as not match") boolean distinctLore, boolean distinctName){
         if(item1 == item2){
             return true;
@@ -116,6 +116,19 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
         if(getItem(item1) != getItem(item2)){
             return false;
         }
+        Object comp1 = getComponents(item1);
+        Object comp2 = getComponents(item2);
+        if(comp1 == comp2){
+            return true;
+        }
+        if(comp1 == null || comp2 == null){
+            return false;
+        }
+        //should match name , or match lore here
+        return matchComp(comp1, comp2, distinctLore, distinctName);
+    }
+    @Override
+    default boolean matchNbt(Object item1, Object item2, boolean distinctLore, boolean distinctName){
         Object comp1 = getComponents(item1);
         Object comp2 = getComponents(item2);
         if(comp1 == comp2){

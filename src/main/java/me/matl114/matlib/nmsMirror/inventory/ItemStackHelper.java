@@ -158,6 +158,15 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
         }
         return matchTag(nbt1, nbt2, distinctLore, distinctName);
     }
+    default boolean matchNbt(Object item1, Object item2, boolean distinctLore, boolean distinctName){
+        Object nbt1 = getCustomTag(item1);
+        Object nbt2 = getCustomTag(item2);
+        if(nbt1 == null || nbt2 == null){
+            return nbt1 == nbt2;
+        }
+        return matchTag(nbt1, nbt2, distinctLore, distinctName);
+    }
+
     @Internal
     default boolean matchTag(@Nonnull Object nbt1,@Nonnull Object nbt2, boolean matchLore, boolean matchName){
         Map<String, ?> map1 = NMSCore.COMPOUND_TAG.tagsGetter(nbt1);
