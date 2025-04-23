@@ -1,10 +1,14 @@
 package me.matl114.matlib.unitTest.autoTests.bukkitTests;
 
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
+import me.matl114.matlib.nmsUtils.ItemUtils;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
+import me.matl114.matlib.utils.AddUtils;
 import me.matl114.matlib.utils.Debug;
+import me.matl114.matlib.utils.chat.ComponentUtils;
 import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -67,4 +71,44 @@ public class BukkitAPITests implements TestCase {
         Debug.logger(Bukkit.getUnsafe().getItemTranslationKey(Material.CHEST));
 
     }
+    @OnlineTest(name = "component item test")
+    public void test_component_item()throws Throwable {
+        ItemStack stack = new CleanItemStack(Material.DIAMOND, "shit, it is a name",  List.of("&rShit, it is a lore with RESET flag"));
+        ItemStack stackCopy = ItemUtils.copyStack(stack);
+        Debug.logger(stackCopy);
+        Component component = ComponentUtils.fromLegacyString(AddUtils.color("&ashit, it is a fucking lore with green color"));//Component.empty().append(Component.text("shit, it is a fucking lore"));
+        Debug.logger(stackCopy.getLore());
+        Debug.logger(stackCopy.lore());
+        ItemStack stackCopy1 = stackCopy.clone();
+        stackCopy1.setLore(stackCopy.getLore());
+        Debug.logger(stackCopy1);
+        var stackCopy2 = stackCopy.clone();
+        var lore = stackCopy.lore();
+        lore.add(component);
+        stackCopy2.lore(lore);
+        Debug.logger(stackCopy2);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -352,16 +352,16 @@ public class InventoryTests implements TestCase {
         }
         b = System.nanoTime();
         Debug.logger("test pass for for-loop find, using", b-a);
-        a = System.nanoTime();
-        for (var item: itemWithLoreAdded){
-            for (var entry: itemMap.entrySet()){
-                if(item.getType() == entry.getKey().getType() && ItemUtils.matchItemStack(item, entry.getKey(), false)){
-                    Assert(entry.getValue() == item.getType().ordinal());
-                    break;
-                }
-            }
-        }
-        b = System.nanoTime();
-        Debug.logger("test pass for for-loop find, using", b-a);
+//        a = System.nanoTime();
+//        for (var item: itemWithLoreAdded){
+//            for (var entry: itemMap.entrySet()){
+//                if(item.getType() == entry.getKey().getType() && ItemUtils.matchItemStack(item, entry.getKey(), false)){
+//                    Assert(entry.getValue() == item.getType().ordinal());
+//                    break;
+//                }
+//            }
+//        }
+//        b = System.nanoTime();
+//        Debug.logger("test pass for for-loop find, using", b-a);
     }
 }

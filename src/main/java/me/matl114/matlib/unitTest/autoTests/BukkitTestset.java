@@ -8,7 +8,7 @@ import me.matl114.matlib.unitTest.autoTests.bukkitTests.PdcTests;
 public class BukkitTestset extends TestSet {
     {
 
-//        addTest(new BukkitAPITests());
+        addTest(new BukkitAPITests());
 //        addTest(new BukkitTranslationTests());
         //addTest(new PdcTests());
     }
