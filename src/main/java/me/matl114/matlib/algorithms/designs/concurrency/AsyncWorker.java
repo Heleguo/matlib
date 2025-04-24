@@ -10,6 +10,7 @@ import java.util.concurrent.*;
 
 public class AsyncWorker implements Runnable, Executor {
     final ArrayBlockingQueue<Runnable> taskQueue;
+    final int fixedSize;
     @Getter
     volatile boolean shutdown = true;
     public AsyncWorker(){
@@ -17,6 +18,7 @@ public class AsyncWorker implements Runnable, Executor {
     }
     public AsyncWorker(int size){
         this.taskQueue = new ArrayBlockingQueue<>(size);
+        this.fixedSize = size - 8;
     }
     @Override
     public void run() {
@@ -24,8 +26,10 @@ public class AsyncWorker implements Runnable, Executor {
         while (true){
             try{
                 task = this.taskQueue.take();
+                //bugfix : should run StoppingSignalTask to complete future
                 if(task instanceof StoppingSignalTask){
                     shutdown = true;
+                    task.run();
                     return;
                 }else {
                     task.run();
@@ -37,7 +41,13 @@ public class AsyncWorker implements Runnable, Executor {
 
     private void submitTask(Runnable task){
         Preconditions.checkArgument(!shutdown,"This worker is in shutdown state and can not submit task anyMore");
-        this.taskQueue.add(task);
+        if(this.taskQueue.size() < fixedSize){
+            //
+            this.taskQueue.add(task);
+        }else {
+            //caller run policy
+            task.run();
+        }
     }
 
     @Override
