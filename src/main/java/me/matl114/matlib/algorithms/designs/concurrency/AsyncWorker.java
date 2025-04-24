@@ -41,11 +41,9 @@ public class AsyncWorker implements Runnable, Executor {
 
     private void submitTask(Runnable task){
         Preconditions.checkArgument(!shutdown,"This worker is in shutdown state and can not submit task anyMore");
-        if(this.taskQueue.size() < fixedSize){
-            //
+        try{
             this.taskQueue.add(task);
-        }else {
-            //caller run policy
+        }catch (IllegalStateException full){
             task.run();
         }
     }
