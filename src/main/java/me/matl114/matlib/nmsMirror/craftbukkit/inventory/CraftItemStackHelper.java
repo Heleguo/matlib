@@ -93,4 +93,8 @@ public interface CraftItemStackHelper extends TargetDescriptor {
     @MethodTarget(isStatic = true)
     @Note("create empty CompoundTag if absent, useless when upper 1_20_R4")
     boolean makeTag(@RedirectType(Import.ItemStack) Object nms);
+
+    @MethodTarget(isStatic = true)
+    ItemMeta getItemMeta(@RedirectType(Import.ItemStack)Object nms);
+
 }
