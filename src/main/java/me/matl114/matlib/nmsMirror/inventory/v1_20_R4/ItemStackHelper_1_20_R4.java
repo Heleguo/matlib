@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import me.matl114.matlib.common.lang.annotations.NeedTest;
 import me.matl114.matlib.common.lang.annotations.Protected;
 import me.matl114.matlib.nmsMirror.versionedEnv.Env;
 import me.matl114.matlib.nmsMirror.impl.NMSCore;
@@ -178,6 +179,7 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
     }
     @MethodTarget(isStatic = true)
     @RedirectName("hashItemAndComponents")
+    @NeedTest
     public int customHashcode(@Nonnull @RedirectType(ItemStack) Object item);
 
     @Override

@@ -64,6 +64,8 @@ public class CoreTests implements TestCase {
     public void test_access()throws  Throwable{
         Debug.logger(NMSItem.CONTAINER.newCustomContainer(null, 1, "byd").getClass());
     }
+
+
     @MultiDescriptive(targetDefault = "wtf")
     public interface TestReflection extends TargetDescriptor {
         @FieldTarget

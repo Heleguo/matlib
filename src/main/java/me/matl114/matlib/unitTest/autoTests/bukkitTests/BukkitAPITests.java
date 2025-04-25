@@ -100,6 +100,10 @@ public class BukkitAPITests implements TestCase {
         Debug.logger(meta.displayName());
         meta.lore(List.of(ComponentUtils.EMPTY));
         Debug.logger(meta.getLore());
+        ComponentUtils.addToLore(meta, ComponentUtils.EMPTY);
+        Debug.logger(meta.lore());
+        ComponentUtils.removeLoreLast(meta, 2);
+        Debug.logger(meta.lore());
     }
 
 

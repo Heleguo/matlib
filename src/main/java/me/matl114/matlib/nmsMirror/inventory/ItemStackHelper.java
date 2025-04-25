@@ -15,10 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static me.matl114.matlib.nmsMirror.Import.*;
 
@@ -218,8 +215,24 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
     default int customHashcode(@Nonnull Object item){
         int a = 79* getItem(item).hashCode() ;
         var nbt = getCustomTag(item);
-        return a + (nbt == null ? -1:
-            31*nbt.hashCode());
+        if(nbt == null){
+            return a ;
+        }
+        Map<String,?> tag = NMSCore.COMPOUND_TAG.tagsGetter(nbt);
+        Object val = tag.get(DISPLAY);
+        if(val != null && NMSCore.TAGS.isCompound(val)){
+            var map = new HashMap<>(tag);
+            map.remove(DISPLAY);
+            Object nameVal = NMSCore.COMPOUND_TAG.get(val, NAME);
+            //lore hashCode has bug, we only calculate its size
+            Object loreVal = NMSCore.COMPOUND_TAG.get(val, LORE);
+            return a + map.hashCode() + (nameVal == null ? 0 : NAME_HASH^nameVal.hashCode()) + (loreVal instanceof AbstractList<?> list ? 3419 * list.size() : 7) ;
+        }
+        return a + tag.hashCode();
+//        int a = 79* getItem(item).hashCode() ;
+//        var nbt = getCustomTag(item);
+//        return a + (nbt == null ? -1:
+//            31*nbt.hashCode());
        // 31*NMSCore.TAGS.sizeInBytes(nbt));
     }
     default int customHashWithoutDisplay(Object item){
