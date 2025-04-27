@@ -2,6 +2,7 @@ package me.matl114.matlib.unitTest.autoTests.dependTests;
 
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
+import io.github.thebusybiscuit.slimefun4.core.attributes.DistinctiveItem;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
@@ -87,6 +88,15 @@ public class SlimefunTests implements TestCase {
         menu.addMenuClickHandler(-1,ChestMenuUtils.getEmptyClickHandler());
         Debug.logger(menu.getInventory().getSize());
     }
+    @OnlineTest(name = "distinctive test")
+    public void test_distinctive(){
+        for (SlimefunItem item: Slimefun.getRegistry().getAllSlimefunItems()){
+            if(item instanceof DistinctiveItem && (item.getItem().getType() == Material.PLAYER_HEAD || item.getItem().getType() == Material.SUGAR)){
+                Debug.logger(item);
+            }
+        }
+    }
+
     protected static char[] GCE_GENE_DISPLAY_L=new char[]{'b','c','d','f','s','w'};
     protected static char[] GCE_GENE_DISPLAY_U=new char[]{'B','C','D','F','S','W'};
    // @OnlineTest(name = "Slimefun Gce test")

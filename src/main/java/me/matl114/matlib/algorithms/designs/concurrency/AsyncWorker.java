@@ -11,6 +11,7 @@ import java.util.concurrent.*;
 public class AsyncWorker implements Runnable, Executor {
     final ArrayBlockingQueue<Runnable> taskQueue;
     final int fixedSize;
+    Future<?> runningTask;
     @Getter
     volatile boolean shutdown = true;
     public AsyncWorker(){
@@ -68,6 +69,12 @@ public class AsyncWorker implements Runnable, Executor {
         submitTask(task);
         task.get();
     }
+    public void waitForStopWork(int time, TimeUnit unit) throws Throwable{
+        StoppingSignalTask task = new StoppingSignalTask();
+        submitTask(task);
+        task.get(time, unit);
+        this.runningTask = null;
+    }
 
 
     public void startWork(){
@@ -75,10 +82,24 @@ public class AsyncWorker implements Runnable, Executor {
     }
 
     public void shutdown(){
+        shutdown(10, TimeUnit.SECONDS);
+    }
+
+    public void shutdown(int time, TimeUnit unit){
         this.taskQueue.clear();
         try{
-            waitForStopWork();
+            waitForStopWork(time, unit);
         }catch (Throwable e){
+            forceShutdown(e);
+        }
+    }
+    //for dead lock tasks, force stop hard,
+    private void forceShutdown(Throwable e){
+        System.err.println("Async Worker "+ this + "encountered a shutdown timeout! shutting down force...");
+        e.printStackTrace();
+        if(runningTask != null){
+            runningTask.cancel(true);
+            runningTask = null;
         }
     }
 
@@ -86,16 +107,17 @@ public class AsyncWorker implements Runnable, Executor {
         List<Runnable> lst = new ArrayList<>();
         this.taskQueue.removeIf(r->{lst.add(r); return true;});
         try{
-            waitForStopWork();
+            waitForStopWork(1,TimeUnit.SECONDS);
         }catch (Throwable e){
+            forceShutdown(e);
         }
         return lst;
     }
 
-    public void startWork(Executor asyncExecutor){
+    public void startWork(ExecutorService asyncExecutor){
         Preconditions.checkArgument(shutdown,"This worker is in running state and can not start Working now");
         this.shutdown = false;
-        asyncExecutor.execute(this);
+        this.runningTask = asyncExecutor.submit(this);
     }
 
 
