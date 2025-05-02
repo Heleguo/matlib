@@ -1,12 +1,8 @@
 package me.matl114.matlib.utils.reflect.proxy.invocation;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import me.matl114.matlib.algorithms.dataStructures.frames.HashContainer;
-import me.matl114.matlib.utils.Debug;
-import me.matl114.matlib.utils.reflect.proxy.methodMap.MethodSignature;
 import me.matl114.matlib.utils.reflect.ReflectUtils;
 import me.matl114.matlib.utils.reflect.proxy.methodMap.MethodIndex;
 

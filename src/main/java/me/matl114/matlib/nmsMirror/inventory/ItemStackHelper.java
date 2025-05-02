@@ -10,6 +10,7 @@ import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectName;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
+import me.matl114.matlib.utils.version.Version;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -269,5 +270,6 @@ public interface ItemStackHelper extends TargetDescriptor , PdcCompoundHolder {
 
     @CastCheck(NbtCompoundClass)
     public boolean isCompoundTag(Object unknown);
+
 }
 

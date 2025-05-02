@@ -2,7 +2,7 @@ package me.matl114.matlib.utils.reflect.wrapper;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
-import me.matl114.matlib.algorithms.dataStructures.frames.InitializeProvider;
+import me.matl114.matlib.algorithms.dataStructures.frames.initBuidler.InitializeProvider;
 import me.matl114.matlib.common.functions.reflect.FieldGetter;
 import me.matl114.matlib.common.functions.reflect.FieldSetter;
 import me.matl114.matlib.utils.Debug;

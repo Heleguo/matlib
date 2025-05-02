@@ -1,7 +1,7 @@
 package me.matl114.matlib;
 
 import me.matl114.matlib.algorithms.algorithm.TransformationUtils;
-import me.matl114.matlib.algorithms.dataStructures.frames.HashContainer;
+import me.matl114.matlib.algorithms.dataStructures.frames.collection.HashContainer;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.algorithms.dataStructures.struct.Triplet;
 import me.matl114.matlib.utils.language.componentCompiler.BuildContent;

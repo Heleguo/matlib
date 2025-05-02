@@ -10,8 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import me.matl114.matlib.algorithms.algorithm.CollectionUtils;
-import me.matl114.matlib.algorithms.dataStructures.frames.InitializeProvider;
-import me.matl114.matlib.algorithms.dataStructures.frames.PairList;
+import me.matl114.matlib.algorithms.dataStructures.frames.initBuidler.InitializeProvider;
+import me.matl114.matlib.algorithms.dataStructures.frames.collection.PairList;
 import me.matl114.matlib.common.lang.exceptions.CompileError;
 
 import java.util.*;

@@ -139,7 +139,7 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
             return false;
         }
         if(distinctLore && distinctName){
-            return comp1.equals(comp2);
+            return Objects.equals(comp1, comp2);
         }
         //should match name , or match lore here
         return matchComp(comp1, comp2, distinctLore, distinctName);
@@ -151,6 +151,10 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
 //        if(Env1_20_R4.ICOMPONENT.prototypeGetter(comp1) != Env1_20_R4.ICOMPONENT.prototypeGetter(comp2)){
 //            return false;
 //        }
+        if(comp1 == DataComponentEnum.COMPONENT_MAP_EMPTY || comp2 == DataComponentEnum.COMPONENT_MAP_EMPTY){
+            return comp1 == comp2;
+        }
+
         Reference2ObjectMap<Object, Optional<?>> patch1 = Env1_20_R4.ICOMPONENT.patchGetter(comp1);
         Reference2ObjectMap<Object, Optional<?>> patch2 = Env1_20_R4.ICOMPONENT.patchGetter(comp2);
 
@@ -184,9 +188,9 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
 
     @Override
     default int customHashWithoutDisplay(Object item){
-        int a = 79* getItem(item).hashCode() ;
+        int a = 79* getItem(item).hashCode();
         Object comp = getComponents(item);
-        if(comp == null){
+        if(comp == null || comp == DataComponentEnum.COMPONENT_MAP_EMPTY){
             return a;
         }
         Reference2ObjectMap<Object, Optional<?>> patch = Env1_20_R4.ICOMPONENT.patchGetter(comp);

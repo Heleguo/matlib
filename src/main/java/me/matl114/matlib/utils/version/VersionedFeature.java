@@ -1,7 +1,6 @@
 package me.matl114.matlib.utils.version;
 
 import lombok.Getter;
-import me.matl114.matlib.algorithms.dataStructures.frames.InitializeProvider;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.AttributeModifier;

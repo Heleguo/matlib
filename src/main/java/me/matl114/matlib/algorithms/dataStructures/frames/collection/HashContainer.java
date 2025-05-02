@@ -1,4 +1,4 @@
-package me.matl114.matlib.algorithms.dataStructures.frames;
+package me.matl114.matlib.algorithms.dataStructures.frames.collection;
 
 import me.matl114.matlib.common.lang.annotations.Experimental;
 import me.matl114.matlib.common.lang.annotations.NotCompleted;

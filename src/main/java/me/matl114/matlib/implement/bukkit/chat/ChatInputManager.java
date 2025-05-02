@@ -91,7 +91,7 @@ public class ChatInputManager implements Manager, Listener , InputManager {
         return players==NO_PLAYERS;
     }
     @EventHandler
-    public void onComamnd(PlayerCommandPreprocessEvent e) {
+    public void onCommand(PlayerCommandPreprocessEvent e) {
         this.checkInput(e, e.getPlayer(), e.getMessage(),NO_PLAYERS);
         AtomicReference<String> reference = new AtomicReference<>(e.getMessage());
         this.listenInput(e, e.getPlayer(), reference, NO_PLAYERS);

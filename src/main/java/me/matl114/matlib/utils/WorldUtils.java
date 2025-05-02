@@ -1,7 +1,7 @@
 package me.matl114.matlib.utils;
 
 import lombok.Getter;
-import me.matl114.matlib.algorithms.dataStructures.frames.InitializeSafeProvider;
+import me.matl114.matlib.algorithms.dataStructures.frames.initBuidler.InitializeSafeProvider;
 import me.matl114.matlib.algorithms.dataStructures.struct.Holder;
 import me.matl114.matlib.common.functions.FuncUtils;
 import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;

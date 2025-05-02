@@ -1,7 +1,7 @@
 package me.matl114.matlib.utils.entity.groups.implement;
 
 import me.matl114.matlib.utils.ThreadUtils;
-import me.matl114.matlib.algorithms.dataStructures.frames.PairList;
+import me.matl114.matlib.algorithms.dataStructures.frames.collection.PairList;
 import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
 import me.matl114.matlib.utils.entity.entityRecords.EntityRecord;
 import me.matl114.matlib.utils.entity.groups.EntityGroup;

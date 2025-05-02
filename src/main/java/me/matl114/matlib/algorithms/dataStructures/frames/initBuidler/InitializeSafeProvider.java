@@ -1,4 +1,4 @@
-package me.matl114.matlib.algorithms.dataStructures.frames;
+package me.matl114.matlib.algorithms.dataStructures.frames.initBuidler;
 
 import java.util.function.Supplier;
 

@@ -32,4 +32,9 @@ public class Import {
     public static final String ContainerClass = "net.minecraft.world.Container";
     public static final String HopperBlockEntityClass = "net.minecraft.world.level.block.entity.HopperBlockEntity";
     public static final String NbtCompoundClass = "net.minecraft.nbt.CompoundTag";
+    public static final String CustomDataClass = "net.minecraft.world.item.component.CustomData";
+    public static final String UnbreakableClass = "net.minecraft.world.item.component.Unbreakable";
+    public static final String ChatComponentClass = "net.minecraft.network.chat.Component";
+    public static final String ItemLoreClass = "net.minecraft.world.item.component.ItemLore";
+
 }

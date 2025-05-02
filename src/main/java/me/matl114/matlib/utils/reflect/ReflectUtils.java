@@ -1,6 +1,6 @@
 package me.matl114.matlib.utils.reflect;
 
-import me.matl114.matlib.algorithms.dataStructures.frames.InitializeSafeProvider;
+import me.matl114.matlib.algorithms.dataStructures.frames.initBuidler.InitializeSafeProvider;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.common.lang.annotations.NotRecommended;
 import me.matl114.matlib.common.lang.annotations.Note;

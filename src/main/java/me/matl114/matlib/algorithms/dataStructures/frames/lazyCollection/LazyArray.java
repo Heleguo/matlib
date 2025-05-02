@@ -1,16 +1,16 @@
-package me.matl114.matlib.algorithms.dataStructures.frames;
+package me.matl114.matlib.algorithms.dataStructures.frames.lazyCollection;
 
 import java.util.AbstractList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
-public class DynamicArray<T> extends AbstractList<T> implements List<T> {
+public class LazyArray<T> extends AbstractList<T> implements List<T> {
     private T[] array;
     private int size;
     private int maxinum;
     private IntFunction<T> func;
-    public DynamicArray(IntFunction<T[]> generator , int size,IntFunction<T> indexer) {
+    public LazyArray(IntFunction<T[]> generator , int size, IntFunction<T> indexer) {
         this.array=generator.apply(size);
         this.size=size;
         this.func=indexer;

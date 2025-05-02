@@ -2,7 +2,7 @@ package me.matl114.matlib.slimefunUtils;
 
 import me.matl114.matlib.implement.slimefun.manager.BlockDataCache;
 import me.matl114.matlib.slimefunUtils.itemCache.*;
-import me.matl114.matlib.algorithms.dataStructures.frames.DynamicArray;
+import me.matl114.matlib.algorithms.dataStructures.frames.lazyCollection.LazyArray;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.utils.CraftUtils;
 import me.matl114.matlib.common.lang.enums.Flags;
@@ -197,7 +197,7 @@ public class MachineUtils {
         ItemStack[] recipeInput = recipe.getOutput();
         int cnt = recipeInput.length;
         ItemConsumer[] result = new ItemConsumer[cnt];
-        DynamicArray<ItemPusher> slotCounters=new DynamicArray<>(ItemPusher[]::new,len2,pusher.getMenuInstance(Flags.OUTPUT,inv,output));
+        LazyArray<ItemPusher> slotCounters=new LazyArray<>(ItemPusher[]::new,len2,pusher.getMenuInstance(Flags.OUTPUT,inv,output));
         for(int i=0;i<cnt;++i) {
             result[i]=getConsumer(recipeInput[i]);
             for(int j=0;j<len2;++j) {
@@ -237,7 +237,7 @@ public class MachineUtils {
         int len=input.length;
         ItemStack[] recipeIn=recipe.getInput();
         int cnt=recipeIn.length;
-        DynamicArray<ItemPusher> inputs=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,input));
+        LazyArray<ItemPusher> inputs=new LazyArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,input));
 
         ItemConsumer[] inputInfo=matchRecipe(inputs,recipe);
         if(inputInfo!=null){
@@ -264,7 +264,7 @@ public class MachineUtils {
     public static Pair<ItemGreedyConsumer[],ItemGreedyConsumer[]> countMultiRecipe( BlockMenu inv,int[] input,int[] output, MachineRecipe recipe, int limit,ItemPusherProvider pusher){
         int len=input.length;
         ItemStack[] recipeInput = recipe.getInput();
-        DynamicArray<ItemPusher> inputCounters=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,input));
+        LazyArray<ItemPusher> inputCounters=new LazyArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,input));
         int cnt=recipeInput.length;
 
         ItemGreedyConsumer[] recipeCounter=new ItemGreedyConsumer[cnt];
@@ -329,7 +329,7 @@ public class MachineUtils {
     public static  ItemGreedyConsumer[] countMultiOutput(ItemGreedyConsumer[] inputInfo, BlockMenu inv, int[] output, MachineRecipe recipe, int limit,ItemPusherProvider pusher){
 
         int len2=output.length;
-        DynamicArray<ItemPusher> outputCounters=new DynamicArray<>(ItemPusher[]::new,len2,pusher.getMenuInstance(Flags.OUTPUT,inv,output));
+        LazyArray<ItemPusher> outputCounters=new LazyArray<>(ItemPusher[]::new,len2,pusher.getMenuInstance(Flags.OUTPUT,inv,output));
         ItemStack[] recipeOutput = recipe.getOutput();
         int cnt2=recipeOutput.length;
         ItemGreedyConsumer[] recipeCounter2=new ItemGreedyConsumer[cnt2];
@@ -566,7 +566,7 @@ public class MachineUtils {
     }
     public static boolean forcePush( ItemConsumer[] slotCounters, BlockMenu inv,int[] slots,ItemPusherProvider pusher){
         // ItemPusher[] slotCounters2=new ItemPusher[slots.length];
-        DynamicArray<ItemPusher> slotCounters2=new DynamicArray<>(ItemPusher[]::new,slots.length,pusher.getMenuInstance(Flags.OUTPUT,inv,slots));
+        LazyArray<ItemPusher> slotCounters2=new LazyArray<>(ItemPusher[]::new,slots.length,pusher.getMenuInstance(Flags.OUTPUT,inv,slots));
         ItemConsumer outputItem;
         ItemPusher itemCounter;
         boolean hasChanged=false;
@@ -660,7 +660,7 @@ public class MachineUtils {
         return multiForcePush(slotCounters,inv,slots,getpusher);
     }
     public static boolean multiForcePush(ItemGreedyConsumer[] slotCounters, BlockMenu inv,int[] slots,ItemPusherProvider pusher){
-        DynamicArray<ItemPusher> slotCounters2=new DynamicArray<>(ItemPusher[]::new,slots.length,pusher.getMenuInstance(Flags.OUTPUT,inv,slots));
+        LazyArray<ItemPusher> slotCounters2=new LazyArray<>(ItemPusher[]::new,slots.length,pusher.getMenuInstance(Flags.OUTPUT,inv,slots));
         int len= slotCounters.length;
         ItemPusher itp=null;
         ItemGreedyConsumer outputItem;
@@ -794,7 +794,7 @@ public class MachineUtils {
             default: delta=1;break;
         }
         int len = slots.length;
-        final DynamicArray<ItemPusher> slotCounter=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,slots));
+        final LazyArray<ItemPusher> slotCounter=new LazyArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,slots));
         int recipeAmount=recipes.size();
         if(recipeAmount<=0){
             return null;
@@ -879,7 +879,7 @@ public class MachineUtils {
         }
         int len = slots.length;
         //final ArrayList<ItemPusher> slotCounter=new ArrayList<>(len);
-        final DynamicArray<ItemPusher> slotCounter=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,slots));
+        final LazyArray<ItemPusher> slotCounter=new LazyArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,slots));
         int recipeAmount=recipes.size();
         if(recipeAmount<=0){
             return null;
@@ -932,7 +932,7 @@ public class MachineUtils {
         int len = slots.length;
         List<Integer> result=new ArrayList<>(matchAmount+1);
         //final ArrayList<ItemPusher> slotCounter=new ArrayList<>(len);
-        final DynamicArray<ItemPusher> slotCounter=new DynamicArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,slots));
+        final LazyArray<ItemPusher> slotCounter=new LazyArray<>(ItemPusher[]::new,len,pusher.getMenuInstance(Flags.INPUT,inv,slots));
         int recipeAmount=recipes.size();
         if(recipeAmount<=0){
             return result;
@@ -982,7 +982,7 @@ public class MachineUtils {
                 slotNotNull.add(it);
             }
         }
-        DynamicArray<ItemPusher> slotCounter=new DynamicArray<>(ItemPusher[]::new,slotNotNull.size(),pusher.getMenuInstance(Flags.INPUT,inv,slotNotNull));
+        LazyArray<ItemPusher> slotCounter=new LazyArray<>(ItemPusher[]::new,slotNotNull.size(),pusher.getMenuInstance(Flags.INPUT,inv,slotNotNull));
         int recipeAmount=recipes.size();
         if(recipeAmount<=0){
             return null;

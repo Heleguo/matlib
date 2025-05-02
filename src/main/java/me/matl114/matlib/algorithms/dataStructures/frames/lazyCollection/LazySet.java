@@ -1,4 +1,4 @@
-package me.matl114.matlib.algorithms.dataStructures.frames;
+package me.matl114.matlib.algorithms.dataStructures.frames.lazyCollection;
 
 import me.matl114.matlib.common.lang.annotations.NotCompleted;
 
@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 @NotCompleted
-public class DynamicSet<T> extends AbstractSet<T> implements Set<T> {
+public class LazySet<T> extends AbstractSet<T> implements Set<T> {
 
     @Override
     public Iterator<T> iterator() {

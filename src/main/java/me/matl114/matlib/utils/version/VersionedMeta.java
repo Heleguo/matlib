@@ -1,8 +1,7 @@
 package me.matl114.matlib.utils.version;
 
 import com.google.common.base.Preconditions;
-import lombok.Getter;
-import me.matl114.matlib.algorithms.dataStructures.frames.InitializeSafeProvider;
+import me.matl114.matlib.algorithms.dataStructures.frames.initBuidler.InitializeSafeProvider;
 import me.matl114.matlib.utils.CraftUtils;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.ReflectUtils;

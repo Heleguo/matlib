@@ -2,7 +2,7 @@ package me.matl114.matlib.unitTest.autoTests.dependTests;
 
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
-import me.matl114.matlib.algorithms.dataStructures.frames.DynamicArray;
+import me.matl114.matlib.algorithms.dataStructures.frames.lazyCollection.LazyArray;
 import me.matl114.matlib.nmsUtils.ItemUtils;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class SlimefunItemMatchTests implements TestCase {
     //lets create a item match test to estimate these
@@ -100,8 +99,8 @@ public class SlimefunItemMatchTests implements TestCase {
 
     private <T> boolean[][] crossMatch(List<ItemStack> cis, List<ItemStack> totallyCopied, ItemProcessor<T> processor, ItemMatcher<T> matcher, boolean match){
         int size = cis.size();
-        DynamicArray<T> val = new DynamicArray<>((is)->(T[]) new Object[is],size,(is)->processor.process(cis.get(is)));
-        DynamicArray<T> val2 = new DynamicArray<>((is)->(T[]) new Object[is],size,(is)->processor.process(totallyCopied.get(is)));
+        LazyArray<T> val = new LazyArray<>((is)->(T[]) new Object[is],size,(is)->processor.process(cis.get(is)));
+        LazyArray<T> val2 = new LazyArray<>((is)->(T[]) new Object[is],size,(is)->processor.process(totallyCopied.get(is)));
         boolean[][] values = new boolean[size][size];
         for (int i=0; i< size; ++i){
             for (int j=0; j< size; ++j){

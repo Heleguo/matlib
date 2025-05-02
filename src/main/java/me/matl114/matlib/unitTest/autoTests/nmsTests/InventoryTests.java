@@ -19,6 +19,8 @@ import me.matl114.matlib.nmsMirror.impl.CraftBukkit;
 import me.matl114.matlib.nmsMirror.impl.NMSCore;
 import me.matl114.matlib.nmsMirror.impl.NMSItem;
 import me.matl114.matlib.nmsMirror.inventory.ItemStackHelper;
+import me.matl114.matlib.nmsMirror.inventory.v1_20_R4.DataComponentEnum;
+import me.matl114.matlib.nmsMirror.inventory.v1_20_R4.ItemStackHelper_1_20_R4;
 import me.matl114.matlib.nmsMirror.nbt.CompoundTagHelper;
 import me.matl114.matlib.nmsMirror.resources.ResourceLocationHelper;
 import me.matl114.matlib.nmsUtils.ItemUtils;
@@ -152,6 +154,12 @@ public class InventoryTests implements TestCase {
         var nmsShulker = CraftBukkit.ITEMSTACK.unwrapToNMS(shulker);
         var nbtShulker = NMSItem.ITEMSTACK.save(nmsShulker, COMPOUND_TAG.newComp());
         Debug.logger(nbtShulker);
+        if(NMSItem.ITEMSTACK instanceof ItemStackHelper_1_20_R4 v1204){
+            ItemStack val = ItemUtils.newStack(Material.DIAMOND, 0);
+            Assert( v1204.getComponents(CraftBukkit.ITEMSTACK.unwrapToNMS(val)) == DataComponentEnum.COMPONENT_MAP_EMPTY);
+            Debug.logger("1.20.5+ test pass");
+
+        }
     }
     @OnlineTest(name = "inventory mech test")
     public void test_InventoryMech(){
@@ -183,6 +191,8 @@ public class InventoryTests implements TestCase {
         item.setAmount(33);
         Debug.logger(itemList);
         Debug.logger(NMSItem.ITEMSTACK.save(itemList.get(0)));
+        //test 1.21
+
     }
     volatile int value;
     @OnlineTest(name = "item hash test")
