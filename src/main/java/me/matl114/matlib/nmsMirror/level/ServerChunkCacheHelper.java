@@ -63,4 +63,8 @@ public interface ServerChunkCacheHelper extends TargetDescriptor {
     @FieldTarget
     Executor mainThreadProcessorGetter(Object cache);
 
+    @FieldTarget
+    Object chunkMapGetter(Object cache);
+
+
 }

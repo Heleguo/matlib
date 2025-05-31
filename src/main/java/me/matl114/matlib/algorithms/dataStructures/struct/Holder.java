@@ -3,20 +3,24 @@ package me.matl114.matlib.algorithms.dataStructures.struct;
 import me.matl114.matlib.common.functions.core.UnsafeBiFunction;
 import me.matl114.matlib.common.functions.core.UnsafeFunction;
 
-import javax.annotation.Nonnull;
 import java.util.function.*;
 
 public interface Holder<T> {
+    public <W> Holder<W> setValue(W value);
     public <W> Holder<W> thenApply(Function<T,W> function);
     public Holder<T> thenRun(Runnable task);
     public Holder<T> thenPeek(Consumer<T> task);
     public <R> Holder<T> thenPeek(BiConsumer<T,R> task, R value);
     public <W> Holder<W> thenApplyUnsafe(UnsafeFunction<T,W> function);
+    public <W,R> Holder<W> thenApplyUnsafe(UnsafeBiFunction<T,R,W> function,R value);
     public <W> Holder<W> thenApplyCaught(UnsafeFunction<T,W> function);
     public <W,R> Holder<W> thenApply(BiFunction<T,R,W> function, R value);
     public <W,R> Holder<W> thenApplyCaught(UnsafeBiFunction<T,R,W> function,R value);
-    public Holder<T> whenException(BiConsumer<T,Throwable> exceptionHandler);
-    public Holder<T> whenException(BiFunction<T,Throwable,T> exceptionHandler);
+    public Holder<T> runException(Consumer<Throwable> exceptionHandler);
+    public Holder<T> whenException(Function<Throwable,T> exceptionHandler);
+    default Holder<T> valException(T val){
+        return whenException((v)->val);
+    }
     public <W> Holder<W> whenComplete(BiFunction<T,Throwable,W> completeHandler);
     public Holder<T> whenNoException(Consumer<T> task);
     public T get();
@@ -32,7 +36,11 @@ public interface Holder<T> {
         holder.value = value;
         return holder;
     }
-
+    public static Holder<Void> empty(){
+        HolderImpl<Void> holder = (HolderImpl<Void>) HolderImpl.INSTANCE.clone();
+        holder.value = null;
+        return holder;
+    }
 
 
 }

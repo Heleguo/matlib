@@ -11,6 +11,14 @@ class HolderImpl<T> implements Holder<T> ,Cloneable{
     static final HolderImpl<?> INSTANCE = new HolderImpl<>();
     private HolderImpl(){
     }
+
+    @Override
+    public <W> Holder<W> setValue(W value) {
+        HolderImpl<W> holder = (HolderImpl<W>) this;
+        holder.value = value;
+        return holder;
+    }
+
     public <W> Holder<W> thenApply(Function<T,W> function){
         HolderImpl<W> holder = (HolderImpl<W>) this;
         holder.value = (W) function.apply(this.value);
@@ -44,6 +52,17 @@ class HolderImpl<T> implements Holder<T> ,Cloneable{
         return holder;
     }
 
+    @Override
+    public <W, R> Holder<W> thenApplyUnsafe(UnsafeBiFunction<T, R, W> function, R value) {
+        HolderImpl<W> holder = ((HolderImpl<W>)this);
+        try{
+            holder.value = (W) function.applyUnsafe(this.value, value);
+        }catch (Throwable e){
+            throw new RuntimeException(e);
+        }
+        return holder;
+    }
+
     public <W> Holder<W> thenApplyCaught(UnsafeFunction<T,W> function){
         HolderImpl<W> holder = ((HolderImpl<W>)this);
         try{
@@ -65,22 +84,24 @@ class HolderImpl<T> implements Holder<T> ,Cloneable{
             holder.value = (W) function.applyUnsafe(this.value, value);
         }catch (Throwable e){
             this.e = e;
+            this.value = null;
         }
         return holder;
     }
 
     @Override
-    public Holder<T> whenException(BiConsumer<T, Throwable> exceptionHandler) {
+    public Holder<T> runException(Consumer<Throwable> exceptionHandler) {
         if(this.e != null){
-            exceptionHandler.accept(this.value, e);
+            exceptionHandler.accept(e);
             this.e = null;
+            this.value = null;
         }
         return this;
     }
 
-    public Holder<T> whenException(BiFunction<T,Throwable,T> exceptionHandler){
+    public Holder<T> whenException(Function<Throwable,T> exceptionHandler){
         if(this.e != null){
-            this.value =  exceptionHandler.apply(this.value, this.e);
+            this.value =  exceptionHandler.apply( this.e);
             this.e = null;
         }
         return this;

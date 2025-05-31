@@ -2,12 +2,13 @@ package me.matl114.matlib.implement.slimefun.menu;
 
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
-import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
+
 import io.github.thebusybiscuit.slimefun4.utils.ChatUtils;
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
 import me.matl114.matlib.implement.slimefun.menu.menuGroup.CustomMenu;
 import me.matl114.matlib.implement.slimefun.menu.menuGroup.CustomMenuGroup;
 import me.matl114.matlib.utils.AddUtils;
+import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -23,8 +24,8 @@ import java.util.stream.IntStream;
 public class MenuUtils {
 
 
-    public static final ItemStack PROCESSOR_NULL= new CustomItemStack(Material.BLACK_STAINED_GLASS_PANE, " ");
-    public static final ItemStack PROCESSOR_SPACE=new CustomItemStack(Material.RED_STAINED_GLASS_PANE,"&6进程完成","&c空间不足");
+    public static final ItemStack PROCESSOR_NULL= new CleanItemStack(Material.BLACK_STAINED_GLASS_PANE, " ");
+    public static final ItemStack PROCESSOR_SPACE=new CleanItemStack(Material.RED_STAINED_GLASS_PANE,"&6进程完成","&c空间不足");
     public static final ItemStack PREV_BUTTON_ACTIVE = new SlimefunItemStack("_UI_PREVIOUS_ACTIVE", Material.LIME_STAINED_GLASS_PANE, "&r⇦ Previous Page", new String[0]);
     public static final ItemStack NEXT_BUTTON_ACTIVE = new SlimefunItemStack("_UI_NEXT_ACTIVE", Material.LIME_STAINED_GLASS_PANE, "&rNext Page ⇨", new String[0]);
     public static final ItemStack PREV_BUTTON_INACTIVE = new SlimefunItemStack("_UI_PREVIOUS_INACTIVE", Material.BLACK_STAINED_GLASS_PANE, "&8⇦ Previous Page", new String[0]);
@@ -35,8 +36,8 @@ public class MenuUtils {
     public static final ItemStack SEARCH_BUTTON = new SlimefunItemStack("_UI_SEARCH", Material.NAME_TAG, "&b搜索...", "", ChatColor.GRAY + "⇨ " +"&b单击搜索物品");
     public static final ItemStack SEARCH_OFF_BUTTON = new SlimefunItemStack("_UI_SEARCH", Material.NAME_TAG, "&b搜索...", "", ChatColor.GRAY + "⇨ " +"&b单击取消搜索");
     public static final ItemStack NO_ITEM = new SlimefunItemStack("_UI_NO_ITEM",Material.BARRIER,"&8 ");
-    public static final ItemStack PRESET_INFO=new CustomItemStack(Material.CYAN_STAINED_GLASS_PANE,"&3配方类型信息");
-    public static final ItemStack PRESET_MORE=new CustomItemStack(Material.LIME_STAINED_GLASS_PANE,"&a更多物品(已省略)");
+    public static final ItemStack PRESET_INFO=new CleanItemStack(Material.CYAN_STAINED_GLASS_PANE,"&3配方类型信息");
+    public static final ItemStack PRESET_MORE=new CleanItemStack(Material.LIME_STAINED_GLASS_PANE,"&a更多物品(已省略)");
 
     public static final ChestMenu.MenuClickHandler CLOSE_HANDLER=((player, i, itemStack, clickAction) -> {
         player.closeInventory();
@@ -46,35 +47,35 @@ public class MenuUtils {
 
 
     public static ItemStack getPreviousButton(int page, int pages) {
-        return pages != 1 && page != 1 ? new CustomItemStack(PREV_BUTTON_ACTIVE, (meta) -> {
+        return pages != 1 && page != 1 ? new CleanItemStack(PREV_BUTTON_ACTIVE, (meta) -> {
             ChatColor var10001 = ChatColor.WHITE;
             meta.setDisplayName("" + var10001 + "⇦ " + "上一页");
             meta.setLore(Arrays.asList("", ChatColor.GRAY + "(" + page + " / " + pages + ")"));
-        }) : new CustomItemStack(PREV_BUTTON_INACTIVE, (meta) -> {
+        }) : new CleanItemStack(PREV_BUTTON_INACTIVE, (meta) -> {
             ChatColor var10001 = ChatColor.DARK_GRAY;
             meta.setDisplayName("" + var10001 + "⇦ " +"上一页");
             meta.setLore(Arrays.asList("", ChatColor.GRAY + "(" + page + " / " + pages + ")"));
         });
     }
     public static ItemStack getNextButton( int page, int pages) {
-        return pages != 1 && page != pages ? new CustomItemStack(NEXT_BUTTON_ACTIVE, (meta) -> {
+        return pages != 1 && page != pages ? new CleanItemStack(NEXT_BUTTON_ACTIVE, (meta) -> {
             ChatColor var10001 = ChatColor.WHITE;
             meta.setDisplayName("" + var10001 + "下一页" + " ⇨");
             meta.setLore(Arrays.asList("", ChatColor.GRAY + "(" + page + " / " + pages + ")"));
-        }) : new CustomItemStack(NEXT_BUTTON_INACTIVE, (meta) -> {
+        }) : new CleanItemStack(NEXT_BUTTON_INACTIVE, (meta) -> {
             ChatColor var10001 = ChatColor.DARK_GRAY;
             meta.setDisplayName("" + var10001 + "下一页" + " ⇨");
             meta.setLore(Arrays.asList("", ChatColor.GRAY + "(" + page + " / " + pages + ")"));
         });
     }
     public static ItemStack getBackButton( String... lore) {
-        return new CustomItemStack(BACK_BUTTON, "&7⇦ " +"返回", lore);
+        return new CleanItemStack(BACK_BUTTON, "&7⇦ " +"返回", lore);
     }
     public static ItemStack getSearchButton(){
-        return new CustomItemStack(SEARCH_BUTTON);
+        return new CleanItemStack(SEARCH_BUTTON);
     }
     public static ItemStack getSearchOffButton(){
-        return new CustomItemStack(SEARCH_OFF_BUTTON);
+        return new CleanItemStack(SEARCH_OFF_BUTTON);
     }
     public static  <T extends Object> Pair<List<ItemStack>,List<CustomMenuGroup.CustomMenuClickHandler>> getSelector(String filter, BiConsumer<T, Player> clickCallback, BiConsumer<T,Player> shiftClickCallback, Iterator<Map.Entry<String,T>> objectIterator, Function<T,ItemStack> iconGenerator ){
         return  getSelector(filter,cm->clickCallback,cm->shiftClickCallback,objectIterator,iconGenerator);

@@ -2,6 +2,7 @@ package me.matl114.matlib.utils.reflect.descriptor;
 
 import com.google.common.base.Preconditions;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
+import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.*;
 import me.matl114.matlib.utils.reflect.classBuild.ClassBuilder;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.*;
@@ -88,10 +89,11 @@ public class DescriptorImplBuilder {
         Map<Method, Method> methodDescrip = new LinkedHashMap<>();
         Map<Method, Constructor<?>> constructorDescrip = new LinkedHashMap<>();
         Map<Method, Class<?>> castCheckDescrip = new LinkedHashMap<>();
+        Map<Method, Class<?>> getTypeDescrip = new LinkedHashMap<>();
         // Map<String, Method> cdToOrigin = new HashMap<>();
         //collect targets
-        collectDescriptorMethodMappings(descriptiveInterface, defaultClass, true, fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, uncompletedMethod);
-       return buildTargetFlattenInvokeImpl(defaultClass, descriptiveInterface, Object.class, new Class[0], fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, uncompletedMethod);
+        collectDescriptorMethodMappings(descriptiveInterface, defaultClass, true, fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, getTypeDescrip, uncompletedMethod);
+       return buildTargetFlattenInvokeImpl(defaultClass, descriptiveInterface, Object.class, new Class[0], fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, getTypeDescrip, uncompletedMethod);
     }
 
     private static  <T extends TargetDescriptor> T createSingleInternel(Class<?> targetClass, Class<T> descriptiveInterface) throws Throwable{
@@ -103,16 +105,18 @@ public class DescriptorImplBuilder {
         Map<Method, Constructor<?>> constructorDescrip = new LinkedHashMap<>();
         List<Method> uncompletedMethod = new ArrayList<>();
         Map<Method, Class<?>> castCheckDescrip = new LinkedHashMap<>();
+        Map<Method, Class<?>> getTypeDescrip = new LinkedHashMap<>();
        // Map<String, Method> cdToOrigin = new HashMap<>();
         //collect targets
-        collectDescriptorMethodMappings(descriptiveInterface, targetClass, false, fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, uncompletedMethod);
-        return buildTargetFlattenInvokeImpl(targetClass, descriptiveInterface, Object.class, new Class[0], fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, uncompletedMethod);
+        collectDescriptorMethodMappings(descriptiveInterface, targetClass, false, fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, getTypeDescrip, uncompletedMethod);
+        return buildTargetFlattenInvokeImpl(targetClass, descriptiveInterface, Object.class, new Class[0], fieldGetDescrip, fieldSetDescrip, methodDescrip, constructorDescrip, castCheckDescrip, getTypeDescrip, uncompletedMethod);
     }
-    static void collectDescriptorMethodMappings(Class<?> descriptiveInterface, @Nullable Class<?> targetClass, boolean multi, Map<Method, Field> fieldGetDescrip, Map<Method,Field> fieldSetDescrip, Map<Method, Method> methodDescrip, Map<Method, Constructor<?>> constructorDescrip, Map<Method, Class<?>> castCheckDescrip, List<Method> uncompletedMethod){
+    static void collectDescriptorMethodMappings(Class<?> descriptiveInterface, @Nullable Class<?> targetClass, boolean multi, Map<Method, Field> fieldGetDescrip, Map<Method,Field> fieldSetDescrip, Map<Method, Method> methodDescrip, Map<Method, Constructor<?>> constructorDescrip, Map<Method, Class<?>> castCheckDescrip, Map<Method, Class<?>> getTypeDescrip, List<Method> uncompletedMethod){
         List<Method> fieldTarget = new ArrayList<>();
         List<Method> methodTarget = new ArrayList<>();
         List<Method> constructorTarget = new ArrayList<>();
         List<Method> typeCastTarget = new ArrayList<>();
+        List<Method> getTypeTarget = new ArrayList<>();
         Arrays.stream(descriptiveInterface.getMethods())
             .filter(m -> !(m.getName().equals( "getTargetClass") && m.getParameterCount() == 0 && m.getReturnType() == Class.class))
             .filter(m -> {
@@ -142,6 +146,11 @@ public class DescriptorImplBuilder {
                     typeCastTarget.add(m);
                     return;
                 }
+                var a5 = m.getAnnotation(GetType.class);
+                if(a5 != null){
+                    getTypeTarget.add(m);
+                    return;
+                }
                 //only collect uncompleted abstract methods
                 if(!m.isSynthetic() && !m.isBridge() && Modifier.isAbstract(m.getModifiers())){
                     uncompletedMethod.add(m);
@@ -163,11 +172,7 @@ public class DescriptorImplBuilder {
                 Class<?> targetClass0;
                 var redirectClass = fieldAccess.getAnnotation(RedirectClass.class);
                 if(redirectClass != null){
-                    try{
-                        targetClass0 = ObfManager.getManager().reobfClass(redirectClass.value());
-                    }catch (Throwable e){
-                        targetClass0 = targetClass;
-                    }
+                    targetClass0 = resolveClassNameOrJvmName(redirectClass.value());
                 }else {
                     targetClass0 = targetClass;
                 }
@@ -202,11 +207,7 @@ public class DescriptorImplBuilder {
                 Class<?> targetClass0;
                 var redirectClass = methodAccess.getAnnotation(RedirectClass.class);
                 if(redirectClass != null){
-                    try{
-                        targetClass0 = ObfManager.getManager().reobfClass(redirectClass.value());
-                    }catch (Throwable e){
-                        targetClass0 = targetClass;
-                    }
+                    targetClass0 = resolveClassNameOrJvmName(redirectClass.value());
                 }else {
                     targetClass0 = targetClass;
                 }
@@ -229,15 +230,17 @@ public class DescriptorImplBuilder {
             if(multi){
                 var redirectClass = constructorAccess.getAnnotation(RedirectClass.class);
                 if(redirectClass != null){
-                    try{
-                        targetClass0 = ObfManager.getManager().reobfClass(redirectClass.value());
-                    }catch (Throwable ignored){
-                    }
+                    targetClass0 = resolveClassNameOrJvmName(redirectClass.value());
                 }
                 if(targetClass0 == null){
                     uncompletedMethod.add(constructorAccess);
                     continue;
                 }
+            }
+            if(Modifier.isAbstract(targetClass0.getModifiers())){
+                //abstract class constructor can not be accessed
+                uncompletedMethod.add(constructorAccess);
+                continue;
             }
             List<Constructor<?>> constructors1 = matchConstructors(constructorAccess, targetClass0.getDeclaredConstructors());
             if(constructors1.isEmpty()){
@@ -250,21 +253,46 @@ public class DescriptorImplBuilder {
         for (Method typeCast: typeCastTarget){
             Class<?> castCls = null;
             var cast = typeCast.getAnnotation(CastCheck.class);
-            try{
-                castCls = ObfManager.getManager().reobfClass(cast.value());
-            }catch (Throwable e){
-            }
+            String value = cast.value();
+            castCls = resolveClassNameOrJvmName(value);
             if(castCls != null){
                 castCheckDescrip.put(typeCast, castCls);
             }else {
                 uncompletedMethod.add(typeCast);
             }
         }
+        for (Method typeCast: getTypeTarget){
+            Class<?> castCls = null;
+            var cast = typeCast.getAnnotation(GetType.class);
+            String value = cast.value();
+            castCls = resolveClassNameOrJvmName(value);
+            if(castCls != null){
+                getTypeDescrip.put(typeCast, castCls);
+            }else {
+                uncompletedMethod.add(typeCast);
+            }
+        }
     }
+    static Class resolveClassNameOrJvmName(String classPath){
+        if(classPath.endsWith(";")){
+            try{
+                return ObfManager.getManager().reobfClass(ByteCodeUtils.fromJvmType(classPath));
+            }catch (Throwable e){
+            }
+        }else {
+            try{
+                return ObfManager.getManager().reobfClass(classPath);
+            }catch (Throwable e){
+            }
+        }
+        return null;
+    }
+
     static Pair<Field,Boolean> matchFields(Method fieldAccess, List<Field> fields){
         return ClassBuilder. matchFields(fieldAccess, fields, fieldAccess.getAnnotation(FieldTarget.class).isStatic());
     }
     static List<Method> matchMethods(Method methodAccess, List<Method> methods){
+
         return ClassBuilder. matchMethods(methodAccess, methods, methodAccess.getAnnotation(MethodTarget.class).isStatic(),true);
     }
 

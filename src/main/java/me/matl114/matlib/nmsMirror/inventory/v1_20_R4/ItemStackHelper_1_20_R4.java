@@ -1,38 +1,49 @@
 package me.matl114.matlib.nmsMirror.inventory.v1_20_R4;
 
+import com.google.common.base.Suppliers;
+import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import me.matl114.matlib.algorithms.dataStructures.frames.collection.ListMapView;
+import me.matl114.matlib.algorithms.dataStructures.frames.cowCollection.COWImmutableListView;
+import me.matl114.matlib.algorithms.dataStructures.frames.mmap.COWView;
+import me.matl114.matlib.algorithms.dataStructures.struct.State;
 import me.matl114.matlib.common.lang.annotations.NeedTest;
-import me.matl114.matlib.common.lang.annotations.Protected;
-import me.matl114.matlib.nmsMirror.versionedEnv.Env;
+import me.matl114.matlib.nmsMirror.core.v1_20_R4.DataComponentHolderHelper;
+import me.matl114.matlib.nmsMirror.impl.Env;
 import me.matl114.matlib.nmsMirror.impl.NMSCore;
 import me.matl114.matlib.nmsMirror.inventory.ItemStackHelper;
-import me.matl114.matlib.nmsMirror.versionedEnv.Env1_20_R4;
+import me.matl114.matlib.nmsMirror.impl.versioned.Env1_20_R4;
 import me.matl114.matlib.common.lang.annotations.Internal;
 import me.matl114.matlib.common.lang.annotations.Note;
+import me.matl114.matlib.nmsUtils.serialize.CodecUtils;
+import me.matl114.matlib.nmsUtils.v1_20_R4.DataComponentUtils;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.Descriptive;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MethodTarget;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectName;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
+import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import me.matl114.matlib.utils.version.Version;
 import me.matl114.matlib.utils.version.VersionAtLeast;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Supplier;
 
 import static me.matl114.matlib.nmsMirror.Import.*;
 
 @VersionAtLeast(Version.v1_20_R4)
 @Descriptive(target = "net.minecraft.world.item.ItemStack")
 @Note("After 1.20.5, ItemStack use DataComponents, only customTag remain nbt, so")
-public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
+public interface ItemStackHelper_1_20_R4 extends TargetDescriptor, ItemStackHelper, DataComponentHolderHelper {
+
+    default boolean hasExtraData(Object stack){
+        return !isEmpty(stack) && !Env1_20_R4.ICOMPONENT.patchGetter(getComponents(stack)).isEmpty();
+    }
 
     @MethodTarget(isStatic = true)
     @RedirectName("isSameItemSameComponents")
@@ -40,18 +51,50 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
 
     @MethodTarget
     @RedirectName("set")
-    Object setDataComponentValue(Object item, @RedirectType(DataComponentType) Object type, Object value);
+    Object setDataComponentValue(Object item, @RedirectType(DataComponentType) Object type,@Nonnull Object value);
 
+    @Note("it will set Optional.empty() if component exists in item prototype")
     @MethodTarget
     @RedirectName("remove")
-    Object removeDataComponentValue(Object stack, @RedirectType(DataComponentType) Object type);
+    Object removeOrSetEmpty(Object stack, @RedirectType(DataComponentType) Object type);
 
-    @MethodTarget
-    @RedirectName("get")
-    Object getDataComponentValue(Object stack, @RedirectType(DataComponentType) Object type);
+    default void removeFromPatch(Object stack, @RedirectType(DataComponentType) Object type){
+        if(!isEmpty(stack)){
+            Env1_20_R4.ICOMPONENT.removeFromPatch(getComponents(stack), type);
+        }
+    }
 
-    @MethodTarget
-    Object getEnchantments(Object stack);
+    @Internal
+    default Optional<?> getFromPatchOrEmpty(Object componentMap, Object type){
+        return componentMap == DataComponentEnum.COMPONENT_MAP_EMPTY ? Optional.empty(): Env1_20_R4.ICOMPONENT.patchGetter(componentMap).getOrDefault(type, Optional.empty());
+    }
+    @Internal
+    default Optional<?> getFromPatchOptional(Object itemStack, Object type){
+        return getFromPatchOrEmpty(getComponents(itemStack), type);
+    }
+    @Internal
+    default Object getFromPatch(Object itemStack, Object type){
+        if(isEmpty(itemStack)){
+            return null;
+        }else {
+            Optional<?> val = Env1_20_R4.ICOMPONENT.patchGetter(getComponents(itemStack)).get(type);
+            return val == null? null: val.orElse(null);
+        }
+    }
+
+
+    default boolean hasInPatch(Object itemStack, @RedirectType(DataComponentType) Object dataComponentType){
+//        return !isEmpty(stack) && Env1_20_R4.ICOMPONENT.patchGetter(getComponents(stack)).getOrDefault(dataComponentType, Optional.empty()).isPresent();
+        if(isEmpty(itemStack)){
+            return false;
+        }else {
+            Optional<?> val = Env1_20_R4.ICOMPONENT.patchGetter(getComponents(itemStack)).get(dataComponentType);
+            return val != null && val.isPresent();
+        }
+    }
+
+//    @MethodTarget
+//    Object getEnchantments(Object stack);
 
     @MethodTarget
     @RedirectName("save")
@@ -62,10 +105,226 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
     @RedirectName("parseOptional")
     Object parseV1_20_R4(@RedirectType("Lnet/minecraft/core/HolderLookup$Provider;")Object registries, @RedirectType(CompoundTag) Object nbt);
 
+    default Object saveNbtAsTag(Object itemStack){
+        if(isEmpty(itemStack)){
+            return NMSCore.COMPOUND_TAG.newComp();
+        }else {
+            Object patch = getComponentsPatch(itemStack);
+            return CodecUtils.encode(DataComponentEnum.DATACOMPONENTPATCH_CODEC, CodecUtils.getDefaultNbtOp(),patch);
+        }
+    }
+    default Map<String, ?> saveNbtAsHashMap(Object itemStack){
+        if(isEmpty(itemStack)){
+            return new HashMap<>();
+        }else {
+            Object patch = getComponentsPatch(itemStack);
+            return (Map<String, ?>) CodecUtils.encode(ComponentCodecEnum.DATACOMPONENTPATCH, CodecUtils.getPrimitiveOp(),patch);
+        }
+    }
+    default Object saveElementInPath(Object itemStack, String path){
+        return saveElementInPath0(itemStack, DataComponentUtils.getDataType(path) );
+    }
+    default Object saveElementInPath0(Object itemStack, Object comp){
+        if(isEmpty(itemStack)){
+            return null;
+        }else {
+            Object val = getFromPatch(itemStack, comp);
+            if(val == null)return null;
+            else {
+                Codec<Object> compCodec = DataComponentUtils.getTypeCodec(comp);
+                return CodecUtils.encode(compCodec, CodecUtils.getPrimitiveOp(), val);
+            }
+        }
+    }
+    @Note("primitive = null -> remove")
+    default void replaceElementInPath(Object itemStack, String path, Object primitive){
+        replaceElementInPath0(itemStack, DataComponentUtils.getDataType(path), primitive);
+    }
+
+    default void replaceElementInPath0(Object itemStack, Object comp, Object primitive){
+        if(isEmpty(itemStack)){
+            throw new IllegalArgumentException("Can not modify a Empty ItemStack!");
+        }
+        if(primitive == null){
+            removeFromPatch(itemStack, comp);
+        }else {
+            Object val = CodecUtils.decode(DataComponentUtils.getTypeCodec(comp), CodecUtils.getPrimitiveOp(), primitive);
+            if(val != null){
+                setDataComponentValue(itemStack, comp, val);
+            }else{
+                removeFromPatch(itemStack, comp);
+            }
+        }
+    }
+
+    default void applyNbtFromMap(Object itemStack, Map<String,?> val){
+        if(isEmpty(itemStack)){
+            throw new IllegalArgumentException("Can not modify a Empty ItemStack!");
+        }
+        Object patch = CodecUtils.decode(ComponentCodecEnum.DATACOMPONENTPATCH, CodecUtils.getPrimitiveOp(),val);
+        Env1_20_R4.ICOMPONENT.restorePatch(getComponents(itemStack), patch);
+    }
+
+    //should copy CustomData on write because in higher version there is no deepcopy anymore
+    static final Supplier<Object> EMPTY_COMP = Suppliers.memoize(()->{
+        int a = 1145141919;
+        return NMSCore.COMPOUND_TAG.newComp();
+    });
+
+    @Internal
+    default Object createCustomDataUnsafe(Object val){
+        Object customData = Env1_20_R4.ICUSTOMDATA.of(EMPTY_COMP.get());
+        setDataComponentValue(val, DataComponentEnum.CUSTOM_DATA, customData);
+        return Env1_20_R4.ICUSTOMDATA.getUnsafe(customData);
+    }
+
+
+    @Internal
+    default Object copyAndWriteCustomDataTag(Object val, Object customTag){
+        Object newCustomData= Env1_20_R4.ICUSTOMDATA.of(customTag);
+        setDataComponentValue(val, DataComponentEnum.CUSTOM_DATA, newCustomData);
+        return Env1_20_R4.ICUSTOMDATA.getUnsafe(newCustomData);
+    }
+    @Internal
+    @Note("return pdc")
+    default Object createCustomDataWithPdcUnsafe(Object val){
+        Object customData = Env1_20_R4.ICUSTOMDATA.of(EMPTY_COMP.get());
+        setDataComponentValue(val, DataComponentEnum.CUSTOM_DATA, customData);
+        Object newCopy = Env1_20_R4.ICUSTOMDATA.getUnsafe(customData);
+        Object newPdc = NMSCore.COMPOUND_TAG.newComp();
+        NMSCore.COMPOUND_TAG.put(newCopy, "PublicBukkitValues", newPdc);
+        return newCopy;
+    }
+    default Object getPdcCompoundView(Object val,boolean forceCreate){
+        Object customData = getCustomDataUnsafe(val);
+        Object pdc;
+        if(customData == null && forceCreate){
+            pdc = createCustomDataWithPdcUnsafe(val);
+        }else {
+            pdc = NMSCore.COMPOUND_TAG.getCompound(customData, "PublicBukkitValues");
+            if(pdc == null && forceCreate){
+                pdc = copyAndWriteCustomDataTag(val, customData);
+            }
+        }
+        return pdc;
+    }
+    default Object getCustomTagView(Object val, boolean forceCreate){
+        Object customData = getCustomDataUnsafe(val);
+        if(customData == null && forceCreate){
+            customData = createCustomDataUnsafe(val);
+        }
+        return customData;
+    }
+    default void setPersistentDataCompound(Object val, Object pdc){
+        //shallllllllllowcopy copy !!!!!!!!!!!!!
+        if(pdc == null || NMSCore.COMPOUND_TAG.isEmpty(pdc)){
+            //ignore if no data
+            Object customData = getFromPatch(val, DataComponentEnum.CUSTOM_DATA);
+            Object customTag;
+            if(customData == null){
+                //already empty
+                return;
+            }else {
+                customTag = Env1_20_R4.ICUSTOMDATA.getUnsafe(customData);
+            }
+            Object shallowCopy = NMSCore.COMPOUND_TAG.shallowCopy(customTag);
+            NMSCore.COMPOUND_TAG.remove(shallowCopy, "PublicBukkitValues");
+            if(NMSCore.COMPOUND_TAG.isEmpty(shallowCopy)){
+                removeFromPatch(val, DataComponentEnum.CUSTOM_DATA);
+            }else {
+                Object data = Env1_20_R4.ICUSTOMDATA.ofNoCopy(shallowCopy);
+                setDataComponentValue(val, DataComponentEnum.CUSTOM_DATA, data);
+            }
+        }else {
+            Object pdcCopy = NMSCore.COMPOUND_TAG.shallowCopy(pdc);
+            // directly replace the pdc after shallow copy, nothing is changed yeeeeeeeee motherfucker
+            Object customData = getFromPatch(val, DataComponentEnum.CUSTOM_DATA);
+            Object customTag;
+            if(customData == null){
+                customTag = EMPTY_COMP.get();
+            }else {
+                customTag = Env1_20_R4.ICUSTOMDATA.getUnsafe(customData);
+            }
+            Object shallowCopy = NMSCore.COMPOUND_TAG.shallowCopy(customTag);
+            NMSCore.COMPOUND_TAG.put(shallowCopy, "PublicBukkitValues", pdcCopy);
+            Object data = Env1_20_R4.ICUSTOMDATA.ofNoCopy(shallowCopy);
+            setDataComponentValue(val, DataComponentEnum.CUSTOM_DATA, data);
+        }
+    }
+
+    default void setCustomTag(Object val, Object tag){
+        if(tag == null || NMSCore.COMPOUND_TAG.isEmpty(tag)){
+            removeFromPatch(val,DataComponentEnum.CUSTOM_DATA);
+        }else {
+            Object shallowCopy = NMSCore.COMPOUND_TAG.shallowCopy(tag);
+            Object data = Env1_20_R4.ICUSTOMDATA.ofNoCopy(shallowCopy);
+            setDataComponentValue(val, DataComponentEnum.CUSTOM_DATA, data);
+        }
+    }
+    @Override
+    default COWView<Object> getPersistentDataCompoundView(Object val, boolean forceCreate){
+
+        return new COWView<Object>() {
+            @Override
+            public Object getView0() {
+                return getPdcCompoundView(val, forceCreate);
+            }
+
+            @Override
+            public Object getWritable() {
+                if(getView() == null){
+                    return NMSCore.COMPOUND_TAG.newComp();
+                }else {
+                    return NMSCore.COMPOUND_TAG.shallowCopy(getView());
+                }
+            }
+
+            @Override
+            public void write0(Object val222) {
+                setPersistentDataCompound(val, val222);
+            }
+        };
+    }
+    default Object getPersistentDataCompoundCopy(Object val){
+        Object custom = getPdcCompoundView(val, false);
+        return custom == null? NMSCore.COMPOUND_TAG.newComp(): NMSCore.COMPOUND_TAG.shallowCopy(custom);
+    }
+
+    @Override
+    default COWView<Object> getCustomedNbtView(Object val,boolean forceCreate){
+        return new COWView<Object>() {
+            @Override
+            public Object getView0() {
+                return getCustomTagView(val, forceCreate);
+            }
+
+            @Override
+            public Object getWritable() {
+                if(getView() == null){
+                    return NMSCore.COMPOUND_TAG.newComp();
+                }else {
+                    return NMSCore.COMPOUND_TAG.shallowCopy(getView());
+                }
+            }
+
+            @Override
+            public void write0(Object val00) {
+                setCustomTag(val, val00);
+            }
+        };
+    }
+
+
+
     @MethodTarget
     @Internal
     Object getComponents(Object stack);
 
+    @MethodTarget
+    @Internal
+    Object getComponentsPatch(Object stack);
+
+    @Override
     default Object ofNbt(@RedirectType(CompoundTag) Object nbt){
         return parseV1_20_R4(Env.REGISTRY_FROZEN, nbt);
     }
@@ -74,35 +333,95 @@ public interface ItemStackHelper_1_20_R4 extends ItemStackHelper {
     default Object save(Object stack,@RedirectType(CompoundTag) Object tag){
         return saveV1_20_R4(stack, Env.REGISTRY_FROZEN, tag);
     }
-    @Override
-    default boolean hasCustomTag(Object stack){
-        return getCustomTag(stack) != null;
-    }
-    @Override
-    default Object getCustomTag(Object stack){
-        return Env1_20_R4.ICUSTOMDATA.tagOrNull(getDataComponentValue(stack, DataComponentEnum.CUSTOM_DATA));
-    }
-    @Override
-    default Object getOrCreateCustomTag(Object stack){
-        Object customData = getDataComponentValue(stack, DataComponentEnum.CUSTOM_DATA);
-        if(customData != null){
-            return Env1_20_R4.ICUSTOMDATA.tagOrNull(customData);
-        }else {
-            Object newComp = NMSCore.COMPOUND_TAG.newComp();
-            Object newCustomData = Env1_20_R4.ICUSTOMDATA.ofNoCopy(newComp);
-            setDataComponentValue(stack, DataComponentEnum.CUSTOM_DATA, newCustomData);
-            return newComp;
-        }
+//    @Internal
+//    default boolean hasCustomTag(Object stack){
+//        return getCustomTag(stack) != null;
+//    }
+    @Internal
+    default Object getCustomDataUnsafe(Object stack){
+        return Env1_20_R4.ICUSTOMDATA.unsafeOrNull(getFromPatch(stack, DataComponentEnum.CUSTOM_DATA));
     }
 
-    @Override
-    default void setTag(Object stack, @RedirectType(CompoundTag)@Nullable Object nbt){
-        if(NMSCore.COMPOUND_TAG.isEmpty(nbt)){
-            removeDataComponentValue(stack, DataComponentEnum.CUSTOM_DATA);
+    @Internal
+    default void setCustomData(Object stack, @RedirectType(CompoundTag)@Nullable Object nbt){
+        if(nbt == null || NMSCore.COMPOUND_TAG.isEmpty(nbt)){
+            removeFromPatch(stack, DataComponentEnum.CUSTOM_DATA);
         }else {
             setDataComponentValue(stack, DataComponentEnum.CUSTOM_DATA, Env1_20_R4.ICUSTOMDATA.of(nbt));
         }
     }
+
+    @MethodTarget
+    void applyComponents(Object stack, @RedirectType(DataComponentPatch)Object dataPatch);
+
+
+
+
+    @Override
+    default boolean hasCustomHoverName(Object stack){
+        return hasInPatch(stack, DataComponentEnum.CUSTOM_NAME);
+    }
+
+    @Internal
+    default Object setHoverName(Object stack, @RedirectType(ChatComponent)Iterable<?> name){
+        if(name != null){
+            setDataComponentValue(stack, DataComponentEnum.CUSTOM_NAME, name);
+        }else {
+            removeFromPatch(stack, DataComponentEnum.CUSTOM_NAME);
+        }
+        return stack;
+    }
+
+
+
+    default boolean hasLore(Object stack){
+        return hasInPatch(stack, DataComponentEnum.LORE);
+    }
+
+    @Nonnull
+    @Override
+    default ListMapView<?,Iterable<?>> getLoreView(Object stack, boolean overrideOnWrite){
+        class COWListViewWithMapping extends COWImmutableListView<Iterable<?>> implements ListMapView<Iterable<?>,Iterable<?>>{
+            public COWListViewWithMapping() {
+                super(List.of(), ArrayList::new);
+            }
+
+            @Override
+            public void batchWriteback() {
+                Object newItemLore = Env1_20_R4.DATA_TYPES.newItemLore( this.delegate.value);
+                setDataComponentValue(stack, DataComponentEnum.LORE, newItemLore);
+            }
+
+            @Override
+            public boolean isDelayWrite() {
+                return true;
+            }
+
+            @Override
+            public void flush() {
+                this.delegate = flush0();
+            }
+            public State<List<Iterable<?>>> flush0(){
+                final Object itemLore = getFromPatch(stack, DataComponentEnum.LORE);
+                State<List<Iterable<?>>> state0 = State.newInstance();
+                if(itemLore != null){
+                    //it willllllllllllllllllllllll modify origin itemStack because it does not copy when item copy
+                    state0.value =   Env1_20_R4.DATA_TYPES.itemLore$lines(itemLore);
+                    //set cow flag to copy on write
+                    state0.state=  true;
+                }else {
+                    state0.value = new ArrayList<>();
+                    //no need to set cow flag because this is already a new List, there is no need to copy again
+                }
+                return state0;
+            }
+        }
+        ListMapView<?,Iterable<?>> mapView= (ListMapView<?, Iterable<?>>) new COWListViewWithMapping();
+        mapView.flush();
+        return mapView;
+    }
+
+
     @Override
     default boolean matchItem(Object item1, Object item2, @Note("distinct assumed that they both have lore/name, and we don't care about them, BUT if one of then don't have, then it is regarded as not match") boolean distinctLore, boolean distinctName){
         if(item1 == item2){

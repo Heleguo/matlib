@@ -31,7 +31,7 @@ public interface MethodInvoker<T> {
         };
     }
 
-    public static <T> MethodInvoker<T> ofSafeNoArgs(Function<?,T> func){
+    public static <T> MethodInvoker<T> ofNoArgs(Function<?,T> func){
         Function<Object,T> fuck = (Function<Object, T>) func;
         return new MethodInvoker<T>() {
             @Override
@@ -70,7 +70,7 @@ public interface MethodInvoker<T> {
         };
     }
 
-    public static MethodInvoker<Void> ofSafeNoArgs(Consumer<?> task){
+    public static MethodInvoker<Void> ofNoArgsNoReturn(Consumer<?> task){
         Consumer<Object> task0 = (Consumer<Object>) task;
         return new MethodInvoker<Void>() {
             @Override

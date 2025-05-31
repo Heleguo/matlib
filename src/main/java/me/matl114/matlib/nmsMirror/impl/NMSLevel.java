@@ -13,6 +13,8 @@ public class NMSLevel {
     public static final ServerChunkCacheHelper CHUNK_CACHE_SYSTEM ;
     public static final BlockEntityHelper BLOCK_ENTITY ;
     public static final BlockEntityAPI TILE_ENTITIES;
+    public static final ServerPlayerHelper PLAYER ;
+    public static final ChunkMapHelper CHUNK_MAP;
     static {
         Version version = Version.getVersionInstance();
         BLOCK = DescriptorImplBuilder.createHelperImpl(BlockHelper.class);
@@ -26,5 +28,7 @@ public class NMSLevel {
             BLOCK_ENTITY = DescriptorImplBuilder.createHelperImpl(BlockEntityHelper.class);
         }
         TILE_ENTITIES = DescriptorImplBuilder.createMultiHelper(BlockEntityAPI.class);
+        PLAYER = DescriptorImplBuilder.createHelperImpl(ServerPlayerHelper.class);
+        CHUNK_MAP = DescriptorImplBuilder.createMultiHelper(ChunkMapHelper.class);
     }
 }

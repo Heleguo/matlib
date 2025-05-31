@@ -10,7 +10,7 @@ import me.matl114.matlib.implement.bukkit.schedule.ScheduleManager;
 import me.matl114.matlib.unitTest.MatlibTest;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
-import me.matl114.matlib.utils.chat.AsyncCommandTerminal;
+import me.matl114.matlib.utils.chat.interact.AsyncCommandTerminal;
 import me.matl114.matlib.utils.command.commandGroup.AbstractMainCommand;
 import me.matl114.matlib.utils.command.commandGroup.SubCommand;
 import me.matl114.matlib.utils.command.CommandUtils;

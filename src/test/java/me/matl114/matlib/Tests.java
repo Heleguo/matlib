@@ -4,16 +4,12 @@ import me.matl114.matlib.algorithms.algorithm.TransformationUtils;
 import me.matl114.matlib.algorithms.dataStructures.frames.collection.HashContainer;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.algorithms.dataStructures.struct.Triplet;
-import me.matl114.matlib.utils.language.componentCompiler.BuildContent;
-import me.matl114.matlib.utils.language.componentCompiler.ComponentAST;
-import me.matl114.matlib.utils.language.componentCompiler.ComponentFormatParser;
-import me.matl114.matlib.utils.language.componentCompiler.Parameter;
-import me.matl114.matlib.utils.language.lan.DefaultPlaceholderProviderImpl;
+import me.matl114.matlib.utils.Debug;
+import me.matl114.matlib.utils.chat.componentCompiler.ComponentFormatParser;
 import me.matl114.matlib.utils.reflect.*;
 import me.matl114.matlib.utils.reflect.wrapper.FieldAccess;
 import me.matl114.matlib.common.functions.reflect.FieldGetter;
 import me.matl114.matlib.utils.reflect.wrapper.MethodAccess;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
@@ -148,12 +144,13 @@ public class Tests {
         log(a);
     }
 //
-   // @Test
+    @Test
     public void test_varHandle(){
         TestClass object = new TestExtendClass();
         log("Test Handle");
 
         testHandle.set(object,114);
+        Debug.logger(object.d);
         Field field = ReflectUtils.getFieldsRecursively(TestClass.class,"d").getA();
         FieldGetter getter = testAccess.getter(object);
         long start = System.nanoTime();
@@ -400,32 +397,6 @@ public class Tests {
     }
     @Test
     public void test_tokenization(){
-        log("Hello?");
-        String t1 = "Hello {entity:ababab}, your score is {0}! && &aGreen{hover: cdcdcd} &cRed §#FF0000 &x&6&6&6&6&6&6CustomColor {player_placeholder} is here. translate test{translatable:me.matl114.test.message1$fallback}";
-//        String t1 = "&x&E&B&3&3&E&B链接的坐标: &f";
-        ComponentAST ast0 = ComponentFormatParser.compile(t1);
-//        log(ComponentFormatParser.tokenize(t1,new PairList<>()));
-//        long a1 = System.nanoTime();
-//        for (int i=0;i<100;++i){
-//            ComponentAST ast = ComponentFormatParser.compile(t1);
-//
-//            var re =  ast.build(BuildContent.of(new DefaultPlaceholderProviderImpl()));
-//        }
-//        long a2 = System.nanoTime();
-//        log("time "+(a2-a1));
-        ComponentAST ast = ComponentFormatParser.compile(t1);
-                var output = new StringBuilder();
-        ast.walk(output);
-        log(output.toString());
-        var re =  ast.build(BuildContent.of(new DefaultPlaceholderProviderImpl()));
-        re.build(Parameter.wrap("666"));
-        var param = Parameter.wrap("666");
-        long a3 = System.nanoTime();
-        for (int i=0;i<10000;++i){
-            TextComponent cp = (TextComponent) re.build(param);
-        }
-        long a4 = System.nanoTime();
-        log("time "+(a4-a3));
     }
     @Test
     public void test_class(){

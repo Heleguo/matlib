@@ -78,8 +78,15 @@ public class BlockDataCache implements Manager {
         deconstruct();
         return init(plugin);
     }
+
+    @Override
+    public boolean isAutoDisable() {
+        return true;
+    }
+
     @Override
     public void deconstruct() {
+        manager = null;
         this.removeFromRegistry();
         Debug.logger("Disabling Data Cache");
     }

@@ -16,6 +16,8 @@ public class NMSCore {
     public static final ResourceLocationHelper NAMESPACE_KEY;
     public static final RegistriesHelper REGISTRIES;
     public static final BlockPosHelper BLOCKPOS ;
+
+
     static {
         //Version version = Version.getVersionInstance();
         COMPOUND_TAG = DescriptorImplBuilder.createHelperImpl(CompoundTagHelper.class);
@@ -23,7 +25,7 @@ public class NMSCore {
         TAGS = DescriptorImplBuilder.createMultiHelper(TagAPI.class);
 
         NAMESPACE_KEY = DescriptorImplBuilder.createHelperImpl(ResourceLocationHelper.class);
-        REGISTRIES = DescriptorImplBuilder.createHelperImpl(RegistriesHelper.class);
+        REGISTRIES = DescriptorImplBuilder.createMultiHelper(RegistriesHelper.class);
         BLOCKPOS = DescriptorImplBuilder.createHelperImpl(BlockPosHelper.class);
     }
 }

@@ -47,4 +47,9 @@ public class SimpleGroupManager<W extends EntityGroup<? extends Entity>> impleme
     public EntityGroupManager<W> reload() {
         return this;
     }
+
+    @Override
+    public boolean isAutoDisable() {
+        return false;
+    }
 }

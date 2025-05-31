@@ -1,9 +1,7 @@
 package me.matl114.matlib.unitTest.autoTests.nmsTests;
 
 import me.matl114.matlib.nmsMirror.core.BuiltInRegistryEnum;
-import me.matl114.matlib.nmsMirror.impl.CraftBukkit;
-import me.matl114.matlib.nmsMirror.impl.EmptyEnum;
-import me.matl114.matlib.nmsMirror.impl.NMSItem;
+import me.matl114.matlib.nmsMirror.impl.*;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
 import me.matl114.matlib.utils.CraftUtils;
@@ -21,6 +19,7 @@ import org.bukkit.Material;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static me.matl114.matlib.nmsMirror.impl.NMSCore.NAMESPACE_KEY;
 import static me.matl114.matlib.nmsMirror.impl.NMSCore.REGISTRIES;
@@ -38,7 +37,15 @@ public class CoreTests implements TestCase {
         var cisA = CraftBukkit.ITEMSTACK.createCraftItemStack(Material.BOOK, 23,null);
         Debug.logger(cisA);
         Assert(CraftUtils.isCraftItemStack(cisA));
-
+        AtomicInteger count = new AtomicInteger();
+        REGISTRIES.stream(BuiltInRegistryEnum.BLOCK)
+            .peek(b->{
+                count.getAndIncrement();
+                if(CraftBukkit.MAGIC_NUMBERS.getMaterialFromBlock(b) == null){
+                    Debug.logger("check material from block, ",b);
+                }
+            });
+        Debug.logger("check material complete", count.get());
     }
 
 

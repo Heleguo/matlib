@@ -120,11 +120,7 @@ public class ReflectionUtilTests implements TestCase {
         Debug.logger(instance.getClass().getName());
         Debug.logger(instance instanceof Initialization);
         Initialization init = ProxyBuilder.buildMatlibAdaptorOf(Initialization.class, instance, (set)->AdaptorInvocation.createASM(instance.getClass(), set));
-        Debug.logger(init);
-        Debug.logger(init.getClass());
-        Debug.logger(init.getClass().getSimpleName());
-        Debug.logger(init.getDisplayName());
-        Debug.logger(init.getLogger());
+
         long start = System.nanoTime();
         String value = null;
         for (int i=0;i<1_000;++i){
@@ -147,8 +143,7 @@ public class ReflectionUtilTests implements TestCase {
             .invoke(null);
         Debug.logger(access);
         LockFactory<Location> locationLockFactory = ProxyBuilder.buildMatlibAdaptorOf(LockFactory.class, access, (set)->AdaptorInvocation.createASM(access.getClass(), set));
-        Debug.logger(locationLockFactory);
-        Debug.logger(locationLockFactory.getClass().getSimpleName());
+
         Debug.logger(locationLockFactory.checkThreadStatus(new Location(testWorld(),0,0,0)));
     }
 
@@ -242,7 +237,7 @@ public class ReflectionUtilTests implements TestCase {
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-            Debug.logger("visiting method ", access, name, descriptor, signature);
+//            Debug.logger("visiting method ", access, name, descriptor, signature);
             if(!targetMethod.equals(name)){
                 //return super.visitMethod(access, name, descriptor, signature, exceptions);
                 //ignore other method

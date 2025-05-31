@@ -1,6 +1,7 @@
 package me.matl114.matlib.utils.version;
 
 import lombok.Getter;
+import me.matl114.matlib.common.lang.annotations.Experimental;
 import me.matl114.matlib.utils.Debug;
 import org.bukkit.Bukkit;
 import javax.annotation.Nonnull;
@@ -12,7 +13,9 @@ public enum Version {
     v1_20_R3("v1_20_R3", 26),
     v1_20_R4("v1_20_R4", 41),
     v1_21_R1("v1_21_R1", 48),
-    v1_21_R2("v1_21_R2",57);
+    v1_21_R2("v1_21_R2",57),
+    @Experimental
+    v1_21_R3("v1_21_R3", 61);
     private Version(String name, int datapackNumber){
         this.name = name;
         this.datapackNumber = datapackNumber;
@@ -50,12 +53,15 @@ public enum Version {
                     return v1_20_R4;
                 case "1.21":
                 case "1.21.1":
-                case "1.21.2":
                     Debug.logger("Using version",v1_21_R1.name);
                     return v1_21_R1;
+                case "1.21.2":
                 case "1.21.3":
                     Debug.logger("Using version",v1_21_R2.name);
                     return v1_21_R2;
+                case "1.21.4":
+                    Debug.logger("Using version",v1_21_R3.name);
+                    return v1_21_R3;
                 default:
             }
             throw new RuntimeException("Version not supported for " + version);

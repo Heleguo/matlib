@@ -50,7 +50,7 @@ public class LevelTests implements TestCase {
         AssertNN(entity1);
         Debug.logger(BLOCK_ENTITY.saveWithFullMetadata(entity1));
         Debug.logger(BLOCK_ENTITY.saveWithId(entity1));
-        Object pdc =  BLOCK_ENTITY.getPersistentDataCompound(entity1, true);
+        Object pdc =  BLOCK_ENTITY.getPersistentDataCompound(entity1);
         COMPOUND_TAG.clear(pdc);
         COMPOUND_TAG.putBoolean(pdc, "testBoolean",true);
         Debug.logger(BLOCK_ENTITY.saveWithFullMetadata(entity1));

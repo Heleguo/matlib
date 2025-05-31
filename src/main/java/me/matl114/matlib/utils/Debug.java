@@ -2,6 +2,7 @@ package me.matl114.matlib.utils;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.matl114.matlib.algorithms.algorithm.ExecutorUtils;
 import me.matl114.matlib.core.AutoInit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +24,7 @@ public class Debug {
     private static boolean start=false;
     private static boolean pos=false;
     @Getter
-    private static boolean debugMod=false;
+    public static boolean debugMod=false;
     private static boolean interceptorRegistered = false;
     private static boolean interceptLogger = false;
     private static List<String> interceptionString = new ArrayList<>();
@@ -137,8 +138,15 @@ public class Debug {
     }
     public static void stackTrace(int k){
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-        for(int i = 0; i< Math.min(k, stackTraceElements.length); ++i) {
-            Debug.logger(stackTraceElements[i].toString());
+        for(int i = 0; i< Math.min(k, stackTraceElements.length - 2); ++i) {
+            Debug.logger(stackTraceElements[i+2].toString());
+        }
+    }
+
+    public static void stackTrace(int from, int to){
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        for(int i = from; i< Math.min(to, stackTraceElements.length - 2); ++i) {
+            Debug.logger(stackTraceElements[i+2].toString());
         }
     }
     public static String catchAllOutputs(Runnable r,boolean returnCatched){
@@ -301,5 +309,9 @@ public class Debug {
         }catch (Throwable e){
             logger(e,"Error while injecting log4j-core Filter:");
         }
+    }
+
+    public static void threadDump(){
+        ExecutorUtils.dumpAllThreads(log);
     }
 }

@@ -9,10 +9,7 @@ import me.matl114.matlib.utils.version.Version;
 import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static me.matl114.matlib.nmsMirror.Import.*;
 
@@ -134,7 +131,7 @@ public interface CompoundTagHelper extends TargetDescriptor, TagHelper {
     @MethodTarget
     @Note("may throw crash report")
     @RedirectType(ListTag)
-    public Object getList(Object nbt, String key, int type);
+    public AbstractList getList(Object nbt, String key, int type);
 
     @MethodTarget
     public boolean getBoolean(Object nbt, String key);

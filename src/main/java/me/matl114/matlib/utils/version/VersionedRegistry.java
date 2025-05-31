@@ -30,6 +30,7 @@ public abstract class VersionedRegistry {
     protected final Map<String, String> remappingEnchantId = new HashMap<>();
     protected final HashMap<String,String> remappingMaterialId=new HashMap<>();
     protected final HashMap<String,String> remappingEntityId=new HashMap<>();
+
     protected String convertLegacyEnchantment0(String from) {
         if (from == null) {
             return null;

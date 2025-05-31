@@ -1,12 +1,12 @@
 package me.matl114.matlib.utils.chat;
 
 import me.matl114.matlib.algorithms.dataStructures.struct.Holder;
-import me.matl114.matlib.common.functions.FuncUtils;
-import me.matl114.matlib.utils.CraftUtils;
-import me.matl114.matlib.utils.Debug;
+import me.matl114.matlib.common.lang.exceptions.CompileError;
 import me.matl114.matlib.utils.reflect.ReflectUtils;
-import me.matl114.matlib.utils.reflect.wrapper.FieldAccess;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class ComponentUtils {
     private static final ThreadLocal<ItemMeta> DEFAULT_META = ThreadLocal.withInitial(()->new ItemStack(Material.STONE).getItemMeta());
@@ -76,4 +77,75 @@ public class ComponentUtils {
             }
         }
     }
+
+    public static Style parseStyleFromString(String value){
+        Style.Builder builder = Style.style();
+        applyStyleBuilder(value).accept(builder);
+        return builder.build();
+    }
+
+    public static Consumer<Style.Builder> applyStyleBuilder(String value){
+        int len = value.length();
+        if(len == 2){
+            EnumFormat format = EnumFormat.getFormat(value.charAt(1));
+            if (format.isFormat() && format != EnumFormat.RESET) {
+                switch (format) {
+                    case BOLD:
+                        return (builder) -> {
+                            builder.decoration(TextDecoration.BOLD,true);
+                        };
+                    case ITALIC:
+                        return (builder) -> {
+                            builder.decoration(TextDecoration.ITALIC,true);
+                        };
+
+                    case STRIKETHROUGH:
+                        return (builder) -> {
+                            builder.decoration(TextDecoration.STRIKETHROUGH,true);
+                        };
+
+                    case UNDERLINE:
+                        return (builder) -> {
+                            builder.decoration(TextDecoration.UNDERLINED,true);
+                        };
+
+                    case OBFUSCATED:
+                        return (builder) -> {
+                            builder.decoration(TextDecoration.OBFUSCATED,true);
+                        };
+
+                    default:
+                        throw new RuntimeException("Unexpected message format name: "+value);
+                }
+            } else { // Color resets formatting
+                return (builder) ->{
+                    builder.merge( Style.empty().color(format.toAdventure()), Style.Merge.Strategy.ALWAYS);
+                };
+            }
+        }else {
+            String hex = value.replaceAll("[&§#x]","");
+            if(hex.length() == 6){
+                try{
+                    int i = Integer.parseInt(hex, 16);
+                    return (builder) -> {
+                        builder.color(TextColor.color(i));
+                    };
+                }catch (Throwable e){
+                    throw new RuntimeException("Unexpected color value: "+value+", to hex: "+hex);
+                }
+            }else {
+                throw new RuntimeException("Unexpected color format: "+value);
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
 }

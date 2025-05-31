@@ -96,7 +96,13 @@ public class CustomRegistries implements   Manager {
     }
 
     @Override
+    public boolean isAutoDisable() {
+        return true;
+    }
+
+    @Override
     public void deconstruct() {
+        manager = null;
         this.removeFromRegistry();
     }
 

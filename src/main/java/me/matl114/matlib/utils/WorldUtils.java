@@ -177,7 +177,7 @@ public class WorldUtils {
         Holder.of(tileEntitySetChangeAccess)
             .thenApply(MethodAccess::getMethodOrDefault, FuncUtils.nullTyped(Method.class))
             .thenApplyCaught((m)-> (Consumer<?>) LambdaUtils.createLambdaForMethod(Consumer.class, m))
-            .thenApply(MethodInvoker::ofSafeNoArgs)
+            .thenApply(MethodInvoker::ofNoArgsNoReturn)
             .get();
 
     public static boolean isTileEntityStillValid(@Nonnull TileState tile){

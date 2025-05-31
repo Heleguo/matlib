@@ -1,11 +1,11 @@
 package me.matl114.matlib.utils.reflect.internel;
 
+import com.google.common.collect.ImmutableMap;
+import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.ByteCodeUtils;
 import org.bukkit.Bukkit;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SimpleObfManagerImpl implements SimpleObfManager {
@@ -18,9 +18,26 @@ public class SimpleObfManagerImpl implements SimpleObfManager {
     //map from higher version to lower version
     //we all use high version mojang name here
     //
-    final Map<String,String> mojangVersionedPath = Map.of(
-        "net.minecraft.world.level.chunk.status.ChunkStatus",
-        "net.minecraft.world.level.chunk.ChunkStatus"
+    private static Map<String,String> build(String... values){
+        Iterator<String> value = Arrays.stream(values).iterator();
+        ImmutableMap.Builder<String,String> builder = ImmutableMap.builder();
+        while (value.hasNext()){
+             builder.put(value.next(), value.next());
+        }
+        return builder.build();
+    }
+    final Map<String,String> mojangVersionedPath = build(
+        "net.minecraft.world.level.chunk.status.ChunkStatus", "net.minecraft.world.level.chunk.ChunkStatus",
+        "net.minecraft.network.protocol.login.ClientboundLoginFinishedPacket", "net.minecraft.network.protocol.login.ClientboundGameProfilePacket",
+        "net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket", "net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket",
+        "net.minecraft.network.protocol.game.ServerboundChatCommandSignedPacket","net.minecraft.network.protocol.game.ServerboundChatCommandPacket",
+        "net.minecraft.network.chat.contents.PlainTextContents$LiteralContents","net.minecraft.network.chat.contents.LiteralContents",
+        "net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket","net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket",
+        "net.minecraft.network.protocol.common.ServerboundKeepAlivePacket","net.minecraft.network.protocol.game.ServerboundKeepAlivePacket",
+        "net.minecraft.network.protocol.common.ServerboundPongPacket","net.minecraft.network.protocol.game.ServerboundPongPacket",
+        "net.minecraft.network.protocol.common.ServerboundResourcePackPacket","net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket",
+        "net.minecraft.network.protocol.common.ServerboundClientInformationPacket","net.minecraft.network.protocol.game.ServerboundClientInformationPacket",
+        "net.minecraft.world.item.equipment.trim.ArmorTrim","net.minecraft.world.item.armortrim.ArmorTrim"
     );
     final Map<String, String> mojangVersionedPathMapper;
     final Map<String, String> mojangVersionedPathMapperInverse;
@@ -56,13 +73,24 @@ public class SimpleObfManagerImpl implements SimpleObfManager {
     }
     private void b(Map<String,String> map){
         for (var pathPair :mojangVersionedPath.entrySet()){
+            Object reobfName0 = this.mappingsByMojangName.get(pathPair.getKey());
+            String realPathKey = reobfName0 == null ? pathPair.getKey() : classMapperHelper.obfNameGetter(reobfName0);
+            try{
+                Class.forName(realPathKey);
+                //if key occurs, we should not register this
+                continue;
+            }catch (Throwable e){
+
+            }
             Object reobfName = this.mappingsByMojangName.get(pathPair.getValue());
             String realPath = reobfName == null ? pathPair.getValue() : classMapperHelper.obfNameGetter(reobfName);
             try{
                 Class.forName(realPath);
             }catch (Throwable e){
+               // Debug.logger("Error pair",pathPair);
                 continue;
             }
+           // Debug.logger("Accept pair",pathPair);
             //valid versioned path
             map.put(pathPair.getKey(), pathPair.getValue());
         }
@@ -101,13 +129,13 @@ public class SimpleObfManagerImpl implements SimpleObfManager {
         if (this.mappingsByMojangName == null) {
             return remapCraftBukkitAndMojangVersionedPath(mojangName);
         }
-
-        final Object map = this.mappingsByMojangName.get(mojangName);
+        String remappedMojangName = remapCraftBukkitAndMojangVersionedPath(mojangName);
+        final Object map = this.mappingsByMojangName.get(remappedMojangName);
         if (map == null) {
-            return remapCraftBukkitAndMojangVersionedPath(mojangName);
+            return remappedMojangName;
         }
 
-        return remapCraftBukkitAndMojangVersionedPath( classMapperHelper.obfNameGetter(map));
+        return classMapperHelper.obfNameGetter(map);
     }
 
     @Override

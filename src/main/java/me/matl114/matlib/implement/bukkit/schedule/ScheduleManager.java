@@ -37,10 +37,17 @@ public class ScheduleManager implements Manager {
 
     @Override
     public ScheduleManager reload() {
+        manager =null;
         deconstruct();
         init(plugin);
         return this;
     }
+
+    @Override
+    public boolean isAutoDisable() {
+        return true;
+    }
+
     @Override
     public void deconstruct() {
         removeFromRegistry();

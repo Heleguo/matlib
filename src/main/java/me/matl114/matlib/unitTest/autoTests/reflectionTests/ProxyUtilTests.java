@@ -47,11 +47,6 @@ public class ProxyUtilTests implements TestCase {
         Debug.logger(instance.getClass().getName());
         Debug.logger(instance instanceof Initialization);
         Initialization init = ProxyBuilder.buildMatlibAdaptorOf(Initialization.class, instance, SimpleRemappingInvocation::new);
-        Debug.logger(init);
-        Debug.logger(init.getClass());
-        Debug.logger(init.getClass().getSimpleName());
-        Debug.logger(init.getDisplayName());
-        Debug.logger(init.getLogger());
         long start = System.nanoTime();
         String value = null;
         for (int i=0;i<1_000;++i){
@@ -74,8 +69,6 @@ public class ProxyUtilTests implements TestCase {
             .invoke(null);
         Debug.logger(access);
         LockFactory<Location> locationLockFactory = ProxyBuilder.buildMatlibAdaptorOf(LockFactory.class, access,SimpleRemappingInvocation::new);
-        Debug.logger(locationLockFactory);
-        Debug.logger(locationLockFactory.getClass().getSimpleName());
         Debug.logger(locationLockFactory.checkThreadStatus(new Location(testWorld(),0,0,0)));
     }
 

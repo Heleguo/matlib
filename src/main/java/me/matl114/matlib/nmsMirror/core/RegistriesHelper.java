@@ -1,11 +1,17 @@
 package me.matl114.matlib.nmsMirror.core;
 
+import com.mojang.serialization.DynamicOps;
+import me.matl114.matlib.common.lang.annotations.Internal;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.nmsMirror.impl.NMSCore;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectClass;
+import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectName;
+import me.matl114.matlib.utils.reflect.descriptor.annotations.CastCheck;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.Descriptive;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.IgnoreFailure;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MethodTarget;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
+import me.matl114.matlib.utils.reflect.descriptor.annotations.MultiDescriptive;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import me.matl114.matlib.utils.version.Version;
 
@@ -16,9 +22,46 @@ import java.util.stream.Stream;
 
 import static me.matl114.matlib.nmsMirror.Import.*;
 
+import static me.matl114.matlib.nmsMirror.Import.*;
 
-@Descriptive(target = "net.minecraft.core.Registry")
+@MultiDescriptive(targetDefault = "net.minecraft.core.Registry")
 public interface RegistriesHelper extends TargetDescriptor {
+    @MethodTarget
+    @RedirectClass(Holder)
+    @RedirectName("value")
+    Object holderValue(Object holder);
+
+    @MethodTarget
+    Object wrapAsHolder(Object registry, Object val);
+
+    @CastCheck(HolderReference)
+    boolean isHolderReference(Object val);
+
+    @MethodTarget
+    @RedirectClass(TagKey)
+    @RedirectName("location")
+    Object tagKeyLocation(Object tag);
+
+    @MethodTarget
+    @RedirectClass(TagKey)
+    @RedirectName("registry")
+    Object tagKeyRegistry(Object tag);
+
+    @Internal
+    @RedirectClass(HolderLookupProvider)
+    @RedirectName("createSerializationContext")
+    @IgnoreFailure(thresholdInclude = Version.v1_20_R4, below = true)
+    @MethodTarget
+    <T> DynamicOps<T> provideRegistryForDynamicOp(Object registryFrozen, DynamicOps<T> delegate);
+
+    @MethodTarget(isStatic = true)
+    @RedirectClass(ResourceKey)
+    @RedirectName("create")
+    Object createResourceKey(@RedirectType(ResourceLocation)Object registryLocation, @RedirectType(ResourceLocation)Object value);
+
+    @MethodTarget
+    Object key(Object registry);
+
     @MethodTarget
     int getId(Object registry, Object val);
 
@@ -33,22 +76,13 @@ public interface RegistriesHelper extends TargetDescriptor {
 
     @MethodTarget
     @IgnoreFailure(thresholdInclude = Version.v1_21_R2, below = true)
-    Object getValue(Object registry, @RedirectType(ResourceLocation)Object namespacedKey);
-    static AtomicBoolean FAIL_TYPE_MATCH = new AtomicBoolean(true);
-    default Object getRegistryByKey(Object registry, @RedirectType(ResourceLocation)Object namespacedKey){
-        if(FAIL_TYPE_MATCH.get()){
-            Object val = get(registry, namespacedKey);
-            if(val instanceof Optional<?> ){
-                FAIL_TYPE_MATCH.set(false);
-            }else {
-                return val;
-            }
-        }
-        return getValue(registry, namespacedKey);
+    default Object getValue(Object registry, @RedirectType(ResourceLocation)Object namespacedKey){
+        return get(registry, namespacedKey);
     }
-    default Object getRegistryByKey(Object registry, String key){
-        return getRegistryByKey(registry, NMSCore.NAMESPACE_KEY.newNSKey(key));
-    }
+
+//    default Object getRegistryByKey(Object registry, String key){
+//        return getRegistryByKey(registry, NMSCore.NAMESPACE_KEY.newNSKey(key));
+//    }
 
 
     @Note("Suggested")

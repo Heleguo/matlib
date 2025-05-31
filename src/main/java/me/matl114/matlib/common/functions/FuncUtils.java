@@ -24,4 +24,8 @@ public class FuncUtils {
             }
         };
     }
+    public static <W> Supplier<W> value(W val){
+        return ()->val;
+    }
+
 }

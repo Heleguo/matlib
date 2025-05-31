@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import java.lang.invoke.VarHandle;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static me.matl114.matlib.nmsMirror.impl.NMSItem.*;
 import static me.matl114.matlib.nmsMirror.impl.NMSCore.*;
@@ -34,42 +35,50 @@ public class ItemUtils {
     public static TagCompoundView getPersistentDataContainerView(@Nonnull ItemStack craftItemStack, boolean forceCreate){
         var handle = CraftBukkit.ITEMSTACK.unwrapToNMS(craftItemStack);
 
-        var pdc = ITEMSTACK.getPersistentDataCompound(handle, forceCreate);
+        var pdc = ITEMSTACK.getPersistentDataCompoundView(handle, forceCreate);
 
-        if(pdc != null){
+        if(pdc.getView() != null){
             return new TagCompoundView(pdc);
         }else {
             return null;
         }
     }
+    public static TagCompoundView getPersistentDataContainerView(Object nms, boolean forceCreate){
+        var pdc = ITEMSTACK.getPersistentDataCompoundView(nms, forceCreate);
+        return new TagCompoundView(pdc);
+    }
 
-    public static void setPersistentDataContainer(@Note("please make sure that this is a CraftItemStack") @NotNull ItemStack craftItemStack, @NotNull PersistentDataContainer container, int copyLevel){
+    public static void setPersistentDataContainer(@Note("please make sure that this is a CraftItemStack") @NotNull ItemStack craftItemStack, @NotNull PersistentDataContainer container, boolean deepcopy){
         var handle = CraftBukkit.ITEMSTACK.unwrapToNMS(craftItemStack);
         Map<String, ?> val;
         if(container instanceof TagCompoundView view){
-            val = view.customDataTags;
+            val = Objects.requireNonNull(COMPOUND_TAG.tagsGetter( view.getCompoundTagViews().getView()));
         }else if(CraftBukkit.PERSISTENT_DATACONTAINER.isCraftContainer(container)){
             val = CraftBukkit.PERSISTENT_DATACONTAINER.getRaw(container);
         }else {
             throw new UnsupportedOperationException("Persistent Data Container Class not supported: "+container.getClass());
         }
         Object newComp ;
-        switch (copyLevel){
-            case 1:
-                val = new Object2ObjectOpenHashMap<>(val, 0.8f);
-                newComp = COMPOUND_TAG.newComp(val);
-                break;
-            case 2:
-                newComp = COMPOUND_TAG.newComp(val);
-                newComp = COMPOUND_TAG.copy(newComp);
-                break;
-            default:
-                newComp = COMPOUND_TAG.newComp(val);
-                break;
+        Map<String,Object> newMap = new Object2ObjectOpenHashMap<>(val, 0.8f);
+        if(deepcopy){
+            for (var entry: val.entrySet()){
+                newMap.put(entry.getKey(), TAGS.copy(entry.getValue()));
+            }
+        }else {
+            newMap.putAll(val);
         }
-        ITEMSTACK.setPersistentDataCompound(handle, newComp);
+        newComp = COMPOUND_TAG.newComp(newMap);
+        ITEMSTACK.getPersistentDataCompoundView(handle, false).writeBack(newComp);
     }
-
+    public static ItemStack asCraftMirror(Object val){
+        return CraftBukkit.ITEMSTACK.asCraftMirror(val);
+    }
+    public static ItemStack asBukkitCopy(Object val){
+        return CraftBukkit.ITEMSTACK.asBukkitCopy(val);
+    }
+    public static Object asNMSCopy(ItemStack val){
+        return CraftBukkit.ITEMSTACK.asNMSCopy(val);
+    }
     public static ItemStack newStack(Material material, int amount){
         return CraftBukkit.ITEMSTACK.createCraftItemStack(material, amount);
     }
@@ -274,4 +283,12 @@ public class ItemUtils {
         var handle = CraftBukkit.ITEMSTACK.unwrapToNMS(craftItemStack);
         return ITEMSTACK.customHashWithoutDisplay(handle);
     }
+
+    public static Object dumpItemStack(Object itemStack){
+        Object emptyNbt = COMPOUND_TAG.newComp();
+        return  ITEMSTACK.save(itemStack, emptyNbt);
+    }
+
+
+
 }

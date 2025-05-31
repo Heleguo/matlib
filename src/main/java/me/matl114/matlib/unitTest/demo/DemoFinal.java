@@ -8,7 +8,9 @@ import me.matl114.matlib.utils.reflect.mixImpl.buildTools.MixBase;
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -16,23 +18,24 @@ import java.util.function.Predicate;
 
 public final class DemoFinal implements DemoInterface {
     public static DemoFinal ins(){
-        int[][] a = new int[2][2];
-        Debug.stackTrace(4);
         return new DemoFinal();
+
     }
     static final VarHandle varhandle = null;
     static final MethodHandle methodHandle = null;
+    static final Field field1 ;
+    static{
+        try {
+            field1 = DemoFinal.class.getDeclaredField("varhandle");
+            field1.set(null, null);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
     {
-        setA(true);
-        a = true;
-        invokeB(this, Debug.isDebugMod()?1:3);
-        b(this,Debug.isDebugMod()?1:3);
-        Object a = this;
-        Object finalA = a;
-        Runnable run = ()->{
-            Object s = MixBase.castInsn(finalA, "Lnet/");
-            Debug.logger(s);
-        };
+
+        Iterable[] c = new Iterable[111];
+        List[] d = (List[]) c;
 
 
 //        if(Debug.isDebugMod()){

@@ -59,7 +59,7 @@ public class NMSInventoryUtils {
         Holder.of(getIInventoryAccess)
             .thenApply(MethodAccess::getMethodOrDefault, FuncUtils.nullTyped(Method.class))
             .thenApplyCaught((m)->(Function<Inventory,?>)LambdaUtils.createLambdaForMethod(Function.class,m))
-            .thenApply(MethodInvoker::ofSafeNoArgs)
+            .thenApply(MethodInvoker::ofNoArgs)
             .thenPeek((e)->Debug.logger("Successfully initialize CraftInventory.getInventory Method Invoker"))
             .get();
 
@@ -82,7 +82,7 @@ public class NMSInventoryUtils {
         Holder.of(getIIContentsAccess)
             .thenApply(MethodAccess::getMethodOrDefault, FuncUtils.nullTyped(Method.class))
             .thenApplyCaught((m)->(Function<?,List<?>>)LambdaUtils.createLambdaForMethod(Function.class, m))
-            .thenApply(MethodInvoker::ofSafeNoArgs)
+            .thenApply(MethodInvoker::ofNoArgs)
             .get();
 
     @UnsafeOperation

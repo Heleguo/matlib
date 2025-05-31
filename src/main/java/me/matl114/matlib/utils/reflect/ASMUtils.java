@@ -1,17 +1,32 @@
 package me.matl114.matlib.utils.reflect;
 
 import com.google.common.base.Preconditions;
+import me.matl114.matlib.utils.Debug;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import javax.annotation.Nullable;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
 
+import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Type.getInternalName;
+
 public class ASMUtils {
+    public static void insertDebug(MethodVisitor mv, String log){
+        mv.visitLdcInsn(log);
+        mv.visitMethodInsn(
+            INVOKESTATIC,
+            getInternalName(Debug.class),
+            "logger",
+            "(Ljava/lang/String;)V",
+            false
+        );
+    }
     public static void generateEmptyInit(ClassWriter cw,@Nullable String parentCls){
         var methodVisitor = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
         {
@@ -61,6 +76,35 @@ public class ASMUtils {
                 break;
         }
     }
+
+    public static void createMethodLookupField(ClassWriter cw){
+        var fv = cw.visitField(
+            ACC_PUBLIC|ACC_FINAL|ACC_STATIC,
+            "lookup",
+            "Ljava/lang/invoke/MethodHandles$Lookup;",
+            null,
+            null
+        );
+        fv.visitEnd();
+    }
+
+    public static void createMethodLookupInit(MethodVisitor mv, String implPath){
+        mv.visitLdcInsn(Type.getType(ByteCodeUtils.toJvmType(implPath)));
+        mv.visitMethodInsn(
+            INVOKESTATIC,
+            getInternalName(MethodHandles.class),
+            "lookup",
+            "()Ljava/lang/invoke/MethodHandles$Lookup;",
+            false
+        );
+        mv.visitFieldInsn(
+            PUTSTATIC,
+            implPath,
+            "lookup",
+            "Ljava/lang/invoke/MethodHandles$Lookup;"
+        );
+    }
+
     public static void createSuitableReturn(MethodVisitor mv, String returnType){
         switch (returnType){
             case "int":
@@ -133,11 +177,14 @@ public class ASMUtils {
                 castInPrimitive(mv, unboxed, targetType);
             }
         } else if(ReflectUtils.isPrimitiveType(originType) && !ReflectUtils.isPrimitiveType(targetType)){
+
             if(ReflectUtils.isBoxedPrimitive(targetType)){
+
                 String unbox = ReflectUtils.getUnboxedClass(targetType);
                 castInPrimitive(mv, originType, unbox);
                 castFromPrimitiveType(mv, unbox);
             }else {
+
                 String boxedClass = ReflectUtils.getBoxedClass(originType);
                 castFromPrimitiveType(mv, originType);
                 if(!Objects.equals(targetType, boxedClass)){
@@ -148,9 +195,11 @@ public class ASMUtils {
 //            Preconditions.checkArgument(Objects.equals(boxedClass, targetType), "Primitive type "+ originType+" can only cast to "+ boxedClass);
 
         } else if(ReflectUtils.isPrimitiveType(originType )&& ReflectUtils.isPrimitiveType(targetType)){
+
             castInPrimitive(mv, originType, targetType);
         }
         else {
+
             castRefInternel(mv, targetType);
         }
     }
@@ -195,7 +244,7 @@ public class ASMUtils {
     public static void castFromPrimitiveType(MethodVisitor mv, String primitive){
         String boxed  = ReflectUtils.getBoxedClass(primitive);
         Preconditions.checkArgument(!Objects.equals(primitive, "void"),"can not cast "+primitive +" to "+boxed);
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, boxed, "valueOf", "()"+ByteCodeUtils.toJvmType(primitive), false );
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, boxed, "valueOf", "("+  ByteCodeUtils.toJvmType(primitive) +")"+ ByteCodeUtils.toJvmType(boxed), false );
     }
     public static void castInPrimitive(MethodVisitor mv, String primFrom, String primTo){
         if(Objects.equals(primFrom, primTo)){

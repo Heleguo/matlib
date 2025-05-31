@@ -59,6 +59,53 @@ public class LambdaUtils {
             throw new RuntimeException(e);
         }
     }
+
+    public static <T> MethodHandle createLambdaWithOuterArgument(Class<T> functionalInterface, Method method, int extraArgs){
+        Preconditions.checkArgument(extraArgs != 0,"If extra args is 0, you should use other method instead");
+        Method functionalMethod = Arrays.stream(functionalInterface.getMethods())
+            .filter(m-> Modifier.isAbstract(m.getModifiers()))
+            .findAny()
+            .orElseThrow(()->new IllegalArgumentException("Illegal Argument for functional Interface! Abstract method not found in class"+functionalInterface));
+        Class<?> targetClass = method.getDeclaringClass();
+        try{
+            MethodHandles.Lookup lookup  ;
+            //private lookup seems to not having a MODULE access which is required by lambda
+            MethodHandle handle ;
+            if(Modifier.isPublic(method.getModifiers())){
+                lookup = MethodHandles.lookup();
+            }else {
+                var publicLoopup = MethodHandles.lookup();
+                Preconditions.checkArgument(publicLoopup.lookupClass().getModule() == targetClass.getModule(),"Can not create lambda expression for package-private methods in another module");
+                lookup = MethodHandles.privateLookupIn(targetClass, publicLoopup);
+            }
+            handle = lookup.unreflect(method);
+            boolean isStatic = Modifier.isStatic(method.getModifiers());
+            int totalArgs = method.getParameterCount();
+            int extraArgOffset  = (isStatic? 0: 1) + extraArgs;
+            Preconditions.checkArgument(extraArgs == totalArgs - functionalMethod.getParameterCount());
+            Class<?>[] realMatchingArgs = new Class[functionalMethod.getParameterCount()];
+            System.arraycopy(method.getParameterTypes(), extraArgOffset, realMatchingArgs, 0, realMatchingArgs.length);
+            MethodType type = MethodType.methodType(method.getReturnType(), realMatchingArgs);
+            Class<?>[] extraArgType = new Class[extraArgOffset];
+            if(!isStatic){
+                extraArgType[0] = targetClass;
+            }
+            System.arraycopy(method.getParameterTypes(), 0, extraArgType, isStatic? 0: 1, extraArgs);
+            return LambdaMetafactory.metafactory(
+                lookup,
+                functionalMethod.getName(),
+                MethodType.methodType(functionalInterface, extraArgType),
+                getMethodType(functionalMethod),
+                handle,
+                MethodType.methodType(method.getReturnType(), type)
+            ).getTarget();
+
+        }catch (Throwable e){
+            throw new RuntimeException("Error while creating lambda expression!", e);
+        }
+    }
+
+
     private static <T> CallSite createLambdaForMethodInternal(Class<T> functionalInterface, Method method, boolean sta, boolean dynamicBind){
 
         Method functionalMethod = Arrays.stream(functionalInterface.getMethods())
@@ -78,7 +125,6 @@ public class LambdaUtils {
                 lookup = MethodHandles.privateLookupIn(targetClass, publicLoopup);
             }
             handle = lookup.unreflect(method);
-
             return LambdaMetafactory.metafactory(
                 lookup,
                 functionalMethod.getName(),

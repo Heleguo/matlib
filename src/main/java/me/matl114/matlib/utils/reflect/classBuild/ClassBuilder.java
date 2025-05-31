@@ -1,10 +1,13 @@
 package me.matl114.matlib.utils.reflect.classBuild;
 
 import com.google.common.base.Preconditions;
+import com.google.errorprone.annotations.Var;
 import it.unimi.dsi.fastutil.ints.Int2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntArrayMap;
+import lombok.val;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.common.lang.annotations.Note;
+import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.ASMUtils;
 import me.matl114.matlib.utils.reflect.ByteCodeUtils;
 import me.matl114.matlib.utils.reflect.internel.ObfManager;
@@ -22,6 +25,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Opcodes.RETURN;
@@ -38,6 +42,13 @@ public class ClassBuilder {
             targetName = redirect1.value();
         }else {
             targetName = methodAccess.getName();
+        }
+        boolean shouldDebug = false;
+//        if(targetName.equals("createSerializationContext")){
+//            shouldDebug = true;
+//        }
+        if(shouldDebug){
+            Debug.logger("matching methods",methodAccess,"from",methods);
         }
         //what returns does not matter
 //            String returnType;
@@ -173,6 +184,7 @@ public class ClassBuilder {
      * flag, whether to set up try-catch block in MethodHandle invocation
      */
     private static final boolean checkThrowable = false;
+
     /**
      * core building , pieces of shit,
      * @param targetClass
@@ -186,7 +198,7 @@ public class ClassBuilder {
      * @param <T>
      * @throws Throwable
      */
-    public static synchronized  <T extends TargetDescriptor> T buildTargetFlattenInvokeImpl(@Nullable Class<?> targetClass, Class<T> mainInterfaceImpl, Class<?> superClass,  Class<?>[] appendedInterfaces, Map<Method,Field> fieldGetDescrip, Map<Method,Field> fieldSetDescrip, Map<Method,Method> methodDescrip, Map<Method, Constructor<?>> constructorDescrip, Map<Method, Class<?>> typeCastDescrip, List<Method> uncompletedMethod) throws Throwable{
+    public static synchronized  <T extends TargetDescriptor> T buildTargetFlattenInvokeImpl(@Nullable Class<?> targetClass, Class<T> mainInterfaceImpl, Class<?> superClass,  Class<?>[] appendedInterfaces, Map<Method,Field> fieldGetDescrip, Map<Method,Field> fieldSetDescrip, Map<Method,Method> methodDescrip, Map<Method, Constructor<?>> constructorDescrip, Map<Method, Class<?>> typeCastDescrip, Map<Method, Class<?>> typeGetDescrip, List<Method> uncompletedMethod) throws Throwable{
         //remove all completed methods as a faillback mechanism
         ClassBuildingUtils.checkUncompleted(uncompletedMethod, mainInterfaceImpl);
         //start creating clazz
@@ -215,11 +227,18 @@ public class ClassBuilder {
                 //create 内部类
                 int index = 0 ;
                 Reference2IntArrayMap<Field> handledField = new Reference2IntArrayMap<>();
+                Reference2IntArrayMap<Field> reflectionNeedField = new Reference2IntArrayMap<>();
                 Reference2IntArrayMap<Method> handledMethod = new Reference2IntArrayMap<>();
                 Reference2IntArrayMap<Constructor<?>> handledConstructor = new Reference2IntArrayMap<>();
+                Reference2IntArrayMap<Class<?>> handledTypeInstance = new Reference2IntArrayMap<>();
                 HashSet<Field> relatedFields = new HashSet<>();
                 relatedFields.addAll(fieldGetDescrip.values());
                 relatedFields.addAll(fieldSetDescrip.values());
+                Set<Field> finalFieldsToSet = fieldSetDescrip.values()
+                    .stream()
+                    .filter(f->Modifier.isFinal(f.getModifiers()))
+                    .collect(Collectors.toSet());
+                Set<Field> fieldGetDescripSet = new HashSet<>( fieldGetDescrip.values());
                 FieldVisitor fv ;
                 fv = cw.visitField(
                     ACC_FINAL | ACC_STATIC,
@@ -234,13 +253,33 @@ public class ClassBuilder {
                 for (var entry: relatedFields){
                     int mod = entry.getModifiers();
                     //fix access to owner
+                    //fix final field access Field reflection
+                    if(Modifier.isFinal(mod) && finalFieldsToSet.contains(entry)){
+                        reflectionNeedField.put(entry, index);
+                        String fieldName = "handle"+index;
+                        {
+                            fv = cw.visitField(
+                                ACC_FINAL| ACC_STATIC,
+                                fieldName,
+                                "Ljava/lang/reflect/Field;",
+                                null,
+                                null
+                            );
+                            fv.visitEnd();
+                        }
+                        index ++;
+                        //if no get, only set, there is no need for VarHandle field to create, just directly skip
+                        if(!fieldGetDescripSet.contains(entry)){
+                            continue;
+                        }
+                    }
                     if(Modifier.isPublic(mod) && Modifier.isPublic(entry.getDeclaringClass().getModifiers())){
                         continue;
                     }else {
                         //catch need-handle fields
                         handledField.put(entry, index);
                         //exactAccess if class is public, and
-                        exactAccessible.put(index, Modifier.isPublic(entry.getDeclaringClass().getModifiers()));
+                        exactAccessible.put(index, canExact(entry.getDeclaringClass()));
                         String fieldName = "handle"+index;
                         {
                             fv = cw.visitField(
@@ -258,12 +297,13 @@ public class ClassBuilder {
 
                 for (var entry: methodDescrip.entrySet()){
                     int mod = entry.getValue().getModifiers();
-                    if(Modifier.isPublic(mod) && Modifier.isPublic(entry.getValue().getDeclaringClass().getModifiers())){
+                    boolean canExact = canExactInvoke(entry.getValue());
+                    if(canExact && Modifier.isPublic(mod) && Modifier.isPublic(entry.getValue().getDeclaringClass().getModifiers())){
                         continue;
                     }else {
                         //catch need-handle methods
                         handledMethod.put(entry.getValue(), index);
-                        exactAccessible.put(index, Modifier.isPublic(entry.getValue().getDeclaringClass().getModifiers()));
+                        exactAccessible.put(index, canExact);
                         String fieldName = "handle" + index;
                         {
                             fv = cw.visitField(
@@ -300,6 +340,21 @@ public class ClassBuilder {
                         }
                         index ++;
                     }
+                }
+                for (var entry: typeGetDescrip.entrySet()){
+                    handledTypeInstance.put(entry.getValue(), index);
+                    String fieldName = "handle"+index;
+                    {
+                        fv = cw.visitField(
+                            ACC_FINAL| ACC_STATIC,
+                            fieldName,
+                            "Ljava/lang/Class;",
+                            null,
+                            null
+                        );
+                        fv.visitEnd();
+                    }
+                    index ++;
                 }
                 //create need-handle fields;
                 MethodVisitor mv ;
@@ -436,7 +491,37 @@ public class ClassBuilder {
                     if(itfMethod.getParameterCount() + (Modifier.isStatic(mod)? 1:0)<2){
                         throw new DescriptorBuildException("Illegal parameter detected at "+itfMethod.toString() +", setter should have more parameters");
                     }
-                    if(Modifier.isPublic(mod) && Modifier.isPublic(tarField.getDeclaringClass().getModifiers())){
+                    //fix: fix final field set
+                    if(Modifier.isFinal(mod)){
+                        index = reflectionNeedField.getInt(tarField);
+                        String fieldName = "handle"+index;
+                        mv.visitCode();
+                        mv.visitFieldInsn(
+                            GETSTATIC,
+                            implPath,
+                            fieldName,
+                        "Ljava/lang/reflect/Field;"
+                        );
+                        if(!Modifier.isStatic(mod)){
+                            Class<?> valType = itfMethod.getParameterTypes()[1];
+                            mv.visitVarInsn(ALOAD, 1);
+                          //  Class<?> instanecType = itfMethod.getParameterTypes()[0];
+                            //boxing primitive type
+                           // ASMUtils.castType(mv, getInternalName(instanecType), getInternalName(Object.class));
+                            ASMUtils.createSuitableLoad(mv, getInternalName(valType), 2);
+
+                            ASMUtils.castType(mv, getInternalName(valType), getInternalName(Object.class));
+                            mv.visitMethodInsn(
+                                INVOKEVIRTUAL,
+                                "java/lang/reflect/Field",
+                                "set",
+                                "(Ljava/lang/Object;Ljava/lang/Object;)V",
+                                false
+                            );
+                        }else {
+                            throw new DescriptorBuildException("Static final field can not be modified except using Unsafe, which we do not support here");
+                        }
+                    }else if(Modifier.isPublic(mod) &&  Modifier.isPublic(tarField.getDeclaringClass().getModifiers())){
                         if(Modifier.isStatic(mod)){
                             //如果参数类型不能直接赋值给tarField
                             Class<?> valType = itfMethod.getParameterTypes()[0];
@@ -469,6 +554,8 @@ public class ClassBuilder {
                             );
                         }
                     }else {
+                        //here , we have final public fields , too,
+                        //it should be in the handle map, if everything goes right
                         index = handledField.getInt(tarField);
                         String fieldName = "handle"+index;
                         boolean exactInvoke = exactAccessible.get(index);
@@ -532,11 +619,13 @@ public class ClassBuilder {
                     final boolean castReturn = returnType!=void.class && itfReturnType != void.class;
                     //load all invoke arguments
                     //if not public, load MethodHandle here, also load fucking try-catch block
-                    boolean useHandle = !Modifier.isPublic(mod) || !Modifier.isPublic(tarMethod.getDeclaringClass().getModifiers());
+                    index = handledMethod.getOrDefault(tarMethod, -1);
+                    boolean exactInvoke =  exactAccessible.getOrDefault(index, true) ;
+                    boolean useHandle = index >= 0 || !exactInvoke;
                     Label label0 = null;
                     Label label1 = null;
                     Label label2 = null;
-                    boolean exactInvoke = true;
+
                     if(useHandle){
                         if(checkThrowable){
                             label0 = new Label();
@@ -546,15 +635,14 @@ public class ClassBuilder {
                             mv.visitLabel(label0);
                         }
 
-                        index = handledMethod.getInt(tarMethod);
-                        exactInvoke = exactAccessible.get(index);
                         mv.visitFieldInsn(GETSTATIC, implPath, "handle"+index, "Ljava/lang/invoke/MethodHandle;");
                     }
+
                     //load
                     if(Modifier.isStatic(mod)){
                         for (int i=0;i<count ;++i){
                             ASMUtils.createSuitableLoad(mv, getInternalName(itfType[i]), i+1);
-                            if(!tarType[i].isAssignableFrom(itfType[i])){
+                            if(exactInvoke && !tarType[i].isAssignableFrom(itfType[i])){
                                 ASMUtils.castType(mv, getInternalName(itfType[i]), getInternalName(tarType[i]));
                             }
                         }
@@ -566,7 +654,7 @@ public class ClassBuilder {
                         }
                         for (int i=1;i<count ;++i){
                             ASMUtils.createSuitableLoad(mv, getInternalName(itfType[i]), i+1);
-                            if(!tarType[i-1].isAssignableFrom(itfType[i])){
+                            if(exactInvoke && !tarType[i-1].isAssignableFrom(itfType[i])){
                                 ASMUtils.castType(mv, getInternalName(itfType[i]), getInternalName(tarType[i-1]));
                             }
                         }
@@ -599,11 +687,18 @@ public class ClassBuilder {
                         //use MethodHandle.invokeExact
                         StringBuilder builder = new StringBuilder();
                         builder.append('(');
-                        if(!Modifier.isStatic(mod)){
-                            builder.append(exactInvoke?ByteCodeUtils.toJvmType(tarMethod.getDeclaringClass()) :ByteCodeUtils.toJvmType(itfType[0]));
-                        }
-                        for (Class<?> arg: tarMethod.getParameterTypes()){
-                            builder.append(ByteCodeUtils.toJvmType(arg));
+                        if(exactInvoke){
+                            if(!Modifier.isStatic(mod)){
+                                builder.append(ByteCodeUtils.toJvmType(tarMethod.getDeclaringClass()));
+                            }
+                            for (Class<?> arg: tarMethod.getParameterTypes()){
+                                builder.append( ByteCodeUtils.toJvmType(arg) );
+                            }
+                        }else {
+
+                            for (Class<?> arg: itfType){
+                                builder.append(ByteCodeUtils.toJvmType(arg));
+                            }
                         }
                         builder.append(')');
                         builder.append(exactInvoke? ByteCodeUtils.toJvmType(tarMethod.getReturnType()) : ByteCodeUtils.toJvmType(itfReturnType));
@@ -617,8 +712,11 @@ public class ClassBuilder {
                         //invoke with no Exact, gen matched return type
                     }
                     if(castReturn){
-                        if(exactInvoke && !itfReturnType.isAssignableFrom(returnType)){
-                            ASMUtils.castType(mv, getInternalName(returnType), getInternalName(itfReturnType));
+                        if(!itfReturnType.isAssignableFrom(returnType)){
+                            if(exactInvoke){
+                                ASMUtils.castType(mv, getInternalName(returnType), getInternalName(itfReturnType));
+                            }
+                            //should be already in ret type
                         }
                     }
                     if(!castReturn && returnType != void.class){
@@ -775,7 +873,18 @@ public class ClassBuilder {
                     mv.visitMaxs(0,0);
                     mv.visitEnd();
                 }
-
+                for (var type: typeGetDescrip.entrySet()){
+                    Method itfMethod = type.getKey();
+                    Class<?> instance = type.getValue();
+                    Class<?> itfReturnType = itfMethod.getReturnType();
+                    int varIndex = handledTypeInstance.getInt(instance);
+                    boolean castReturn =  itfReturnType != void.class;
+                    mv =  ASMUtils.createOverrideMethodImpl(cw, itfMethod);
+                    mv.visitFieldInsn(GETSTATIC, implPath, "handle"+varIndex, "Ljava/lang/Class;");
+                    ASMUtils.createSuitableReturn(mv, getInternalName(itfMethod.getReturnType()));
+                    mv.visitMaxs(0,0);
+                    mv.visitEnd();
+                }
 
                 for(Method tar: uncompletedMethod){
                     mv = ASMUtils.createOverrideMethodImpl(cw, tar);
@@ -813,9 +922,9 @@ public class ClassBuilder {
                         );
                         //creating invokeExact VarHandle
                         VarHandle handle = lookup.unreflectVarHandle(entry);
-                        if(!invokeExact){
-                            handle = handle.withInvokeExactBehavior();
-                        }
+//                        if(!invokeExact){
+//                            handle = handle.withInvokeExactBehavior();
+//                        }
                         String randId = randStr();
                         values0.put(randId, handle);
                         mv.visitLdcInsn(randCode);
@@ -832,6 +941,29 @@ public class ClassBuilder {
                             implPath,
                             fieldName,
                             "Ljava/lang/invoke/VarHandle;"
+                        );
+                    }
+                    for (Field entry: reflectionNeedField.keySet()){
+                        index = reflectionNeedField.getInt(entry);
+                        String fieldName = "handle"+index;
+                        Field value = entry;
+                        value.setAccessible( true);
+                        String randId = randStr();
+                        values3.put(randId, value);
+                        mv.visitLdcInsn(randCode);
+                        mv.visitLdcInsn(randId);
+                        mv.visitMethodInsn(
+                            INVOKESTATIC,
+                            getInternalName(ClassBuilder.class),
+                            "initField",
+                            "(ILjava/lang/String;)Ljava/lang/reflect/Field;",
+                            false
+                        );
+                        mv.visitFieldInsn(
+                            PUTSTATIC,
+                            implPath,
+                            fieldName,
+                            "Ljava/lang/reflect/Field;"
                         );
                     }
                     for (Method method : handledMethod.keySet()){
@@ -886,6 +1018,27 @@ public class ClassBuilder {
                             "Ljava/lang/invoke/MethodHandle;"
                         );
                     }
+                    for (Class<?> type : handledTypeInstance.keySet()){
+                        index = handledTypeInstance.getInt(type);
+                        String fieldName = "handle"+index;
+                        String randId = randStr();
+                        values2.put(randId, type);
+                        mv.visitLdcInsn(randCode);
+                        mv.visitLdcInsn(randId);
+                        mv.visitMethodInsn(
+                            INVOKESTATIC,
+                            getInternalName(ClassBuilder.class),
+                            "initDelegate",
+                            "(ILjava/lang/String;)Ljava/lang/Class;",
+                            false
+                        );
+                        mv.visitFieldInsn(
+                            PUTSTATIC,
+                            implPath,
+                            fieldName,
+                            "Ljava/lang/Class;"
+                        );
+                    }
                     String randId = randStr();
                     values2.put(randId, targetClass);
                     mv.visitLdcInsn(randCode);
@@ -920,6 +1073,22 @@ public class ClassBuilder {
 
         return result;
     }
+    private static boolean canExactInvoke(Method method){
+        if(!canExact(method.getDeclaringClass()))return false;
+        for (var arg: method.getParameterTypes()){
+            if(!canExact(arg))return false;
+        }
+        return true;
+    }
+    private static boolean canExact(Class<?> clazz0){
+        if(!Modifier.isPublic(clazz0.getModifiers())){
+            return false;
+        }
+        if(clazz0.getNestHost() != clazz0){
+            return canExact(clazz0.getNestHost());
+        }
+        return true;
+    }
     private static String randStr(){
         String val;
         do{
@@ -941,9 +1110,14 @@ public class ClassBuilder {
     private static final Map<String, VarHandle> values0 = new HashMap<>();
     private static final Map<String, MethodHandle> values1 = new HashMap<>();
     private static final Map<String, Class<?>> values2 = new HashMap<>();
+    private static final Map<String, Field> values3 = new HashMap<>();
     public static VarHandle initVarHandle(int code, String val){
         Preconditions.checkArgument(code == randCode,"IllegalAccess!");
         return Objects.requireNonNull(values0.remove(val));
+    }
+    public static Field initField(int code, String val){
+        Preconditions.checkArgument(code == randCode,"IllegalAccess!");
+        return Objects.requireNonNull(values3.remove(val));
     }
     public static MethodHandle initMethodHandle(int code, String value){
         Preconditions.checkArgument(code == randCode,"IllegalAccess!");

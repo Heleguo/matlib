@@ -14,6 +14,12 @@ class HolderExceptional<T> implements Holder<T>, Cloneable{
         this.value = value;
         this.e = e;
     }
+
+    @Override
+    public <W> Holder<W> setValue(W value) {
+        return (Holder<W>) this;
+    }
+
     @Override
     public <W> Holder<W> thenApply(Function<T, W> function) {
         return (Holder<W>) this;
@@ -41,6 +47,11 @@ class HolderExceptional<T> implements Holder<T>, Cloneable{
     }
 
     @Override
+    public <W, R> Holder<W> thenApplyUnsafe(UnsafeBiFunction<T, R, W> function, R value) {
+        return null;
+    }
+
+    @Override
     public <W> Holder<W> thenApplyCaught(UnsafeFunction<T, W> function) {
         return (Holder<W>) this;
     }
@@ -56,16 +67,16 @@ class HolderExceptional<T> implements Holder<T>, Cloneable{
     }
 
     @Override
-    public Holder<T> whenException(BiConsumer<T, Throwable> exceptionHandler) {
+    public Holder<T> runException(Consumer<Throwable> exceptionHandler) {
         if(!answered){
-            exceptionHandler.accept(value, e);
+            exceptionHandler.accept( e);
             answered = true;
         }
         return this;
     }
 
     @Override
-    public Holder<T> whenException(BiFunction<T, Throwable, T> exceptionHandler) {
+    public Holder<T> whenException(Function<Throwable, T> exceptionHandler) {
         return this;
     }
 

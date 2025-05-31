@@ -13,6 +13,9 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class ReflectUtils {
 //    public static  Object invokeGetRecursively(Object target, Flags mod, String declared){
@@ -456,6 +459,21 @@ public class ReflectUtils {
         }
     }
 
+    public static Method getMethod(Class<?> clazz, String name, Class<?>... clazzs){
+        try{
+            return clazz.getMethod(name, clazzs);
+        }catch (Throwable e){
+            return null;
+        }
+    }
+    public static Method getMethodPrivate(Class<?> clazz, String name, Class<?>... clazzes){
+        try{
+            return clazz.getDeclaredMethod(name, clazzes);
+        }catch (Throwable e){
+            return null;
+        }
+    }
+
     public static MethodHandle getMethodHandle(Class<?> clazz, String name, Class<?>... argments){
         try{
             Method method = clazz.getMethod(name, argments);
@@ -596,5 +614,9 @@ public class ReflectUtils {
             case -10:throw new IllegalArgumentException("finalize method not supported");
         }
         return null;
+    }
+
+    public static Map<String, Enum> getEnumMap(Class<?> clazz){
+        return Arrays.stream(clazz.getEnumConstants()).collect(Collectors.toMap(i->((Enum)i).name(), Enum.class::cast));
     }
 }

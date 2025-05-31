@@ -51,6 +51,7 @@ public class ChatInputManager implements Manager, Listener , InputManager {
     public ChatInputManager init(Plugin pl, String... path) {
         this.pl = pl;
         registerFunctional();
+        addToRegistry();
         return this;
     }
 
@@ -61,8 +62,15 @@ public class ChatInputManager implements Manager, Listener , InputManager {
     }
 
     @Override
+    public boolean isAutoDisable() {
+        return true;
+    }
+
+    @Override
     public void deconstruct() {
+        manager = null;
         unregisterFunctional();
+        removeFromRegistry();
     }
 
     @EventHandler

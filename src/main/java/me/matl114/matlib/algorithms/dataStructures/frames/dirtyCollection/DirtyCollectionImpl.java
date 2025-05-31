@@ -1,5 +1,6 @@
 package me.matl114.matlib.algorithms.dataStructures.frames.dirtyCollection;
 
+import me.matl114.matlib.algorithms.dataStructures.frames.simpleCollection.SimpleCollectionImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandle;
@@ -11,10 +12,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public class DirtyCollectionImpl<S extends Collection<V>,V> implements Collection<V>, Set<V>, DirtyCollection<S> {
-    protected final S delegate;
+public class DirtyCollectionImpl<S extends Collection<V>,V> extends SimpleCollectionImpl<S,V> implements Collection<V>, Set<V>, DirtyCollection<S> {
+
     public DirtyCollectionImpl(S value){
-        this.delegate = value;
+        super(value);
     }
     private static final VarHandle DIRTY;
     static {
@@ -44,38 +45,6 @@ public class DirtyCollectionImpl<S extends Collection<V>,V> implements Collectio
         return false;
     }
 
-    @Override
-    public S getHandle() {
-        return this.delegate;
-    }
-
-    @Override
-    public int size() {
-        return this.delegate.size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return this.delegate.isEmpty();
-    }
-
-    @Override
-    public boolean contains(Object o) {
-        return this.delegate.contains(o);
-    }
-
-
-    @NotNull
-    @Override
-    public Object[] toArray() {
-        return this.delegate.toArray();
-    }
-
-    @NotNull
-    @Override
-    public <T> T[] toArray(@NotNull T[] a) {
-        return this.delegate.toArray(a);
-    }
 
     @Override
     public boolean add(V v) {
@@ -93,11 +62,6 @@ public class DirtyCollectionImpl<S extends Collection<V>,V> implements Collectio
             return true;
         }
         return false;
-    }
-
-    @Override
-    public boolean containsAll(@NotNull Collection<?> c) {
-        return this.delegate.containsAll(c);
     }
 
     @Override

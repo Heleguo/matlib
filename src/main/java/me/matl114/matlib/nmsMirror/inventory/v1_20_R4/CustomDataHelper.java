@@ -18,7 +18,11 @@ public interface CustomDataHelper extends TargetDescriptor {
     @ConstructorTarget
     Object ofNoCopy(@RedirectType(CompoundTag) Object nbt);
 
-    default Object tagOrNull(Object input){
+    default Object unsafeOrNull(Object input){
         return input== null ? null : getUnsafe(input);
+    }
+
+    default Object copyCustomData(Object val){
+        return val == null? null: of(getUnsafe(val));
     }
 }

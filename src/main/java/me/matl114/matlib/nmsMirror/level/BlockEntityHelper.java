@@ -1,6 +1,7 @@
 package me.matl114.matlib.nmsMirror.level;
 
 import lombok.val;
+import me.matl114.matlib.algorithms.dataStructures.frames.mmap.COWView;
 import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
 import me.matl114.matlib.common.lang.annotations.NeedTest;
 import me.matl114.matlib.common.lang.annotations.Note;
@@ -15,6 +16,7 @@ import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 import me.matl114.matlib.utils.version.Version;
 import org.bukkit.persistence.PersistentDataContainer;
+import org.jetbrains.annotations.NotNull;
 
 import static me.matl114.matlib.nmsMirror.Import.*;
 
@@ -26,12 +28,27 @@ public interface BlockEntityHelper extends TargetDescriptor , PdcCompoundHolder 
     @FieldTarget
     void persistentDataContainerSetter(Object be, @RedirectType(CraftPersistentDataContainer)PersistentDataContainer val);
 
-    default Object getPersistentDataCompound(Object val, boolean create){
+    default Object getPersistentDataCompound(Object val){
         PersistentDataContainer container = persistentDataContainerGetter(val);
         return CraftBukkit.PERSISTENT_DATACONTAINER.asCompoundMirror(container);
     }
+    @Override
+    default Object getPersistentDataCompoundCopy(Object val){
+        PersistentDataContainer container = persistentDataContainerGetter(val);
+        return NMSCore.COMPOUND_TAG.copy(CraftBukkit.PERSISTENT_DATACONTAINER.asCompoundMirror(container));
+    }
+
+    default COWView<Object> getPersistentDataCompoundView(Object val, boolean forceCreate){
+        Object component = getPersistentDataCompound(val);
+        return COWView.withWriteback(component, (i)->{
+            this.setPersistentDataCompoundCopy(val, i);
+            return getPersistentDataCompound(val);
+        });
+    }
+
+
     @NeedTest
-    default void setPersistentDataCompound(Object itemStack, Object compound){
+    default void setPersistentDataCompoundCopy(Object itemStack, Object compound){
         persistentDataContainerSetter(itemStack, CraftBukkit.PERSISTENT_DATACONTAINER.newPersistentDataContainer(NMSCore.COMPOUND_TAG.tagsGetter(compound), CraftBukkitUtils.getPdcDataTypeRegistry()));
     }
 

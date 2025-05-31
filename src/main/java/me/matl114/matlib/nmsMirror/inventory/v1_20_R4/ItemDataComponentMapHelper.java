@@ -1,6 +1,7 @@
 package me.matl114.matlib.nmsMirror.inventory.v1_20_R4;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
+import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 
@@ -14,8 +15,18 @@ public interface ItemDataComponentMapHelper extends DataComponentMapHelper {
     @RedirectType(DataComponentMap)
     public Iterable<?> prototypeGetter(Object patchedMap);
 
+    @MethodTarget
+    void ensureMapOwnership(Object patchedMap);
+
+    default void removeFromPatch(Object patchMap, Object type){
+        //copy on write
+        ensureMapOwnership(patchMap);
+        patchGetter(patchMap).remove(type);
+    }
+
     @FieldTarget
     @RedirectType("Lit/unimi/dsi/fastutil/objects/Reference2ObjectMap;")
+    @Note("use ensureMapOwnerShip before write via this map")
     Reference2ObjectMap<Object, Optional<?>> patchGetter(Object patchedMap);
 
     @MethodTarget
@@ -30,4 +41,6 @@ public interface ItemDataComponentMapHelper extends DataComponentMapHelper {
     @MethodTarget
     public void setAll(Object patchedMap, @RedirectType(DataComponentMap) Object comp);
 
+    @MethodTarget
+    public void restorePatch(Object patchedMap, @RedirectType(DataComponentPatch)Object changes);
 }

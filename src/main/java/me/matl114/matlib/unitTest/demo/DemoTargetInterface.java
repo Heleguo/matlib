@@ -10,4 +10,7 @@ public interface DemoTargetInterface {
     default void abs(){
         Debug.logger("Interface.abs called");
     }
+    default void privateMethod(){
+        Debug.logger("Interface.privateMethod called");
+    }
 }

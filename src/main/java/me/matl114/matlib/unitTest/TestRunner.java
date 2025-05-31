@@ -43,6 +43,11 @@ public class TestRunner extends AbstractMainCommand implements Manager {
     }
 
     @Override
+    public boolean isAutoDisable() {
+        return true;
+    }
+
+    @Override
     public void deconstruct() {
         unregisterFunctional();
         this.removeFromRegistry();
@@ -92,7 +97,9 @@ public class TestRunner extends AbstractMainCommand implements Manager {
                     }
                 },testCase));
             }else {
-                if(!testAnnotation.automatic()&&method.getParameterTypes().length>=1&&method.getParameterTypes()[0]==CommandSender.class &&(method.getParameterCount()==1 || method.getParameterTypes()[1]==String[].class)){
+                if(!testAnnotation.automatic()&&( method.getParameterCount() == 0 ||(
+                    method.getParameterCount() >=1 && method.getParameterTypes()[0]==CommandSender.class &&(method.getParameterCount()==1 || method.getParameterTypes()[1]==String[].class)
+                ))){
                 manuallyExecutedCase.put(testcaseName ,Pair.of(((sender,str) -> new TestRunnable() {
                     @Override
                     public boolean isAsync() {
@@ -104,12 +111,15 @@ public class TestRunner extends AbstractMainCommand implements Manager {
                         long start = System.nanoTime();
                         Debug.logger("Start Running test case: ",testAnnotation.name(),",in",isAsync()?"Async":"Main","Thread");
                         try{
-                            if(method.getParameterCount() == 1){
-                                method.invoke(testCase,sender);
-                            }else{
-                                method.invoke(testCase,sender,str);
+                            switch (method.getParameterCount()){
+                                case 0 : method.invoke(testCase);
+                                    break;
+                                case 1 : method.invoke(testCase,sender);
+                                    break;
+                                default:
+                                    method.invoke(testCase,sender,str);
+                                    break;
                             }
-
                         }catch (InvocationTargetException | IllegalAccessException e) {
                             throw new RuntimeException(e.getCause());
                         }

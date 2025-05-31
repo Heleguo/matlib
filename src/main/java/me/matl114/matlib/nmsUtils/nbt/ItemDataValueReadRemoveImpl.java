@@ -1,0 +1,111 @@
+package me.matl114.matlib.nmsUtils.nbt;
+
+import me.matl114.matlib.nmsMirror.impl.Env;
+import me.matl114.matlib.nmsMirror.impl.NMSItem;
+import me.matl114.matlib.nmsMirror.inventory.ItemStackHelperDefault;
+import me.matl114.matlib.nmsUtils.serialize.TypeOps;
+
+import java.util.Objects;
+
+import static me.matl114.matlib.nmsMirror.impl.NMSCore.COMPOUND_TAG;
+import static me.matl114.matlib.nmsMirror.impl.NMSCore.TAGS;
+
+class ItemDataValueReadRemoveImpl implements ItemDataValue{
+    final String[] path;
+
+    ItemDataValueReadRemoveImpl(String path) {
+        Objects.requireNonNull(path);
+        this.path =path.split("\\.");
+        if(HELPER == null){
+            HELPER = (ItemStackHelperDefault) NMSItem.ITEMSTACK;
+        }
+    }
+    protected static ItemStackHelperDefault HELPER;
+
+
+    @Override
+    public String getPath() {
+        return String.join(".",path);
+    }
+
+    @Override
+    public Object getPathData() {
+        return path;
+    }
+
+    @Override
+    public Object getPrimitive() {
+        throw new UnsupportedOperationException("No primitive record");
+    }
+
+    @Override
+    public Object getSafe() {
+        throw new UnsupportedOperationException("No primitive record");
+    }
+
+    @Override
+    public Object getUnsafe() {
+        throw new UnsupportedOperationException("No primitive record");
+    }
+
+    @Override
+    public void applyToStack(Object itemStack) {
+        throw new UnsupportedOperationException("ReadRemove");
+    }
+
+    @Override
+    public void mergeToStack(Object itemStack) {
+        throw new UnsupportedOperationException("ReadRemove");
+    }
+
+    @Override
+    public void listAppendToStack(Object itemStack, int index) {
+        throw new UnsupportedOperationException("ReadRemove");
+    }
+
+    protected Object getTagBefore(Object nbt){
+        int i=0;
+        for (; i< this.path.length - 1; ++i){
+            if(nbt != null && TAGS.isCompound(nbt)){
+                nbt = COMPOUND_TAG.getCompound(nbt, this.path[i]);
+            }else {
+                break;
+            }
+        }
+        return nbt;
+    }
+
+    protected Object getOrCreateTagBefore(Object nbt){
+        int i=0;
+        for (; i< this.path.length - 1; ++i){
+            nbt = COMPOUND_TAG.getOrCreateCompound(nbt, this.path[i]);
+        }
+        return nbt;
+    }
+    @Override
+    public void removeFromStack(Object itemStack) {
+        Object nbt = HELPER.getCustomTag(itemStack);
+        nbt = getTagBefore(nbt);
+        if(nbt != null && TAGS.isCompound(nbt)){
+            COMPOUND_TAG.remove(nbt, this.path[this.path.length-1]);
+        }
+    }
+
+    @Override
+    public Object getFromStack(Object itemStack) {
+        Object nbt = HELPER.getCustomTag(itemStack);
+        if(nbt == null)return null;
+        nbt = getTagBefore(nbt);
+        return nbt == null? null: Env.NBT_OP.convertTo(TypeOps.I, nbt);
+    }
+
+    @Override
+    public boolean compareWithStack(Object itemStack) {
+        throw new UnsupportedOperationException("No primitive record");
+    }
+
+    @Override
+    public boolean isWritable() {
+        return false;
+    }
+}

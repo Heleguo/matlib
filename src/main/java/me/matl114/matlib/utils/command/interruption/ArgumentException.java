@@ -1,8 +1,9 @@
 package me.matl114.matlib.utils.command.interruption;
 
+import me.matl114.matlib.common.lang.exceptions.RuntimeAbort;
 import org.bukkit.command.CommandSender;
 
-public abstract class ArgumentException extends RuntimeException{
+public abstract class ArgumentException extends RuntimeAbort {
     public ArgumentException(){
         super();
     }

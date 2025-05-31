@@ -1,7 +1,7 @@
 package me.matl114.matlib.nmsUtils;
 
 import me.matl114.matlib.nmsMirror.impl.NMSLevel;
-import me.matl114.matlib.nmsMirror.versionedEnv.Env;
+import me.matl114.matlib.nmsMirror.impl.Env;
 import me.matl114.matlib.utils.WorldUtils;
 import org.bukkit.World;
 
@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
+
+import static me.matl114.matlib.nmsMirror.impl.NMSServer.*;
 
 public class ServerUtils {
     private static final Map<World, Executor> cachedWorldExecutor = new HashMap<>();
@@ -29,5 +31,10 @@ public class ServerUtils {
             return NMSLevel.CHUNK_CACHE_SYSTEM.mainThreadProcessorGetter(chunkSource);
         });
         executor.execute(task);
+    }
+
+    public static void broadCastMessage(Iterable<?> chatMessages){
+        Object playerlist = SERVER.getPlayerList(Env.SERVER);
+        PLAYER_LIST.broadcastSystemMessage(playerlist, chatMessages, false);
     }
 }

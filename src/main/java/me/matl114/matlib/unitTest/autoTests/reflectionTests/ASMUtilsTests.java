@@ -4,6 +4,7 @@ import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
+import me.matl114.matlib.unitTest.demo.DemoTargetClass;
 import me.matl114.matlib.unitTest.demo.DemoTargetInterface;
 import me.matl114.matlib.unitTest.demo.DemoTargetSuper;
 import me.matl114.matlib.utils.Debug;
@@ -26,7 +27,7 @@ import static org.objectweb.asm.Opcodes.*;
 public class ASMUtilsTests implements TestCase {
     volatile int tmp = 0;
 
-   // @OnlineTest(name = "Descriptor Build Test")
+    @OnlineTest(name = "Descriptor Build Test")
     public void test_descriptor() throws Throwable{
         Class clazz =Class.forName("me.matl114.matlib.unitTest.demo.DemoTargetClass");
         Debug.logger("fetched");
@@ -36,6 +37,10 @@ public class ASMUtilsTests implements TestCase {
         Debug.logger(I.dSetter(333));
         Debug.logger(I.newInstance());
         Debug.logger(I.newInstance(114));
+        DemoTargetClass targetClass = new DemoTargetClass();
+        Debug.logger(targetClass.b);
+        I.bSetter(targetClass, 114514);
+        Assert(targetClass.b == 114514);
 //        Assert(int.class.isAssignableFrom(int.class));
 //        Object t = new DemoTargetClass();
 //        DemoTargetClass answer = (DemoTargetClass) t;
@@ -109,7 +114,7 @@ public class ASMUtilsTests implements TestCase {
         cw.visit(
             Opcodes.V21,
             ACC_PUBLIC,
-            "me/matl114/matlib/unitTest/demo/DemoImpl",
+            "me/matl114/matlib/unitTest/demo/114514DemoImpl",
             null,
             Type.getInternalName(DemoTargetSuper.class),
             new String[]{Type.getInternalName(DemoTargetInterface.class)}
@@ -153,8 +158,9 @@ public class ASMUtilsTests implements TestCase {
 //        mv.visitEnd();
         cw.visitEnd();
         byte[] cls = cw.toByteArray();
-        var cl= CustomClassLoader.getInstance().defineAccessClass("me.matl114.matlib.unitTest.demo.DemoImpl", cls);
+        var cl= CustomClassLoader.getInstance().defineAccessClass("me.matl114.matlib.unitTest.demo.114514DemoImpl", cls);
         Object val = cl.getConstructor().newInstance();
+        Debug.logger(val.getClass());
         Debug.logger(val);
         ((DemoTargetInterface)val).abs();
 

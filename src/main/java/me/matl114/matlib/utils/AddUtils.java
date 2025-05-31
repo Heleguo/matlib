@@ -523,4 +523,18 @@ public class AddUtils {
     public static String getDateString(){
         return new SimpleDateFormat("yyyyMMdd").format(new Date());
     }
+
+
+
+
+
+//    public static FormattedCharSequence applyRainbow(FormattedCharSequence sequence, int x, int y) {
+//        int[] combinedX = {x};
+//        return sink -> sequence.accept((charIndex, style, codePoint) -> {
+//            if (charIndex == 0) combinedX[0] = x;
+//            int rgb = Color.HSBtoRGB(((Util.getMillis() - combinedX[0] * 10 - y * 10) % 2000) / 2000F, 0.8F, 0.95F);
+//            combinedX[0] += Minecraft.getInstance().font.getSplitter().widthProvider.getWidth(codePoint, style);
+//            return sink.accept(charIndex, style.withColor(TextColor.fromRgb(rgb)), codePoint);
+//        });
+//    }
 }
