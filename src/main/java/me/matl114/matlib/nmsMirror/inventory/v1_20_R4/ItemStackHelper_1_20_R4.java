@@ -198,8 +198,12 @@ public interface ItemStackHelper_1_20_R4 extends TargetDescriptor, ItemStackHelp
     default Object getPdcCompoundView(Object val,boolean forceCreate){
         Object customData = getCustomDataUnsafe(val);
         Object pdc;
-        if(customData == null && forceCreate){
-            pdc = createCustomDataWithPdcUnsafe(val);
+        if(customData == null ){
+            if(forceCreate){
+                pdc = createCustomDataWithPdcUnsafe(val);
+            }else {
+                pdc = null;
+            }
         }else {
             pdc = NMSCore.COMPOUND_TAG.getCompound(customData, "PublicBukkitValues");
             if(pdc == null && forceCreate){
