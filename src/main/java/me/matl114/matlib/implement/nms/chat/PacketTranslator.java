@@ -3,9 +3,12 @@ package me.matl114.matlib.implement.nms.chat;
 import com.google.common.base.Preconditions;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import me.matl114.matlib.algorithms.algorithm.ListenerUtils;
 import me.matl114.matlib.algorithms.dataStructures.frames.collection.ListMapView;
 import me.matl114.matlib.algorithms.dataStructures.frames.collection.PairList;
 import me.matl114.matlib.algorithms.dataStructures.frames.mmap.ValueAccess;
+import me.matl114.matlib.algorithms.designs.event.PriorityEventChannel;
+import me.matl114.matlib.algorithms.designs.event.PriorityEventHandler;
 import me.matl114.matlib.core.Manager;
 import me.matl114.matlib.implement.nms.network.*;
 import me.matl114.matlib.nmsMirror.impl.CraftBukkit;
@@ -16,17 +19,22 @@ import me.matl114.matlib.nmsMirror.network.NetworkEnum;
 import me.matl114.matlib.nmsUtils.ChatUtils;
 import me.matl114.matlib.nmsUtils.ItemUtils;
 import me.matl114.matlib.nmsUtils.PlayerUtils;
+import me.matl114.matlib.nmsUtils.network.GamePacket;
+import me.matl114.matlib.nmsUtils.network.PacketFlow;
+import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.ThreadUtils;
 import me.matl114.matlib.utils.chat.lan.LanguageRegistry;
-import net.kyori.adventure.translation.Translator;
+import me.matl114.matlib.utils.reflect.LambdaUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.plugin.Plugin;
 
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import static me.matl114.matlib.nmsMirror.impl.NMSChat.*;
 import static me.matl114.matlib.nmsMirror.impl.NMSItem.*;
@@ -187,7 +195,7 @@ public class PacketTranslator implements Manager, PacketListener {
     private boolean wrongState(){
         return !this.registered;
     }
-    private boolean processItemStackS2C(Object stack, Locale locale){
+    private boolean processItemStackS2C(ClientInformation info, Object stack, Locale locale){
         if(ITEMSTACK.isEmpty(stack))return false;
         boolean hasModify = false;
         if(ITEMSTACK.hasCustomHoverName(stack)){
@@ -221,12 +229,28 @@ public class PacketTranslator implements Manager, PacketListener {
             }
            // Debug.logger("check after change", ItemUtils.asBukkitCopy(stack));
         }
-//        if(hasModify){
-//            Debug.logger("translate one");
-//        }
+        var eventChannel = getEventChannel(TranslateType.ITEM_STACK, PacketFlow.S2C);
+        var allChannel = getEventChannel(TranslateType.ALL_TYPE, PacketFlow.S2C);
+        if(eventChannel != null || allChannel != null){
+            //create a event instance
+            TranslateEvent<ItemStack> itemStackTranslateEvent = new TranslateEvent<>(
+                info,
+                ItemUtils.asCraftMirror(stack),
+                locale
+            );
+            if(eventChannel != null){
+                eventChannel.dispatch(itemStackTranslateEvent);
+            }
+            if(allChannel != null){
+                allChannel.dispatch(itemStackTranslateEvent);
+            }
+            return true;
+        }
+
+
         return hasModify;
     }
-    private void processItemStackC2S(Object stack, Locale locale){
+    private void processItemStackC2S(ClientInformation info, Object stack, Locale locale){
         if(ITEMSTACK.hasCustomHoverName(stack)){
             ValueAccess<Iterable<?>> customName = ITEMSTACK.getDisplayNameView(stack);
             Iterable<?> name = customName.get();
@@ -251,6 +275,25 @@ public class PacketTranslator implements Manager, PacketListener {
                 loreAccess.batchWriteback();
             }
         }
+
+        var eventChannel = getEventChannel(TranslateType.ITEM_STACK, PacketFlow.C2S);
+        var allChannel = getEventChannel(TranslateType.ALL_TYPE, PacketFlow.C2S);
+        if(eventChannel != null || allChannel != null){
+            //create a event instance
+            TranslateEvent<ItemStack> itemStackTranslateEvent = new TranslateEvent<>(
+                info,
+                ItemUtils.asCraftMirror(stack),
+                locale
+            );
+            if(eventChannel != null){
+                eventChannel.dispatch(itemStackTranslateEvent);
+            }
+            if(allChannel != null){
+                allChannel.dispatch(itemStackTranslateEvent);
+            }
+
+        }
+
     }
     private Locale handleLocale(PacketEvent event){
         Object player = event.getClient().getPlayer();
@@ -262,7 +305,7 @@ public class PacketTranslator implements Manager, PacketListener {
         Locale locale = handleLocale(event);
         Object packet = event.getPacket();
         Object item = PACKETS.serverboundSetCreativeModeSlotPacket$itemStack(packet);
-        processItemStackC2S(item, locale);
+        processItemStackC2S(event.getClient(), item, locale);
 
     }
 
@@ -272,7 +315,7 @@ public class PacketTranslator implements Manager, PacketListener {
         Locale locale = handleLocale(event);
         Object packet = event.getPacket();
         Object item = PACKETS.clientboundSetCursorItemPacket$cursor(packet);
-        processItemStackS2C(item, locale);
+        processItemStackS2C(event.getClient(), item, locale);
         //debugClient(event);
     }
     @PacketHandler(type = SERVERBOUND_CONTAINER_CLICK)
@@ -281,10 +324,10 @@ public class PacketTranslator implements Manager, PacketListener {
         Locale locale = handleLocale(event);
         Object packet = event.getPacket();
         Object cursorItem =PACKETS.serverboundContainerClickPacket$CarriedItem(packet);
-        processItemStackC2S(cursorItem, locale);
+        processItemStackC2S(event.getClient() , cursorItem, locale);
         Int2ObjectMap<?> changedItems = PACKETS.serverboundContainerClickPacket$ChangedSlots(packet);
         for (var entry: changedItems.int2ObjectEntrySet()){
-            processItemStackC2S(entry.getValue(), locale);
+            processItemStackC2S(event.getClient(), entry.getValue(), locale);
         }
 
     }
@@ -295,7 +338,7 @@ public class PacketTranslator implements Manager, PacketListener {
         Locale locale = handleLocale(event);
         Object packet = event.getPacket();
         Object item = PACKETS.clientboundSetPlayerInventoryPacket$SlotContent(packet);
-        processItemStackS2C(item, locale);
+        processItemStackS2C(event.getClient(), item, locale);
         //debugClient(event);
 
     }
@@ -308,7 +351,7 @@ public class PacketTranslator implements Manager, PacketListener {
         Locale locale = handleLocale(event);
         Object packet = event.getPacket();
         Object item = PACKETS.clientboundContainerSetSlotPacket$SlotItem(packet);
-        processItemStackS2C(item, locale);
+        processItemStackS2C(event.getClient(), item, locale);
        // debugClient(event);
     }
 
@@ -321,7 +364,7 @@ public class PacketTranslator implements Manager, PacketListener {
         for (var pair: slotWithItem){
             if(pair instanceof Pair<?,?> pp){
                 Object item = pp.getSecond();
-                processItemStackS2C(item, locale);
+                processItemStackS2C(event.getClient(), item, locale);
             }
         }
        // debugClient(event);
@@ -334,10 +377,10 @@ public class PacketTranslator implements Manager, PacketListener {
         List<?> items = PACKETS.clientboundContainerSetContentPacket$getItems(packet);
         for (var item: items){
 
-                processItemStackS2C(item, locale);
+                processItemStackS2C(event.getClient(), item, locale);
 
         }
-        processItemStackS2C(PACKETS.clientboundContainerSetContentPacket$getCursorItem(packet), locale);
+        processItemStackS2C(event.getClient(), PACKETS.clientboundContainerSetContentPacket$getCursorItem(packet), locale);
       //  debugClient(event);
     }
 
@@ -351,7 +394,7 @@ public class PacketTranslator implements Manager, PacketListener {
             if(SYNCHER.entityDataValue$serializer(value) == NetworkEnum.ENTITYDATA_ITEMSTACK ){
                 Object value0 = SYNCHER.entityDataValue$value(value);
                 if(ITEMSTACK.isItemStack(value0)){
-                    processItemStackS2C(value0, locale);
+                    processItemStackS2C(event.getClient(), value0, locale);
                 }
             }
         }
@@ -364,12 +407,13 @@ public class PacketTranslator implements Manager, PacketListener {
         Object packet = event.getPacket();
         List values = PACKETS.clientboundMerchantOffersPacket$Offstes(packet);
         int len = values.size();
+        ClientInformation info = event.getClient();
         for (int i=0; i<len;++i){
             Object value = values.get(i);
             Object result = TRADE.getResult(value);
-            processItemStackS2C(result, locale);
+            processItemStackS2C(event.getClient(), result, locale);
             //may copy a new one here
-            Object result0 = processMerchantScreen(TRADE.asBukkit(value), locale);
+            Object result0 = processMerchantScreen(info, TRADE.asBukkit(value), locale);
             if(result0 != null){
                 values.set(i, result0);
             }
@@ -389,36 +433,28 @@ public class PacketTranslator implements Manager, PacketListener {
         Object player = client.getPlayer();
         if(player != null){
             String language = PACKETS.serverboundClientInformationPacket$language(event.getPacket());
-            Locale locale = Translator.parseLocale(language);
+            Locale locale = net.kyori.adventure.translation.Translator.parseLocale(language);
             Locale locale1 = NMSLevel.PLAYER.locale(player);
             if(!Objects.equals(locale, locale1)){
                 NMSLevel.PLAYER.locale(player, locale == null ? (this.languageRegistry == null? Locale.CHINESE: this.languageRegistry.getDefaultLocale()): locale);
                 long current =System.currentTimeMillis();
                 if(localeRefreshCooldown.getOrDefault(client, 0L) < current){
                     localeRefreshCooldown.put(client, current + 5000L);
-                    ThreadUtils.executeSyncSched(()->{
-                        Player player1 = NMSLevel.PLAYER.getBukkitEntity(player);
-                        player1.updateInventory();
-                        Collection<Entity> viewableEntities = PlayerUtils.getViewableEntity(player1);
-                        for (var entity: viewableEntities){
-                            Object nms = CraftBukkit.ENTITY.getHandle(entity);
-                            NMSEntity.ENTITY.refreshEntityData(nms, player);
-                        }
-                    });
+                    PacketEventManager.getManager().updatePacketsForPlayer(player);
                 }
-
             }
 
         }
     }
 
+
     //because its serialization does not use item , but shit
-    private Object processMerchantScreen(MerchantRecipe recipe, Locale locale){
+    private Object processMerchantScreen(ClientInformation info, MerchantRecipe recipe, Locale locale){
         boolean shouldTransferNew = false;
         List<ItemStack> itemStacks = recipe.getIngredients();
         for (var item: itemStacks){
             Object itemHandle = ItemUtils.unwrapHandle(item);
-            if(processItemStackS2C(itemHandle, locale)){
+            if(processItemStackS2C(info, itemHandle, locale)){
                 shouldTransferNew = true;
             }
         }
@@ -434,6 +470,61 @@ public class PacketTranslator implements Manager, PacketListener {
 //    public void onPacketOut(PacketEvent event){
 //        Debug.logger("detect event",event.getPacket().getClass().getSimpleName());
 //    }
+
+
+    //listener channels
+    //s2c + 0
+    //c2s + 1
+    private final  PriorityEventChannel<TranslateEvent<?>>[] channelMap = new PriorityEventChannel[TranslateType.values().length * 2];
+
+    public void registerTranslator(TranslateListener listener){
+        List<PriorityEventHandler<TranslateListener, TranslateEvent<?>>>[] handlerEnumMap = new List[channelMap.length];
+
+        for (var methods: ListenerUtils.collectPublicListenerMethods(listener.getClass(), TranslateEvent.class, Translator.class)){
+            Translator annotation = methods.getAnnotation(Translator.class);
+            TranslateType type = annotation.type();
+            int p = annotation.priority();
+            int flow = annotation.flow().ordinal();
+            int channelIndex = type.ordinal() * 2 + flow;
+            try{
+                Consumer<TranslateEvent> task = LambdaUtils.createLambdaBinding(Consumer.class, methods).apply(listener);
+                PriorityEventHandler<TranslateListener, TranslateEvent<?>> handlerInstance = new PriorityEventHandler(
+                    listener,
+                    p,
+                    false,
+                    task
+                );
+                if(handlerEnumMap[channelIndex] == null){
+                    handlerEnumMap[channelIndex] = new ArrayList<>();
+                }
+                handlerEnumMap[channelIndex].add(handlerInstance);
+            }catch (Throwable e){
+                Debug.logger(e, "Error while registering Listener for owner",listener);
+            }
+        }
+        for (var i = 0; i< handlerEnumMap.length; ++ i ){
+            if(handlerEnumMap[i] != null){
+                if(channelMap[i] == null){
+                    channelMap[i] = new PriorityEventChannel<>();
+                }
+                for (var re : handlerEnumMap[i]){
+                    channelMap[i].registerHandler(re);
+                }
+            }
+        }
+    }
+    public void unregisterAll(TranslateListener listener){
+        for (var chan: channelMap){
+            if(chan != null){
+                chan.unregisterAll(listener);
+            }
+        }
+    }
+
+
+    protected PriorityEventChannel<TranslateEvent<?>> getEventChannel(TranslateType type, PacketFlow flow){
+        return channelMap[type.ordinal() * 2 + flow.ordinal()];
+    }
 
 
 

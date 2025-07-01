@@ -14,14 +14,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.file.Files;
 
-@AutoInit(level = "Util")
-public class ConfigLoader {
-    public static void init(Plugin plugin) {
-        ConfigLoader.plugin=plugin;
 
-    }
-    public static Plugin plugin;
-    public static void copyFolder(String folder) {
+public class ConfigLoader {
+    public static void copyFolder(Plugin plugin,  String folder) {
         File folderFile=new File(plugin.getDataFolder(),folder);
         if(!folderFile.exists()) {
             try{
@@ -34,13 +29,13 @@ public class ConfigLoader {
             Debug.logger("%s文件夹已经存在.跳过拷贝...".formatted(folder));
         }
     }
-    public static void copyFile(File file, String name) {
+    public static void copyFile(Plugin pl, File file, String name) {
         if (!file.exists()) {
             try {
                 if(!file.toPath().getParent().toFile().exists()) {
                     Files.createDirectories(file.toPath().getParent());
                 }
-                Files.copy(plugin.getClass().getResourceAsStream("/"+ name + ".yml"),file.toPath());
+                Files.copy(pl.getClass().getResourceAsStream("/"+ name + ".yml"),file.toPath());
             } catch (Throwable e) {
 
                 Debug.logger("创建配置文件时找不到相关默认配置文件,即将生成空文件");
@@ -54,7 +49,7 @@ public class ConfigLoader {
 
         }
     }
-    public static Config loadInternalConfig(String name){
+    public static Config loadInternalConfig(Plugin plugin, String name){
         FileConfiguration config = new YamlConfiguration();
         try{
             config.load((Reader)( new InputStreamReader(plugin.getClass().getResourceAsStream("/"+ name + ".yml"), Charsets.UTF_8)));
@@ -65,10 +60,10 @@ public class ConfigLoader {
         }
         return new Config(null,config);
     }
-    public static Config loadExternalConfig(String name){
+    public static Config loadExternalConfig(Plugin plugin, String name){
         FileConfiguration config = new YamlConfiguration();
         final File cfgFile = new File(plugin.getDataFolder(), "%s.yml".formatted(name));
-        copyFile(cfgFile, name);
+        copyFile(plugin, cfgFile, name);
         return new Config(plugin, "%s.yml".formatted(name));
     }
 }

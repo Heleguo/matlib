@@ -77,4 +77,8 @@ public enum Version {
     public static boolean versionAtLeast(Version v1, Version v2){
         return v1.datapackNumber >= v2.datapackNumber;
     }
+
+    public static boolean isDataComponentVersion(){
+        return getVersionInstance().isAtLeast(v1_20_R4);
+    }
 }

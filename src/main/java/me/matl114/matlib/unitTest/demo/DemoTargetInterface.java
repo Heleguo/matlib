@@ -4,6 +4,7 @@ import me.matl114.matlib.utils.Debug;
 
 public interface DemoTargetInterface {
     static int i = -114;
+    public void r();
     default void f(){
         Debug.logger("Interface.f called");
     }

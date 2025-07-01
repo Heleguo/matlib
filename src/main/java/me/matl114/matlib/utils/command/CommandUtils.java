@@ -1,6 +1,7 @@
 package me.matl114.matlib.utils.command;
 
 import me.matl114.matlib.utils.command.interruption.TypeError;
+import me.matl114.matlib.utils.command.interruption.ValueOutOfRangeError;
 import me.matl114.matlib.utils.command.params.SimpleCommandArgs;
 import org.jetbrains.annotations.Nullable;
 
@@ -141,4 +142,23 @@ public class CommandUtils {
             default: throw new TypeError(arg, TypeError.BaseArgumentType.BOOLEAN, val);
         }
     }
+    public static void range(String arg, int input, int from, int to){
+        if(input >= from && input < to){
+            return;
+        }
+        throw new ValueOutOfRangeError(arg, from, to, input);
+    }
+    public static void range(String arg, float input, int from, int to){
+        if(input >= from && input < to){
+            return;
+        }
+        throw new ValueOutOfRangeError(arg, from, to, input);
+    }
+    public static void range(String arg, double input, double from, double to){
+        if(input >= from && input < to){
+            return;
+        }
+        throw new ValueOutOfRangeError(arg,String.valueOf(from), String.valueOf(to), String.valueOf(input), TypeError.BaseArgumentType.FLOAT);
+    }
+
 }

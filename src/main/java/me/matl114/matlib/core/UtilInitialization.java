@@ -49,9 +49,7 @@ public class UtilInitialization implements Initialization {
         }
 
 //        Debug.setDebugMod(this.testMode);
-        if(this.plugin!=null){
-            ConfigLoader.init(plugin);
-        }
+
 //        else{
 //            //in test
 //        }

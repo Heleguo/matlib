@@ -89,7 +89,8 @@ class ItemMetaViewImpl_1_20_R4 extends AbstractItemMetaView {
             writeBack();
         }
         public void writeBack(){
-            if(!this.rawMap.isEmpty()){
+            //set even when rawMap is empty: hide flag, it is different from empty
+            if(!this.rawMap.isEmpty() || !DATA_TYPES.itemEnchantMutable$showInTooltip(this.itemEnchantsMutable)){
                 HELPER.setDataComponentValue(itemStack, DataComponentEnum.ENCHANTMENTS, this.immutableView);
             }else {
                 HELPER.removeFromPatch(itemStack, DataComponentEnum.ENCHANTMENTS);
@@ -353,10 +354,10 @@ class ItemMetaViewImpl_1_20_R4 extends AbstractItemMetaView {
         switch (flag){
             case HIDE_ENCHANTS:
                 EnchantmentKeyMappingObject2IntMap mmmap = ((EnchantmentKeyMappingObject2IntMap)this.enchantmentMap());
-                //if no enchant exist , do not set the flag
-                if(mmmap.rawMap.isEmpty()){
-                    break;
-                }
+                //if no enchant exist , should set the flag
+//                if(mmmap.rawMap.isEmpty()){
+//                    break;
+//                }
                 DATA_TYPES.itemEnchantMutable$setShowInTooltip(mmmap.itemEnchantsMutable, shouldDisplay);
                 mmmap.immutableView = DATA_TYPES.itemEnchantMutable$toImmutable(mmmap.itemEnchantsMutable);
                 mmmap.writeBack();

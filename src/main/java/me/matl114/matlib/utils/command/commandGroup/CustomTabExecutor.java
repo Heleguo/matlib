@@ -1,6 +1,7 @@
 package me.matl114.matlib.utils.command.commandGroup;
 
 import me.matl114.matlib.utils.command.CommandUtils;
+import me.matl114.matlib.utils.command.interruption.TypeError;
 import org.bukkit.command.TabExecutor;
 
 public interface CustomTabExecutor extends TabExecutor {
@@ -15,5 +16,17 @@ public interface CustomTabExecutor extends TabExecutor {
     }
     static boolean gbool(String val){
         return CommandUtils.gbool(val, (String) null);
+    }
+    static void enumError(String input){
+        throw new TypeError((String) null, TypeError.BaseArgumentType.ENUM, input);
+    }
+    static void checkRange(int val, int from, int to){
+        CommandUtils.range(null, val, from, to);
+    }
+    static void checkRange(float val, float from, float to){
+        CommandUtils.range(null, val, from, to);
+    }
+    static void checkRange(double val, double from, double to){
+        CommandUtils.range(null, val, from, to);
     }
 }

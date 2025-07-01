@@ -2,6 +2,7 @@ package me.matl114.matlib.algorithms.designs.event;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import lombok.Getter;
 import me.matl114.matlib.utils.reflect.ReflectUtils;
 
 import java.lang.invoke.VarHandle;
@@ -12,6 +13,7 @@ import java.util.logging.Logger;
 
 public class PriorityEventChannel<T extends Event> {
     protected final Node<T> headNode;
+    @Getter
     protected final Logger logger;
     public PriorityEventChannel(String name){
         headNode = new Node<>(null);
@@ -40,6 +42,9 @@ public class PriorityEventChannel<T extends Event> {
         Node<T> prev = headNode;
         while ((prev = prev.casRemove(ownerPredicate)) != null){
         }
+    }
+    public boolean isEmpty(){
+        return headNode.next == null;
     }
 
     public void dispatch(T event){

@@ -14,18 +14,18 @@ import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.ServerLinks;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.HopperInventorySearchEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.*;
+import org.bukkit.event.player.PlayerLinksSendEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.URI;
 import java.sql.Ref;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,6 +42,20 @@ public class TestListeners implements Listener {
     public void checkOpen(InventoryOpenEvent paper){
         Debug.logger("open Inventory here",paper.getInventory().getClass());
     }
+    @EventHandler
+    public void checkOpenView(InventoryClickEvent inventoryOpenEvent){
+        Debug.logger("open Inventory View check", inventoryOpenEvent.getWhoClicked().getOpenInventory().getTopInventory());
+    }
+
+    @EventHandler
+    public void checkServerLink(PlayerLinksSendEvent event){
+        URI uri = URI.create("https://zh.minecraft.wiki/w/%E6%9A%82%E5%81%9C%E8%8F%9C%E5%8D%95");
+        for (var type: ServerLinks.Type.values()){
+            event.getLinks().addLink(type, uri);
+        }
+    }
+
+
     public static final Inventory EMPTY_INVENTORY = CraftBukkit.INVENTORYS.createCustomInventory(new InventoryHolder() {
         @Override
         public @NotNull Inventory getInventory() {

@@ -10,9 +10,9 @@ import static me.matl114.matlib.nmsMirror.impl.UtilsProtected.*;
 
 public interface CodecEnum {
 
-    Codec<Object> ITEMSTACK = fc(ItemStack,"CODEC","ITEM_NON_AIR_CODEC");
+    Codec<Object> ITEMSTACK = fc(ItemStack,"CODEC");
 
-    Codec<Object> ITEM_NON_AIR = g1();
+//    Codec<Object> ITEM_NON_AIR = g1();
 
 
 

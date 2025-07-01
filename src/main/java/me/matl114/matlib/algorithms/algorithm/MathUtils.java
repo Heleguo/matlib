@@ -1,6 +1,11 @@
 package me.matl114.matlib.algorithms.algorithm;
 
 import javax.annotation.Nonnull;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
 
 public class MathUtils {
 
@@ -52,16 +57,7 @@ public class MathUtils {
 
     }
 
-//    private static void formatUnsignedIntUTF16(int val, int shift, byte[] buf, int len) {
-//        int charPos = 0;
-//        int radix = 1 << shift;
-//        int mask = radix - 1;
-//        do {
-//            putChar(buf, charPos, digits[val & mask]);
-//            val >>>= shift;
-//            ++charPos;
-//        } while(charPos <len);
-//    }
+
     public static String toBinaryCode(int num){
         StringBuilder sb= new StringBuilder();
         for (int i=0;i<32;++i){

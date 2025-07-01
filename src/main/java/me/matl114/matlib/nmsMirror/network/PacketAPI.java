@@ -20,6 +20,9 @@ import static me.matl114.matlib.nmsMirror.network.PacketType.*;
 
 @MultiDescriptive(targetDefault = "net.minecraft.network.protocol.Packet")
 public interface PacketAPI extends TargetDescriptor {
+    @CastCheck(Packet)
+    boolean isPacket(Object val);
+
     @MethodTarget
     void handle(Object packet, @RedirectType(PacketListener)Object listener);
 

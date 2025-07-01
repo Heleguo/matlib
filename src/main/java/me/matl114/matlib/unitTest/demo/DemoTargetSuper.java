@@ -17,4 +17,11 @@ public class DemoTargetSuper {
     public void abs(){
         Debug.logger("Super.abs called");
     }
+    public void invokeTest(DemoTargetInterface itf){
+        Debug.logger("Super.invokeTest called");
+    }
+
+    public void r() {
+        Debug.logger("Super.r called");
+    }
 }

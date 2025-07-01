@@ -65,7 +65,8 @@ public class MatlibTest extends JavaPlugin {
             .registerTestCase(new CommonTestset())
             .registerTestCase(new NMSTestset())
             .registerTestCase(new ReflectionTestset())
-           // .registerTestCase(new DependsTestset())
+
+            .registerTestCase(new DependsTestset())
             //project tests tests that havn't complete
             .registerTestCase(new ComponentTests())
 //            .registerTestCase(new EntityTests())

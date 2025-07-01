@@ -77,6 +77,10 @@ public interface ItemStackHelper extends PdcCompoundHolder, CustomNbtHolder {
     @MethodTarget(isStatic = true)
     public boolean isSameItemSameTags(@RedirectType(ItemStack) @Nonnull Object stack, @RedirectType(ItemStack) @Nonnull Object otherStack);
 
+    default Object copy(Object itemStack){
+        return copy(itemStack, false);
+    }
+
     @MethodTarget
     public Object copy(Object itemSTack, boolean originItem);
 

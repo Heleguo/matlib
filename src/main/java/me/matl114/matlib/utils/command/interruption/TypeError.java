@@ -26,7 +26,8 @@ public class TypeError extends ArgumentException{
         INT("整形","Integer"),
         FLOAT("浮点型","Float"),
         BOOLEAN("布尔型","Boolean"),
-        STRING("字符串","String");
+        STRING("字符串","String"),
+        ENUM("枚举型", "Enum");
         String displayNameZHCN;
         String displayNameENUS;
         BaseArgumentType(String display, String display2){

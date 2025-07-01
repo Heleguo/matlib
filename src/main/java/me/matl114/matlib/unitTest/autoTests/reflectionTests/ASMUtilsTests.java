@@ -135,21 +135,14 @@ public class ASMUtilsTests implements TestCase {
             methodVisitor.visitMaxs(0,0);
             methodVisitor.visitEnd();
         }
-        var mv =  cw.visitMethod(ACC_PUBLIC, "abs","()V",null, null);
-        mv.visitCode();
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(DUP);
+        methodVisitor = cw.visitMethod(Opcodes.ACC_PUBLIC, "invokeTest", "(Lme/matl114/matlib/unitTest/demo/DemoTargetInterface;)V", null, null);
 
-
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(DemoTargetSuper.class), "abs","()V",false);
-        mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(DemoTargetInterface.class), "abs","()V",true);
-//        for (int i=0 ;i<5; ++i){
-//            mv.visitInsn(POP);
-//        }
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(0,0);
-        mv.visitEnd();
+        methodVisitor.visitCode();
+        methodVisitor.visitVarInsn(ALOAD, 1);
+        methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "me/matl114/matlib/unitTest/demo/DemoTargetInterface", "r", "()V", false);
+        methodVisitor.visitInsn(Opcodes.RETURN);
+        methodVisitor.visitMaxs(0,0);
+        methodVisitor.visitEnd();
 //        mv = cw.visitMethod(ACC_PUBLIC, "test","()"+ ByteCodeUtils.toJvmType(DemoTargetSuper.class), null, null);
 //        mv.visitCode();
 //        mv.visitTypeInsn(NEW,"me/matl114/matlib/unitTest/demo/DemoImpl");
@@ -163,6 +156,7 @@ public class ASMUtilsTests implements TestCase {
         Debug.logger(val.getClass());
         Debug.logger(val);
         ((DemoTargetInterface)val).abs();
+        ((DemoTargetSuper)val).invokeTest(new DemoTargetClass());
 
     }
 
@@ -175,7 +169,9 @@ public class ASMUtilsTests implements TestCase {
         reader.accept(debugger, 0);
         for (var node: debugger.getMethodInfo().entrySet()){
 //            Debug.logger("In method",node.getKey());
-            DebugClassReader.printInfo(node.getValue().instructions, (str)->{});
+            DebugClassReader.printInfo(node.getValue().instructions, (str)->{
+               // Debug.logger(str);
+            });
         }
     }
 

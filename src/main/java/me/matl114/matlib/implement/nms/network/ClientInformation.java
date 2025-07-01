@@ -23,29 +23,35 @@ public class ClientInformation {
     public ClientInformation(SimpleChannelInboundHandler<?> conection, Object player){
         Preconditions.checkArgument(CONNECTION.isConnection(conection));
         Preconditions.checkArgument(NMSLevel.PLAYER.isPlayer(player));
+        this.originalChannel = CONNECTION.channelGetter(conection);
+        initConnection(conection, player);
+
+
+        //
+    }
+
+    protected void initConnection(SimpleChannelInboundHandler<?> conection, Object player){
         this.connection = conection;
-        this.channel = CONNECTION.channelGetter(conection);
         this.player = player;
-        this.gameProfile = NMSLevel.PLAYER.getGameProfile(player);
         this.state = ConnectionLifeCycle.PLAY;
         this.play = NMSLevel.PLAYER.connectionGetter(this.player);
         this.all = true;
-        //
+        this.gameProfile = NMSLevel.PLAYER.getGameProfile(player);
     }
     public ClientInformation(Channel channel){
-        this.channel = Objects.requireNonNull(channel);
+        this.originalChannel = Objects.requireNonNull(channel);
         this.state = null;
         this.all = false;
     }
     public boolean ready(){
-        return state == ConnectionLifeCycle.PLAY;
+        return state == ConnectionLifeCycle.PLAY ;
     }
     public boolean deprecated(){
         return state == ConnectionLifeCycle.DISCONNECT;
     }
     SimpleChannelInboundHandler<?> connection;
     @Nonnull
-    final Channel channel;
+    final Channel originalChannel;
     Object player;
     GameProfile gameProfile;
     ConnectionLifeCycle state ;
@@ -54,6 +60,6 @@ public class ClientInformation {
     final Metadata metadata = new Metadata();
 
     public void addDisconnectListener(GenericFutureListener<? extends Future<? super Void>> listener){
-        channel.closeFuture().addListener(listener);
+        originalChannel.closeFuture().addListener(listener);
     }
 }

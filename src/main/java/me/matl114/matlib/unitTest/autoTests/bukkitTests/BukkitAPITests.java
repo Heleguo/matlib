@@ -13,10 +13,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class BukkitAPITests implements TestCase {
@@ -110,8 +112,15 @@ public class BukkitAPITests implements TestCase {
 
 
 
-
-
+    @OnlineTest(name = "skull tests")
+    public void test_skull() throws Throwable{
+        String hash = "e35032f4d7d01de8ec99d89f8723012d4e74fa73022c4facf1b57c7ff6ff0";
+        String hash2 = "e35032f4d7d01de8ec99d89f8723012d4e74fa73022c4facf1b57c7ff6ff0";
+        String hash3 = "e35032f4d7d01de8ec99d89f8723012d4e74fa73022c4facf1b57c7ff6ff0";
+        UUID uuid = UUID.nameUUIDFromBytes(hash.getBytes(StandardCharsets.UTF_8));
+        Debug.logger("check uid", uuid);
+        Debug.logger("check lapis uid", ((SkullMeta)(SlimefunItems.SYNTHETIC_SAPPHIRE.getItemMeta())).getPlayerProfile().getId());
+    }
 
 
 

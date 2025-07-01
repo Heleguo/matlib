@@ -14,6 +14,9 @@ import java.util.Map;
 public class FileUtils {
     public static File getOrCreateFile(String path) throws IOException {
         File file = new File(path);
+        return getOrCreateFile(file);
+    }
+    public static File getOrCreateFile(File file) throws IOException{
         if(!file.getParentFile().exists()){
             Files.createDirectories(file.getParentFile().toPath());
         }
@@ -21,7 +24,7 @@ public class FileUtils {
             if(file.createNewFile()){
                 return file;
             }else {
-                throw new IOException(path + " create failed");
+                throw new IOException(file.toPath().toString() + " create failed");
             }
         }else{
             return file;

@@ -12,6 +12,7 @@ import org.bukkit.command.TabExecutor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -97,6 +98,20 @@ public class SubCommand implements CustomTabExecutor {
     public SubCommand setFloat(String arg, float val){
         setDefault(arg, String.valueOf(val));
         setTabCompletor(arg, AbstractMainCommand.floatSupplier());
+        return this;
+    }
+    public SubCommand setEnum(String arg, Collection<String> enumValues){
+        List<String> enums = enumValues.stream().toList();
+        setTabCompletor(arg,()->enums);
+        return this;
+    }
+    public SubCommand setEnum(String arg, String defaultValue, String... enumValues){
+        return setEnum(arg, defaultValue, List.of(enumValues));
+    }
+    public SubCommand setEnum(String arg, String defaultValue, Collection<String> enumValues){
+        List<String> enums = enumValues.stream().toList();
+        setDefault(arg, defaultValue);
+        setTabCompletor(arg,()->enums);
         return this;
     }
     public SubCommand setTabCompletor(String arg, Supplier<List<String>> completions){

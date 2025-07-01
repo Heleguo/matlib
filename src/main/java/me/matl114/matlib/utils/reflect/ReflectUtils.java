@@ -5,7 +5,6 @@ import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.common.lang.annotations.NotRecommended;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
-import me.matl114.matlib.common.lang.enums.Flags;
 import sun.misc.Unsafe;
 
 import java.lang.invoke.MethodHandle;
@@ -536,7 +535,7 @@ public class ReflectUtils {
     @NotRecommended
     public static <T extends Enum<T>> T addEnumConst(Class<T> enumClass, String name, UnsafeAllocateCallback<T> initCallback,@Note("expanding array may cause jvm core dump") boolean expandOriginalArray) throws Throwable{
         Unsafe unsafe = getUnsafe();
-        Field valuesField = Flags.class.getDeclaredField("$VALUES");
+        Field valuesField = enumClass.getDeclaredField("$VALUES");
         //ensure clinit
         Object[] valuesClone = (Object[]) enumClass.getMethod("values").invoke(null);
         Object valuesShared = unsafe.getObject( unsafe.staticFieldBase(valuesField), unsafe.staticFieldOffset(valuesField));
@@ -556,12 +555,12 @@ public class ReflectUtils {
 
         //successfully injected
         Field enumDict = Class.class.getDeclaredField("enumConstantDirectory");
-        Map enumDictInstance = (Map) unsafe.getObject(Flags.class, unsafe.objectFieldOffset(enumDict));
+        Map enumDictInstance = (Map) unsafe.getObject(enumClass, unsafe.objectFieldOffset(enumDict));
         if(enumDictInstance != null){
             enumDictInstance.put(name, newEnum);
         }
         Field enumList = Class.class.getDeclaredField("enumConstants");
-        Object enumArray = unsafe.getObject(Flags.class, unsafe.objectFieldOffset(enumList));
+        Object enumArray = unsafe.getObject(enumClass, unsafe.objectFieldOffset(enumList));
         if(enumArray != null && expandOriginalArray){
             resizeArray(enumArray, valuesClone.length+1);
             Array.set(enumArray, valuesClone.length, newEnum);

@@ -13,7 +13,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +32,7 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor, Int
     private Logger Debug;
     @Getter
     private Plugin plugin;
-    void sendMessage(CommandSender sender, String message) {
+    protected void sendMessage(CommandSender sender, String message) {
         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
     }
     public <T extends AbstractMainCommand> T registerCommand(Plugin plugin){
@@ -110,20 +113,30 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor, Int
         }else{
             noPermission(var1);
         }
-        return true;
+        return false;
     }
     //todo add argumentException to quick interrupt command process
 
 
-    public void handleTypeError(CommandSender sender, String argument, TypeError.BaseArgumentType type, String input){
+    public void handleTypeError(CommandSender sender,@Nullable String argument, TypeError.BaseArgumentType type, String input){
         if(argument != null){
             sendMessage(sender, "&c类型错误:参数\""+ argument+"\"需要输入一个"+type.getDisplayNameZHCN()+",但是输入了:" + input);
         }else {
             sendMessage(sender, "&c类型错误: 需要输入一个" + type.getDisplayNameZHCN()+",但是输入了:" + input);
         }
     }
-    public void handleValueAbsent(CommandSender sender, String argument){
+    public void handleValueAbsent(CommandSender sender,@Nonnull String argument){
         sendMessage(sender, "&c值缺失: 并未输入参数\"" + argument + "\"的值");
+    }
+
+    @Override
+    public void handleValueOutOfRange(CommandSender sender, @Nullable String argument, TypeError.BaseArgumentType type, String from, String to,@Nonnull String input) {
+        if(argument != null){
+            sendMessage(sender, "&c值不在范围内: 参数 %s 输入了类型: %s, 需要在范围 %s ~ %s(exclude) 之间, 但是输入了%s".formatted(argument, type.getDisplayNameZHCN(), from, to, input));
+        }else {
+            sendMessage(sender, "&c值不在范围内: 输入了类型: %s, 需要在范围 %s ~ %s(exclude) 之间, 但是输入了 %s".formatted( type.getDisplayNameZHCN(), from, to, input));
+        }
+
     }
     public void noPermission(CommandSender var1){
         sendMessage(var1,"&c你没有权限使用该指令!");
@@ -140,18 +153,21 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor, Int
     }
     public List<String> onTabComplete(CommandSender var1, Command var2, String var3, String[] var4){
         //add permission check
-        if(permissionRequired()==null|| var1.hasPermission(permissionRequired())){
-            var re=getMainCommand().parseInput(var4);
-            if(re.getB().length==0){
-                List<String> provider=re.getA().getTabComplete();
-                return provider==null?new ArrayList<>():provider;
-            }else{
-                SubCommand subCommand= getSubCommand(re.getA().nextArg());
-                if(subCommand!=null && subCommand.hasPermission(var1)){
-                    String[] elseArg=re.getB();
-                    return subCommand.onTabComplete(var1,var2,var3,elseArg);
+        try{
+            if(permissionRequired()==null|| var1.hasPermission(permissionRequired())){
+                var re=getMainCommand().parseInput(var4);
+                if(re.getB().length==0){
+                    List<String> provider=re.getA().getTabComplete();
+                    return provider==null?new ArrayList<>():provider;
+                }else{
+                    SubCommand subCommand= getSubCommand(re.getA().nextArg());
+                    if(subCommand!=null && subCommand.hasPermission(var1)){
+                        String[] elseArg=re.getB();
+                        return subCommand.onTabComplete(var1,var2,var3,elseArg);
+                    }
                 }
             }
+        }catch (Throwable e){
         }
         return new ArrayList<>();
     }

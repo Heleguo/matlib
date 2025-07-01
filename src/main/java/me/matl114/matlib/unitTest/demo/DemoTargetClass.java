@@ -69,6 +69,8 @@ public class DemoTargetClass extends DemoTargetSuper implements DemoTargetInterf
         }
     }
 
+
+
     @Override
     public void abs() {
         DemoTargetInterface.super.abs();

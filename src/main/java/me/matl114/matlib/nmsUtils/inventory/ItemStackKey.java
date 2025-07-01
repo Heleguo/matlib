@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 public class ItemStackKey extends ItemStackHolder implements ItemHashCache {
     Integer hashCode;
     Integer hashCodeNoLore;
+
     protected ItemStackKey(ItemStack cis){
         super(cis);
     }

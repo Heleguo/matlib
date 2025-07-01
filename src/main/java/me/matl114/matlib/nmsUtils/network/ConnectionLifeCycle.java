@@ -6,6 +6,8 @@ public enum ConnectionLifeCycle {
     HAND_SHAKE,
     LOGIN,
     CONFIGURATION,
+    //PLAY, but gameJoinEvent is not fired yet
+    PREPLAY,
     PLAY,
     DISCONNECT
     ;
