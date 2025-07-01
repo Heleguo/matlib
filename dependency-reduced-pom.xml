@@ -85,9 +85,9 @@
   </repositories>
   <dependencies>
     <dependency>
-      <groupId>com.github.StarWishsama</groupId>
+      <groupId>com.github.SlimefunGuguProject</groupId>
       <artifactId>Slimefun4</artifactId>
-      <version>2024.3</version>
+      <version>2025.1</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>

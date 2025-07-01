@@ -132,9 +132,9 @@
             <systemPath>${project.basedir}/libs/paper-api-1.21.3-R0.1-MODIFIED.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>com.github.StarWishsama</groupId>
+            <groupId>com.github.SlimefunGuguProject</groupId>
             <artifactId>Slimefun4</artifactId>
-            <version>2024.3</version>
+            <version>2025.1</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
