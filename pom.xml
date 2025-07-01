@@ -124,12 +124,18 @@
 
     <dependencies>
 
+<!--        <dependency>-->
+<!--            <groupId>io.papermc.paper</groupId>-->
+<!--            <artifactId>paper-api</artifactId>-->
+<!--            <version>1.21.3-R0.1-MODIFIED</version>-->
+<!--            <scope>provided</scope>-->
+<!--&lt;!&ndash;            <systemPath>${project.basedir}/libs/paper-api-1.21.3-R0.1-MODIFIED.jar</systemPath>&ndash;&gt;-->
+<!--        </dependency>-->
         <dependency>
-            <groupId>io.papermc.paper</groupId>
+            <groupId>com.github.m1919810</groupId>
             <artifactId>paper-api</artifactId>
             <version>1.21.3-R0.1-MODIFIED</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/paper-api-1.21.3-R0.1-MODIFIED.jar</systemPath>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.SlimefunGuguProject</groupId>

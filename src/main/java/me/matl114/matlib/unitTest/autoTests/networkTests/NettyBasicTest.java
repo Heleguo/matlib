@@ -18,7 +18,6 @@ import me.matl114.matlib.unitTest.OnlineTest;
 import me.matl114.matlib.unitTest.TestCase;
 import me.matl114.matlib.utils.Debug;
 import org.jetbrains.annotations.NotNull;
-import org.postgresql.shaded.com.ongres.scram.common.bouncycastle.pbkdf2.Pack;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
