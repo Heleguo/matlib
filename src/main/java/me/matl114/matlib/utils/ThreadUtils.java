@@ -3,6 +3,7 @@ package me.matl114.matlib.utils;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.papermc.paper.plugin.configuration.PluginMeta;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
+import me.matl114.matlib.algorithms.algorithm.ExecutorUtils;
 import me.matl114.matlib.common.lang.enums.TaskRequest;
 import me.matl114.matlib.common.lang.exceptions.NotImplementedYet;
 import org.bukkit.Bukkit;
@@ -147,6 +148,9 @@ public class ThreadUtils {
             return List.of();
         }
     };
+    public static Plugin getFakePlugin(){
+        return MOCK_PLUGIN;
+    }
 //    private static final ThreadPoolExecutor ASYNC_EXECUTOR = new ThreadPoolExecutor(
 //        4, Integer.MAX_VALUE,30L, TimeUnit.SECONDS, new SynchronousQueue<>(),
 //        new ThreadFactoryBuilder().setNameFormat("Matlib Async Tasks - %1$d").build()
@@ -189,6 +193,16 @@ public class ThreadUtils {
         }
     }
 
+    public static void executeSync(Runnable runnable, int delay){
+        Bukkit.getScheduler().runTaskLater(MOCK_PLUGIN, runnable, delay);
+    }
+
+    public static void scheduleSync(Runnable runnable, int delay, int period){
+        Bukkit.getScheduler().runTaskTimer(MOCK_PLUGIN, runnable, delay, period);
+    }
+
+
+
     @Deprecated(forRemoval = true)
     public static void executeSync(Runnable runnable, Plugin pl) {
         executeSync(runnable);
@@ -202,6 +216,39 @@ public class ThreadUtils {
     public static void executeAsync(Runnable runnable){
         Bukkit.getScheduler().runTaskAsynchronously(MOCK_PLUGIN, runnable);
     }
+
+    public static void scheduleAsync(Runnable runnable, int delay, int period){
+        Bukkit.getScheduler().runTaskTimerAsynchronously(MOCK_PLUGIN, runnable, delay, period);
+    }
+
+    public static void executeAsync(Runnable runnable, int delay){
+        Bukkit.getScheduler().runTaskLaterAsynchronously(MOCK_PLUGIN, runnable, delay);
+    }
+
+
+    public <T> FutureTask<T> scheduleFutureSync(Callable<T> callable,int delay){
+        FutureTask<T> future = ExecutorUtils.getFutureTask(callable);
+        executeSync(future,delay);
+        return future;
+    }
+    public <T> FutureTask<T> scheduleFutureAsync(Callable<T> callable,int delay){
+        FutureTask<T> future = ExecutorUtils.getFutureTask(callable);
+        executeAsync(future,delay);
+        return future;
+    }
+
+
+    public FutureTask<Void> scheduleFutureSync(Runnable callable,int delay){
+        FutureTask<Void> future = ExecutorUtils.getFutureTask(callable);
+        executeSync(future,delay);
+        return future;
+    }
+    public FutureTask<Void> scheduleFutureAsync(Runnable callable,int delay){
+        FutureTask<Void> future = ExecutorUtils.getFutureTask(callable);
+        executeAsync(future,delay);
+        return future;
+    }
+
 //    private static void runSync(Runnable runnable,Plugin pl) {
 //        Bukkit.getScheduler().runTask(pl,runnable);
 //    }
