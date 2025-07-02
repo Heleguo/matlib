@@ -42,7 +42,7 @@ public class TestListeners implements Listener {
     public void checkOpen(InventoryOpenEvent paper){
         Debug.logger("open Inventory here",paper.getInventory().getClass());
     }
-    @EventHandler
+    //@EventHandler
     public void checkOpenView(InventoryClickEvent inventoryOpenEvent){
         Debug.logger("open Inventory View check", inventoryOpenEvent.getWhoClicked().getOpenInventory().getTopInventory());
     }
