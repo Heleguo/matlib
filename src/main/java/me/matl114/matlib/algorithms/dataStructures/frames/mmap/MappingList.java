@@ -126,6 +126,14 @@ public class MappingList<W,T> extends AbstractList<T> implements ListMapView<W,T
         //to be more quick
         return null;
     }
+
+    @Override
+    public void clear() {
+        origin.clear();
+        validBits.clear();
+        cache = new Object[0];
+    }
+
     @Override
     public int size() {
         return origin.size();

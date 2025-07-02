@@ -208,6 +208,21 @@ public interface ItemStackHelperDefault extends TargetDescriptor, ItemStackHelpe
         return mappingList;
     }
 
+    default void replaceLore(Object item, List<Iterable<?>> lore){
+        if(lore == null){
+            Object nbt = getTagElement(item ,DISPLAY);
+            if(nbt != null){
+                NMSCore.COMPOUND_TAG.remove(nbt, LORE);
+            }
+        }else {
+            List<Object> nbtList =(List<Object>) NMSCore.TAGS.listTag();
+            for (var re : lore){
+                nbtList.add(NMSCore.TAGS.stringTag(NMSChat.CHATCOMPONENT.toJson(re)));
+            }
+            NMSCore.COMPOUND_TAG.put(getOrCreateTagElement(item, DISPLAY), LORE, nbtList);
+        }
+    }
+
     default boolean hasCustomTagKey(Object stack, String key){
         Object tag = getCustomTag(stack);
         return tag != null && NMSCore.COMPOUND_TAG.contains(tag, key);

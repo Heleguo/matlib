@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 
 import static me.matl114.matlib.nmsMirror.Import.*;
@@ -118,6 +119,8 @@ public interface ItemStackHelper extends PdcCompoundHolder, CustomNbtHolder {
     boolean hasLore(Object stack);
 
     ListMapView<?,Iterable<?>> getLoreView(Object stack, boolean overrideOnWrite);
+
+    void replaceLore(Object item, List<Iterable<?>> lore);
 
     public boolean hasCustomHoverName(Object stack);
 

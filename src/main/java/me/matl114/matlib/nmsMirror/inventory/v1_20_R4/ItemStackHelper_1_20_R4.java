@@ -392,8 +392,7 @@ public interface ItemStackHelper_1_20_R4 extends TargetDescriptor, ItemStackHelp
 
             @Override
             public void batchWriteback() {
-                Object newItemLore = Env1_20_R4.DATA_TYPES.newItemLore( this.delegate.value);
-                setDataComponentValue(stack, DataComponentEnum.LORE, newItemLore);
+                replaceLore(stack, this.delegate.value);
             }
 
             @Override
@@ -423,6 +422,15 @@ public interface ItemStackHelper_1_20_R4 extends TargetDescriptor, ItemStackHelp
         ListMapView<?,Iterable<?>> mapView= (ListMapView<?, Iterable<?>>) new COWListViewWithMapping();
         mapView.flush();
         return mapView;
+    }
+
+    default void replaceLore(Object item, List<Iterable<?>> lore){
+        if(lore == null){
+            removeFromPatch(item, DataComponentEnum.LORE);
+        }else {
+            Object newItemLore = Env1_20_R4.DATA_TYPES.newItemLore( lore);
+            setDataComponentValue(item, DataComponentEnum.LORE, newItemLore);
+        }
     }
 
 
