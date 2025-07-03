@@ -251,6 +251,8 @@ public class PacketTranslator implements Manager, PacketListener {
         return hasModify;
     }
     private void processItemStackC2S(ClientInformation info, Object stack, Locale locale){
+        //here isEmpty return
+        if(ITEMSTACK.isEmpty(stack))return;
         if(ITEMSTACK.hasCustomHoverName(stack)){
             ValueAccess<Iterable<?>> customName = ITEMSTACK.getDisplayNameView(stack);
             Iterable<?> name = customName.get();
@@ -312,6 +314,7 @@ public class PacketTranslator implements Manager, PacketListener {
     @PacketHandler(type = CLIENTBOUND_SET_CURSOR_ITEM)
     public void onPacket2(PacketEvent event){
         if(wrongState())return;
+        //fix: use cursor to copy item in creative mode
         Locale locale = handleLocale(event);
         Object packet = event.getPacket();
         Object item = PACKETS.clientboundSetCursorItemPacket$cursor(packet);
