@@ -1,6 +1,7 @@
 package me.matl114.matlib.algorithms.dataStructures.frames.collection;
 
 import lombok.AllArgsConstructor;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -25,6 +26,15 @@ public class SimpleLinkList<T> implements Stack<T>, Iterable<T> {
         }else {
             throw new NoSuchElementException("There is no element in the Stack");
         }
+    }
+
+    @Override
+    public T poll() {
+        if(head != null){
+            T val = head.value;
+            this.head= head.next;
+            return val;
+        }else return null;
     }
 
     @Override

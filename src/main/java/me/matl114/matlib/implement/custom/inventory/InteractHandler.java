@@ -7,9 +7,8 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
-import java.util.function.Function;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public interface InteractHandler {
@@ -23,7 +22,12 @@ public interface InteractHandler {
 
     public static final InteractHandler EMPTY = (SimpleInteractHandler)((inventory, player, event) -> false);
 
-    public static InteractHandler task(Predicate<Player> p){
+    public static final InteractHandler ACCEPT = (SimpleInteractHandler)((inventory, player, event)->true);
+
+    public static InteractHandler test(Predicate<Player> p){
         return (SimpleInteractHandler)((inventory, player, event) -> p.test(player));
+    }
+    public static InteractHandler task(Consumer<Player> p){
+        return (SimpleInteractHandler)((inventory, player, event) -> {p.accept(player);return false;});
     }
 }

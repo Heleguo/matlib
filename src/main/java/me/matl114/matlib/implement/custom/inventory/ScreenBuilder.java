@@ -1,20 +1,20 @@
 package me.matl114.matlib.implement.custom.inventory;
 
-import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import me.matl114.matlib.algorithms.algorithm.MathUtils;
 import me.matl114.matlib.common.functions.FuncUtils;
 import me.matl114.matlib.common.functions.core.TriFunction;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.*;
 
-public class ScreenBuilder {
+public class ScreenBuilder implements Screen {
     private IntList pageContentIndex;
     private Int2ReferenceMap<SlotType> buttonedIndex;
     private final int sizePerPage;
@@ -25,10 +25,7 @@ public class ScreenBuilder {
     //************************* default value can be changed ***************************
     private ItemStack backgroundItem = ScreenUtils.UI_BACKGROUND;
     private ItemStack backButtonItem = ScreenUtils.BACK_BUTTON;
-    private Function<InventoryBuilder, InteractHandler> backHandler = (i)->InteractHandler.task(p->{
-        p.closeInventory();
-        return false;
-    });;
+    private Function<InventoryBuilder, InteractHandler> backHandler = (i)->InteractHandler.task(p->goBackFrom(i, p));;
     private TriFunction<Integer, Integer, Integer, ItemStack> pageSwitchProvider = ScreenUtils::getPageSwitch;
     private ToIntFunction<ScreenBuilder> maxPageProvider = (sc)->{
         if(pageContentIndex.isEmpty())return 1;
@@ -36,6 +33,7 @@ public class ScreenBuilder {
     };
     private Function<InventoryBuilder, ScreenOpenHandler> openHandler = (i)->null;
     private Function<InventoryBuilder, ScreenCloseHandler> closeHandler = (i)->null;
+    private ScreenHistoryStack relatedHistory;
     //*************************...
     public ScreenBuilder(ScreenTemplate screenTemplate){
         this(screenTemplate.defaultTitle().orElse(null), screenTemplate.sizePerScreen() ,screenTemplate.toList());
@@ -218,13 +216,26 @@ public class ScreenBuilder {
         return this;
     }
 
+    /**
+     * set the screen related to the history,
+     * will automatically change backhandler if backhandler returns a null InteractionHandler
+     * will change the action of goBackFrom() and pushFrom()
+     * @param stack
+     * @return
+     */
+    public ScreenBuilder relateToHistory(ScreenHistoryStack stack){
+        this.relatedHistory = stack;
+        return this;
+    }
 
-    public <T, W extends InventoryBuilder<T>> W createInventory(int page, InventoryBuilder.InventoryFactory<T, W> fact){
-        Preconditions.checkArgument(page>= 1);
+
+    public <T, W extends InventoryBuilder<T>> W createInventory(int page0, InventoryBuilder.InventoryFactory<T, W> fact){
+        //Preconditions.checkArgument(page>= 1);
         int currentMax = this.maxPageProvider.applyAsInt(this);
-        Preconditions.checkArgument(page <= currentMax);
+        //Preconditions.checkArgument(page <= currentMax);
+        int page = MathUtils.clamp(page0, 1, currentMax);
         W factory = fact.visitBuilder(this);
-        factory.visitPage(this.screenTitle, page, this.sizePerPage, currentMax);
+        factory.visitPage(this, this.screenTitle, page, this.sizePerPage, currentMax);
         for (var entry: this.basicList.int2ReferenceEntrySet()){
             int index = entry.getIntKey();
             if(index >= 0 && index < this.sizePerPage){
@@ -249,22 +260,14 @@ public class ScreenBuilder {
                 switch (entry.getValue()){
                     case PREV_PAGE:
                         stack = this.pageSwitchProvider == null? null: this.pageSwitchProvider.apply(page, page-1,currentMax);
-                        if(page != 1){
-                            handler = InteractHandler.task(p->{
-                                var builder = createInventory(page - 1, fact);
-                                builder.open(p);
-                                return false;
-                            });
+                        if(page > 1){
+                            handler = InteractHandler.task(p-> openPage(fact, p,page - 1));
                         }
                         break;
                     case NEXT_PAGE:
                         stack = this.pageSwitchProvider == null? null: this.pageSwitchProvider.apply(page, page+1,currentMax);
-                        if(page != 1){
-                            handler = InteractHandler.task(p->{
-                                var builder = createInventory(page + 1, fact);
-                                builder.open(p);
-                                return false;
-                            });
+                        if(page < currentMax){
+                            handler = InteractHandler.task(p->openPage(fact, p,page + 1));
                         }
                         break;
                     case BACK_BUTTON:
@@ -293,4 +296,43 @@ public class ScreenBuilder {
         return factory;
     }
 
+
+
+    /**
+     * invoke when player try to open another screen from current screen
+     */
+    public void pushFrom(InventoryBuilder builder, Player player){
+        pushScreenHistory(player, builder.getPage());
+    }
+
+    /**
+     * invoke when player try to press go back screen
+     * @param builder
+     * @param player
+     */
+    public void goBackFrom(InventoryBuilder builder, Player player){
+        goBack(builder.getFactory(), player);
+    }
+    public void pushScreenHistory(Player player, int page){
+        if(this.relatedHistory != null){
+            this.relatedHistory.openFrom(this, player, page);
+        }
+    }
+
+
+    public void goBack(InventoryBuilder.InventoryFactory factory, Player player){
+        if(this.relatedHistory != null){
+            if(this.relatedHistory.back(factory, player)){
+                return;
+            }
+        }
+        player.closeInventory();
+    }
+
+
+    @Override
+    public void openPage(InventoryBuilder.InventoryFactory screenType, Player player, int page) {
+        var builder = createInventory(page, screenType);
+        builder.open(player);
+    }
 }

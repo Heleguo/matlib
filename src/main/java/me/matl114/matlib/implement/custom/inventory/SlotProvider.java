@@ -22,6 +22,9 @@ public class SlotProvider {
     public SlotProvider withStack(Supplier<ItemStack> stack){
         return stack((f)->stack.get());
     }
+    public SlotProvider canInteract(){
+        return withHandler(InteractHandler.ACCEPT);
+    }
     public SlotProvider withHandler(InteractHandler handler){
         return handler((f)->handler);
     }

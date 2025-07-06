@@ -11,12 +11,16 @@ import org.bukkit.inventory.ItemStack;
 
 public class ChestMenuImpl implements InventoryBuilder<ChestMenu> {
     ChestMenu menu;
+    ScreenBuilder builder;
+    int page;
+
+
     @Override
-    public void visitPage(String title, int pageIndex, int sizePerPage, int currentMaxPage) {
-        menu = new ChestMenu(title, sizePerPage);
+    public void visitPage(ScreenBuilder builder, String optionalTitle, int pageIndex, int sizePerPage, int currentMaxPage) {
+        this.builder = builder;
+        this.menu = new ChestMenu(optionalTitle, sizePerPage);
+        this.page = pageIndex;
     }
-
-
 
     @Override
     public void visitSlot(int index, ItemStack stack, InteractHandler handler) {
@@ -35,7 +39,7 @@ public class ChestMenuImpl implements InventoryBuilder<ChestMenu> {
 
             @Override
             public boolean onClick(InventoryClickEvent inventoryClickEvent, Player player, int i, ItemStack itemStack, ClickAction clickAction) {
-                return handler.onClick(inventoryClickEvent.getClickedInventory(), player, inventoryClickEvent);
+                return handler != null && handler.onClick(inventoryClickEvent.getClickedInventory(), player, inventoryClickEvent);
             }
         };
     }
@@ -63,6 +67,16 @@ public class ChestMenuImpl implements InventoryBuilder<ChestMenu> {
     }
 
     @Override
+    public ScreenBuilder getBuilder() {
+        return this.builder;
+    }
+
+    @Override
+    public int getPage() {
+        return this.page;
+    }
+
+    @Override
     public ChestMenu getResult() {
         return menu;
     }
@@ -76,6 +90,12 @@ public class ChestMenuImpl implements InventoryBuilder<ChestMenu> {
     public Inventory getInventory() {
         return menu.getInventory();
     }
+
+    @Override
+    public InventoryFactory<ChestMenu, ? extends InventoryBuilder<ChestMenu>> getFactory() {
+        return FACTORY;
+    }
+
     public static InventoryFactory<ChestMenu, ChestMenuImpl> FACTORY = new Factory();
 
     private static class Factory implements InventoryFactory<ChestMenu, ChestMenuImpl>{
