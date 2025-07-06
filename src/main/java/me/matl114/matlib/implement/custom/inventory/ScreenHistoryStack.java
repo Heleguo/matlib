@@ -4,12 +4,14 @@ import me.matl114.matlib.algorithms.dataStructures.frames.collection.SimpleLinkL
 import me.matl114.matlib.algorithms.dataStructures.frames.collection.Stack;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ScreenHistoryStack {
+public class ScreenHistoryStack implements Listener {
 
     Map<UUID, Stack<Pair<Screen, Integer>>> historyStack;
 
@@ -22,6 +24,10 @@ public class ScreenHistoryStack {
     }
     public Stack<Pair<Screen, Integer>> getPlayerHistory(Player player){
         return this.historyStack.computeIfAbsent(player.getUniqueId(), (i)->new SimpleLinkList<>());
+    }
+
+    public void cleanHistoryWhenLeave(PlayerQuitEvent event){
+        onPlayerLeave(event.getPlayer());
     }
 
     /**
