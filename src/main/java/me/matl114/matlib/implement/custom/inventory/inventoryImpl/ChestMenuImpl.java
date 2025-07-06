@@ -82,9 +82,10 @@ public class ChestMenuImpl implements InventoryBuilder<ChestMenu> {
     }
 
     @Override
-    public void open(Player player) {
+    public void openInternal(Player player) {
         menu.open(player);
     }
+
 
     @Override
     public Inventory getInventory() {

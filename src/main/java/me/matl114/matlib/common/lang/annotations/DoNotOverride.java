@@ -7,5 +7,6 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE,ElementType.METHOD,ElementType.FIELD,ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.CLASS)
-public @interface VisibleForTesting {
+public @interface DoNotOverride {
+
 }

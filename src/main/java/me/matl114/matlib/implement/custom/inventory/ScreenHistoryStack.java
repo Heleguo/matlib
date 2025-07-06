@@ -38,7 +38,7 @@ public class ScreenHistoryStack implements Listener {
      * @param player
      * @return
      */
-    public boolean back(InventoryBuilder.InventoryFactory factory, Player player){
+    public boolean goBackToLast(InventoryBuilder.InventoryFactory factory, Player player){
         var stack = getPlayerHistory(player);
         stack.poll();
         //the top should be the history
@@ -51,7 +51,7 @@ public class ScreenHistoryStack implements Listener {
         }
     }
 
-    public void openNew(Screen screen, Player player, int page){
+    public void pushNew(Screen screen, Player player, int page){
         var stack = getPlayerHistory(player);
         stack.push(Pair.of(screen, page));
     }
@@ -64,21 +64,25 @@ public class ScreenHistoryStack implements Listener {
         }
     }
 
-    public void openRefresh(InventoryBuilder.InventoryFactory screenType, Player player, int page, Screen screen){
-        var stack = getPlayerHistory(player);
-        stack.clear();
+    public void openWithRefresh(InventoryBuilder.InventoryFactory screenType, Player player, int page, Screen screen){
+        this.cleanPlayerHistory(player);
         screen.openPageWithHistory(screenType, player, page);
     }
 
-    public void openOrHistory(InventoryBuilder.InventoryFactory screenType, Player player, Supplier<Screen> screenSupplier){
+    public void openLastOrCreate(InventoryBuilder.InventoryFactory screenType, Player player, Supplier<Screen> screenSupplier){
+        if(!openLast(screenType, player)) {
+            Screen screen = screenSupplier.get().relateToHistory(this);
+            screen.openPageWithHistory(screenType, player, 1);
+        }
+    }
+
+    public boolean openLast(InventoryBuilder.InventoryFactory screenType, Player player){
         var stack = getPlayerHistory(player);
         var history = stack.peek();
         if(history != null){
             history.getA().openPage(screenType, player, history.getB());
-        }else {
-            Screen screen = screenSupplier.get().relateToHistory(this);
-            screen.openPageWithHistory(screenType, player, 1);
-        }
+            return true;
+        }else return false;
     }
 
 

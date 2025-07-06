@@ -1,5 +1,7 @@
 package me.matl114.matlib.implement.custom.inventory;
 
+import me.matl114.matlib.common.lang.annotations.DoNotOverride;
+import me.matl114.matlib.common.lang.annotations.Internal;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -60,15 +62,23 @@ public interface InventoryBuilder<T>{
      * @return
      */
     T getResult();
+
+    /**
+     * may different from player.openInventory
+     * @param player
+     */
+    @Internal
+    public void openInternal(Player player);
+
+    @DoNotOverride
     default void open(Player player){
-        player.openInventory(getInventory());
+        openInternal(player);
         this.getBuilder().switchCurrentScreenPage(player, this.getPage());
     }
-
+    @DoNotOverride
     default void openWithHistory(Player player){
         this.getBuilder().trackScreenOpen(this, player);
         open(player);
-
     }
 
     /**

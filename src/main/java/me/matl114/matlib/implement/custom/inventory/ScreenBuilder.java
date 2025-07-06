@@ -325,14 +325,14 @@ public class ScreenBuilder implements Screen {
 
     public void trackScreenOpen( Player player, int page){
         if(this.relatedHistory != null){
-            this.relatedHistory.openNew(this, player, page);
+            this.relatedHistory.pushNew(this, player, page);
         }
     }
 
 
     public void goBack(InventoryBuilder.InventoryFactory factory, Player player){
         if(this.relatedHistory != null){
-            if(this.relatedHistory.back(factory, player)){
+            if(this.relatedHistory.goBackToLast(factory, player)){
                 return;
             }
         }
