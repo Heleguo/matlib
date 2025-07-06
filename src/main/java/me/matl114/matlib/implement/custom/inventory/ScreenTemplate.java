@@ -60,4 +60,24 @@ public record ScreenTemplate(Optional<String> defaultTitle, List<String> pattern
     public int sizePerScreen(){
         return this.patterns.size() * 9;
     }
+
+    public static final ScreenTemplate GUIDE = new ScreenTemplate(
+        Optional.of("&6Guide"),
+        List.of(
+            "bsbbbbbtb",
+            "ccccccccc",
+            "ccccccccc",
+            "ccccccccc",
+            "ccccccccc",
+            "bpbbbbbnb"
+        ),
+        Map.<Character, SlotType>of(
+            'b', SlotType.BACKGROUND,
+        's', SlotType.BACK_BUTTON,
+        'c', SlotType.PAGE_CONTENT,
+        't', SlotType.COMMON_BUTTON,
+        'p',SlotType.PREV_PAGE,
+        'n', SlotType.NEXT_PAGE
+        )
+    );
 }
