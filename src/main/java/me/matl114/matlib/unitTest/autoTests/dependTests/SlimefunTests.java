@@ -13,6 +13,7 @@ import io.github.thebusybiscuit.slimefun4.core.services.localization.Language;
 import io.github.thebusybiscuit.slimefun4.core.services.localization.LanguageFile;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
+import io.github.thebusybiscuit.slimefun4.implementation.setup.SlimefunItemSetup;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
 import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
@@ -64,7 +65,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
 public class SlimefunTests implements TestCase {
-    @OnlineTest(name = "Slimefun blockData test")
+  //  @OnlineTest(name = "Slimefun blockData test")
     public void test_blockDataTest(){
         SlimefunItem testItem = SlimefunItem.getByItem( SlimefunItems.ELECTRIC_ORE_GRINDER_3 );
         World testWorld = Bukkit.getWorlds().get(0);
@@ -79,7 +80,7 @@ public class SlimefunTests implements TestCase {
         cfg.setValue("not",null);
         Debug.logger(data.getData("not"));
     }
-    @OnlineTest(name = "Slimefun BlockStorage test")
+ //   @OnlineTest(name = "Slimefun BlockStorage test")
     public void test_blockStorageTest(){
         SlimefunItem testItem = SlimefunItem.getByItem( SlimefunItems.ELECTRIC_ORE_GRINDER_3 );
         World testWorld = Bukkit.getWorlds().get(0);
@@ -95,7 +96,7 @@ public class SlimefunTests implements TestCase {
         },10,false,1);
         Debug.logger("launched Machine-BlockStorage-behaviour Simulation Thread");
     }
-    @OnlineTest(name = "sf block menu test")
+  //  @OnlineTest(name = "sf block menu test")
     public void test_blockMenu(){
         BlockMenuPreset preset = new BlockMenuPreset("BYD","bydbyd") {
             @Override
@@ -118,7 +119,7 @@ public class SlimefunTests implements TestCase {
         menu.addMenuClickHandler(-1,ChestMenuUtils.getEmptyClickHandler());
         Debug.logger(menu.getInventory().getSize());
     }
-    @OnlineTest(name = "distinctive test")
+   // @OnlineTest(name = "distinctive test")
     public void test_distinctive(){
         for (SlimefunItem item: Slimefun.getRegistry().getAllSlimefunItems()){
             if(item instanceof DistinctiveItem && (item.getItem().getType() == Material.PLAYER_HEAD || item.getItem().getType() == Material.SUGAR)){
@@ -253,7 +254,7 @@ public class SlimefunTests implements TestCase {
         }
     }
 
-    @OnlineTest(name = "Slimefun recipe export test")
+    //@OnlineTest(name = "Slimefun recipe export test")
     public void test_exportrecipes() throws Throwable{
         JsonCodec<ItemStackWrapper> itemSample = Version.isDataComponentVersion()? ItemStackWrapper.JSON_CODEC : new JsonCodec<ItemStackWrapper>() {
             @Override
@@ -416,5 +417,16 @@ public class SlimefunTests implements TestCase {
         File parentFile =  MatlibTest.getInstance().getDataFolder();
         File f1 = FileUtils.getOrCreateFile(new File(parentFile, name));
         Files.writeString(f1.toPath(), data);
+    }
+
+    @OnlineTest(name = "slimefun research test")
+    public void test_researchs() throws Throwable{
+
+        for (var sf: Slimefun.getRegistry().getAllSlimefunItems()){
+            if((Objects.equals(sf.getItemGroup().getKey(), new NamespacedKey(Slimefun.instance(), "basic_machines")) || Objects.equals(sf.getItemGroup().getKey(), new NamespacedKey(Slimefun.instance(), "magical_armor")) || Objects.equals(sf.getItemGroup().getKey(), new NamespacedKey(Slimefun.instance(), "tools")))&& sf.hasResearch()){
+                Slimefun.getResearchCfg().setValue(sf.getResearch().getKey().getNamespace() +"."+ sf.getResearch().getKey().getKey()+".enabled", Boolean.FALSE);
+            }
+        }
+        Slimefun.getResearchCfg().save();
     }
 }

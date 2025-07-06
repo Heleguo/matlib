@@ -1,8 +1,10 @@
 package me.matl114.matlib.algorithms.algorithm;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
+
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -51,9 +53,9 @@ public class FileUtils {
         Files.copy(FileUtils.class.getResourceAsStream("/"+resource),toFile.toPath(),StandardCopyOption.REPLACE_EXISTING);
 
     }
-    public static void copyFolderRecursively(File fromPath, String toPath) throws IOException {
-
-    }
+//    public static void copyFolderRecursively(File fromPath, String toPath) throws IOException {
+//
+//    }
     public static void copyFolderRecursively(String from,String toPath) throws IOException {
         ClassLoader classLoader = FileUtils.class.getClassLoader();
         URI uri=null;
@@ -106,5 +108,80 @@ public class FileUtils {
         // Delete the folder itself
         return folder.delete();
     }
+
+    public static InputStream readResource(String resource){
+        return FileUtils.class.getResourceAsStream("/" + resource);
+    }
+
+
+    public static InputStream readFile(String path) {
+        File file = new File(path);
+        return readFile(file);
+    }
+
+    public static InputStream readFile(File file) {
+        if(!isAFile(file)){
+            throw new RuntimeException("File does not exists: "+ file);
+        }
+        try{
+            return new FileInputStream(file);
+        }catch (FileNotFoundException fil){
+            throw new RuntimeException(fil);
+        }
+    }
+
+
+    public static String readResourceString(String resource)  {
+        try (var inputStream = readResource(resource)){
+            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        }catch (IOException e){
+            throw new RuntimeException(e);
+        }
+    }
+    //BufferedReader
+    //InputStreamBuffer
+
+    public static boolean isAFile(File file){
+        return file.exists() && file.isFile();
+    }
+
+    public static boolean isAFolder(File file){
+        return file.exists() && file.isDirectory();
+    }
+
+    public static JsonElement readResourceJson(String resource){
+        try(InputStream is = readResource(resource)){
+            JsonReader reader = new JsonReader(new InputStreamReader(is));
+            return JsonParser.parseReader(reader);
+        }catch (IOException e){
+            throw new RuntimeException(e);
+        }
+    }
+    public static String readFileString(String path){
+        return readFileString(new File(path));
+    }
+
+    public static String readFileString(File str){
+        try(var inputStream = readFile(str)){
+            return new String( inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        }catch (IOException e){
+            throw new RuntimeException(e);
+        }
+    }
+    public static JsonElement readFileJson(String str){
+        return readFileJson(new File(str));
+    }
+    public static JsonElement readFileJson(File str){
+        try(InputStream is = readFile(str)){
+            JsonReader reader = new JsonReader(new InputStreamReader(is));
+            return JsonParser.parseReader(reader);
+        }catch (IOException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+//    private static String readLines(){
+//
+//    }
 
 }

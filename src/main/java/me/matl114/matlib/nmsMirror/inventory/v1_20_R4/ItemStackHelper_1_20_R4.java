@@ -110,7 +110,7 @@ public interface ItemStackHelper_1_20_R4 extends TargetDescriptor, ItemStackHelp
             return NMSCore.COMPOUND_TAG.newComp();
         }else {
             Object patch = getComponentsPatch(itemStack);
-            return CodecUtils.encode(DataComponentEnum.DATACOMPONENTPATCH_CODEC, CodecUtils.getDefaultNbtOp(),patch);
+            return CodecUtils.encode(DataComponentEnum.DATACOMPONENTPATCH_CODEC, CodecUtils.nbtOp(),patch);
         }
     }
     default Map<String, ?> saveNbtAsHashMap(Object itemStack){
@@ -118,7 +118,7 @@ public interface ItemStackHelper_1_20_R4 extends TargetDescriptor, ItemStackHelp
             return new HashMap<>();
         }else {
             Object patch = getComponentsPatch(itemStack);
-            return (Map<String, ?>) CodecUtils.encode(ComponentCodecEnum.DATACOMPONENTPATCH, CodecUtils.getPrimitiveOp(),patch);
+            return (Map<String, ?>) CodecUtils.encode(ComponentCodecEnum.DATACOMPONENTPATCH, CodecUtils.primOp(),patch);
         }
     }
     default Object saveElementInPath(Object itemStack, String path){
@@ -132,7 +132,7 @@ public interface ItemStackHelper_1_20_R4 extends TargetDescriptor, ItemStackHelp
             if(val == null)return null;
             else {
                 Codec<Object> compCodec = DataComponentUtils.getTypeCodec(comp);
-                return CodecUtils.encode(compCodec, CodecUtils.getPrimitiveOp(), val);
+                return CodecUtils.encode(compCodec, CodecUtils.primOp(), val);
             }
         }
     }
@@ -148,7 +148,7 @@ public interface ItemStackHelper_1_20_R4 extends TargetDescriptor, ItemStackHelp
         if(primitive == null){
             removeFromPatch(itemStack, comp);
         }else {
-            Object val = CodecUtils.decode(DataComponentUtils.getTypeCodec(comp), CodecUtils.getPrimitiveOp(), primitive);
+            Object val = CodecUtils.decode(DataComponentUtils.getTypeCodec(comp), CodecUtils.primOp(), primitive);
             if(val != null){
                 setDataComponentValue(itemStack, comp, val);
             }else{
@@ -161,7 +161,7 @@ public interface ItemStackHelper_1_20_R4 extends TargetDescriptor, ItemStackHelp
         if(isEmpty(itemStack)){
             throw new IllegalArgumentException("Can not modify a Empty ItemStack!");
         }
-        Object patch = CodecUtils.decode(ComponentCodecEnum.DATACOMPONENTPATCH, CodecUtils.getPrimitiveOp(),val);
+        Object patch = CodecUtils.decode(ComponentCodecEnum.DATACOMPONENTPATCH, CodecUtils.primOp(),val);
         Env1_20_R4.ICOMPONENT.restorePatch(getComponents(itemStack), patch);
     }
 

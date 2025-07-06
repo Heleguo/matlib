@@ -28,7 +28,7 @@ public class ItemStackWrapper implements NMSItemHolder {
             }
             JsonObject jsonMap = json.getAsJsonObject();
             try{
-                Object stack = decode(CodecEnum.ITEMSTACK, getJsonOp(), jsonMap);
+                Object stack = decode(CodecEnum.ITEMSTACK, jsonOp(), jsonMap);
                 return NMSItem.ITEMSTACK.isEmpty(stack) ? EMPTY:  new ItemStackWrapper(stack);
             }catch (Throwable e){
                 throw new JsonParseException(e);
@@ -42,7 +42,7 @@ public class ItemStackWrapper implements NMSItemHolder {
                 return JsonNull.INSTANCE;
             }
             try{
-                return encode(CodecEnum.ITEMSTACK, getJsonOp(), src.value);
+                return encode(CodecEnum.ITEMSTACK, jsonOp(), src.value);
             }catch (Throwable e){
                 throw new JsonParseException(e);
             }

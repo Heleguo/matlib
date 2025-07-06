@@ -7,11 +7,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mojang.serialization.codecs.UnboundedMapCodec;
 import me.matl114.matlib.nmsMirror.fix.DataHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
-public record ScreenTemplate(List<String> patterns, Map<Character, SlotType> key) {
+public record ScreenTemplate(Optional<String> defaultTitle, List<String> patterns, Map<Character, SlotType> key) {
     private static final Codec<List<String>> PATTERN_CODEC = Codec.STRING.listOf().comapFlatMap(pattern -> {
         if (pattern.size() > 6) {
             return DataResult.error(() -> "Invalid pattern: too many rows, 6 is maximum");
@@ -36,9 +38,26 @@ public record ScreenTemplate(List<String> patterns, Map<Character, SlotType> key
     }, String::valueOf);
     public static final MapCodec<ScreenTemplate> MAP_CODEC = RecordCodecBuilder.mapCodec(
         instance -> instance.group(
+                Codec.STRING.optionalFieldOf("title").forGetter(data-> data.defaultTitle),
                 PATTERN_CODEC.fieldOf("pattern").forGetter(data -> data.patterns),
                 new UnboundedMapCodec<>(SYMBOL_CODEC, SlotType.CODEC).fieldOf("key").forGetter(data -> data.key)
             )
             .apply(instance, ScreenTemplate::new)
     );
+    public static final Codec<ScreenTemplate> CODEC = MAP_CODEC.codec();
+
+    public List<SlotType> toList(){
+        List<SlotType> slots = new ArrayList<>(this.patterns.size() * 9 + 1);
+        for (var line: patterns){
+            for (int i=0; i < 9; ++i){
+                char chr = line.charAt(i);
+                slots.add(key.getOrDefault(chr, SlotType.BLANK));
+            }
+        }
+        return slots;
+    }
+
+    public int sizePerScreen(){
+        return this.patterns.size() * 9;
+    }
 }

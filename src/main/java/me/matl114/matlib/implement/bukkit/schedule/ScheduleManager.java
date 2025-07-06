@@ -15,15 +15,18 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.IntConsumer;
 
+@Deprecated
 @AutoInit(level = "Plugin")
 public class ScheduleManager implements Manager {
     Plugin plugin;
     AbstractExecutorService asyncExecutor = null;
+    @Deprecated
     public ScheduleManager setAsyncExecutor(AbstractExecutorService asyncExecutor) {
         this.asyncExecutor = asyncExecutor;
         return this;
     }
     @Override
+    @Deprecated
     public ScheduleManager init(Plugin pl, String... path) {
         plugin = pl;
         new BukkitRunnable() {
@@ -36,6 +39,7 @@ public class ScheduleManager implements Manager {
     }
 
     @Override
+    @Deprecated
     public ScheduleManager reload() {
         manager =null;
         deconstruct();
@@ -49,6 +53,7 @@ public class ScheduleManager implements Manager {
     }
 
     @Override
+    @Deprecated
     public void deconstruct() {
         removeFromRegistry();
     }
@@ -56,6 +61,7 @@ public class ScheduleManager implements Manager {
 
     @Getter
     private static ScheduleManager manager;
+    @Deprecated
     public ScheduleManager(){
         manager = this;
     }

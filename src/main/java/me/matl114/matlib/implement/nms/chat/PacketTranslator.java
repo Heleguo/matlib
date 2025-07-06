@@ -196,7 +196,7 @@ public class PacketTranslator implements Manager, PacketListener {
         return !this.registered;
     }
     private boolean processItemStackS2C(ClientInformation info, Object stack, Locale locale){
-        if(ITEMSTACK.isEmpty(stack))return false;
+        if(stack == null || ITEMSTACK.isEmpty(stack))return false;
         boolean hasModify = false;
         if(ITEMSTACK.hasCustomHoverName(stack)){
             ValueAccess<Iterable<?>> customName = ITEMSTACK.getDisplayNameView(stack);
@@ -252,7 +252,7 @@ public class PacketTranslator implements Manager, PacketListener {
     }
     private void processItemStackC2S(ClientInformation info, Object stack, Locale locale){
         //here isEmpty return
-        if(ITEMSTACK.isEmpty(stack))return;
+        if(stack == null || ITEMSTACK.isEmpty(stack))return;
         if(ITEMSTACK.hasCustomHoverName(stack)){
             ValueAccess<Iterable<?>> customName = ITEMSTACK.getDisplayNameView(stack);
             Iterable<?> name = customName.get();

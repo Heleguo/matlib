@@ -14,17 +14,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.*;
 
-public abstract class ScreenBuilder {
+public class ScreenBuilder {
     private IntList pageContentIndex;
     private Int2ReferenceMap<SlotType> buttonedIndex;
     private final int sizePerPage;
     private Int2ReferenceMap<SlotProvider> basicList;
     private List<SlotProvider> pageContentList;
     private Int2ReferenceMap<SlotProvider> overrideList;
+    private String screenTitle;
     //************************* default value can be changed ***************************
     private ItemStack backgroundItem = ScreenUtils.UI_BACKGROUND;
     private ItemStack backButtonItem = ScreenUtils.BACK_BUTTON;
-    private Function<InventoryFactory.InventoryBuilder, InteractHandler> backHandler = (i)->InteractHandler.task(p->{
+    private Function<InventoryBuilder, InteractHandler> backHandler = (i)->InteractHandler.task(p->{
         p.closeInventory();
         return false;
     });;
@@ -33,8 +34,14 @@ public abstract class ScreenBuilder {
         if(pageContentIndex.isEmpty())return 1;
         return Math.max(1, (pageContentList.size() - 1)/pageContentIndex.size() +1);
     };
+    private Function<InventoryBuilder, ScreenOpenHandler> openHandler = (i)->null;
+    private Function<InventoryBuilder, ScreenCloseHandler> closeHandler = (i)->null;
     //*************************...
-    public ScreenBuilder(int sizePerPage,List<SlotType> pageSlotType){
+    public ScreenBuilder(ScreenTemplate screenTemplate){
+        this(screenTemplate.defaultTitle().orElse(null), screenTemplate.sizePerScreen() ,screenTemplate.toList());
+    }
+    public ScreenBuilder(String defaultTitle, int sizePerPage,List<SlotType> pageSlotType){
+        this.screenTitle = defaultTitle;
         this.sizePerPage = sizePerPage;
         this.basicList = new Int2ReferenceArrayMap<>();
         this.pageContentList = new ArrayList<>(this.sizePerPage);
@@ -71,7 +78,7 @@ public abstract class ScreenBuilder {
         return this;
     }
 
-    public ScreenBuilder backHandler(Function<InventoryFactory.InventoryBuilder, InteractHandler> backHandler){
+    public ScreenBuilder backHandler(Function<InventoryBuilder, InteractHandler> backHandler){
         this.backHandler = backHandler;
         return this;
     }
@@ -188,12 +195,36 @@ public abstract class ScreenBuilder {
         return this;
     }
 
-    public <T> InventoryFactory.InventoryBuilder<T> createInventory(int page, InventoryFactory<T> fact){
+    public ScreenBuilder title(String title){
+        this.screenTitle = title;
+        return this;
+    }
+
+    public ScreenBuilder openHandler(ScreenOpenHandler handler){
+        this.openHandler = (i)->handler;
+        return this;
+    }
+    public ScreenBuilder openHandler(Function<InventoryBuilder, ScreenOpenHandler> handlerFunction){
+        this.openHandler = handlerFunction;
+        return this;
+    }
+
+    public ScreenBuilder closeHandler(ScreenCloseHandler handler){
+        this.closeHandler = (i)->handler;
+        return this;
+    }
+    public ScreenBuilder closeHandler(Function<InventoryBuilder, ScreenCloseHandler> handlerFunction){
+        this.closeHandler = handlerFunction;
+        return this;
+    }
+
+
+    public <T, W extends InventoryBuilder<T>> W createInventory(int page, InventoryBuilder.InventoryFactory<T, W> fact){
         Preconditions.checkArgument(page>= 1);
         int currentMax = this.maxPageProvider.applyAsInt(this);
         Preconditions.checkArgument(page <= currentMax);
-        var factory = fact.visitBuilder(this);
-        factory.visitPage(page, this.sizePerPage, currentMax);
+        W factory = fact.visitBuilder(this);
+        factory.visitPage(this.screenTitle, page, this.sizePerPage, currentMax);
         for (var entry: this.basicList.int2ReferenceEntrySet()){
             int index = entry.getIntKey();
             if(index >= 0 && index < this.sizePerPage){
@@ -256,6 +287,8 @@ public abstract class ScreenBuilder {
 
             }
         }
+        factory.visitOpen(this.openHandler.apply(factory));
+        factory.visitClose(this.closeHandler.apply(factory));
         factory.visitEnd();
         return factory;
     }

@@ -6,16 +6,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
-import me.matl114.matlib.algorithms.designs.serialize.JsonCodec;
 import me.matl114.matlib.common.lang.exceptions.DecodeException;
 import me.matl114.matlib.common.lang.exceptions.EncodeException;
 import me.matl114.matlib.nmsMirror.fix.DataHelper;
 import me.matl114.matlib.nmsMirror.impl.*;
 import me.matl114.matlib.utils.version.Version;
-import org.bukkit.inventory.ItemStack;
-import org.checkerframework.checker.units.qual.C;
-
-import java.lang.reflect.Type;
 
 public class CodecUtils {
 
@@ -55,13 +50,13 @@ public class CodecUtils {
             JSON_OP_1_20_R4_CACHE = JsonOps.INSTANCE;
         }
     }
-    public static DynamicOps<Object> getDefaultNbtOp(){
+    public static DynamicOps<Object> nbtOp(){
         return NBT_OP_1_20_R4_CACHE;
     }
-    public static DynamicOps<Object> getPrimitiveOp(){
+    public static DynamicOps<Object> primOp(){
         return PRIMITIVE_OP_1_20_R4_CACHE;
     }
-    public static DynamicOps<JsonElement> getJsonOp(){
+    public static DynamicOps<JsonElement> jsonOp(){
         return JSON_OP_1_20_R4_CACHE;
     }
     public static DynamicOps<?> createDefaultNbtOp(){

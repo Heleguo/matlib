@@ -79,6 +79,9 @@ public class ItemUtils {
     public static Object asNMSCopy(ItemStack val){
         return CraftBukkit.ITEMSTACK.asNMSCopy(val);
     }
+    public static ItemStack newStack(Material material){
+        return CraftBukkit.ITEMSTACK.createCraftItemStack(material, 1);
+    }
     public static ItemStack newStack(Material material, int amount){
         return CraftBukkit.ITEMSTACK.createCraftItemStack(material, amount);
     }

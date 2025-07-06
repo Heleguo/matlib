@@ -1,5 +1,7 @@
 package me.matl114.matlib.implement.custom.inventory;
 
+import me.matl114.matlib.common.lang.annotations.Internal;
+import me.matl114.matlib.common.lang.annotations.Note;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -11,10 +13,12 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public interface InteractHandler {
+    @Internal
     public boolean onClick(Inventory inventory, Player player, int slotIndex, InventoryAction action, ClickType clickType);
+    @Note("Caller will call this method")
 
     default boolean onClick(Inventory inventory, Player player, InventoryClickEvent clickEvent){
-        return onClick(inventory, player, clickEvent.getRawSlot(), clickEvent.getAction(), clickEvent.getClick());
+        return onClick(inventory, player, clickEvent.getSlot(), clickEvent.getAction(), clickEvent.getClick());
     }
 
     public static final InteractHandler EMPTY = (SimpleInteractHandler)((inventory, player, event) -> false);

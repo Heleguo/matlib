@@ -533,7 +533,7 @@ public class ReflectUtils {
     }
     @UnsafeOperation
     @NotRecommended
-    public static <T extends Enum<T>> T addEnumConst(Class<T> enumClass, String name, UnsafeAllocateCallback<T> initCallback,@Note("expanding array may cause jvm core dump") boolean expandOriginalArray) throws Throwable{
+    public static <T extends Enum<T>> T addEnumConst(Class<T> enumClass, String name, UnsafeAllocateCallback<T> initCallback,@Note("expanding array may cause jvm explode") boolean expandOriginalArray) throws Throwable{
         Unsafe unsafe = getUnsafe();
         Field valuesField = enumClass.getDeclaredField("$VALUES");
         //ensure clinit

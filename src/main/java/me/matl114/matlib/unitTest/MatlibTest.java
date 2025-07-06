@@ -78,6 +78,8 @@ public class MatlibTest extends JavaPlugin {
             .registerTestCase(new NetworkTestset())
             .registerTestCase(new AlgorithmTestset())
             .registerTestCase(new ManualTests())
+            .registerTestCase(new ImplementationTests())
+            .registerTestCase(new TestcaseBuilder())
         ;
         packetEventManager.registerListener(new TestPacketListener(),this);
         this.getServer().getPluginManager().registerEvents(new TestListeners(),this);

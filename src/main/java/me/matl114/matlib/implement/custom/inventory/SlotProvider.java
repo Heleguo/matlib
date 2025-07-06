@@ -28,14 +28,14 @@ public class SlotProvider {
     public SlotProvider withHandler(Supplier<InteractHandler> handler){
         return handler((f)->handler.get());
     }
-    public ItemStack getStack(InventoryFactory.InventoryBuilder inv){
+    public ItemStack getStack(InventoryBuilder inv){
         return stack == null? null: stack.apply(inv);
     }
-    public InteractHandler getHandler(InventoryFactory.InventoryBuilder inv){
+    public InteractHandler getHandler(InventoryBuilder inv){
         if(this.handler == null)return InteractHandler.EMPTY;
         InteractHandler handler1 = handler.apply(inv);
         return handler1 == null? InteractHandler.EMPTY: handler1;
     }
-    Function<InventoryFactory.InventoryBuilder, ItemStack> stack;
-    Function<InventoryFactory.InventoryBuilder, InteractHandler> handler;
+    Function<InventoryBuilder, ItemStack> stack;
+    Function<InventoryBuilder, InteractHandler> handler;
 }

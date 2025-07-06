@@ -21,7 +21,7 @@ class ItemDataValueImpl_1_20_R4 extends ItemDataValueReadRemoveImpl_1_20_R4 {
             this.componentValue = null;
         }else {
             Codec<Object> codec = DataComponentUtils.getTypeCodec(this.componentType);
-            this.componentValue = CodecUtils.decode(codec, CodecUtils.getPrimitiveOp(), value);
+            this.componentValue = CodecUtils.decode(codec, CodecUtils.primOp(), value);
         }
 
         this.shouldCopy = DataComponentEnum.COMPONENT_COPY_POLICY.containsKey(this.componentType);

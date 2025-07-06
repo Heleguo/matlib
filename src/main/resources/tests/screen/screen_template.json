@@ -1,0 +1,35 @@
+[
+	{
+		"input": {
+			"template": {
+				"pattern": [
+					"bsbbbbbtb",
+					"ccccccccc",
+					"ccccccccc",
+					"ccccccccc",
+					"ccccccccc",
+					"bpbbbbbnb"
+				],
+				"key": {
+					"b": "background",
+					"s": "back_button",
+					"c": "page_content",
+					"t": "common_button",
+					"p": "prev_page",
+					"n": "next_page"
+				},
+				"title": "&a默认标题"
+			},
+			"override": {
+				"slot": 7,
+				"type": "NAME_TAG"
+			}
+		},
+		"output": {
+			"0": "GRAY_STAINED_GLASS_PANE",
+			"7": "NAME_TAG",
+			"1": "ENCHANTED_BOOK",
+			"52": "BLACK_STAINED_GLASS_PANE"
+		}
+	}
+]

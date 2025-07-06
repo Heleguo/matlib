@@ -890,7 +890,7 @@ class ItemMetaViewImpl_1_20_R4 extends AbstractItemMetaView {
     @Override
     public @NotNull String getAsComponentString() {
         Object patch = getAsComponentPatch();
-        DynamicOps<?> nbtop = CodecUtils.getDefaultNbtOp();
+        DynamicOps<?> nbtop = CodecUtils.nbtOp();
         StringJoiner stringJoiner = new StringJoiner(",", "[", "]");
         for (var entry: COMPONENT_PATCH.entrySet(patch)){
             Object compType = entry.getKey();

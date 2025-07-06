@@ -6,7 +6,7 @@ import org.bukkit.World;
 
 import java.util.Objects;
 
-public interface TestCase {
+public interface TestCase extends TestResources{
     default void Assert(boolean expression){
         Preconditions.checkArgument(expression,"Assertion failed!");
     }
