@@ -5,12 +5,14 @@ import com.google.common.base.Supplier;
 import lombok.Getter;
 import me.matl114.matlib.utils.command.interruption.ArgumentException;
 import me.matl114.matlib.utils.command.interruption.InterruptionHandler;
+import me.matl114.matlib.utils.command.interruption.InvalidExecutorError;
 import me.matl114.matlib.utils.command.interruption.TypeError;
 import me.matl114.matlib.utils.command.params.SimpleCommandArgs;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -138,6 +140,20 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor, Int
         }
 
     }
+    @Override
+    public void handleExecutorInvalid(CommandSender sender, boolean shouldConsole){
+        if(shouldConsole){
+            sendMessage(sender, "&c错误! 该指令只能在控制台执行");
+        }else {
+            sendMessage(sender,"&c该指令只能在游戏内执行!");
+        }
+    }
+
+    public void handleLogicalError(CommandSender sender, String fullMessage){
+        sendMessage(sender, "&c执行该指令时出现逻辑错误: "+ fullMessage);
+    }
+
+
     public void noPermission(CommandSender var1){
         sendMessage(var1,"&c你没有权限使用该指令!");
     }
@@ -171,16 +187,16 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor, Int
         }
         return new ArrayList<>();
     }
-    public Player isPlayer(CommandSender sender, boolean sendMessage){
+    @Nonnull
+    public Player player(CommandSender sender){
         if(sender instanceof Player player){
             return player;
         }else {
-            if(sendMessage){
-                sendMessage(sender,"&c该指令只能在游戏内执行!");
-            }
-            return null;
+            throw new InvalidExecutorError(false);
         }
     }
+
+
     public static SimpleCommandArgs genArgument(String... args){
         return new SimpleCommandArgs(args);
     }
