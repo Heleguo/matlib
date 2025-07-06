@@ -9,26 +9,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ByteCodeUtils {
+    /**
+     * Converts a Java Class to its JVM type descriptor.
+     *
+     * <p>This method uses ASM's Type.getDescriptor() to convert a Class object
+     * to its corresponding JVM type descriptor format.
+     *
+     * @param clazz The Java Class to convert
+     * @return The JVM type descriptor string
+     */
     public static String toJvmType(Class<?> clazz) {
         return Type.getDescriptor(clazz);
-//        if (clazz.isArray()) {
-//            //return "["+toJvmType( clazz.getComponentType());
-//            //getName of this will return  [[L... or [[<primitive>
-//            return clazz.getName().replace('.', '/');
-//        }
-//        if (clazz.isPrimitive()) {
-//            if (clazz == void.class) return "V";
-//            if (clazz == int.class) return "I";
-//            if (clazz == boolean.class) return "Z";
-//            if (clazz == byte.class) return "B";
-//            if (clazz == char.class) return "C";
-//            if (clazz == short.class) return "S";
-//            if (clazz == double.class) return "D";
-//            if (clazz == float.class) return "F";
-//            if (clazz == long.class) return "J";
-//        }
-//        return "L" + clazz.getName().replace('.', '/') + ";";
     }
+    /**
+     * Converts a Java class name to its JVM type descriptor.
+     *
+     * <p>This method converts Java class names to JVM type descriptors:
+     * <ul>
+     *   <li>Primitive types: "int" → "I", "boolean" → "Z", etc.</li>
+     *   <li>Reference types: "java.lang.String" → "Ljava/lang/String;"</li>
+     *   <li>Arrays: "int[]" → "[I", "String[]" → "[Ljava/lang/String;"</li>
+     * </ul>
+     *
+     * @param clazzName The Java class name to convert
+     * @return The JVM type descriptor string
+     */
     public static String toJvmType(String clazzName){
         if(clazzName.charAt(0) == '['){
             //is array
@@ -48,6 +53,19 @@ public class ByteCodeUtils {
         };
     }
 
+    /**
+     * Converts a JVM type descriptor to a Java class name.
+     *
+     * <p>This method converts JVM type descriptors back to Java class names:
+     * <ul>
+     *   <li>Primitive types: "I" → "int", "Z" → "boolean", etc.</li>
+     *   <li>Reference types: "Ljava/lang/String;" → "java.lang.String"</li>
+     *   <li>Arrays: "[I" → "int[]", "[Ljava/lang/String;" → "java.lang.String[]"</li>
+     * </ul>
+     *
+     * @param jvm The JVM type descriptor to convert
+     * @return The Java class name
+     */
     public static String fromJvmType(String jvm){
         if(jvm.charAt(0) == '['){
             //is array
@@ -66,6 +84,18 @@ public class ByteCodeUtils {
             default -> jvm.substring(1, jvm.length()-1).replace('/','.');
         };
     }
+    /**
+     * Gets the component type information for a class.
+     *
+     * <p>This method analyzes a class to determine if it's an array and extracts
+     * the component type information. For arrays, it returns the array dimensions
+     * and the base component type. For non-arrays, it returns an empty string
+     * for dimensions and the class name.
+     *
+     * @param clazz The class to analyze
+     * @return A Pair where the first element is the array dimensions (empty string for non-arrays)
+     *         and the second element is the component type name
+     */
     public static Pair<String, String> getComponentType(Class<?> clazz){
         if(clazz.isArray()){
             //is array
@@ -79,6 +109,16 @@ public class ByteCodeUtils {
             return Pair.of("",clazz.getName());
         }
     }
+    /**
+     * Converts a JVM primitive type descriptor character to its Java primitive type name.
+     *
+     * <p>This method maps JVM primitive type descriptor characters to their corresponding
+     * Java primitive type names. If the character is not a primitive type descriptor,
+     * it returns null.
+     *
+     * @param descriptor The JVM primitive type descriptor character
+     * @return The Java primitive type name, or null if not a primitive type
+     */
     public static String getPrimitiveType(char descriptor) {
         return switch (descriptor) {
             case 'Z' -> "boolean";
@@ -96,6 +136,16 @@ public class ByteCodeUtils {
                 null;
         };
     }
+    /**
+     * Generates a JVM method descriptor from a Method object.
+     *
+     * <p>This method creates a JVM method descriptor string in the format:
+     * methodName(parameterTypes)returnType
+     * where parameterTypes and returnType are in JVM descriptor format.
+     *
+     * @param method The Method object to generate a descriptor for
+     * @return The JVM method descriptor string
+     */
     public static String getMethodDescriptor(Method method) {
         var builder = new StringBuilder();
         builder.append(method.getName());
@@ -108,6 +158,18 @@ public class ByteCodeUtils {
         return builder.toString();
     }
 
+    /**
+     * Generates a JVM method descriptor from method components.
+     *
+     * <p>This method creates a JVM method descriptor string in the format:
+     * methodName(parameterTypes)returnType
+     * where parameterTypes and returnType are in JVM descriptor format.
+     *
+     * @param name The method name
+     * @param arguments The parameter types of the method
+     * @param returnType The return type of the method
+     * @return The JVM method descriptor string
+     */
     public static String getMethodDescriptor(String name, Class[] arguments, Class returnType){
         var builder = new StringBuilder();
         builder.append(name);
@@ -121,10 +183,35 @@ public class ByteCodeUtils {
     }
 
 
+    /**
+     * Extracts the method name from a JVM method descriptor.
+     *
+     * <p>This method parses a JVM method descriptor and returns the method name
+     * by extracting the substring before the opening parenthesis.
+     *
+     * @param descriptor The JVM method descriptor string
+     * @return The method name
+     */
     public static String parseMethodNameFromDescriptor(String descriptor){
         return descriptor.substring(0, descriptor.indexOf('('));
     }
 
+    /**
+     * Parses a JVM method descriptor into its components.
+     *
+     * <p>This method parses a JVM method descriptor and returns a Triplet containing:
+     * <ul>
+     *   <li>The method name</li>
+     *   <li>An array of parameter type descriptors</li>
+     *   <li>The return type descriptor</li>
+     * </ul>
+     *
+     * <p>The method handles complex type descriptors including arrays and reference types
+     * by properly parsing the JVM descriptor format.
+     *
+     * @param descriptor The JVM method descriptor string
+     * @return A Triplet containing (methodName, parameterTypes[], returnType)
+     */
     public static Triplet<String,String[],String> parseMethodDescriptor(String descriptor){
         int index = descriptor.indexOf('(');
         String name = descriptor.substring(0, index);
@@ -155,6 +242,23 @@ public class ByteCodeUtils {
         }
         return Triplet.of(name, paramsList.toArray(String[]::new), retType);
     }
+    /**
+     * Extracts the field name from a JVM field descriptor.
+     *
+     * <p>This method parses a JVM field descriptor and attempts to extract a field name.
+     * The method handles different types of descriptors:
+     * <ul>
+     *   <li>Reference types ending with ';'</li>
+     *   <li>Array types containing '['</li>
+     *   <li>Primitive types</li>
+     * </ul>
+     *
+     * <p>Note: This method assumes the descriptor format includes a field name prefix,
+     * which may not always be the case for pure type descriptors.
+     *
+     * @param descriptor The JVM field descriptor string
+     * @return The extracted field name, or a partial type name if no field name is found
+     */
     public static String parseFieldNameFromDescriptor(String descriptor){
         if(descriptor.charAt(descriptor.length()-1) == ';'){
             int isArray = descriptor.indexOf('[');
@@ -176,6 +280,16 @@ public class ByteCodeUtils {
             return descriptor.substring(0, descriptor.length()-1);
         }
     }
+    /**
+     * Generates a JVM field descriptor from field name and type.
+     *
+     * <p>This method creates a JVM field descriptor by concatenating the field name
+     * with the JVM type descriptor of the field type.
+     *
+     * @param fieldName The name of the field
+     * @param fieldType The type of the field
+     * @return The JVM field descriptor string
+     */
     public static String getFieldDescriptor(String fieldName, Class<?> fieldType){
         return fieldName + toJvmType(fieldType);
     }

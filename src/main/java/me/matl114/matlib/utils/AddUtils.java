@@ -1,18 +1,15 @@
 package me.matl114.matlib.utils;
 
 import com.google.common.base.Preconditions;
-import me.matl114.matlib.algorithms.algorithm.Utils;
+
+import me.matl114.matlib.algorithms.algorithm.MathUtils;
 import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
-import me.matl114.matlib.utils.version.VersionedRegistry;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Damageable;
@@ -26,52 +23,84 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.function.Function;
 
 
 public class AddUtils {
-//    public static void init(String id,String addonName,Plugin pl){
-//        Debug.logger("Initializing Utils...");
-//      //  ADDON_INSTANCE=pl;
-//
-//    }
-//    public static String ADDON_NAME ;
-//    public static String ADDON_ID;
-//    public static Plugin ADDON_INSTANCE;
-    public static final boolean USE_IDDECORATOR=true;
     private static final DecimalFormat FORMAT = new DecimalFormat("###,###,###,###,###,###.#");
     private static final Random random=new Random();
-    private static final Enchantment GLOW_EFFECT= VersionedRegistry.getInstance().getEnchantment("infinity");
+    private static final Enchantment GLOW_EFFECT= Enchantment.getByKey(new NamespacedKey("minecraft","infinity"));
     public static final ItemStack RESOLVE_FAILED=AddUtils.addGlow( new CleanItemStack(Material.BARRIER,"&c解析物品失败"));
     public static final String PLACEHOLDER = "†";
+    /**
+     * Formats a double value with comma separators for thousands.
+     * 
+     * <p>This method uses a predefined DecimalFormat to format numbers with
+     * comma separators and up to one decimal place.
+     * 
+     * @param s The double value to format
+     * @return A formatted string representation of the number
+     */
     public static String formatDouble(double s){
         return FORMAT.format(s);
     }
 
     public static final String C="§";
-//    public static NamespacedKey getNameKey(String str) {
-//        return new NamespacedKey(ADDON_INSTANCE,str);
-//    }
-    public static String desc(String str) {
+
+    /**
+     * Adds a gray color prefix to a string for description formatting.
+     * 
+     * <p>This method prepends the gray color code (§7) to the input string,
+     * commonly used for descriptive text in Minecraft chat.
+     * 
+     * @param str The string to format as a description
+     * @return The string with gray color formatting
+     */
+    public static String description(String str) {
         return "§7" + str;
     }
-    public static final String[] COLOR_MAP=new String[]{"§0","§1","§2","§3","§4","§5","§6","§7","§8","§9","§A","§B","§C","§D","§E","§F"};
-    public static String resolveRGB(int rgb){
-        if(rgb>16777216){
-            rgb=16777216;
-        }
-        else if (rgb<0){
-            rgb=0;
-        }
+    public static final String[] COLOR_MAP=new String[]{
+        "§0","§1","§2","§3","§4","§5","§6","§7","§8","§9","§A","§B","§C","§D","§E","§F"
+    };
+    public static final int RGB_MASK = 16777215;
+    public static final int[] RGB_MASKS = new int[]{
+        15,
+        15<<4,
+        15<<8,
+        15<<12,
+        15<<16,
+        15<<20
+    };
+
+    /**
+     * Converts an RGB integer to a Minecraft hex color string.
+     * 
+     * <p>This method converts a 24-bit RGB integer into a Minecraft hex color
+     * string format (§x§R§R§G§G§B§B). The RGB value is masked to ensure only
+     * the lower 24 bits are used.
+     * 
+     * @param rgb The RGB integer value (24-bit)
+     * @return A Minecraft hex color string
+     */
+    public static String toHexString(int rgb){
+        rgb = rgb & RGB_MASK;
         StringBuilder builder=new StringBuilder("§x");
         for(int i=0;i<6;i++){
-            int r=rgb%16;
-            rgb=rgb/16;
-            builder.append(COLOR_MAP[r]);
+            int value = (RGB_MASKS[i] & rgb) >> (i*4);
+            builder.append(COLOR_MAP[value]);
         }
         return builder.toString();
     }
-    public static String codeColor(int c) {
+    /**
+     * Converts a decimal number to its hexadecimal character representation.
+     * 
+     * <p>This method converts a single decimal digit (0-15) to its corresponding
+     * hexadecimal character. Values 0-9 return the digit as a string, while
+     * values 10-15 return the letters A-F.
+     * 
+     * @param c The decimal value to convert (0-15)
+     * @return The hexadecimal character as a string
+     */
+    public static String toHexChar(int c) {
         if (c < 10 && c >= 0) {
             return String.valueOf(c);
         }
@@ -85,11 +114,31 @@ public class AddUtils {
             default -> "0";
         };
     }
-    public static String resolveColor(int c) {
-        return C+codeColor(c);
+    /**
+     * Converts a decimal number to a Minecraft color code.
+     * 
+     * <p>This method converts a decimal value (0-15) to its corresponding
+     * Minecraft color code using the predefined COLOR_MAP array.
+     * 
+     * @param c The decimal value to convert (0-15)
+     * @return A Minecraft color code string
+     */
+    public static String toHexSingleColor(int c) {
+        //return C+toHexChar(c);
+        return COLOR_MAP[c];
     }
 
-    public static String resolveRGB(String rgb) throws IllegalArgumentException {
+    /**
+     * Converts a 6-character hex string to Minecraft legacy hex format.
+     * 
+     * <p>This method converts a 6-character hexadecimal string (e.g., "FF0000")
+     * to the Minecraft legacy hex color format (§x§F§F§0§0§0§0).
+     * 
+     * @param rgb The 6-character hexadecimal string
+     * @return A Minecraft legacy hex color string
+     * @throws IllegalArgumentException if the input string is not exactly 6 characters long
+     */
+    public static String hexToLegacyHex(String rgb) throws IllegalArgumentException {
         if(rgb.length()!=6){
             throw new IllegalArgumentException("Invalid RGB String");
         }
@@ -100,7 +149,16 @@ public class AddUtils {
         }
         return builder.toString();
     }
-    public static int decodeColor(char c){
+    /**
+     * Converts a hexadecimal character to its decimal value.
+     * 
+     * <p>This method converts a single hexadecimal character (0-9, A-F, a-f)
+     * to its corresponding decimal value. The conversion is case-insensitive.
+     * 
+     * @param c The hexadecimal character to convert
+     * @return The decimal value (0-15), or 0 for invalid characters
+     */
+    public static int hexCharToDecimal(char c){
         if(c>='0' && c<='9'){
             return c - '0';
         }
@@ -121,26 +179,56 @@ public class AddUtils {
                 return  0;
         }
     }
-    public static int rgb2int(String rgb) throws IllegalArgumentException{
+    /**
+     * Converts a 6-character hex string to an RGB integer.
+     * 
+     * <p>This method parses a 6-character hexadecimal string (e.g., "FF0000")
+     * and converts it to a 24-bit RGB integer. The result is masked to ensure
+     * only the lower 24 bits are used.
+     * 
+     * @param rgb The 6-character hexadecimal string
+     * @return The RGB integer value
+     * @throws IllegalArgumentException if the input string is not exactly 6 characters long or contains invalid hex characters
+     */
+    public static int rgbHexToInt(String rgb) throws IllegalArgumentException{
         if(rgb.length()!=6){
             throw new IllegalArgumentException("Invalid RGB String");
         }
-        int value=0;
-        for (int i=0;i<6;i++){
-            value = value * 16 +decodeColor(rgb.charAt(i));
+        try{
+            return RGB_MASK & Integer.parseInt(rgb, 16);
+        }catch (Throwable e){
+            throw new IllegalArgumentException("Invalid RGB String", e);
         }
-        return value;
     }
-    public static final int START_CODE=rgb2int("eb33eb");
+    public static final int START_CODE=rgbHexToInt("eb33eb");
     //15409899;
-    public static final int END_CODE=rgb2int("970097");
-    public static String color(String str){
-        return resolveRGB(START_CODE)+str;
+    public static final int END_CODE=rgbHexToInt("970097");
+    /**
+     * Applies Logitech-style color formatting to a string.
+     * 
+     * <p>This method applies a predefined purple color (START_CODE) to the
+     * beginning of the string using Minecraft hex color format.
+     * 
+     * @param str The string to format
+     * @return The string with Logitech-style color formatting
+     */
+    public static String logitechStyle(String str){
+        return toHexString(START_CODE)+str;
     }
-    public static String colorful(String str) {
+    /**
+     * Applies Logitech-style fading color formatting to a string.
+     * 
+     * <p>This method creates a gradient effect by interpolating between START_CODE
+     * and END_CODE colors for each character in the string. Each character gets
+     * a progressively different color, creating a fading effect.
+     * 
+     * @param str The string to format with fading colors
+     * @return The string with fading color formatting applied to each character
+     */
+    public static String logitechFadingStyle(String str) {
         int len=str.length()-1;
         if(len<=0){
-            return resolveRGB(START_CODE)+str;
+            return toHexString(START_CODE)+str;
         }
         else{
             int start=START_CODE;
@@ -155,11 +243,138 @@ public class AddUtils {
             }
             String str2="";
             for(int i=0;i<=len;i++){
-                str2=str2+resolveRGB(START_CODE+65536*((rgbs[8]*i)/len)+256*((rgbs[7]*i)/len)+((rgbs[6]*i)/len))+str.substring(i,i+1);
+                str2=str2+toHexString(START_CODE+65536*((rgbs[8]*i)/len)+256*((rgbs[7]*i)/len)+((rgbs[6]*i)/len))+str.substring(i,i+1);
             }
             return str2;
         }
     }
+    /**
+     * Converts an RGB integer value to a {@link java.awt.Color} object.
+     * 
+     * <p>This method extracts the red, green, and blue components from a 32-bit integer
+     * where the RGB values are packed as follows:
+     * <ul>
+     *   <li>Bits 23-16: Red component (0-255)</li>
+     *   <li>Bits 15-8: Green component (0-255)</li>
+     *   <li>Bits 7-0: Blue component (0-255)</li>
+     * </ul>
+     * 
+     * @param color The RGB integer value in the format 0xRRGGBB
+     * @return A new {@link java.awt.Color} object representing the RGB values
+     * @see java.awt.Color#getRGB()
+     */
+    public static java.awt.Color rgbIntToColor(int color){
+        // Extract RGB components from the integer
+        int red = (color >> 16) & 0xFF;
+        int green = (color >> 8) & 0xFF;
+        int blue = color & 0xFF;
+        return new java.awt.Color(red, green, blue);
+    }
+    
+    /**
+     * Performs linear interpolation between two colors in RGB color space.
+     * 
+     * <p>This method creates a smooth transition between two colors by linearly
+     * interpolating each RGB component. The result is a color that lies between
+     * the two input colors based on the specified percentage.
+     * 
+     * <p>The percentage parameter controls the interpolation:
+     * <ul>
+     *   <li>0.0 returns color1</li>
+     *   <li>1.0 returns color2</li>
+     *   <li>0.5 returns the midpoint between the two colors</li>
+     * </ul>
+     * 
+     * <p>Values outside the range [0.0, 1.0] are automatically clamped.
+     * 
+     * @param color1 The starting color
+     * @param color2 The ending color
+     * @param percentage The interpolation factor (0.0 to 1.0)
+     * @return A new {@link java.awt.Color} representing the interpolated color
+     * @see #colorInHSVLerp(java.awt.Color, java.awt.Color, double)
+     */
+    public static java.awt.Color colorLerp(java.awt.Color color1, java.awt.Color color2, double percentage){
+        // Clamp percentage between 0 and 1
+        percentage = Math.max(0.0, Math.min(1.0, percentage));
+        
+        // Linear interpolation for each RGB component
+        int red = (int) (color1.getRed() +  percentage * (color2.getRed() - color1.getRed()));
+        int green = (int) (color1.getGreen() +  percentage * (color2.getGreen() - color1.getGreen()));
+        int blue = (int) (color1.getBlue() +  percentage * (color2.getBlue() - color1.getBlue()));
+        
+        return new java.awt.Color(red, green, blue);
+    }
+    
+    /**
+     * Performs interpolation between two colors in HSV (Hue, Saturation, Value) color space.
+     * 
+     * <p>This method creates a smooth transition between two colors by interpolating
+     * in HSV space rather than RGB space. HSV interpolation often produces more
+     * visually pleasing color transitions, especially when interpolating between
+     * colors with different hues.
+     * 
+     * <p>The interpolation process:
+     * <ol>
+     *   <li>Converts both colors from RGB to HSV</li>
+     *   <li>Linearly interpolates each HSV component (hue, saturation, value)</li>
+     *   <li>Converts the result back to RGB color space</li>
+     * </ol>
+     * 
+     * <p>The percentage parameter controls the interpolation:
+     * <ul>
+     *   <li>0.0 returns color1</li>
+     *   <li>1.0 returns color2</li>
+     *   <li>0.5 returns the HSV midpoint between the two colors</li>
+     * </ul>
+     * 
+     * <p>Values outside the range [0.0, 1.0] are automatically clamped.
+     * 
+     * @param color1 The starting color
+     * @param color2 The ending color
+     * @param percentage The interpolation factor (0.0 to 1.0)
+     * @return A new {@link java.awt.Color} representing the HSV-interpolated color
+     * @see #colorLerp(java.awt.Color, java.awt.Color, double)
+     * @see java.awt.Color#RGBtoHSB(int, int, int, float[])
+     * @see java.awt.Color#getHSBColor(float, float, float)
+     */
+    public static java.awt.Color colorInHSVLerp(java.awt.Color color1, java.awt.Color color2, double percentage){
+        // Clamp percentage between 0 and 1
+        percentage = MathUtils.clamp(percentage, 0.0d, 1.0d);
+        
+        // Convert colors to HSV
+        float[] hsv1 = new float[3];
+        float[] hsv2 = new float[3];
+        java.awt.Color.RGBtoHSB(color1.getRed(), color1.getGreen(), color1.getBlue(), hsv1);
+        java.awt.Color.RGBtoHSB(color2.getRed(), color2.getGreen(), color2.getBlue(), hsv2);
+        
+        // Interpolate HSV values
+        float hue = hsv1[0] + (hsv2[0] - hsv1[0]) * (float) percentage;
+        float saturation = hsv1[1] + (hsv2[1] - hsv1[1]) * (float) percentage;
+        float value = hsv1[2] + (hsv2[2] - hsv1[2]) * (float) percentage;
+        
+        // Convert back to RGB
+        return java.awt.Color.getHSBColor(hue, saturation, value);
+    }
+
+    /**
+     * Applies gradient coloring to a string using a list of colors.
+     * 
+     * <p>This method creates a gradient effect by interpolating between colors
+     * in the provided color list. Each character in the string gets a color
+     * that is interpolated between two adjacent colors in the list based on
+     * the character's position.
+     * 
+     * <p>The method handles edge cases:
+     * <ul>
+     *   <li>Empty strings are padded with a space</li>
+     *   <li>Single character strings are padded with a space</li>
+     *   <li>Placeholder characters (%s) are preserved and restored</li>
+     * </ul>
+     * 
+     * @param string0 The string to color
+     * @param colorList The list of colors to use for the gradient
+     * @return The string with gradient coloring applied
+     */
     public static String colorString(@Nonnull String string0, @Nonnull List<Color> colorList) {
         StringBuilder stringBuilder = new StringBuilder();
         if (string0.length() == 0) {
@@ -177,18 +392,32 @@ public class AddUtils {
             int green = (int) (color1.getGreen() * (1 - p + Math.floor(p)) + color2.getGreen() * (p - Math.floor(p)));
             int red = (int) (color1.getRed() * (1 - p + Math.floor(p)) + color2.getRed() * (p - Math.floor(p)));
             stringBuilder.append("§x")
-                    .append("§").append(codeColor(red / 16))
-                    .append("§").append(codeColor(red % 16))
-                    .append("§").append(codeColor(green / 16))
-                    .append("§").append(codeColor(green % 16))
-                    .append("§").append(codeColor(blue / 16))
-                    .append("§").append(codeColor(blue % 16));
+                    .append("§").append(toHexChar(red / 16))
+                    .append("§").append(toHexChar(red % 16))
+                    .append("§").append(toHexChar(green / 16))
+                    .append("§").append(toHexChar(green % 16))
+                    .append("§").append(toHexChar(blue / 16))
+                    .append("§").append(toHexChar(blue % 16));
             stringBuilder.append(string.charAt(i));
         }
         String re = stringBuilder.toString();
         re = re.replaceAll(PLACEHOLDER, "%s");
         return re;
     }
+    /**
+     * Applies random gradient coloring to a string based on its hash code.
+     * 
+     * <p>This method generates a deterministic but seemingly random color gradient
+     * for a string. The colors are generated using the string's hash code as a seed,
+     * ensuring that the same string will always produce the same color pattern.
+     * 
+     * <p>The color generation uses a specific algorithm that creates vibrant colors
+     * within a certain range, and the number of colors is determined by a probability
+     * function based on the string length.
+     * 
+     * @param string The string to color with random gradient
+     * @return The string with random gradient coloring applied
+     */
     public static String colorRandomString(@Nonnull String string) {
         List<Color> colorList = new ArrayList<>();
         double r = 0;
@@ -203,6 +432,21 @@ public class AddUtils {
 
         return colorString(string, colorList);
     }
+    /**
+     * Applies pseudorandom gradient coloring to a string using a fixed seed.
+     * 
+     * <p>This method generates a consistent color gradient using a fixed random seed
+     * (11451419). Unlike {@link #colorRandomString(String)}, this method will always
+     * produce the same color pattern regardless of the input string, creating a
+     * pseudorandom but consistent visual effect.
+     * 
+     * <p>The color generation algorithm is identical to {@link #colorRandomString(String)},
+     * but uses a predetermined seed instead of the string's hash code.
+     * 
+     * @param string The string to color with pseudorandom gradient
+     * @return The string with pseudorandom gradient coloring applied
+     * @see #colorRandomString(String)
+     */
     public static String colorPseudorandomString(@Nonnull String string) {
         List<Color> colorList = new ArrayList<>();
         double r = 0;
@@ -218,6 +462,16 @@ public class AddUtils {
         return colorString(string, colorList);
     }
     private static final String DISPLAY_PATTERN="[%s,%.0f,%.0f,%.0f]";
+    /**
+     * Converts a Bukkit Location to a string representation.
+     * 
+     * <p>This method creates a comma-separated string containing the world name
+     * and the exact coordinates (x, y, z) of the location. The format is:
+     * "worldName,x,y,z"
+     * 
+     * @param loc The Bukkit Location to convert
+     * @return A string representation of the location, or "null" if the location is null
+     */
     public static String locationToString(Location loc){
         if(loc==null){
             return "null";
@@ -226,6 +480,20 @@ public class AddUtils {
                 .append(loc.getX()).append(',').append(loc.getY()).append(',').append(loc.getZ()).toString();
         }
     }
+    /**
+     * Converts a Bukkit Location to a string representation using block coordinates.
+     * 
+     * <p>This method creates a comma-separated string containing the world name
+     * and the block coordinates (blockX, blockY, blockZ) of the location. The format is:
+     * "worldName,blockX,blockY,blockZ"
+     * 
+     * <p>Unlike {@link #locationToString(Location)}, this method uses integer block
+     * coordinates instead of precise floating-point coordinates.
+     * 
+     * @param loc The Bukkit Location to convert
+     * @return A string representation of the block location, or "null" if the location is null
+     * @see #locationToString(Location)
+     */
     public static String blockLocationToString(Location loc){
         if(loc==null){
             return "null";
@@ -234,6 +502,19 @@ public class AddUtils {
                     .append(loc.getBlockX()).append(',').append(loc.getBlockY()).append(',').append(loc.getBlockZ()).toString();
         }
     }
+    /**
+     * Converts a string representation back to a Bukkit Location.
+     * 
+     * <p>This method parses a comma-separated string in the format "worldName,x,y,z"
+     * and creates a corresponding Bukkit Location object. The method handles
+     * floating-point coordinates for precise positioning.
+     * 
+     * <p>This is the inverse operation of {@link #locationToString(Location)}.
+     * 
+     * @param loc The string representation of the location
+     * @return A Bukkit Location object, or null if parsing fails or the string is "null"
+     * @see #locationToString(Location)
+     */
     public static Location locationFromString(String loc){
         try{
             if("null".equals(loc)){
@@ -250,6 +531,19 @@ public class AddUtils {
         }
         return null;
     }
+    /**
+     * Converts a string representation back to a Bukkit Location using block coordinates.
+     * 
+     * <p>This method parses a comma-separated string in the format "worldName,blockX,blockY,blockZ"
+     * and creates a corresponding Bukkit Location object. The method uses integer
+     * coordinates for block positioning.
+     * 
+     * <p>This is the inverse operation of {@link #blockLocationToString(Location)}.
+     * 
+     * @param loc The string representation of the block location
+     * @return A Bukkit Location object, or null if parsing fails or the string is "null"
+     * @see #blockLocationToString(Location)
+     */
     public static Location blockLocationFromString(String loc){
         try{
             if("null".equals(loc)){
@@ -266,35 +560,59 @@ public class AddUtils {
         }
         return null;
     }
+    /**
+     * Converts a Bukkit Location to a formatted display string.
+     * 
+     * <p>This method creates a user-friendly string representation of a location
+     * using the format "[worldName,x,y,z]" with coordinates rounded to integers
+     * for display purposes.
+     * 
+     * @param loc The Bukkit Location to convert
+     * @return A formatted display string, or "null" if the location is null
+     */
     public static String locationToDisplayString(Location loc) {
         return loc!=null? DISPLAY_PATTERN.formatted(loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ()):"null";
     }
 
-    private static final List<Function<ItemStack,ItemStack>> copyFunctions = new ArrayList<>();
-    public static void registerItemCopy(Function<ItemStack,ItemStack> function){
-        copyFunctions.add(function);
-    }
-
+   
+    /**
+     * Creates a copy of an ItemStack.
+     * 
+     * <p>This method creates a clean copy of the provided ItemStack using
+     * the {@link #getCleaned(ItemStack)} method.
+     * 
+     * @param stack The ItemStack to copy
+     * @return A clean copy of the ItemStack
+     * @see #getCleaned(ItemStack)
+     */
     public static ItemStack getCopy(ItemStack stack){
-        ItemStack result;
-//        if(stack instanceof AbstractItemStack abs){
-//            return abs.copy();
-//        }else
-        ItemStack copied = Utils.computeTilPresent(stack, (Function<ItemStack, ItemStack>[]) copyFunctions.toArray(new Function[copyFunctions.size()]));
-        if(copied!=null){
-            return copied;
-        }
         return getCleaned(stack);
-
-
-
     }
-    //make it return org.bukkit.inventory.ItemStack
+    /**
+     * Creates a clean copy of an ItemStack.
+     * 
+     * <p>This method creates a clean version of the provided ItemStack using
+     * the CleanItemStack utility. If the input is null, it returns an AIR ItemStack.
+     * 
+     * @param stack The ItemStack to clean
+     * @return A clean ItemStack, or AIR if the input is null
+     */
     public static ItemStack getCleaned(ItemStack stack){
         return stack==null?new ItemStack(Material.AIR): CleanItemStack.ofBukkitClean(stack);
     }
 
 
+    /**
+     * Copies properties from one ItemStack to another.
+     * 
+     * <p>This method copies the amount, type, data, and item metadata from
+     * the source ItemStack to the target ItemStack. Both ItemStacks must
+     * not be null for the operation to succeed.
+     * 
+     * @param from The source ItemStack to copy from
+     * @param to The target ItemStack to copy to
+     * @return true if the copy operation was successful, false otherwise
+     */
     public static boolean copyItem(ItemStack from,ItemStack to){
         if(from==null||to==null)return false;
         to.setAmount(from.getAmount());
@@ -303,10 +621,20 @@ public class AddUtils {
         return to.setItemMeta(from.getItemMeta());
     }
 
+    /**
+     * Adds lore lines to an ItemStack.
+     *
+     * <p>This method creates a copy of the provided ItemStack and adds the
+     * specified lore lines to it. The lore lines are processed through
+     * {@link #resolveColor(String)} to handle color codes.
+     *
+     * @param item The ItemStack to add lore to
+     * @param lores The lore lines to add (varargs)
+     * @return A new ItemStack with the added lore
+     */
     public static ItemStack addLore(ItemStack item,String... lores){
 
         ItemStack item2=item.clone();
-
         ItemMeta meta=item2.getItemMeta();
         List<String> finallist=meta.hasLore() ? meta.getLore() : new ArrayList<>();
         for (String l:lores){
@@ -316,17 +644,45 @@ public class AddUtils {
         item2.setItemMeta(meta);
         return item2;
     }
+    /**
+     * Renames an ItemStack by setting its display name.
+     *
+     * <p>This method creates a copy of the provided ItemStack and sets its display
+     * name to the specified value, with color codes resolved.
+     *
+     * @param item The ItemStack to rename
+     * @param name The new display name
+     * @return A new ItemStack with the updated name
+     */
     public static ItemStack renameItem(ItemStack item,String name){
         ItemStack item2=item.clone();
-
         ItemMeta meta=item2.getItemMeta();
         meta.setDisplayName(resolveColor(name));
         item2.setItemMeta(meta);
         return item2;
     }
+    /**
+     * Resolves color codes in a string.
+     *
+     * <p>This method replaces all '&' color codes in the input string with the
+     * Minecraft section sign (§) color codes.
+     *
+     * @param s The string to resolve color codes in
+     * @return The string with color codes resolved
+     */
     public static String resolveColor(String s){
         return translateAlternateColorCodes('&', s);
     }
+    /**
+     * Translates alternate color codes in a string.
+     *
+     * <p>This method replaces all occurrences of the specified alternate color
+     * character with the Minecraft section sign (§) color codes.
+     *
+     * @param altColorChar The alternate color code character (e.g., '&')
+     * @param textToTranslate The string to translate
+     * @return The string with alternate color codes translated
+     */
     public static String translateAlternateColorCodes(char altColorChar,  String textToTranslate) {
         Preconditions.checkArgument(textToTranslate != null, "Cannot translate null text");
         char[] b = textToTranslate.toCharArray();
@@ -340,6 +696,12 @@ public class AddUtils {
         return new String(b);
     }
 
+    /**
+     * Formats a double as a percentage string with up to two decimal places.
+     *
+     * @param b The value to format as a percentage
+     * @return The formatted percentage string
+     */
     public static String getPercentFormat(double b){
         DecimalFormat df = new DecimalFormat("#.##");
         NumberFormat nf = NumberFormat.getPercentInstance();
@@ -347,25 +709,39 @@ public class AddUtils {
     }
 
     /**
-     * return int values in [0,length)
-     * @param length
-     * @return
+     * Returns a random integer in the range [0, length).
+     *
+     * @param length The exclusive upper bound
+     * @return A random integer between 0 (inclusive) and length (exclusive)
      */
     public static int random(int length){
         return random.nextInt(length);
     }
-    //generate rand in (0,1)
+    /**
+     * Returns a random double in the range (0, 1).
+     *
+     * @return A random double between 0.0 (inclusive) and 1.0 (exclusive)
+     */
     public static double standardRandom(){
         return random.nextDouble();
     }
     //we supposed that u have checked these shits
 
 
+    /**
+     * Gives a player a specified amount of an ItemStack, dropping leftovers if inventory is full.
+     *
+     * <p>This method splits the amount into stack sizes as needed and drops any leftover items at the player's location.
+     *
+     * @param p The player to give items to
+     * @param toGive The ItemStack to give
+     * @param amount The total amount to give
+     */
     public static void forceGive(Player p, ItemStack toGive, int amount) {
         ItemStack incoming;
         int maxSize=toGive.getMaxStackSize();
         while(amount>0) {
-            incoming = new ItemStack(toGive);
+            incoming = getCopy(toGive);
             int amount2=Math.min(maxSize, amount);
             incoming.setAmount(amount2);
             amount-=amount2;
@@ -377,11 +753,13 @@ public class AddUtils {
     }
 
     /**
-     * add glowing effect to itemstack
-     * no clone in this method
-     * @param stack
+     * Adds a glowing effect to an ItemStack by adding a hidden enchantment.
+     *
+     * <p>This method does not clone the ItemStack.
+     *
+     * @param stack The ItemStack to modify
+     * @return The same ItemStack with a glowing effect
      */
-
     public static ItemStack addGlow(ItemStack stack){
         //stack.addEnchantment(Enchantment.ARROW_INFINITE, 1);
         ItemMeta meta=stack.getItemMeta();
@@ -390,6 +768,12 @@ public class AddUtils {
         stack.setItemMeta(meta);
         return stack;
     }
+    /**
+     * Adds all item flags to an ItemStack, hiding all flags in the tooltip.
+     *
+     * @param stack The ItemStack to modify
+     * @return The same ItemStack with all flags hidden
+     */
     public static ItemStack hideAllFlags(ItemStack stack){
         ItemMeta meta=stack.getItemMeta();
         for (ItemFlag flag:ItemFlag.values()){
@@ -398,6 +782,12 @@ public class AddUtils {
         stack.setItemMeta(meta);
         return stack;
     }
+    /**
+     * Removes all item flags from an ItemStack, showing all flags in the tooltip.
+     *
+     * @param stack The ItemStack to modify
+     * @return The same ItemStack with all flags shown
+     */
     public static ItemStack showAllFlags(ItemStack stack){
         ItemMeta meta=stack.getItemMeta();
         for (ItemFlag flag:ItemFlag.values()){
@@ -406,6 +796,13 @@ public class AddUtils {
         stack.setItemMeta(meta);
         return stack;
     }
+    /**
+     * Sets the unbreakable property of an ItemStack.
+     *
+     * @param stack The ItemStack to modify
+     * @param unbreakable Whether the item should be unbreakable
+     * @return The same ItemStack with the unbreakable property set
+     */
     public static ItemStack setUnbreakable(ItemStack stack,boolean unbreakable){
         ItemMeta meta=stack.getItemMeta();
         meta.setUnbreakable(unbreakable);
@@ -413,21 +810,23 @@ public class AddUtils {
         return stack;
     }
     /**
-     * get a info display item to present in SF machineRecipe display
-     * @param title
-     * @param name
-     * @return
+     * Creates an info display ItemStack for use in machine recipe displays.
+     *
+     * @param title The display title
+     * @param name Additional lines for the display
+     * @return An ItemStack representing the info display
      */
     public static ItemStack getInfoShow(String title,String... name){
         return new CleanItemStack(Material.BOOK,title,name);
     }
 
     /**
-     * set the specific lore line in stack ,will not clone
-     * @param stack
-     * @param index
-     * @param str
-     * @return
+     * Sets a specific lore line in an ItemStack without cloning.
+     *
+     * @param stack The ItemStack to modify
+     * @param index The index of the lore line to set
+     * @param str The new lore line
+     * @return The same ItemStack with the updated lore line
      */
     public static ItemStack setLore(ItemStack stack,int index,String str){
         ItemMeta meta=stack.getItemMeta();
@@ -441,10 +840,11 @@ public class AddUtils {
         return stack;
     }
     /**
-     * set the total lore line in stack ,will not clone
-     * @param stack
-     * @param str
-     * @return
+     * Sets the entire lore of an ItemStack without cloning.
+     *
+     * @param stack The ItemStack to modify
+     * @param str The new lore lines
+     * @return The same ItemStack with the updated lore
      */
     public static ItemStack setLore(ItemStack stack,String... str){
         ItemMeta meta=stack.getItemMeta();
@@ -458,24 +858,32 @@ public class AddUtils {
         return stack;
     }
 
+    /**
+     * Sends a colored message to a CommandSender.
+     *
+     * @param p The CommandSender to send the message to
+     * @param msg The message to send
+     */
     public static void sendMessage(CommandSender p, String msg){
         p.sendMessage(resolveColor(msg));
     }
+    /**
+     * Sends a colored title and subtitle to a player.
+     *
+     * @param p The player to send the title to
+     * @param title The title text
+     * @param subtitle The subtitle text
+     */
     public static void sendTitle(Player p,String title,String subtitle){
         p.sendTitle(resolveColor(title),resolveColor(subtitle),-1,-1,-1);
     }
-    public static ItemStack[] formatInfoRecipe(ItemStack stack,String source){
-        return new ItemStack[]{
-                null,stack,null,
-                null,getInfoShow("&f获取方式","&7在 %s 中获取".formatted(source)),null,
-                null,null,null
-        };
-    }
-    //    public static MachineRecipe formatInfoMachineRecipe(ItemStack[] stack,int tick,String... description){
-//        return MachineRecipeUtils.From(tick,new ItemStack[]{
-//                getInfoShow("&f获取方式",description)
-//        },stack);
-//    }
+
+    /**
+     * Gets the corresponding planks Material for a given log Material, if available.
+     *
+     * @param log The log Material
+     * @return An Optional containing the planks Material, or empty if not found
+     */
     public static @Nonnull Optional<Material> getPlanks(@Nonnull Material log) {
         String materialName = log.name().replace("STRIPPED_", "");
         int endIndex = materialName.lastIndexOf('_');
@@ -488,6 +896,14 @@ public class AddUtils {
             return Optional.empty();
         }
     }
+    /**
+     * Displays a clickable, hoverable string to a player that copies text to clipboard.
+     *
+     * @param player The player to display the string to
+     * @param display The display text
+     * @param hover The hover text
+     * @param copy The text to copy to clipboard
+     */
     public static void displayCopyString(Player player,String display,String hover,String copy){
         final TextComponent link = new TextComponent(display);
         link.setColor(ChatColor.YELLOW);
@@ -497,15 +913,40 @@ public class AddUtils {
     }
 
 
-    public static String getUUID(){
+    /**
+     * Generates a random UUID string.
+     *
+     * @return A random UUID as a string
+     */
+    public static String randUUID(){
         return UUID.randomUUID().toString();
     }
+    /**
+     * Broadcasts a colored message to all players on the server.
+     *
+     * @param string The message to broadcast
+     */
     public static void broadCast(String string){
         Bukkit.getServer().broadcastMessage(resolveColor(string));
     }
-    public static ItemStack setCount(ItemStack stack,int amount){
-        return new CleanItemStack(stack,amount);
+    /**
+     * Creates a clean copy of an ItemStack with a specified amount.
+     *
+     * @param stack The ItemStack to copy
+     * @param amount The amount to set
+     * @return A new ItemStack with the specified amount
+     */
+    public static ItemStack copyWithAmount(ItemStack stack,int amount){
+        ItemStack result= CleanItemStack.ofBukkitClean(stack);
+        result.setAmount(amount);
+        return result;
     }
+    /**
+     * Concatenates multiple strings into one.
+     *
+     * @param strs The strings to concatenate
+     * @return The concatenated string
+     */
     public static String concat(String... strs){
         StringBuilder sb=new StringBuilder();
         for(int i=0;i<strs.length;++i){
@@ -513,28 +954,33 @@ public class AddUtils {
         }
         return sb.toString();
     }
+    /**
+     * Damages a Damageable entity by a specified amount, clamped to valid health range.
+     *
+     * @param e The entity to damage
+     * @param f The amount of damage
+     */
     public static void damageGeneric(Damageable e, double f){
-        e.setHealth(Math.min( Math.max( e.getHealth()-f,0.0),e.getMaxHealth()));
+        e.setHealth(MathUtils.clamp( e.getHealth()-f,0.0,e.getMaxHealth()));
     }
-    public static ItemMeta setName(String name,ItemMeta meta){
+    /**
+     * Sets the display name of an ItemMeta, resolving color codes.
+     *
+     * @param meta The ItemMeta to modify
+     * @param name The new display name
+     * @return The modified ItemMeta
+     */
+    public static ItemMeta setName(ItemMeta meta ,String name){
         meta.setDisplayName(AddUtils.resolveColor(name));
         return meta;
     }
+    /**
+     * Gets the current date as a string in yyyyMMdd format.
+     *
+     * @return The current date as a string
+     */
     public static String getDateString(){
         return new SimpleDateFormat("yyyyMMdd").format(new Date());
     }
 
-
-
-
-
-//    public static FormattedCharSequence applyRainbow(FormattedCharSequence sequence, int x, int y) {
-//        int[] combinedX = {x};
-//        return sink -> sequence.accept((charIndex, style, codePoint) -> {
-//            if (charIndex == 0) combinedX[0] = x;
-//            int rgb = Color.HSBtoRGB(((Util.getMillis() - combinedX[0] * 10 - y * 10) % 2000) / 2000F, 0.8F, 0.95F);
-//            combinedX[0] += Minecraft.getInstance().font.getSplitter().widthProvider.getWidth(codePoint, style);
-//            return sink.accept(charIndex, style.withColor(TextColor.fromRgb(rgb)), codePoint);
-//        });
-//    }
 }

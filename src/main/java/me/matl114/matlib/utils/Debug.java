@@ -28,23 +28,7 @@ public class Debug {
     private static boolean interceptorRegistered = false;
     private static boolean interceptLogger = false;
     private static List<String> interceptionString = new ArrayList<>();
-//    private static AtomicBoolean[] breakPoints=null;
-//    private static Object[] breakValues=null;
-//    private static AtomicBoolean[] setValues=null;
-//    private static byte[] lock=new byte[0];
-//    public static AtomicBoolean getBreakPoint(int i){
-//        if(breakPoints==null){
-//            breakPoints=new AtomicBoolean[80];
-//            breakValues=new Object[80];
-//            setValues=new AtomicBoolean[80];
-//            for(int j=0;j<80;j++){
-//                breakPoints[j]=new AtomicBoolean(false);
-//                setValues[j]=new AtomicBoolean(false);
-//            }
-//        }
-//
-//        return breakPoints[i];
-//    }
+
     public static void debug(Throwable debug){
         if(debugMod){
             logger(debug);

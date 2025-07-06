@@ -12,52 +12,37 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class ReflectUtils {
-//    public static  Object invokeGetRecursively(Object target, Flags mod, String declared){
-//        return invokeGetRecursively(target,target.getClass(),mod,declared);
-//    }
-//    public static  Object invokeGetRecursively(Object target, Class clazz, Flags mod, String decleared){
-////        if(Debug.debug){
-////            Debug.debug("try invoke ",clazz);
-////        }
-//        try{
-//            switch (mod){
-//                case FIELD:
-////                    if(clazz.getName().endsWith("AbstractMachineBlock")){
-////                        Debug.debug("try print this");
-////                        Field[] fields=clazz.getDeclaredFields();
-////                        for(Field f:fields){
-////                            Debug.debug(f.getName());
-////                        }
-////                    }
-//                    //Debug.debug("start find field ",decleared);
-//                    Field _hasType=clazz.getDeclaredField(decleared);
-//                    // Debug.debug("find field");
-//                    _hasType.setAccessible(true);
-//                    //  Debug.debug("Access true");
-//                    return  _hasType.get(target);
-//                case METHOD:
-//                    Method _hasMethod=clazz.getDeclaredMethod(decleared);
-//
-//                    _hasMethod.setAccessible(true);
-//                    return _hasMethod.invoke(target);
-//            }
-//        }catch (Throwable e){
-//        }
-//        clazz=clazz.getSuperclass();
-//        if(clazz==null){
-//            return null;
-//        }else {
-//            return invokeGetRecursively(target,clazz,mod,decleared);
-//        }
-//    }
+    /**
+     * Sets a field value recursively by searching through the class hierarchy.
+     *
+     * <p>This method searches for a field with the specified name starting from
+     * the target object's class and traversing up the inheritance hierarchy.
+     * The field is made accessible before setting the value.
+     *
+     * @param target The object whose field should be set
+     * @param declared The name of the field to set
+     * @param value The value to set the field to
+     * @return true if the field was found and set successfully, false otherwise
+     */
     public static boolean setFieldRecursively(Object target,  String declared,Object value){
         return setFieldRecursively(target,target.getClass(),declared,value);
     }
+    /**
+     * Sets a field value recursively by searching through a specific class and its superclasses.
+     *
+     * <p>This method searches for a field with the specified name starting from
+     * the given class and traversing up the inheritance hierarchy. The field is
+     * made accessible before setting the value.
+     *
+     * @param target The object whose field should be set
+     * @param clazz The class to start searching from
+     * @param decleared The name of the field to set
+     * @param value The value to set the field to
+     * @return true if the field was found and set successfully, false otherwise
+     */
     public static boolean setFieldRecursively(Object target, Class clazz, String decleared, Object value){
         try{
             Field _hasType=clazz.getDeclaredField(decleared);
@@ -73,6 +58,17 @@ public class ReflectUtils {
             return setFieldRecursively(target,clazz,decleared,value);
         }
     }
+    /**
+     * Gets a field recursively by searching through the class hierarchy.
+     *
+     * <p>This method searches for a field with the specified name starting from
+     * the given class and traversing up the inheritance hierarchy. The field is
+     * made accessible before being returned.
+     *
+     * @param clazz The class to start searching from
+     * @param fieldName The name of the field to find
+     * @return A Pair containing the field and the class where it was found, or null if not found
+     */
     public static Pair<Field,Class> getFieldsRecursively(Class clazz, String fieldName){
         try{
             Field field=clazz.getDeclaredField(fieldName);
@@ -87,6 +83,16 @@ public class ReflectUtils {
             }
         }
     }
+    /**
+     * Gets all fields recursively from a class, its interfaces, and superclasses.
+     *
+     * <p>This method collects all declared fields from the given class, all its
+     * interfaces, and all superclasses. Each field is made accessible before
+     * being added to the list.
+     *
+     * @param clazz The class to get fields from
+     * @return A list of all accessible fields from the class hierarchy
+     */
     public static List<Field> getAllFieldsRecursively(Class clazz){
         List<Field> fieldList=new ArrayList<>();
         if(clazz==null){
@@ -107,6 +113,16 @@ public class ReflectUtils {
         fieldList.addAll(getAllFieldsRecursively(clazz.getSuperclass()));
         return fieldList;
     }
+    /**
+     * Gets all methods recursively from a class, its interfaces, and superclasses.
+     *
+     * <p>This method collects all declared methods from the given class, all its
+     * interfaces, and all superclasses. Each method is made accessible before
+     * being added to the list.
+     *
+     * @param clazz The class to get methods from
+     * @return A list of all accessible methods from the class hierarchy
+     */
     public static List<Method> getAllMethodsRecursively(Class clazz){
         List<Method> fieldList=new ArrayList<>();
         if(clazz==null){
@@ -128,6 +144,15 @@ public class ReflectUtils {
         fieldList.addAll(getAllMethodsRecursively(clazz.getSuperclass()));
         return fieldList;
     }
+    /**
+     * Gets all default methods recursively from an interface and its superinterfaces.
+     *
+     * <p>This method collects all default methods, private methods, and static methods
+     * from the given interface and all its superinterfaces.
+     *
+     * @param iface The interface to get methods from
+     * @return A list of all default, private, and static methods from the interface hierarchy
+     */
     public static List<Method> getAllDefaultMethodRecursively(Class iface){
         List<Method> methodList = new ArrayList<>();
         for (Method method : iface.getMethods()) {
@@ -146,9 +171,13 @@ public class ReflectUtils {
     }
 
     /**
-     * return the directly implemented interface, the superInterface of interface is not listed in the return List
-     * @param clazz
-     * @return
+     * Gets all directly implemented interfaces recursively from a class and its superclasses.
+     *
+     * <p>This method returns only the directly implemented interfaces, not the
+     * superinterfaces of those interfaces.
+     *
+     * @param clazz The class to get interfaces from
+     * @return A list of all directly implemented interfaces from the class hierarchy
      */
     public static List<Class> getAllInterfacesRecursively(Class clazz){
         List<Class> fieldList=new ArrayList<>();
@@ -162,6 +191,15 @@ public class ReflectUtils {
         fieldList.addAll(getAllInterfacesRecursively(clazz.getSuperclass()));
         return fieldList;
     }
+    /**
+     * Gets all assignable interfaces recursively from a class and its superclasses.
+     *
+     * <p>This method returns all interfaces that can be assigned from the given class,
+     * including superinterfaces, using a Set to avoid duplicates.
+     *
+     * @param clazz The class to get assignable interfaces from
+     * @return A list of all assignable interfaces from the class hierarchy
+     */
     public static List<Class> getAllAssignableInterface(Class clazz){
         Set<Class> fieldList=new HashSet<>();
         if(clazz==null){
@@ -174,6 +212,15 @@ public class ReflectUtils {
         fieldList.addAll(getAllAssignableInterface(clazz.getSuperclass()));
         return fieldList.stream().toList();
     }
+    /**
+     * Gets all superclasses recursively from a class.
+     *
+     * <p>This method traverses up the inheritance hierarchy and collects all
+     * superclasses, including the class itself.
+     *
+     * @param clazz The class to get superclasses from
+     * @return A list of all superclasses including the class itself
+     */
     public static List<Class> getAllSuperClassRecursively(Class clazz){
         List<Class> fieldList=new ArrayList<>();
         while (clazz!=null){
@@ -183,6 +230,18 @@ public class ReflectUtils {
         };
         return fieldList;
     }
+    /**
+     * Gets a method recursively by searching through the class hierarchy.
+     *
+     * <p>This method searches for a method with the specified name and parameter types
+     * starting from the given class, traversing through interfaces and superclasses.
+     * The method is made accessible before being returned.
+     *
+     * @param clazz The class to start searching from
+     * @param fieldName The name of the method to find
+     * @param parameterTypes The parameter types of the method
+     * @return A Pair containing the method and the class where it was found, or null if not found
+     */
     public static Pair<Method,Class> getMethodsRecursively(Class clazz, String fieldName, Class[] parameterTypes){
         try{
             Method field=clazz.getDeclaredMethod(fieldName,parameterTypes);
@@ -203,6 +262,17 @@ public class ReflectUtils {
             }
         }
     }
+    /**
+     * Gets a method by name recursively by searching through the class hierarchy.
+     *
+     * <p>This method searches for a method with the specified name starting from
+     * the given class and traversing up the inheritance hierarchy. The method is
+     * made accessible before being returned.
+     *
+     * @param clazz The class to start searching from
+     * @param fieldName The name of the method to find
+     * @return A Pair containing the method and the class where it was found, or null if not found
+     */
     public static Pair<Method,Class> getMethodsByName(Class clazz, String fieldName){
 
         Method[] field=clazz.getDeclaredMethods();
@@ -224,12 +294,24 @@ public class ReflectUtils {
             return getMethodsByName(clazz,fieldName);
         }
     }
+    /**
+     * Checks if a string represents a Java primitive type.
+     *
+     * @param val The string to check
+     * @return true if the string represents a primitive type, false otherwise
+     */
     public static boolean isPrimitiveType(String val){
         return switch (val) {
             case "int", "void", "boolean", "long", "double", "float", "short", "byte", "char" -> true;
             default -> false;
         };
     }
+    /**
+     * Checks if a class name represents a boxed primitive type.
+     *
+     * @param className The class name to check (in internal format, e.g., "java/lang/Integer")
+     * @return true if the class name represents a boxed primitive type, false otherwise
+     */
     public static boolean isBoxedPrimitive(String className) {
         return switch (className) {
             case "java/lang/Integer",
@@ -244,6 +326,13 @@ public class ReflectUtils {
             default -> false;
         };
     }
+    /**
+     * Converts a boxed primitive class name to its unboxed primitive type name.
+     *
+     * @param boxedClassName The boxed primitive class name (in internal format)
+     * @return The unboxed primitive type name
+     * @throws IllegalArgumentException if the class name is not a boxed primitive type
+     */
     public static String getUnboxedClass(String boxedClassName) {
         return switch (boxedClassName) {
             case "java/lang/Integer"   -> "int";
@@ -258,6 +347,13 @@ public class ReflectUtils {
             default -> throw new IllegalArgumentException("Not a boxed primitive class: " + boxedClassName);
         };
     }
+    /**
+     * Converts a primitive type name to its boxed class name.
+     *
+     * @param primitive The primitive type name
+     * @return The boxed class name (in internal format)
+     * @throws IllegalArgumentException if the primitive type is not supported
+     */
     public static String getBoxedClass(String primitive) {
         switch (primitive) {
             case "int":
@@ -282,6 +378,18 @@ public class ReflectUtils {
                 throw new IllegalArgumentException("Unsupported primitive type: " + primitive);
         }
     }
+    /**
+     * Gets a method by name and parameter types recursively.
+     *
+     * <p>This method searches for a method with the specified name and parameter types
+     * starting from the given class and traversing up the inheritance hierarchy.
+     * Parameter types are matched using exact type equality or assignability.
+     *
+     * @param clazz The class to start searching from
+     * @param methodName The name of the method to find
+     * @param parameterTypes The parameter types of the method
+     * @return A Pair containing the method and the class where it was found, or null if not found
+     */
     public static Pair< Method,Class> getMethodByParams(Class clazz, String methodName, Class[] parameterTypes){
         try{
             Method[] methods=clazz.getDeclaredMethods();
@@ -314,6 +422,17 @@ public class ReflectUtils {
         if(clazz==null){return null;}
         return getMethodByParams(clazz,methodName,parameterTypes);
     }
+    /**
+     * Gets a constructor by parameter types.
+     *
+     * <p>This method searches for a constructor with the specified parameter types
+     * in the given class. Parameter types are matched using exact type equality
+     * or assignability. The constructor is made accessible before being returned.
+     *
+     * @param clazz The class to search for constructors
+     * @param parameterTypes The parameter types of the constructor
+     * @return The matching constructor, or null if not found
+     */
     public static Constructor getConstructorByParams(Class clazz, Class... parameterTypes){
         Constructor[] constructors=clazz.getDeclaredConstructors();
         for(Constructor c:constructors){
@@ -337,6 +456,16 @@ public class ReflectUtils {
         }
         return null;
     }
+    /**
+     * Checks if a class is extended from a class whose name ends with the specified suffix.
+     *
+     * <p>This method recursively checks if the given class or any of its superclasses
+     * has a name that ends with the specified suffix.
+     *
+     * @param clazz The class to check
+     * @param s The suffix to check for
+     * @return true if the class or any superclass name ends with the suffix, false otherwise
+     */
     public static boolean isExtendedFrom(Class clazz,String s){
         if(clazz==null){
             return false;
@@ -348,6 +477,17 @@ public class ReflectUtils {
             }
         }
     }
+    /**
+     * Gets the first field that is assignable to the specified type.
+     *
+     * <p>This method searches for a field whose type is assignable to the specified
+     * field type, starting from the given class and traversing up the inheritance
+     * hierarchy. The field is made accessible before being returned.
+     *
+     * @param clazz The class to start searching from
+     * @param fieldType The type that the field should be assignable to
+     * @return The first matching field, or null if not found
+     */
     public static Field getFirstFitField(Class<?> clazz,Class<?> fieldType) {
         try{
             Field[] fields = clazz.getDeclaredFields();
@@ -363,6 +503,18 @@ public class ReflectUtils {
         }
         return null;
     }
+    /**
+     * Gets the first field that is assignable to the specified type and matches the static modifier.
+     *
+     * <p>This method searches for a field whose type is assignable to the specified
+     * field type and has the specified static modifier, starting from the given class
+     * and traversing up the inheritance hierarchy. The field is made accessible before being returned.
+     *
+     * @param clazz The class to start searching from
+     * @param fieldType The type that the field should be assignable to
+     * @param isStatic Whether the field should be static (true) or non-static (false)
+     * @return The first matching field, or null if not found
+     */
     public static Field getFirstFitField(Class<?> clazz,Class<?> fieldType,boolean isStatic) {
         try{
             Field[] fields = clazz.getDeclaredFields();
@@ -378,6 +530,17 @@ public class ReflectUtils {
         }
         return null;
     }
+    /**
+     * Gets the value of the first field that is assignable to the specified type.
+     *
+     * <p>This method finds the first field whose type is assignable to the specified
+     * field type and returns its value from the given object.
+     *
+     * @param object The object to get the field value from
+     * @param clazz The class to search for fields in
+     * @param fieldType The type that the field should be assignable to
+     * @return The field value, or null if not found or an error occurs
+     */
     public static Object getFieldValue(Object object,Class<?> clazz,Class<?> fieldType){
         try{
             if(object!=null&&!clazz.isInstance(object)){
@@ -391,6 +554,17 @@ public class ReflectUtils {
             return null;
         }
     }
+    /**
+     * Gets all fields that are assignable to the specified type recursively.
+     *
+     * <p>This method collects all fields whose type is assignable to the specified
+     * field type from the given class and all its superclasses. Each field is made
+     * accessible before being added to the array.
+     *
+     * @param clazz The class to search for fields in
+     * @param fieldType The type that the fields should be assignable to
+     * @return An array of all matching fields
+     */
     public static Field[] getAllFitFields(Class<?> clazz,Class<?> fieldType){
         if(clazz==null){
             return new Field[0];
@@ -405,6 +579,18 @@ public class ReflectUtils {
         fields.addAll(Arrays.stream(getAllFitFields(clazz.getSuperclass(),fieldType)).toList());
         return fields.toArray(Field[]::new);
     }
+    /**
+     * Gets the value of the first field that is assignable to the specified type and matches the static modifier.
+     *
+     * <p>This method finds the first field whose type is assignable to the specified
+     * field type and has the specified static modifier, then returns its value from the given object.
+     *
+     * @param object The object to get the field value from
+     * @param clazz The class to search for fields in
+     * @param fieldType The type that the field should be assignable to
+     * @param isStatic Whether the field should be static (true) or non-static (false)
+     * @return The field value, or null if not found or an error occurs
+     */
     public static Object getFieldValue(Object object,Class<?> clazz,Class<?> fieldType,boolean isStatic){
         try{
             if(object!=null&&!clazz.isInstance(object)){
@@ -418,6 +604,18 @@ public class ReflectUtils {
             return null;
         }
     }
+    /**
+     * Sets the value of the first field that is assignable to the specified type.
+     *
+     * <p>This method finds the first field whose type is assignable to the specified
+     * field type and sets its value in the given object.
+     *
+     * @param object The object to set the field value in
+     * @param tar The value to set
+     * @param clazz The class to search for fields in
+     * @param fieldType The type that the field should be assignable to
+     * @return true if the field was found and set successfully, false otherwise
+     */
     public static boolean setFirstFitField(Object object,Object tar,Class<?> clazz,Class<?> fieldType){
         try{
             if(object!=null&&!clazz.isInstance(object)){
@@ -432,6 +630,19 @@ public class ReflectUtils {
             return false;
         }
     }
+    /**
+     * Sets the value of the first field that is assignable to the specified type and matches the static modifier.
+     *
+     * <p>This method finds the first field whose type is assignable to the specified
+     * field type and has the specified static modifier, then sets its value in the given object.
+     *
+     * @param object The object to set the field value in
+     * @param tar The value to set
+     * @param clazz The class to search for fields in
+     * @param fieldType The type that the field should be assignable to
+     * @param isStatic Whether the field should be static (true) or non-static (false)
+     * @return true if the field was found and set successfully, false otherwise
+     */
     public static boolean setFirstFitField(Object object,Object tar,Class<?> clazz,Class<?> fieldType,boolean isStatic){
         try{
             if(object!=null&&!clazz.isInstance(object)){
@@ -446,10 +657,28 @@ public class ReflectUtils {
             return false;
         }
     }
+    /**
+     * Copies the value of the first matching field from one object to another.
+     *
+     * <p>This method finds the first field whose type is assignable to the specified
+     * field type, gets its value from the source object, and sets it in the target object.
+     *
+     * @param to The target object to copy the field value to
+     * @param from The source object to copy the field value from
+     * @param clazz The class to search for fields in
+     * @param fieldType The type that the field should be assignable to
+     * @return true if the field was found and copied successfully, false otherwise
+     */
     public static boolean copyFirstField(Object to,Object from,Class<?> clazz,Class<?> fieldType){
         return setFirstFitField(to,getFieldValue(from,clazz,fieldType),clazz,fieldType);
     }
 
+    /**
+     * Finds a class by its fully qualified name.
+     *
+     * @param name The fully qualified class name
+     * @return The Class object, or null if the class cannot be found
+     */
     public static Class<?> findClass(String name){
         try{
             return Class.forName(name);
@@ -458,6 +687,14 @@ public class ReflectUtils {
         }
     }
 
+    /**
+     * Gets a public method from a class.
+     *
+     * @param clazz The class to search for the method
+     * @param name The name of the method
+     * @param clazzs The parameter types of the method
+     * @return The Method object, or null if the method cannot be found
+     */
     public static Method getMethod(Class<?> clazz, String name, Class<?>... clazzs){
         try{
             return clazz.getMethod(name, clazzs);
@@ -465,6 +702,14 @@ public class ReflectUtils {
             return null;
         }
     }
+    /**
+     * Gets a declared method (including private methods) from a class.
+     *
+     * @param clazz The class to search for the method
+     * @param name The name of the method
+     * @param clazzes The parameter types of the method
+     * @return The Method object, or null if the method cannot be found
+     */
     public static Method getMethodPrivate(Class<?> clazz, String name, Class<?>... clazzes){
         try{
             return clazz.getDeclaredMethod(name, clazzes);
@@ -473,6 +718,14 @@ public class ReflectUtils {
         }
     }
 
+    /**
+     * Gets a MethodHandle for a public method.
+     *
+     * @param clazz The class to search for the method
+     * @param name The name of the method
+     * @param argments The parameter types of the method
+     * @return The MethodHandle, or null if the method cannot be found
+     */
     public static MethodHandle getMethodHandle(Class<?> clazz, String name, Class<?>... argments){
         try{
             Method method = clazz.getMethod(name, argments);
@@ -482,6 +735,14 @@ public class ReflectUtils {
         }
     }
 
+    /**
+     * Gets a MethodHandle for a declared method (including private methods).
+     *
+     * @param clazz The class to search for the method
+     * @param name The name of the method
+     * @param argments The parameter types of the method
+     * @return The MethodHandle, or null if the method cannot be found
+     */
     public static MethodHandle getMethodHandlePrivate(Class<?> clazz, String name, Class<?>... argments){
         try{
             Method method = clazz.getDeclaredMethod(name, argments);
@@ -491,6 +752,13 @@ public class ReflectUtils {
         }
     }
 
+    /**
+     * Gets a VarHandle for a public field.
+     *
+     * @param clazz The class to search for the field
+     * @param name The name of the field
+     * @return The VarHandle, or null if the field cannot be found
+     */
     public static VarHandle getVarHandle(Class<?> clazz, String name){
         try{
             Field field = clazz.getField( name);
@@ -500,6 +768,13 @@ public class ReflectUtils {
         }
     }
 
+    /**
+     * Gets a VarHandle for a declared field (including private fields).
+     *
+     * @param clazz The class to search for the field
+     * @param name The name of the field
+     * @return The VarHandle, or null if the field cannot be found
+     */
     public static VarHandle getVarHandlePrivate(Class<?> clazz, String name){
         try{
             Field field = clazz.getDeclaredField(name);
@@ -508,6 +783,14 @@ public class ReflectUtils {
             return null;
         }
     }
+    /**
+     * Gets a MethodHandle for a declared method using private lookup.
+     *
+     * @param clazz The class to search for the method
+     * @param name The name of the method
+     * @param args The parameter types of the method
+     * @return The MethodHandle, or null if the method cannot be found
+     */
     public static MethodHandle getPrivateMethodHandle(Class<?> clazz, String name, Class<?>... args){
         try{
             Method method = clazz.getDeclaredMethod(name, args);
@@ -519,7 +802,18 @@ public class ReflectUtils {
 
 
 
+    /**
+     * Callback interface for initializing objects allocated with Unsafe.
+     *
+     * @param <T> The type of object to initialize
+     */
     public static interface UnsafeAllocateCallback<T extends Object>{
+        /**
+         * Initializes a newly allocated object.
+         *
+         * @param unsafe The Unsafe instance
+         * @param newInstance The newly allocated object to initialize
+         */
         public void init(Unsafe unsafe,T newInstance);
     }
     private static final Unsafe theUnsafe =  new InitializeSafeProvider<>(()->{
@@ -528,9 +822,28 @@ public class ReflectUtils {
         return (Unsafe)field.get(null);
     }).v();
 
+    /**
+     * Gets the Unsafe instance.
+     *
+     * @return The Unsafe instance
+     */
     public static Unsafe getUnsafe(){
         return theUnsafe;
     }
+    /**
+     * Adds a new enum constant to an existing enum class using Unsafe.
+     *
+     * <p>This is an unsafe operation that modifies the enum's internal structure.
+     * It should be used with extreme caution as it can cause JVM instability.
+     *
+     * @param <T> The enum type
+     * @param enumClass The enum class to add the constant to
+     * @param name The name of the new enum constant
+     * @param initCallback Callback to initialize the new enum constant
+     * @param expandOriginalArray Whether to expand the original values array (may cause JVM issues)
+     * @return The newly created enum constant
+     * @throws Throwable if the operation fails
+     */
     @UnsafeOperation
     @NotRecommended
     public static <T extends Enum<T>> T addEnumConst(Class<T> enumClass, String name, UnsafeAllocateCallback<T> initCallback,@Note("expanding array may cause jvm explode") boolean expandOriginalArray) throws Throwable{
@@ -567,6 +880,15 @@ public class ReflectUtils {
         }
         return newEnum;
     }
+    /**
+     * Resizes an array using Unsafe.
+     *
+     * <p>This is an unsafe operation that directly modifies the array's length field.
+     * It should be used with extreme caution as it can cause JVM instability.
+     *
+     * @param array The array to resize
+     * @param size The new size of the array
+     */
     @UnsafeOperation
     @NotRecommended
     public static void resizeArray(Object array, int size){
@@ -581,9 +903,22 @@ public class ReflectUtils {
         "notifyAll",-7,"wait",-8,"wait0",-9,"finalize",-10
     ) ;
 
+    /**
+     * Checks if a method is a base Object method.
+     *
+     * @param method The method to check
+     * @return true if the method is a base Object method, false otherwise
+     */
     public static boolean isBaseMethod(Method method){
         return objectInvocationIndex.containsKey(method.getName()); //Object.class.equals(method.getDeclaringClass());
     }
+    /**
+     * Gets the index of a base Object method.
+     *
+     * @param method The method to get the index for
+     * @return The index of the base method
+     * @throws IllegalArgumentException if the method is not a base Object method
+     */
     public static int getBaseMethodIndex(Method method){
         String methodName = method.getName();
         if(objectInvocationIndex.containsKey(methodName)){
@@ -592,6 +927,18 @@ public class ReflectUtils {
             throw new IllegalArgumentException("Not a base Method!");
         }
     }
+    /**
+     * Invokes a base Object method by its index.
+     *
+     * <p>This method provides a way to invoke Object methods without using reflection.
+     * The index corresponds to the method's position in the objectInvocationIndex map.
+     *
+     * @param target The object to invoke the method on
+     * @param index The index of the base method to invoke
+     * @param args The arguments to pass to the method
+     * @return The result of the method invocation, or null for void methods
+     * @throws IllegalArgumentException if the index is not valid or the method is not supported
+     */
     public static Object invokeBaseMethod(Object target,int index,Object[] args){
         switch (index){
             case -1:return target.getClass();
@@ -615,6 +962,12 @@ public class ReflectUtils {
         return null;
     }
 
+    /**
+     * Creates a map of enum constants by their names.
+     *
+     * @param clazz The enum class
+     * @return A map where keys are enum constant names and values are the enum constants
+     */
     public static Map<String, Enum> getEnumMap(Class<?> clazz){
         return Arrays.stream(clazz.getEnumConstants()).collect(Collectors.toMap(i->((Enum)i).name(), Enum.class::cast));
     }

@@ -13,7 +13,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-public class ScreenHistoryStackImpl implements Listener, ScreenHistoryStack {
+public class ScreenHistoryStackImpl implements ScreenHistoryStack {
 
     Map<UUID, Stack<Pair<Screen, Integer>>> historyStack;
 
@@ -29,28 +29,18 @@ public class ScreenHistoryStackImpl implements Listener, ScreenHistoryStack {
         return this.historyStack.computeIfAbsent(player.getUniqueId(), (i)->new SimpleLinkList<>());
     }
 
-    public void cleanHistoryWhenLeave(PlayerQuitEvent event){
-        cleanPlayerHistory(event.getPlayer());
-    }
+
 
     /**
      * return whether there are histories
      * @param player
      * @return
      */
-    public boolean goBackToLast(InventoryBuilder.InventoryFactory factory, Player player){
+
+    public void popLast(Player player){
         var stack = getPlayerHistory(player);
         stack.poll();
-        //the top should be the history
-        var pair = stack.peek();
-        if(pair != null){
-            pair.getA().openPage(factory, player, pair.getB());
-            return true;
-        }else {
-            return false;
-        }
     }
-
     public void pushNew(Screen screen, Player player, int page){
         var stack = getPlayerHistory(player);
         stack.push(Pair.of(screen, page));
@@ -61,18 +51,6 @@ public class ScreenHistoryStackImpl implements Listener, ScreenHistoryStack {
         var pair = stack.peek();
         if(pair != null && pair.getA() == screen){
             pair.setB(page);
-        }
-    }
-
-    public void openWithHistoryClear(InventoryBuilder.InventoryFactory screenType, Player player, int page, Screen screen){
-        this.cleanPlayerHistory(player);
-        screen.openPageWithHistory(screenType, player, page);
-    }
-
-    public void openLastOrCreate(InventoryBuilder.InventoryFactory screenType, Player player, Supplier<Screen> screenSupplier){
-        if(!openLast(screenType, player)) {
-            Screen screen = screenSupplier.get().relateToHistory(this);
-            screen.openPageWithHistory(screenType, player, 1);
         }
     }
 

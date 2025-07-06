@@ -1,9 +1,9 @@
 package me.matl114.matlib.utils;
 
 import lombok.Getter;
+import me.matl114.matlib.algorithms.algorithm.FuncUtils;
 import me.matl114.matlib.algorithms.dataStructures.frames.initBuidler.InitializingTasks;
 import me.matl114.matlib.algorithms.dataStructures.struct.Holder;
-import me.matl114.matlib.common.functions.FuncUtils;
 import me.matl114.matlib.common.functions.reflect.FieldAccessor;
 import me.matl114.matlib.common.functions.reflect.MethodInvoker;
 import me.matl114.matlib.common.lang.annotations.Note;
@@ -44,9 +44,9 @@ public class CraftUtils {
         add(Material.BUNDLE);
     }};
     public static final ItemStack DEFAULT_ITEMSTACK= new ItemStack(Material.STONE);
-    private static final InitializingTasks INIT_TASK = InitializingTasks.of(()->{
+    static{
         Debug.logger("Initializing CraftUtils...");
-    });
+    }
     public static final ItemMeta NULL_META=(DEFAULT_ITEMSTACK.getItemMeta());
     public static final Class craftMetaItemClass =NULL_META.getClass();
     private static final ThreadLocal<Inventory> threadLocalInventory =
@@ -206,43 +206,84 @@ public class CraftUtils {
     });
 
 
+    /**
+     * Retrieves the NMS (Net Minecraft Server) handle from a CraftBukkit ItemStack.
+     * This method uses reflection to access the underlying NMS ItemStack object.
+     * 
+     * @param stack The CraftBukkit ItemStack to get the NMS handle from
+     * @return The NMS ItemStack object (net.minecraft.world.item.ItemStack)
+     * @throws RuntimeException if the provided stack is not a CraftItemStack instance
+     */
     public static Object getHandled(ItemStack stack){
         if(craftItemStackClass.isInstance(stack)){
             return handleAccessor.get(stack);
         }else {
-            throw new RuntimeException("Invalid argument passed! "+stack.getClass()+" does not extend from CraftItemStack");
+            throw new RuntimeException("Invalid argument passed! " + stack.getClass() + " does not extend from CraftItemStack");
         }
     }
+    
+    /**
+     * Creates a CraftBukkit copy of the given ItemStack using the asCraftCopy method.
+     * This method ensures the returned ItemStack is a CraftItemStack instance.
+     * 
+     * @param item The ItemStack to create a CraftBukkit copy from
+     * @return A CraftItemStack copy of the provided ItemStack
+     */
     public static ItemStack getCraftCopy(ItemStack item){
-        return asCraftCopyInvoker.invoke(null,item);
+        return asCraftCopyInvoker.invoke(null, item);
     }
+    
+    /**
+     * Creates a CraftBukkit copy of the given ItemStack using the asCraftCopy method.
+     * The throughInventorySafe parameter is currently ignored but may be used for future safety checks.
+     * 
+     * @param item The ItemStack to create a CraftBukkit copy from
+     * @param throughInventorySafe Whether to perform additional safety checks (currently ignored)
+     * @return A CraftItemStack copy of the provided ItemStack
+     */
     public static ItemStack getCraftCopy(ItemStack item,boolean throughInventorySafe){
-        return asCraftCopyInvoker.invoke(null,item);
-//        if(throughInventorySafe){
-//            Inventory inventory = threadLocalInventory.get();
-//            inventory.setItem(0,item);
-//            return inventory.getItem(0);
-//        }else{
-//            //todo not completed yet
-//            return getCraftCopy(item,true);
-//        }
+        return asCraftCopyInvoker.invoke(null, item);
     }
+    
+    /**
+     * Creates an NMS (Net Minecraft Server) copy of the given ItemStack using the asNMSCopy method.
+     * This method converts a CraftBukkit ItemStack to its NMS equivalent.
+     * 
+     * @param item The ItemStack to create an NMS copy from
+     * @return The NMS ItemStack object (net.minecraft.world.item.ItemStack)
+     */
     public static Object getNMSCopy(ItemStack item){
-//        ItemStack craftItemStack = getCraftCopy(item,true);
-//        return handleHandle.get(craftItemStack);
-        return asNMSCopyInvoker.invoke(null,item);
+        return asNMSCopyInvoker.invoke(null, item);
     }
+    
+    /**
+     * Checks if the given ItemStack is a CraftItemStack instance.
+     * 
+     * @param item The ItemStack to check
+     * @return true if the ItemStack is a CraftItemStack, false otherwise
+     */
     public static boolean isCraftItemStack(ItemStack item){
         return craftItemStackClass.isInstance(item);
     }
+    
+    /**
+     * Checks if the given object is an NMS ItemStack instance.
+     * 
+     * @param nms The object to check
+     * @return true if the object is an NMS ItemStack, false otherwise
+     */
     public static boolean isNMSItemStack(Object nms){
         return NMSItemStackClass.isInstance(nms);
     }
+    
     /**
-     * if item a and item b both craftItemStack ,check if they have same handled NMSItemStack
-     * @param a
-     * @param b
-     * @return
+     * Compares two CraftItemStack instances to check if they have the same NMS handle.
+     * If both items are CraftItemStack instances, this method checks if their underlying
+     * NMS ItemStack objects are the same reference.
+     * 
+     * @param a The first ItemStack to compare
+     * @param b The second ItemStack to compare
+     * @return true if both items are CraftItemStack instances with the same NMS handle, false otherwise
      */
     public static boolean sameCraftItem(ItemStack a, ItemStack b){
         if(craftItemStackClass.isInstance(a)&& craftItemStackClass.isInstance(b)){
@@ -257,12 +298,27 @@ public class CraftUtils {
         }else return false;
     }
 
+    /**
+     * Creates an ItemStackCache for the given ItemStack for efficient comparison and manipulation.
+     * The cache stores the ItemStack and its metadata for optimized operations.
+     * 
+     * @param a The ItemStack to create a cache for
+     * @return An ItemStackCache containing the ItemStack and its metadata, or null if the input is null
+     */
     public static ItemStackCache getStackCache(ItemStack a){
         if(a==null)return null;
         //用于比较和
         return ItemStackCache.get(a);
     }
 
+    /**
+     * Compares the amounts of two ItemStacks to check if the first has a larger or equal amount.
+     * If either ItemStack is null, they are considered equal only if both are null.
+     * 
+     * @param thisItem The first ItemStack to compare
+     * @param thatItem The second ItemStack to compare
+     * @return true if thisItem has greater or equal amount compared to thatItem, false otherwise
+     */
     public static boolean amountLargerThan(ItemStack thisItem,ItemStack thatItem){
         if(thisItem==null||thatItem==null){
             return thisItem==thatItem;
@@ -270,36 +326,120 @@ public class CraftUtils {
             return thisItem.getAmount()>=thatItem.getAmount();
         }
     }
+    
+    /**
+     * Consumes the amount from the first ItemStack from the second ItemStack.
+     * This method reduces the amount of thatItem by the amount of thisItem.
+     * 
+     * @param thisItem The ItemStack whose amount will be consumed (source)
+     * @param thatItem The ItemStack whose amount will be reduced (target)
+     */
     public static void consumeThat(ItemStack thisItem,ItemStack thatItem){
         if(thisItem!=null&&thatItem!=null){
             thatItem.setAmount(thatItem.getAmount()-thisItem.getAmount());
         }
     }
+    
+    /**
+     * Consumes a specific amount from the given ItemStack.
+     * This method reduces the amount of the ItemStack by the specified amount.
+     * 
+     * @param amount The amount to consume from the ItemStack
+     * @param thatItem The ItemStack whose amount will be reduced
+     */
     public static void consumeThat(int amount ,ItemStack thatItem){
         if(thatItem!=null){
             thatItem.setAmount(thatItem.getAmount()-amount);
         }
     }
+    
+    /**
+     * Compares two ItemStackCache objects to determine if they match.
+     * This method delegates to the core matching logic with the specified strictness level.
+     * 
+     * @param counter1 The first ItemStackCache to compare
+     * @param counter2 The second ItemStackCache to compare
+     * @param strictCheck Whether to perform strict checking (includes enchantments, attributes, etc.)
+     * @return true if the ItemStackCache objects match, false otherwise
+     */
     public static boolean matchItemCounter(ItemStackCache counter1, ItemStackCache counter2, boolean strictCheck){
         return matchItemCore(counter1,counter2,strictCheck);
     }
     //
     private static final List<ItemMatcher> registeredMatchers=new ArrayList<>();
+    
+    /**
+     * Interface for custom item matching logic.
+     * Implementations can provide custom matching behavior for specific item types.
+     */
     public static interface ItemMatcher{
+        /**
+         * Performs custom matching logic between two ItemStacks.
+         * 
+         * @param stack1 The first ItemStack to compare
+         * @param stack2 The second ItemStack to compare
+         * @param strictCheck Whether to perform strict checking
+         * @return ACCEPT if items match, REJECT if they don't match, or other flag for default behavior
+         */
         public Flags doMatch(ItemStack stack1, ItemStack stack2, boolean strictCheck);
     }
+    
+    /**
+     * Interface for custom item ID parsing and matching.
+     * Implementations can parse custom IDs from ItemMeta and perform specialized matching.
+     */
     public static interface CustomItemMatcher {
+        /**
+         * Parses a custom ID from the given ItemMeta.
+         * 
+         * @param meta1 The ItemMeta to parse the ID from
+         * @return Optional containing the parsed ID if present, empty otherwise
+         */
         public Optional<String> parseId(ItemMeta meta1);
+        
+        /**
+         * Performs custom matching logic using the parsed ID and ItemMeta objects.
+         * 
+         * @param id The parsed custom ID
+         * @param meta1 The first ItemMeta to compare
+         * @param meta2 The second ItemMeta to compare
+         * @return ACCEPT if items match, REJECT if they don't match, or other flag for default behavior
+         */
         public Flags doMatch(String id,ItemMeta meta1,ItemMeta meta2);
     }
+    
+    /**
+     * Registers a custom item matcher for specialized item comparison logic.
+     * Registered matchers will be consulted during item matching operations.
+     * 
+     * @param runs The ItemMatcher implementation to register
+     */
     public static void registerCustomMatcher(ItemMatcher runs){
         registeredMatchers.add(runs);
     }
 
     private static final List<CustomItemMatcher> registeredCustomMatchers=new ArrayList<>();
+    
+    /**
+     * Registers a custom item ID matcher for specialized ID parsing and matching.
+     * Registered custom matchers will be used to parse custom IDs from ItemMeta objects.
+     * 
+     * @param matcher The CustomItemMatcher implementation to register
+     */
     public static void registerCustomItemIdHook(CustomItemMatcher matcher){
         registeredCustomMatchers.add(matcher);
     }
+    
+    /**
+     * Core method for comparing two ItemStackCache objects to determine if they match.
+     * This method implements the complete item matching logic including material comparison,
+     * metadata comparison, and custom matcher evaluation.
+     * 
+     * @param counter1 The first ItemStackCache to compare
+     * @param counter2 The second ItemStackCache to compare
+     * @param strictCheck Whether to perform strict checking (includes enchantments, attributes, etc.)
+     * @return true if the ItemStackCache objects match, false otherwise
+     */
     public static boolean matchItemCore(ItemStackCache counter1, ItemStackCache counter2, boolean strictCheck) {
 
         ItemStack stack1=counter1.getItem();
@@ -334,6 +474,18 @@ public class CraftUtils {
         }
         return matchItemMeta(meta1, meta2, strictCheck);
     }
+    
+    /**
+     * Compares two ItemMeta objects to determine if they match.
+     * This method performs comprehensive metadata comparison including display name,
+     * custom model data, special metadata types, persistent data container,
+     * custom item IDs, lore, enchantments, and attribute modifiers.
+     * 
+     * @param meta1 The first ItemMeta to compare
+     * @param meta2 The second ItemMeta to compare
+     * @param strictCheck Whether to perform strict checking (includes enchantments, attributes, etc.)
+     * @return true if the ItemMeta objects match, false otherwise
+     */
     public static boolean matchItemMeta(@Nonnull ItemMeta meta1,@Nonnull ItemMeta meta2, boolean strictCheck){
 
         //match display name
@@ -389,18 +541,6 @@ public class CraftUtils {
             }
         }
 
-        //粘液物品一般不可修改displayName和Lore
-        //不然则全非sf物品
-//        if(COMPLEX_MATERIALS.contains(stack1.getType())){
-//            if(canQuickEscapeMaterialVariant(meta1,meta2)){
-//                return false;
-//            }
-//        }
-        //如果非严格且名字相同旧返回，反之则继续
-
-//        if(!meta1.hasLore()||!meta2.hasLore()){
-//            return meta1.hasLore()==meta2.hasLore();
-//        }
         if ( !matchLoreField(meta1, meta2)) {
             return false;
             //对于普通物品 检查完lore就结束是正常的
@@ -423,6 +563,16 @@ public class CraftUtils {
         }
         return true;
     }
+    
+    /**
+     * Compares the lore fields of two ItemMeta objects.
+     * This method uses optimized field access via VarHandle when available,
+     * falling back to reflection-based field comparison.
+     * 
+     * @param meta1 The first ItemMeta to compare lore from
+     * @param meta2 The second ItemMeta to compare lore from
+     * @return true if the lore fields match, false otherwise
+     */
     public static boolean matchLoreField(@Nonnull ItemMeta meta1, @Nonnull ItemMeta meta2){
         if(loreHandle!=null){
             return Objects.equals(loreHandle.get(meta1),loreHandle.get(meta2));
@@ -431,31 +581,18 @@ public class CraftUtils {
         }
 
 
-//        try{
-//            Object lore1= (CRAFTLORE.get(meta1));
-//            Object  lore2= (CRAFTLORE.get(meta2));
-//
-//            return  Objects.equals(lore1,lore2);
-//        }catch (Throwable e){
-//            return ;
-//        }
     }
 
-    //    public static ItemMeta getItemMeta(ItemStack it){
-////        if(!INVOKE_STACK_SUCCESS)return it.getItemMeta();
-////        if(craftItemStackClass.isInstance(it)){
-////            return it.getItemMeta();
-////        }
-//        if(it.getClass()!=craftItemStackClass) {
-//            try{
-//            return (ItemMeta) ITEMSTACKMETA.get(it);
-//            }catch (Throwable e){
-//
-//            }
-//        }
-//        return it.getItemMeta();
-//
-//    }
+
+    /**
+     * Compares the display name fields of two ItemMeta objects.
+     * This method uses optimized field access via VarHandle when available,
+     * falling back to reflection-based field comparison.
+     * 
+     * @param meta1 The first ItemMeta to compare display name from
+     * @param meta2 The second ItemMeta to compare display name from
+     * @return true if the display name fields match, false otherwise
+     */
     public static boolean matchDisplayNameField(ItemMeta meta1, ItemMeta meta2){
         if(displayNameHandle!=null){
             return Objects.equals(displayNameHandle.get(meta1),displayNameHandle.get(meta2));
@@ -472,6 +609,15 @@ public class CraftUtils {
 //        }
     }
 
+    /**
+     * Compares the enchantments fields of two ItemMeta objects.
+     * This method checks if both ItemMeta objects have enchantments and compares them.
+     * Uses optimized field access via VarHandle when available, falling back to reflection.
+     * 
+     * @param meta1 The first ItemMeta to compare enchantments from
+     * @param meta2 The second ItemMeta to compare enchantments from
+     * @return true if the enchantments fields match, false otherwise
+     */
     public static boolean matchEnchantmentsFields(ItemMeta meta1,ItemMeta meta2){
         if(enchantmentsHandle!=null){
             return meta1.hasEnchants()? meta2.hasEnchants()&& Objects.equals(enchantmentsHandle.get(meta1),enchantmentsHandle.get(meta2)) : !meta2.hasEnchants();
@@ -484,6 +630,14 @@ public class CraftUtils {
 //    private static boolean hasFailed;
 
 
+    /**
+     * Compares BlockStateMeta objects to determine if they match.
+     * This method delegates to version-specific metadata comparison logic.
+     * 
+     * @param meta1 The first BlockStateMeta to compare
+     * @param meta2 The second BlockStateMeta to compare
+     * @return true if the BlockStateMeta objects match, false otherwise
+     */
     public static boolean matchBlockStateMetaField(BlockStateMeta meta1, BlockStateMeta meta2){
         return VersionedMeta.getInstance().matchBlockStateMeta(meta1,meta2);
 //        if(!hasFailed){
@@ -503,6 +657,16 @@ public class CraftUtils {
 //        }
 //        return meta1.equals(meta2);
     }
+    
+    /**
+     * Compares two ItemStack objects to determine if they match.
+     * This method handles null checks and delegates to the core matching logic.
+     * 
+     * @param stack1 The first ItemStack to compare
+     * @param stack2 The second ItemStack to compare
+     * @param strictCheck Whether to perform strict checking (includes enchantments, attributes, etc.)
+     * @return true if the ItemStack objects match, false otherwise
+     */
     public static boolean matchItemStack(ItemStack stack1, ItemStack stack2,boolean strictCheck){
         if(stack1==null || stack2==null){
             return stack1 == stack2;
@@ -510,6 +674,16 @@ public class CraftUtils {
             return matchItemCore(getStackCache(stack1), getStackCache(stack2),strictCheck);
         }
     }
+    
+    /**
+     * Compares an ItemStack with an ItemStackCache to determine if they match.
+     * This method handles null checks and delegates to the core matching logic.
+     * 
+     * @param counter1 The ItemStack to compare
+     * @param counter2 The ItemStackCache to compare against
+     * @param strictCheck Whether to perform strict checking (includes enchantments, attributes, etc.)
+     * @return true if the ItemStack and ItemStackCache match, false otherwise
+     */
     public static boolean matchItemStack(ItemStack counter1, ItemStackCache counter2, boolean strictCheck){
         if(counter1==null ){
             return counter2.getItem()==null;
@@ -517,61 +691,18 @@ public class CraftUtils {
             return matchItemCore(getStackCache(counter1),counter2,strictCheck);
         }
     }
-//    public static boolean matchLore(List<String> lore1,List<String> lore2,boolean strictMod){
-//        if(strictMod){
-//            if(lore1==null || lore2==null){
-//                return lore1 == lore2;
-//            }
-//            if(lore1.size()!=lore2.size()){
-//                return false;
-//            }
-//            int len=lore1.size();
-//            String l1;
-//            String l2;
-//            for(int i=0;i<len;++i){
-//                l1=lore1.get(i);
-//                l2=lore2.get(i);
-//                if(l1.length()!=l2.length()){
-//                    return false;
-//                }
-//                if(!l1.equals(l2)){
-//                    return false;
-//                }
-//            }
-//            return true;
-//        }else{
-//            if(lore1==null || lore2==null){
-//                return lore1 == lore2;
-//            }
-//            if(lore1.size()!=lore2.size()){
-//                return false;
-//            }
-//            return lore1.hashCode()==lore2.hashCode();
-//            /**
-//             int len=lore1.size();
-//             String l1;
-//             String l2;
-//             for(int i=0;i<len;++i){
-//             l1=lore1.get(i);
-//             l2=lore2.get(i);
-//             if(l1.length()!=l2.length()){
-//             return false;
-//             }
-//             if(l1.hashCode()!=l2.hashCode()){
-//             return false;
-//             }
-//             }
-//             return true;**/
-//        }
-//    }
+
 
 
 
     /**
-     * pieces of shit copied from Network
-     * @param metaOne
-     * @param metaTwo
-     * @return
+     * Performs quick escape checks for specific metadata variants that can be quickly determined
+     * to not match. This method checks for differences in damage, repair cost, and block data
+     * that would immediately indicate non-matching items.
+     * 
+     * @param metaOne The first ItemMeta to compare
+     * @param metaTwo The second ItemMeta to compare
+     * @return true if the metadata variants can be quickly determined to not match, false otherwise
      */
     public static boolean canQuickEscapeMetaVariant(@Nonnull ItemMeta metaOne, @Nonnull ItemMeta metaTwo) {
         if (metaOne instanceof Damageable instanceOne && metaTwo instanceof Damageable instanceTwo) {

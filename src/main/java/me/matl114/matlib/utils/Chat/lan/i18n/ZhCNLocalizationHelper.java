@@ -1,7 +1,10 @@
 package me.matl114.matlib.utils.chat.lan.i18n;
 
+import me.matl114.matlib.algorithms.dataStructures.struct.Holder;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectClass;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectName;
+import me.matl114.matlib.utils.reflect.descriptor.DescriptorImplBuilder;
+import me.matl114.matlib.utils.reflect.descriptor.DescriptorProxyBuilder;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MethodTarget;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.MultiDescriptive;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
@@ -69,5 +72,13 @@ public interface ZhCNLocalizationHelper extends RegistryLocalizationHelper, Targ
     @RedirectClass("net.guizhanss.guizhanlib.minecraft.helper.DyeColorHelper")
     default String getDyeColorName(DyeColor color) {
         return getDyeColorTranslationDefault(color);
+    }
+
+
+    public static interface A {
+        ZhCNLocalizationHelper I = DescriptorImplBuilder.createMultiHelper(ZhCNLocalizationHelper.class);
+    }
+    public static interface P{
+        ZhCNLocalizationHelper I = DescriptorProxyBuilder.createMultiHelper(ZhCNLocalizationHelper.class);
     }
 }

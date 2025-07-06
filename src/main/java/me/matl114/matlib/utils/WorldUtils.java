@@ -1,9 +1,9 @@
 package me.matl114.matlib.utils;
 
 import lombok.Getter;
+import me.matl114.matlib.algorithms.algorithm.FuncUtils;
 import me.matl114.matlib.algorithms.dataStructures.frames.initBuidler.InitializeSafeProvider;
 import me.matl114.matlib.algorithms.dataStructures.struct.Holder;
-import me.matl114.matlib.common.functions.FuncUtils;
 import me.matl114.matlib.common.lang.annotations.ForceOnMainThread;
 import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
 import me.matl114.matlib.utils.reflect.LambdaUtils;
@@ -91,9 +91,26 @@ public class WorldUtils {
         }
     }).runNonnullAndNoError(()->Debug.logger("Successfully initialize CraftWorld.world VarHandle")).v();
 
+    /**
+     * Retrieves the NMS (Net Minecraft Server) handle from a CraftBukkit World.
+     * This method uses reflection to access the underlying NMS World object.
+     * 
+     * @param world The CraftBukkit World to get the NMS handle from
+     * @return The NMS World object (net.minecraft.world.level.World)
+     */
     public static Object getHandledWorld(World world){
         return worldWorldHandle.get(world);
     }
+    
+    /**
+     * Copies the block state data from one block to another block state.
+     * This method uses reflection to copy position, world, and weak world references
+     * from the target block's state to the provided state object.
+     * 
+     * @param state The BlockState to copy data into
+     * @param block2 The Block whose state data will be copied
+     * @return The modified BlockState with copied data, or null if the operation fails
+     */
     @ForceOnMainThread
     public static BlockState copyBlockState(BlockState state, Block block2){
         if(invokeBlockStateSuccess){
@@ -121,6 +138,15 @@ public class WorldUtils {
             }else return null;
         }else return null;
     }
+    
+    /**
+     * Gets a BlockState from a Block without creating a snapshot.
+     * This method is more efficient than the default getState() method
+     * as it doesn't create a snapshot of the block data.
+     * 
+     * @param block The Block to get the state from
+     * @return The BlockState of the block without snapshot
+     */
     @ForceOnMainThread
     public static BlockState getBlockStateNoSnapShot(Block block){
         return block.getState(false);
@@ -180,6 +206,13 @@ public class WorldUtils {
             .thenApply(MethodInvoker::ofNoArgsNoReturn)
             .get();
 
+    /**
+     * Checks if a TileState's underlying tile entity is still valid and not marked for removal.
+     * This method uses reflection to access the tile entity's removal flag and verify its validity.
+     * 
+     * @param tile The TileState to check for validity
+     * @return true if the tile entity is valid and not marked for removal, false otherwise
+     */
     public static boolean isTileEntityStillValid(@Nonnull TileState tile){
         if(craftBlockEntityStateClass.isInstance(tile)){
             Object tileEntity = tileEntityHandle.get(tile);
@@ -189,6 +222,14 @@ public class WorldUtils {
             return false;
         }
     }
+    
+    /**
+     * Marks a TileState's underlying tile entity as changed.
+     * This method invokes the tile entity's setChanged method to notify the server
+     * that the tile entity has been modified and needs to be saved.
+     * 
+     * @param tile The TileState whose tile entity should be marked as changed
+     */
     @UnsafeOperation
     public static void tileEntitySetChange(@Nonnull TileState tile){
         if(craftBlockEntityStateClass.isInstance(tile)){
@@ -218,15 +259,44 @@ public class WorldUtils {
         }
     }
 
+    /**
+     * Checks if a Material represents a block that can have a tile entity.
+     * This method uses a pre-computed set of materials that are known to support tile entities.
+     * 
+     * @param material The Material to check
+     * @return true if the material supports tile entities, false otherwise
+     */
     public static boolean isTileEntity(Material material){
         return TILE_ENTITIES_MATERIAL.contains(material);
     }
+    
+    /**
+     * Gets an iterator over all Material types that support tile entities.
+     * This provides access to the complete set of materials that can have tile entities.
+     * 
+     * @return An Iterator containing all Material types that support tile entities
+     */
     public static Iterator<Material> getTileEntityTypes(){
         return TILE_ENTITIES_MATERIAL.iterator();
     }
+    
+    /**
+     * Checks if a Material represents a block that implements InventoryHolder.
+     * This method uses a pre-computed set of materials that are known to be inventory holders.
+     * 
+     * @param material The Material to check
+     * @return true if the material is an inventory holder, false otherwise
+     */
     public static boolean isInventoryHolder(Material material){
         return INVENTORYHOLDER_MATERIAL.contains(material);
     }
+    
+    /**
+     * Gets an iterator over all Material types that implement InventoryHolder.
+     * This provides access to the complete set of materials that can hold inventories.
+     * 
+     * @return An Iterator containing all Material types that implement InventoryHolder
+     */
     public static Iterator<Material> getInventoryHolderTypes(){
         return INVENTORYHOLDER_MATERIAL.iterator();
     }

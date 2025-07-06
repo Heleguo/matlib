@@ -11,4 +11,7 @@ public class KeyUtils {
             return new NamespacedKey(string.substring(0, index), string.substring(index +1));
         }
     }
+    public static NamespacedKey minecraft(String string){
+        return NamespacedKey.minecraft(string);
+    }
 }

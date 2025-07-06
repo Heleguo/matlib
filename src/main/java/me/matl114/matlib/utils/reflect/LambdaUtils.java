@@ -14,6 +14,18 @@ public class LambdaUtils {
     private static final ConcurrentHashMap<Pair<Class<?>, Method>, CallSite> lambdaCache = new ConcurrentHashMap<>();
 //    private static final ConcurrentHashMap<Field, FieldGetter> lambdaFieldGetter = new ConcurrentHashMap<>();
 //    private static final ConcurrentHashMap<Field, FieldSetter> lambdaFieldSetter = new ConcurrentHashMap<>();
+    
+    /**
+     * Creates a lambda expression for a static method that implements the specified functional interface.
+     * This method uses LambdaMetafactory to create a CallSite that can be invoked to produce
+     * a lambda instance. The result is cached for performance.
+     * 
+     * @param <T> The type of the functional interface
+     * @param functionalInterface The functional interface class that the lambda should implement
+     * @param method The static method to be wrapped in the lambda
+     * @return A lambda instance implementing the functional interface
+     * @throws Throwable if the lambda creation fails
+     */
     public static <T> T createLambdaForStaticMethod(Class<T> functionalInterface, Method method) throws Throwable{
         CallSite callSite = lambdaCache.computeIfAbsent(Pair.of(functionalInterface, method), (p)->{
             try {
@@ -28,6 +40,19 @@ public class LambdaUtils {
             throw new RuntimeException(e);
         }
     }
+    
+    /**
+     * Creates a lambda binding that takes an object parameter and invokes the specified method on it.
+     * This method creates a Function that can be used to invoke instance methods on objects.
+     * The result is cached for performance.
+     * 
+     * @param <T> The return type of the function
+     * @param <W> The type of the object parameter
+     * @param functionalInterface The functional interface class (typically Function)
+     * @param method The method to be invoked on the object
+     * @return A Function that invokes the method on its input object
+     * @throws Throwable if the lambda creation fails
+     */
     public static <T,W> Function<W,T> createLambdaBinding(Class<T> functionalInterface, Method method) throws Throwable{
         CallSite callSite = lambdaCache.computeIfAbsent(Pair.of(functionalInterface, method), (p)->{
             try {
@@ -45,6 +70,17 @@ public class LambdaUtils {
         };
     }
 
+    /**
+     * Creates a lambda expression for an instance method that implements the specified functional interface.
+     * This method creates a lambda that will be bound to an object when invoked.
+     * The result is cached for performance.
+     * 
+     * @param <T> The type of the functional interface
+     * @param functionalInterface The functional interface class that the lambda should implement
+     * @param method The instance method to be wrapped in the lambda
+     * @return A lambda instance implementing the functional interface
+     * @throws Throwable if the lambda creation fails
+     */
     public static <T> T createLambdaForMethod(Class<T> functionalInterface, Method method) throws Throwable{
         CallSite callSite = lambdaCache.computeIfAbsent(Pair.of(functionalInterface, method),(p)->{
             try{
@@ -60,6 +96,21 @@ public class LambdaUtils {
         }
     }
 
+    /**
+     * Creates a MethodHandle for a lambda expression that includes extra arguments beyond those
+     * required by the functional interface. This method is useful when the target method has
+     * additional parameters that need to be bound at lambda creation time.
+     * 
+     * <p>The method validates that the number of extra arguments matches the difference between
+     * the target method's parameter count and the functional interface's parameter count.</p>
+     * 
+     * @param <T> The type of the functional interface
+     * @param functionalInterface The functional interface class that the lambda should implement
+     * @param method The method to be wrapped in the lambda
+     * @param extraArgs The number of extra arguments that the target method requires
+     * @return A MethodHandle that can be used to create the lambda
+     * @throws IllegalArgumentException if extraArgs is 0 or doesn't match the expected count
+     */
     public static <T> MethodHandle createLambdaWithOuterArgument(Class<T> functionalInterface, Method method, int extraArgs){
         Preconditions.checkArgument(extraArgs != 0,"If extra args is 0, you should use other method instead");
         Method functionalMethod = Arrays.stream(functionalInterface.getMethods())
@@ -204,9 +255,25 @@ public class LambdaUtils {
 //        });
 //    }
 
+    /**
+     * Creates a MethodType for the specified method.
+     * This utility method creates a MethodType that matches the method's signature.
+     * 
+     * @param method The method to create a MethodType for
+     * @return A MethodType representing the method's signature
+     */
     public static MethodType getMethodType(Method method){
         return MethodType.methodType(method.getReturnType(), method.getParameterTypes());
     }
+    
+    /**
+     * Creates a MethodType for the specified method with an additional 'self' parameter.
+     * This method adds the declaring class as the first parameter type, which is useful
+     * for instance method invocations where the object reference is passed explicitly.
+     * 
+     * @param method The method to create a MethodType for
+     * @return A MethodType with the declaring class as the first parameter
+     */
     public static MethodType getMethodTypeWithSelf(Method method){
         Class[] param = method.getParameterTypes();
         Class[] newParam = new Class[param.length+1];
@@ -214,6 +281,16 @@ public class LambdaUtils {
         newParam[0] = method.getDeclaringClass();
         return MethodType.methodType(method.getReturnType(), newParam);
     }
+    
+    /**
+     * Creates a MethodType for the specified method, optionally including a 'self' parameter.
+     * This method delegates to either getMethodType() or getMethodTypeWithSelf() based on
+     * the dynamic parameter.
+     * 
+     * @param method The method to create a MethodType for
+     * @param dynamic If true, includes the declaring class as the first parameter
+     * @return A MethodType representing the method's signature
+     */
     public static MethodType getMethodType(Method method, boolean dynamic){
         return dynamic? getMethodTypeWithSelf(method): getMethodType(method);
     }

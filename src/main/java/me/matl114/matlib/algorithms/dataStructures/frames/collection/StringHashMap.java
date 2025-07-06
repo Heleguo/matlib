@@ -1,7 +1,7 @@
 package me.matl114.matlib.algorithms.dataStructures.frames.collection;
 
 
-import me.matl114.matlib.algorithms.algorithm.Utils;
+import me.matl114.matlib.algorithms.algorithm.CollectionUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public class StringHashMap implements Map<String, String>,Cloneable {
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof StringHashMap strmap) {
-            return Utils.compareMap(this.data, strmap.data);
+            return CollectionUtils.compareMap(this.data, strmap.data);
         }else {
             return false;
         }

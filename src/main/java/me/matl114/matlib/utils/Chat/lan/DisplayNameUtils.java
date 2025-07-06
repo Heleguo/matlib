@@ -38,7 +38,7 @@ public class DisplayNameUtils {
         }, Collator.getInstance(Locale.CHINESE)::compare);
     }
 
-    public Predicate<ItemStack> getPinyinFilter(@Nullable RegistryLocalizationHelper helper1, @Nullable PinyinHelper helper2, String value){
+    public static Predicate<ItemStack> getPinyinFilter(@Nullable RegistryLocalizationHelper helper1, @Nullable PinyinHelper helper2, String value){
         final var helper22 = validHelper(helper2);
         final var helper11 = validHelper(helper1);
         return (item)->{

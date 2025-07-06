@@ -2,10 +2,10 @@ package me.matl114.matlib.utils;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
+import me.matl114.matlib.algorithms.algorithm.FuncUtils;
 import me.matl114.matlib.algorithms.dataStructures.frames.initBuidler.InitializeSafeProvider;
 import me.matl114.matlib.algorithms.dataStructures.frames.initBuidler.InitializingTasks;
 import me.matl114.matlib.algorithms.dataStructures.struct.Holder;
-import me.matl114.matlib.common.functions.FuncUtils;
 import me.matl114.matlib.common.lang.annotations.NotRecommended;
 import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.common.lang.annotations.UnsafeOperation;
@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.function.Function;
 
 public class NMSInventoryUtils {
-    private static final InitializingTasks INIT_TASK = InitializingTasks.of(()->{
+    static{
         Debug.logger("Initializing NMSInventoryUtils...");
-    });
+    }
     @Getter
     @Note("class CraftInventory")
     private static final Class<?> craftInventoryClass =new InitializeSafeProvider<>(()->{
@@ -87,6 +87,16 @@ public class NMSInventoryUtils {
 
     @UnsafeOperation
     @Note("record must be a vanilla Inv")
+    /**
+     * Sets an item in a tile entity inventory without triggering update events.
+     * This method uses NMS reflection to directly modify the inventory contents
+     * without calling Bukkit's setItem method, which would trigger inventory events.
+     * Supports both single block inventories and double chest inventories.
+     * 
+     * @param record The InventoryRecord containing the inventory to modify
+     * @param index The slot index where the item should be placed
+     * @param item The ItemStack to place in the slot, or null to clear the slot
+     */
     public static void setTileInvItemNoUpdate(InventoryRecord record, int index, ItemStack item){
         Inventory bukkitInventory = record.inventory();
         if(record.isMultiBlockInv()){
@@ -102,6 +112,16 @@ public class NMSInventoryUtils {
             setInvInternal(bukkitInventory, index, item);
         }
     }
+    
+    /**
+     * Sets an item in a tile entity inventory without triggering update events.
+     * This method uses NMS reflection to directly modify the inventory contents.
+     * The inventory must be a block inventory (holder instanceof TileState or DoubleChest).
+     * 
+     * @param inventory The inventory to modify
+     * @param index The slot index where the item should be placed
+     * @param item The ItemStack to place in the slot, or null to clear the slot
+     */
     @UnsafeOperation
     @NotRecommended
     @Note("inventory must be a block inventory, s.t. holder instanceof TileState or DoubleChest")
@@ -118,12 +138,33 @@ public class NMSInventoryUtils {
             setInvInternal(inventory, index, item);
         }
     }
+    
+    /**
+     * Sets an item in a custom inventory without triggering update events.
+     * This method uses NMS reflection to directly modify the inventory contents.
+     * The inventory must be a CraftInventoryCustom created through Bukkit.createInventory().
+     * 
+     * @param inventory The custom inventory to modify
+     * @param index The slot index where the item should be placed
+     * @param item The ItemStack to place in the slot, or null to clear the slot
+     */
     @UnsafeOperation
     @NotRecommended
     @Note("inventory must be a CraftInventoryCustom, s.t. it is created through Bukkit.createInventory()")
     public static void setInvItem(Inventory inventory, int index, ItemStack item){
         setInvInternal(inventory, index, item);
     }
+    
+    /**
+     * Sets an item in a custom inventory without copying the ItemStack.
+     * This method uses NMS reflection to directly modify the inventory contents
+     * and avoids creating a copy of the ItemStack for better performance.
+     * The inventory must be a CraftInventoryCustom created through Bukkit.createInventory().
+     * 
+     * @param inventory The custom inventory to modify
+     * @param index The slot index where the item should be placed
+     * @param item The ItemStack to place in the slot (must be a CraftItemStack)
+     */
     @UnsafeOperation
     @NotRecommended
     @Note("inventory must be a CraftInventoryCustom, s.t. it is created through Bukkit.createInventory()")
@@ -161,6 +202,17 @@ public class NMSInventoryUtils {
         }
     }
 
+    /**
+     * Sets multiple items in a tile entity inventory without triggering update events.
+     * This method uses NMS reflection to directly modify the inventory contents
+     * without calling Bukkit's setItem method, which would trigger inventory events.
+     * Supports both single block inventories and double chest inventories.
+     * The contents array length must not exceed the inventory size.
+     * 
+     * @param inventory The InventoryRecord containing the inventory to modify
+     * @param contents The ItemStack array containing items to place in the inventory
+     * @throws IllegalArgumentException if the contents array length exceeds the inventory size
+     */
     @UnsafeOperation
     public static void setTileInvContentsNoUpdate(InventoryRecord inventory, ItemStack... contents){
         Inventory bukkitInventory = inventory.inventory();
@@ -216,3 +268,4 @@ public class NMSInventoryUtils {
 
 
 }
+

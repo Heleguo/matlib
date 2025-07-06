@@ -57,7 +57,7 @@ public class ItemBuilder {
         metaView.setLore(strings);
         return this;
     }
-    public ItemBuilder compLore(List<Component> adventure){
+    public ItemBuilder adventureLore(List<Component> adventure){
         ensureStack();
         metaView.lore(adventure);
         return this;
