@@ -50,6 +50,11 @@ public class SimpleLinkList<T> implements Stack<T>, Iterable<T> {
         return head == null;
     }
 
+    @Override
+    public void clear() {
+        this.head = null;
+    }
+
     public String toString(){
         var sb = new StringBuilder();
         sb.append('[');

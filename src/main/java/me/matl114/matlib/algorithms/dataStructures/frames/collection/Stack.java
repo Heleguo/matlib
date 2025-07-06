@@ -6,5 +6,5 @@ public interface Stack<T> {
     public T poll();
     public void push(T val);
     public boolean isEmpty();
-
+    public void clear();
 }

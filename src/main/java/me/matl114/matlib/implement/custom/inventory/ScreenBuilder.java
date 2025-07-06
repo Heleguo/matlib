@@ -1,5 +1,6 @@
 package me.matl114.matlib.implement.custom.inventory;
 
+import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -223,6 +224,7 @@ public class ScreenBuilder implements Screen {
      * @param stack
      * @return
      */
+    @Override
     public ScreenBuilder relateToHistory(ScreenHistoryStack stack){
         this.relatedHistory = stack;
         return this;
@@ -232,7 +234,8 @@ public class ScreenBuilder implements Screen {
     public <T, W extends InventoryBuilder<T>> W createInventory(int page0, InventoryBuilder.InventoryFactory<T, W> fact){
         //Preconditions.checkArgument(page>= 1);
         int currentMax = this.maxPageProvider.applyAsInt(this);
-        //Preconditions.checkArgument(page <= currentMax);
+
+        Preconditions.checkArgument(1 <= currentMax, "Max page < 1");
         int page = MathUtils.clamp(page0, 1, currentMax);
         W factory = fact.visitBuilder(this);
         factory.visitPage(this, this.screenTitle, page, this.sizePerPage, currentMax);
@@ -299,10 +302,10 @@ public class ScreenBuilder implements Screen {
 
 
     /**
-     * invoke when player try to open another screen from current screen
+     * invoke when player try to open this screen with history records
      */
-    public void pushFrom(InventoryBuilder builder, Player player){
-        pushScreenHistory(player, builder.getPage());
+    public void trackScreenOpen(InventoryBuilder builder, Player player){
+        trackScreenOpen(player, builder.getPage());
     }
 
     /**
@@ -313,9 +316,16 @@ public class ScreenBuilder implements Screen {
     public void goBackFrom(InventoryBuilder builder, Player player){
         goBack(builder.getFactory(), player);
     }
-    public void pushScreenHistory(Player player, int page){
+
+    public void switchCurrentScreenPage(Player player, int page){
         if(this.relatedHistory != null){
-            this.relatedHistory.openFrom(this, player, page);
+            this.relatedHistory.switchPage(this, player, page);
+        }
+    }
+
+    public void trackScreenOpen( Player player, int page){
+        if(this.relatedHistory != null){
+            this.relatedHistory.openNew(this, player, page);
         }
     }
 
@@ -330,9 +340,15 @@ public class ScreenBuilder implements Screen {
     }
 
 
+
     @Override
     public void openPage(InventoryBuilder.InventoryFactory screenType, Player player, int page) {
         var builder = createInventory(page, screenType);
         builder.open(player);
+    }
+
+    public void openPageWithHistory(InventoryBuilder.InventoryFactory screenType, Player player, int page){
+        var builder = createInventory(page, screenType);
+        builder.openWithHistory(player);
     }
 }

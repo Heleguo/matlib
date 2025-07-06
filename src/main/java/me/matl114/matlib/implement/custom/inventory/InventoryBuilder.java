@@ -62,6 +62,13 @@ public interface InventoryBuilder<T>{
     T getResult();
     default void open(Player player){
         player.openInventory(getInventory());
+        this.getBuilder().switchCurrentScreenPage(player, this.getPage());
+    }
+
+    default void openWithHistory(Player player){
+        this.getBuilder().trackScreenOpen(this, player);
+        open(player);
+
     }
 
     /**
