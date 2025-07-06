@@ -319,7 +319,7 @@ public class ScreenBuilder implements Screen {
 
     public void switchCurrentScreenPage(Player player, int page){
         if(this.relatedHistory != null){
-            this.relatedHistory.switchPage(this, player, page);
+            this.relatedHistory.switchTopPage(this, player, page);
         }
     }
 

@@ -14,6 +14,7 @@ public class ScreenUtils {
     public static final ItemStack PREV_BUTTON_INACTIVE = new CleanItemStack( Material.BLACK_STAINED_GLASS_PANE, "&8⇦ Previous Page", new String[0]);
     public static final ItemStack NEXT_BUTTON_INACTIVE = new CleanItemStack( Material.BLACK_STAINED_GLASS_PANE, "&8Next Page ⇨", new String[0]);
     public static final ItemStack UI_BACKGROUND = new CleanItemStack( Material.GRAY_STAINED_GLASS_PANE, " ", new String[0]);
+    public static final ItemStack SEARCH_BUTTON = new CleanItemStack(Material.NAME_TAG, "&7搜索...", "", "&7⇨ &b单击搜索物品");
     public static ItemStack getPreviousButton(int page, int pages) {
         return pages != 1 && page != 1 ? new CleanItemStack(PREV_BUTTON_ACTIVE, (meta) -> {
             ChatColor var10001 = ChatColor.WHITE;
