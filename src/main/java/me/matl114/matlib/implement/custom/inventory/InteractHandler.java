@@ -13,11 +13,10 @@ import java.util.function.Predicate;
 
 public interface InteractHandler {
     @Internal
-    public boolean onClick(Inventory inventory, Player player, int slotIndex, InventoryAction action, ClickType clickType);
-    @Note("Caller will call this method")
-
+    public boolean onClick(Inventory inventory, Player player, int slotIndex, ClickType clickType);
+    @Note("Caller should call this method")
     default boolean onClick(Inventory inventory, Player player, InventoryClickEvent clickEvent){
-        return onClick(inventory, player, clickEvent.getSlot(), clickEvent.getAction(), clickEvent.getClick());
+        return onClick(inventory, player, clickEvent.getSlot(), clickEvent.getClick());
     }
 
     public static final InteractHandler EMPTY = (SimpleInteractHandler)((inventory, player, event) -> false);

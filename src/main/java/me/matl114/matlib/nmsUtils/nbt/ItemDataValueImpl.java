@@ -140,7 +140,10 @@ class ItemDataValueImpl extends ItemDataValueReadRemoveImpl {
         if(nbt0 == null)return this.getUnsafe() == null;
         Object nbt = getTagBefore(nbt0);
         if(nbt == null)return this.getUnsafe() == null;
-        return Objects.equals(this.getUnsafe(), COMPOUND_TAG.get(nbt, this.path[this.path.length-1]));
+        if(COMPOUND_TAG.contains(nbt, this.path[this.path.length-1])){
+            return Objects.equals(this.getUnsafe(), COMPOUND_TAG.get(nbt, this.path[this.path.length-1]));
+        }else return this.getUnsafe() == null;
+
     }
 
 

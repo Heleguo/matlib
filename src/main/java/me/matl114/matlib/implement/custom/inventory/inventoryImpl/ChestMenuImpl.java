@@ -5,6 +5,8 @@ import me.matl114.matlib.implement.custom.inventory.*;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ClickAction;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -43,6 +45,23 @@ public class ChestMenuImpl implements InventoryBuilder<ChestMenu> {
             }
         };
     }
+    public static ChestMenu.MenuClickHandler wrapCommon(ChestMenu menu, InteractHandler handler){
+        return ((player, i, itemStack, clickAction) -> {
+            if(clickAction.isRightClicked() ){
+                if(clickAction.isShiftClicked()){
+                    return handler.onClick(menu.getInventory(), player, i, ClickType.SHIFT_RIGHT);
+                }else {
+                    return handler.onClick(menu.getInventory(), player, i, ClickType.RIGHT);
+                }
+            }else {
+                if(clickAction.isShiftClicked()){
+                    return handler.onClick(menu.getInventory(), player, i, ClickType.SHIFT_LEFT);
+                }else {
+                    return handler.onClick(menu.getInventory(), player, i, ClickType.LEFT);
+                }
+            }
+        });
+    }
 
 
 
@@ -65,6 +84,14 @@ public class ChestMenuImpl implements InventoryBuilder<ChestMenu> {
         if(handler != null)
             menu.addMenuCloseHandler((p)->handler.handleClose(p, menu.getInventory()));
     }
+
+    @Override
+    public void visitScreenClick(InteractHandler handler) {
+        if(handler != null){
+            menu.addPlayerInventoryClickHandler(wrapCommon(menu, handler));
+        }
+    }
+
 
     @Override
     public ScreenBuilder getBuilder() {

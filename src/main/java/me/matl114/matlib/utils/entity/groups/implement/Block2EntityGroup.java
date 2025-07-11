@@ -3,6 +3,7 @@ package me.matl114.matlib.utils.entity.groups.implement;
 import lombok.Setter;
 import me.matl114.matlib.algorithms.dataStructures.struct.Union;
 import me.matl114.matlib.utils.AddUtils;
+import me.matl114.matlib.utils.TextUtils;
 import me.matl114.matlib.utils.entity.entityRecords.FixedEntityRecord;
 import me.matl114.matlib.utils.persistentDataContainer.PdcUtils;
 import org.bukkit.Location;
@@ -34,7 +35,7 @@ public class Block2EntityGroup<W extends Entity> extends AbstractBlock2EntityGro
     public void postAddSyncTask(String childName, Entity entityChild) {
         PersistentDataContainer pc = entityChild.getPersistentDataContainer();
         PdcUtils.setOrRemove(pc,sourceKey, PersistentDataType.STRING,source);
-        PdcUtils.setOrRemove(pc,sourceLocationKey,PersistentDataType.STRING, AddUtils.blockLocationToString(blockPos));
+        PdcUtils.setOrRemove(pc,sourceLocationKey,PersistentDataType.STRING, TextUtils.blockLocationToString(blockPos));
     }
 
     @Override

@@ -29,7 +29,7 @@ public class NodeReference<T> implements View{
     Config.Node nodeRef;
 
     static <W> NodeReference<W> of(W object, Consumer<W> makeDirty, Config.Node node){
-        return new NodeReference<>(object,makeDirty, node);
+        return new NodeReference<>(object, makeDirty, node);
     }
     NodeReference(T object, Consumer<T> makeDirty, Config.Node node) {
         this.value=object;

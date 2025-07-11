@@ -47,8 +47,15 @@ public class YamlConfig extends Config {
     public YamlConfig(File file) throws IOException {
         this(file,loadYaml(file));
     }
+    public YamlConfig(InputStream stream) throws IOException{
+        this(null, loadYaml(stream));
+    }
     public static HashMap<String,Object> loadYaml(File file) throws IOException {
         Reader reader= new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
+        return yaml.load(reader);
+    }
+    public static HashMap<String, Object> loadYaml(InputStream inputStream){
+        Reader reader= new InputStreamReader(inputStream, StandardCharsets.UTF_8);
         return yaml.load(reader);
     }
     public static void saveYaml(File file, HashMap<String,Object> data) throws IOException {

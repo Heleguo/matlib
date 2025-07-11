@@ -15,4 +15,6 @@ public class Tests {
         log(CryptoUtils.codecode("invokeDynamicThis",4));
         log(CryptoUtils.codeStr("牛魔酬宾"));
     }
+
+
 }

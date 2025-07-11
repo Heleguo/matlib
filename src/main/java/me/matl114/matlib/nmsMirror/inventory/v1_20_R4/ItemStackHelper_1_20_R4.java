@@ -18,6 +18,7 @@ import me.matl114.matlib.nmsMirror.inventory.ItemStackHelper;
 import me.matl114.matlib.nmsMirror.impl.versioned.Env1_20_R4;
 import me.matl114.matlib.common.lang.annotations.Internal;
 import me.matl114.matlib.common.lang.annotations.Note;
+import me.matl114.matlib.nmsMirror.nbt.TagEnum;
 import me.matl114.matlib.nmsUtils.serialize.CodecUtils;
 import me.matl114.matlib.nmsUtils.v1_20_R4.DataComponentUtils;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.Descriptive;
@@ -180,20 +181,25 @@ public interface ItemStackHelper_1_20_R4 extends TargetDescriptor, ItemStackHelp
 
 
     @Internal
-    default Object copyAndWriteCustomDataTag(Object val, Object customTag){
+    @Note("return pdc")
+    default Object copyAndWriteCustomDataWithPdcTag(Object val, Object customTag){
         Object newCustomData= Env1_20_R4.ICUSTOMDATA.of(customTag);
         setDataComponentValue(val, DataComponentEnum.CUSTOM_DATA, newCustomData);
-        return Env1_20_R4.ICUSTOMDATA.getUnsafe(newCustomData);
+        Object copiedNbt =  Env1_20_R4.ICUSTOMDATA.getUnsafe(newCustomData);
+        Object pdc =  NMSCore.COMPOUND_TAG.newComp();
+        NMSCore.COMPOUND_TAG.put(copiedNbt, "PublicBukkitValues", pdc);
+        return pdc;
     }
     @Internal
     @Note("return pdc")
     default Object createCustomDataWithPdcUnsafe(Object val){
-        Object customData = Env1_20_R4.ICUSTOMDATA.of(EMPTY_COMP.get());
-        setDataComponentValue(val, DataComponentEnum.CUSTOM_DATA, customData);
-        Object newCopy = Env1_20_R4.ICUSTOMDATA.getUnsafe(customData);
-        Object newPdc = NMSCore.COMPOUND_TAG.newComp();
-        NMSCore.COMPOUND_TAG.put(newCopy, "PublicBukkitValues", newPdc);
-        return newCopy;
+        return copyAndWriteCustomDataWithPdcTag(val, EMPTY_COMP.get());
+//        Object customData = Env1_20_R4.ICUSTOMDATA.of(EMPTY_COMP.get());
+//        setDataComponentValue(val, DataComponentEnum.CUSTOM_DATA, customData);
+//        Object newCopy = Env1_20_R4.ICUSTOMDATA.getUnsafe(customData);
+//        Object newPdc = NMSCore.COMPOUND_TAG.newComp();
+//        NMSCore.COMPOUND_TAG.put(newCopy, "PublicBukkitValues", newPdc);
+//        return newCopy;
     }
     default Object getPdcCompoundView(Object val,boolean forceCreate){
         Object customData = getCustomDataUnsafe(val);
@@ -205,9 +211,14 @@ public interface ItemStackHelper_1_20_R4 extends TargetDescriptor, ItemStackHelp
                 pdc = null;
             }
         }else {
-            pdc = NMSCore.COMPOUND_TAG.getCompound(customData, "PublicBukkitValues");
-            if(pdc == null && forceCreate){
-                pdc = copyAndWriteCustomDataTag(val, customData);
+            boolean hasPdc = NMSCore.COMPOUND_TAG.contains(customData, "PublicBukkitValues", TagEnum.TAG_COMPOUND);
+            if(hasPdc){
+                pdc = NMSCore.COMPOUND_TAG.getCompound(customData, "PublicBukkitValues");
+            }else{
+                pdc = null;
+                if(forceCreate){
+                    pdc = copyAndWriteCustomDataWithPdcTag(val, customData);
+                }
             }
         }
         return pdc;

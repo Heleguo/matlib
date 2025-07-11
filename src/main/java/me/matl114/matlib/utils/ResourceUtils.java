@@ -1,22 +1,20 @@
 package me.matl114.matlib.utils;
 
 import com.google.common.base.Charsets;
-import io.github.thebusybiscuit.slimefun4.libraries.dough.config.Config;
 import me.matl114.matlib.algorithms.algorithm.FileUtils;
-import me.matl114.matlib.core.AutoInit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.file.Files;
 
-
-public class ConfigLoader {
-    public static void copyFolder(Plugin plugin,  String folder) {
+public class ResourceUtils {
+    public static void copyFolder(Plugin plugin, String folder) {
         File folderFile=new File(plugin.getDataFolder(),folder);
         if(!folderFile.exists()) {
             try{
@@ -29,6 +27,7 @@ public class ConfigLoader {
             Debug.logger("%s文件夹已经存在.跳过拷贝...".formatted(folder));
         }
     }
+
     public static void copyFile(Plugin pl, File file, String name) {
         if (!file.exists()) {
             try {
@@ -49,21 +48,23 @@ public class ConfigLoader {
 
         }
     }
-    public static Config loadInternalConfig(Plugin plugin, String name){
+    @Nonnull
+    public static FileConfiguration loadInternalConfig(Class<?> clazz, String name){
         FileConfiguration config = new YamlConfiguration();
         try{
-            config.load((Reader)( new InputStreamReader(plugin.getClass().getResourceAsStream("/"+ name + ".yml"), Charsets.UTF_8)));
+            config.load((Reader)( new InputStreamReader(clazz.getResourceAsStream("/"+ name + ".yml"), Charsets.UTF_8)));
 
         }catch (Throwable e){
-            Debug.logger("failed to load internal config " + name + ".yml, Error: " + e.getMessage());
-            return null;
+            throw new RuntimeException("failed to load internal config " + name + ".yml, Error: " , e);
         }
-        return new Config(null,config);
+        return config;
     }
-    public static Config loadExternalConfig(Plugin plugin, String name){
+
+    @Nonnull
+    public static FileConfiguration loadExternalConfig(Plugin plugin, String name){
         FileConfiguration config = new YamlConfiguration();
         final File cfgFile = new File(plugin.getDataFolder(), "%s.yml".formatted(name));
         copyFile(plugin, cfgFile, name);
-        return new Config(plugin, "%s.yml".formatted(name));
+        return YamlConfiguration.loadConfiguration(cfgFile);
     }
 }

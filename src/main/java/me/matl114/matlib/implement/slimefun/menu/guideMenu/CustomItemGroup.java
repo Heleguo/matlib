@@ -21,6 +21,7 @@ import me.matl114.matlib.implement.slimefun.menu.menuClickHandler.GuideClickHand
 import me.matl114.matlib.implement.slimefun.menu.menuGroup.CustomMenuGroup;
 import me.matl114.matlib.utils.AddUtils;
 import me.matl114.matlib.implement.slimefun.menu.MenuUtils;
+import me.matl114.matlib.utils.TextUtils;
 import me.matl114.matlib.utils.reflect.wrapper.FieldAccess;
 import me.matl114.matlib.utils.reflect.wrapper.MethodAccess;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
@@ -122,7 +123,7 @@ public class CustomItemGroup extends FlexItemGroup  {
     private HashSet<Integer> backButton=new HashSet<>();
     private static FieldAccess iconAccess=FieldAccess.ofName(ItemGroup.class,"item");
     public static ItemStack getItemGroupIcon(ItemGroup group){
-        return (ItemStack) iconAccess.ofAccess(group).getRawOrDefault(()->AddUtils.renameItem(INVOKE_ERROR,group.getUnlocalizedName()));
+        return (ItemStack) iconAccess.ofAccess(group).getRawOrDefault(()-> TextUtils.renameItem(INVOKE_ERROR,group.getUnlocalizedName()));
 //        try{
 //            Class clazz= Class.forName("io.github.thebusybiscuit.slimefun4.api.items.ItemGroup");
 //            Field _hasType=clazz.getDeclaredField("item");

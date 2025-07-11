@@ -2,6 +2,7 @@ package me.matl114.matlib.algorithms.dataStructures.frames.collection;
 
 import lombok.AllArgsConstructor;
 import lombok.val;
+import me.matl114.matlib.algorithms.dataStructures.struct.LinkNode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -39,9 +40,9 @@ public class SimpleLinkList<T> implements Stack<T>, Iterable<T> {
 
     @Override
     public void push(T val) {
-        LinkNode<T> newNode = LinkNode.getInstance();
+        LinkNode<T> newNode = new LinkNode<>(val, head);
         newNode.next = head;
-        newNode.value = val;
+//        newNode.value = val;
         this.head = newNode;
     }
 

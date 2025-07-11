@@ -6,6 +6,7 @@ import me.matl114.matlib.algorithms.algorithm.ExecutorUtils;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.implement.bukkit.schedule.ScheduleManager;
 import me.matl114.matlib.utils.AddUtils;
+import me.matl114.matlib.utils.TextUtils;
 import me.matl114.matlib.utils.command.commandGroup.AbstractMainCommand;
 import me.matl114.matlib.utils.command.commandGroup.SubCommand;
 import me.matl114.matlib.utils.command.interruption.TypeError;
@@ -155,7 +156,7 @@ public class TestRunner extends AbstractMainCommand implements Manager {
             String val  = var4[0];
             var re = testCases.get(val);
             if(re==null){
-                AddUtils.sendMessage(var1,"&cTest case not found, run all");
+                TextUtils.sendMessage(var1,"&cTest case not found, run all");
                 ScheduleManager.getManager().launchScheduled(TestRunner.this::runAutomaticTests,10,false,0);
             }else {
                 ScheduleManager.getManager().launchScheduled(()->runAutomaticTests(List.of(re.getA())),10,false,0);

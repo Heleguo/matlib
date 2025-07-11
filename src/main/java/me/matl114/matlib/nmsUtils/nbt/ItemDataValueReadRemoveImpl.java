@@ -3,6 +3,7 @@ package me.matl114.matlib.nmsUtils.nbt;
 import me.matl114.matlib.nmsMirror.impl.Env;
 import me.matl114.matlib.nmsMirror.impl.NMSItem;
 import me.matl114.matlib.nmsMirror.inventory.ItemStackHelperDefault;
+import me.matl114.matlib.nmsMirror.nbt.TagEnum;
 import me.matl114.matlib.nmsUtils.serialize.TypeOps;
 
 import java.util.Objects;
@@ -66,19 +67,21 @@ class ItemDataValueReadRemoveImpl implements ItemDataValue{
     protected Object getTagBefore(Object nbt){
         int i=0;
         for (; i< this.path.length - 1; ++i){
-            if(nbt != null && TAGS.isCompound(nbt)){
+            if(nbt != null && COMPOUND_TAG.isCompound(nbt) && COMPOUND_TAG.contains(nbt, this.path[i], TagEnum.TAG_COMPOUND)){
                 nbt = COMPOUND_TAG.getCompound(nbt, this.path[i]);
             }else {
-                break;
+                return null;
+                //break;
             }
         }
         return nbt;
     }
 
+
     protected Object getOrCreateTagBefore(Object nbt){
         int i=0;
         for (; i< this.path.length - 1; ++i){
-            nbt = COMPOUND_TAG.getOrCreateCompound(nbt, this.path[i]);
+            nbt = COMPOUND_TAG.getOrNewCompound(nbt, this.path[i]);
         }
         return nbt;
     }
@@ -96,7 +99,7 @@ class ItemDataValueReadRemoveImpl implements ItemDataValue{
         Object nbt = HELPER.getCustomTag(itemStack);
         if(nbt == null)return null;
         nbt = getTagBefore(nbt);
-        return nbt == null? null: Env.NBT_OP.convertTo(TypeOps.I, nbt);
+        return nbt == null? null:(COMPOUND_TAG.contains(nbt, this.path[this.path.length - 1])?  Env.NBT_OP.convertTo(TypeOps.I, nbt): null);
     }
 
     @Override

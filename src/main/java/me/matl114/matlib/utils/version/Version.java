@@ -15,7 +15,11 @@ public enum Version {
     v1_21_R1("v1_21_R1", 48),
     v1_21_R2("v1_21_R2",57),
     @Experimental
-    v1_21_R3("v1_21_R3", 61);
+    v1_21_R3("v1_21_R3", 61),
+    v1_21_R4("v1_21_R4", 71),
+    v1_21_R5("v1_21_R5", 80),
+    v1_21_R6("v1_21_R6", 90);
+
     private Version(String name, int datapackNumber){
         this.name = name;
         this.datapackNumber = datapackNumber;
@@ -62,6 +66,16 @@ public enum Version {
                 case "1.21.4":
                     Debug.logger("Using version",v1_21_R3.name);
                     return v1_21_R3;
+                case "1.21.5":
+                    Debug.logger("Using version",v1_21_R4.name);
+                    return v1_21_R4;
+                case "1.21.6":
+                case "1.21.7":
+                    Debug.logger("Using version",v1_21_R5.name);
+                    return v1_21_R5;
+                case "1.21.8":
+                    Debug.logger("Using version",v1_21_R6.name);
+                    return v1_21_R6;
                 default:
             }
             throw new RuntimeException("Version not supported for " + version);

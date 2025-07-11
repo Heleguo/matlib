@@ -32,6 +32,7 @@ public class ScreenBuilder implements Screen {
         if(pageContentIndex.isEmpty())return 1;
         return Math.max(1, (pageContentList.size() - 1)/pageContentIndex.size() +1);
     };
+    private Function<InventoryBuilder, InteractHandler> blankClickHandler =(i)-> null;
     private Function<InventoryBuilder, ScreenOpenHandler> openHandler = (i)->null;
     private Function<InventoryBuilder, ScreenCloseHandler> closeHandler = (i)->null;
     private ScreenHistoryStack relatedHistory;
@@ -217,6 +218,15 @@ public class ScreenBuilder implements Screen {
         return this;
     }
 
+    public ScreenBuilder screenClick(InteractHandler handler){
+        return screenClick((i)->handler);
+    }
+
+    public ScreenBuilder screenClick(Function<InventoryBuilder, InteractHandler> handlerFunction){
+        this.blankClickHandler = handlerFunction;
+        return this;
+    }
+
     /**
      * set the screen related to the history,
      * will automatically change backhandler if backhandler returns a null InteractionHandler
@@ -293,6 +303,7 @@ public class ScreenBuilder implements Screen {
 
             }
         }
+        factory.visitScreenClick(this.blankClickHandler.apply(factory));
         factory.visitOpen(this.openHandler.apply(factory));
         factory.visitClose(this.closeHandler.apply(factory));
         factory.visitEnd();

@@ -8,7 +8,7 @@ import org.bukkit.inventory.Inventory;
 
 public interface SimpleInteractHandler extends InteractHandler{
     boolean onClick(Inventory inventory, Player player, InventoryClickEvent clickEvent);
-    default boolean onClick(Inventory inventory, Player player, int slotIndex, InventoryAction action, ClickType clickType){
+    default boolean onClick(Inventory inventory, Player player, int slotIndex, ClickType clickType){
         throw new UnsupportedOperationException("Do not call from here");
     }
 }

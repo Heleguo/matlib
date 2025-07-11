@@ -7,6 +7,7 @@ import me.matl114.matlib.nmsMirror.craftbukkit.inventory.ItemMetaAPI;
 import me.matl114.matlib.nmsMirror.impl.CraftBukkit;
 import me.matl114.matlib.nmsMirror.impl.NMSItem;
 import me.matl114.matlib.nmsMirror.inventory.ItemStackHelperDefault;
+import me.matl114.matlib.nmsMirror.nbt.TagEnum;
 import me.matl114.matlib.nmsUtils.VersionedUtils;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.KeyUtils;
@@ -47,9 +48,6 @@ class ItemMetaViewImpl extends AbstractItemMetaView {
             return map0;
         }
         AbstractList<?> nbt2 = COMPOUND_TAG.getList(nbt1, "Enchantments",10);
-        if(nbt2 == null){
-            return map0;
-        }
         for (var i = 0; i< nbt2.size(); ++i){
             Object ench1 = nbt2.get(i);
             String id = COMPOUND_TAG.getString(ench1, "id");
@@ -228,11 +226,7 @@ class ItemMetaViewImpl extends AbstractItemMetaView {
             }
             String enchId = ench.getKey().toString();
             Object nbt1 = ITEMSTACK.getOrCreateCustomTag(itemStack);
-            AbstractList<?> listTag = COMPOUND_TAG.getList(nbt1, "Enchantments",10);
-            if(listTag == null){
-                listTag = TAGS.listTag();
-                COMPOUND_TAG.put(nbt1, "Enchantments", listTag);
-            }
+            AbstractList<?> listTag = COMPOUND_TAG.getOrNewList(nbt1, "Enchantments",TagEnum.TAG_COMPOUND);
             boolean ret;
             Object newEnch = COMPOUND_TAG.newComp();
             COMPOUND_TAG.putString(newEnch, "id", enchId);
@@ -264,11 +258,10 @@ class ItemMetaViewImpl extends AbstractItemMetaView {
         }
         String enchId = ench.getKey().toString();
         Object nbt1 = ITEMSTACK.getCustomTag(itemStack);
-        if(nbt1 != null){
-            AbstractList<?> listTag = COMPOUND_TAG.getList(nbt1, "Enchantments",10);
-            if(listTag != null){
-                return listTag.removeIf(o->Objects.equals(enchId, COMPOUND_TAG.getString(o, "id")));
-            }else return false;
+        if(nbt1 != null && COMPOUND_TAG.contains(nbt1, "Enchantments", TagEnum.TAG_LIST)){
+            AbstractList<?> listTag = COMPOUND_TAG.getList(nbt1, "Enchantments", TagEnum.TAG_COMPOUND);
+            return listTag.removeIf(o->Objects.equals(enchId, COMPOUND_TAG.getString(o, "id")));
+
         }else return false;
     }
 

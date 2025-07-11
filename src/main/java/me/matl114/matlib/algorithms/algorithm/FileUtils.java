@@ -88,32 +88,57 @@ public class FileUtils {
             throw new IOException(from + " does not exist");
         }
     }
-    
+
     /**
      * Copies a resource from the classpath to a file location.
      * The destination file will be created if it doesn't exist, or overwritten if it does.
-     * 
+     *
      * @param resource The classpath resource path (without leading slash)
      * @param to The destination file path
      * @throws IOException if the resource doesn't exist or the copy operation fails
      */
     public static void copyFile(String resource, String to) throws IOException {
-        File toFile = new File(to);
-        ensureParentDir(toFile);
-
-        Files.copy(FileUtils.class.getResourceAsStream("/"+resource),toFile.toPath(),StandardCopyOption.REPLACE_EXISTING);
+        copyFile(FileUtils.class, resource, to);
     }
     
     /**
+     * Copies a resource from the classpath to a file location.
+     * The destination file will be created if it doesn't exist, or overwritten if it does.
+     *
+     * @param clazz The classpath in jar
+     * @param resource The classpath resource path (without leading slash)
+     * @param to The destination file path
+     * @throws IOException if the resource doesn't exist or the copy operation fails
+     */
+    public static void copyFile(Class<?> clazz, String resource, String to) throws IOException {
+        File toFile = new File(to);
+        ensureParentDir(toFile);
+        Files.copy(clazz.getResourceAsStream("/"+resource),toFile.toPath(),StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    /**
      * Recursively copies a folder from the classpath to a destination directory.
      * This method handles both regular directories and JAR file resources.
-     * 
+     *
      * @param from The classpath resource directory path
      * @param toPath The destination directory path
      * @throws IOException if the source directory doesn't exist or the copy operation fails
      */
-    public static void copyFolderRecursively(String from,String toPath) throws IOException {
-        ClassLoader classLoader = FileUtils.class.getClassLoader();
+    public static void copyFolderRecursively(String from,String toPath) throws IOException{
+        copyFolderRecursively(FileUtils.class, from, toPath);
+    }
+
+    /**
+     * Recursively copies a folder from the classpath to a destination directory.
+     * This method handles both regular directories and JAR file resources.
+     *
+     * @param clazz class in the jar file
+     * @param from The classpath resource directory path
+     * @param toPath The destination directory path
+     * @throws IOException if the source directory doesn't exist or the copy operation fails
+     */
+    public static void copyFolderRecursively(Class<?> clazz, String from,String toPath) throws IOException {
+        ClassLoader classLoader = clazz.getClassLoader();
         URI uri=null;
         try {
             uri = classLoader.getResource(from).toURI();
@@ -128,7 +153,7 @@ public class FileUtils {
         }
 
         /** jar case */
-        URL jar = FileUtils.class.getProtectionDomain().getCodeSource().getLocation();
+        URL jar = clazz.getProtectionDomain().getCodeSource().getLocation();
         //jar.toString() begins with file:
         //i want to trim it out...
         Path jarFile = Paths.get(URLDecoder.decode(jar.toString(), StandardCharsets.UTF_8) .substring("file:".length()));
@@ -136,7 +161,7 @@ public class FileUtils {
         DirectoryStream<Path> directoryStream = Files.newDirectoryStream(fs.getPath(from));
         Path to=new File(toPath).toPath();
         for(Path p: directoryStream){
-            InputStream is = FileUtils.class.getResourceAsStream("/"+p.toString()) ;
+            InputStream is = clazz.getResourceAsStream("/"+p.toString()) ;
             Path target=to.resolve(p.toString());
 
             if(!Files.exists(target)){
@@ -180,6 +205,17 @@ public class FileUtils {
      */
     public static InputStream readResource(String resource){
         return FileUtils.class.getResourceAsStream("/" + resource);
+    }
+
+    /**
+     * Gets an InputStream for a classpath resource.
+     *
+     * @param clazz The classpath in jar file
+     * @param resource The classpath resource path (without leading slash)
+     * @return An InputStream for the resource, or null if the resource doesn't exist
+     */
+    public static InputStream readResource(Class<?> clazz, String resource){
+        return clazz.getResourceAsStream("/" + resource);
     }
 
     /**

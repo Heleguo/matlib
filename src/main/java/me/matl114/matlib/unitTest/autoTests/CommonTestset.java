@@ -12,5 +12,6 @@ public class CommonTestset extends TestSet {
         addTest(new WorldUtilTests());
         addTest(new EntityUtilTests());
         addTest(new RegistryTests());
+        addTest(new ConfigTests());
     }
 }

@@ -3,10 +3,8 @@ package me.matl114.matlib.utils.command.commandGroup;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import lombok.Getter;
-import me.matl114.matlib.utils.command.interruption.ArgumentException;
-import me.matl114.matlib.utils.command.interruption.InterruptionHandler;
-import me.matl114.matlib.utils.command.interruption.InvalidExecutorError;
-import me.matl114.matlib.utils.command.interruption.TypeError;
+import me.matl114.matlib.utils.AddUtils;
+import me.matl114.matlib.utils.command.interruption.*;
 import me.matl114.matlib.utils.command.params.SimpleCommandArgs;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -20,10 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -308,6 +303,14 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor, Int
         }
     }
 
+    public void handlePermissionDenied(CommandSender sender, String permission, @Nullable String commandNodeName){
+        if(commandNodeName == null){
+            noPermission(sender);
+        }else {
+            sendMessage(sender, "&c你没有权限使用: " + commandNodeName);
+        }
+    }
+
     /**
      * Handles logical errors during command execution.
      * Displays a user-friendly error message in Chinese.
@@ -409,6 +412,19 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor, Int
         }
     }
 
+    public void permissionDenied(String permission,@Nullable String commandnode){
+        throw new PermissionDenyError(permission, Optional.ofNullable(commandnode));
+    }
+
+
+    public void checkPermission(CommandSender sender, String permission){
+        if(sender.hasPermission(permission)){
+            return;
+        }else {
+            throw new PermissionDenyError(permission, Optional.empty());
+        }
+    }
+
     /**
      * Generates a SimpleCommandArgs instance with the specified argument names.
      * 
@@ -425,7 +441,7 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor, Int
      * @return A supplier that returns a list of common number values
      */
     public static Supplier<List<String>> numberSupplier(){
-        return ()->List.of("0","1","16","114514","2147483647");
+        return ()->List.of("0","1","16","64","114514","2147483647");
     }
     
     /**
@@ -434,7 +450,7 @@ public abstract class AbstractMainCommand implements ComplexCommandExecutor, Int
      * @return A supplier that returns a list of common float values
      */
     public static Supplier<List<String>> floatSupplier(){
-        return ()->List.of("0.0","1.0","3.14159","1.57079","6.283185");
+        return ()->List.of("0.0","1.0", "2.0", "3.0" ,"3.14159" ,"1.57079" ,"6.283185");
     }
     
     /**

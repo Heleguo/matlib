@@ -11,6 +11,8 @@ import org.bukkit.NamespacedKey;
 
 import javax.annotation.Nullable;
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +35,7 @@ public class LanguageRegistry {
         this.defaultLocale = defaultLocale;
         this.key = key;
         if(toPaper){
-            this.paperRegistry = TranslationRegistry.create(Key.key(key.getNamespace(), key.getKey()));
+            this.paperRegistry = TranslationRegistry.create(key);
             GlobalTranslator.translator().addSource(this.paperRegistry);
         }
     }
@@ -49,14 +51,17 @@ public class LanguageRegistry {
             String nextPath = parentPath == null? String.valueOf( entry.getKey()): parentPath + "."+ entry.getKey();
             if(entry.getValue() instanceof Map sub){
                 walk(map, sub, nextPath, locale);
-            }else {
-                map.computeIfAbsent(nextPath, (p)->new LanguageNode()).languageMap.put(locale, new LanguageContent( String.valueOf(entry.getValue())));
+            }else if(entry.getValue() instanceof List stringList){
+                map.computeIfAbsent(nextPath, (p)->new LanguageNode()).languageMap.put(locale, new StringListLanguageContent(stringList));
+            }
+            else {
+                map.computeIfAbsent(nextPath, (p)->new LanguageNode()).languageMap.put(locale, new StringLanguageContent( String.valueOf(entry.getValue())));
             }
         }
     }
 
     private void putInternal(Locale locale, String path, String value){
-        flattenMap.computeIfAbsent(path, (i)->new LanguageNode()).languageMap.put(locale, new LanguageContent(value));
+        flattenMap.computeIfAbsent(path, (i)->new LanguageNode()).languageMap.put(locale, new StringLanguageContent(value));
         if(writer != null){
             writer.accept(locale, path, value);
         }
@@ -91,9 +96,17 @@ public class LanguageRegistry {
         var content = getInternal(locale, value);
         return content == null ? null: content.getAsString();
     }
+    public List<String> getList(Locale locale, String value){
+        var content = getInternal(locale, value);
+        return content == null ? null: content.getAsStringList();
+    }
     public String getLocale(Locale locale, String value){
         var content = getInternal0(locale, value);
         return content == null ? null: content.getAsString();
+    }
+    public List<String> getLocaleList(Locale locale, String value){
+        var content = getInternal0(locale, value);
+        return content == null ? null: content.getAsStringList();
     }
     public String getOrKey(Locale locale, String value){
         return get(locale, value, value);
@@ -103,9 +116,18 @@ public class LanguageRegistry {
         return content == null ? fallback: content.getAsString();
     }
 
+    public List<String> getList(Locale locale, String value, List<String> fallback){
+        var content = getInternal(locale, value);
+        return content == null ? fallback: content.getAsStringList();
+    }
+
     public String getColored(Locale locale, String value){
         var content = getInternal(locale, value);
         return content == null ? null: content.getAsColorString();
+    }
+    public List<String> getColoredList(Locale locale, String value){
+        var content = getInternal(locale, value);
+        return content == null ? null: content.getAsColorStringList();
     }
     public String getColored(Locale locale, String value, String fallbackOrigin){
         var content = getInternal(locale, value);
@@ -113,6 +135,15 @@ public class LanguageRegistry {
             return content.getAsColorString();
         }else {
             return fallbackOrigin ==null ? null: ChatColor.translateAlternateColorCodes('&', fallbackOrigin);
+        }
+    }
+
+    public List<String> getColored(Locale locale, String value, List<String> fallbackOrigin){
+        var content = getInternal(locale, value);
+        if(content != null){
+            return content.getAsColorStringList();
+        }else {
+            return fallbackOrigin ==null ? null: fallbackOrigin.stream().map(i-> ChatColor.translateAlternateColorCodes('&', i)).toList();
         }
     }
 
@@ -124,12 +155,25 @@ public class LanguageRegistry {
         var content = getInternal(locale, value);
         return content == null ? null: content.getAsProcessed();
     }
+    public List<String> getFormattedList(Locale locale, String value){
+        var content = getInternal(locale, value);
+        return content == null ? null: content.getAsProcessedList();
+    }
     public String getFormatted(Locale locale, String value, String fallbackOrigin){
         var content = getInternal(locale, value);
         if(content != null){
             return content.getAsProcessed();
         }else {
             return fallbackOrigin ==null ? null: formattor.processPlaceholder(fallbackOrigin);
+        }
+    }
+
+    public List<String> getFormattedList(Locale locale, String value, List<String> fallbackOrigin){
+        var content = getInternal(locale, value);
+        if(content != null){
+            return content.getAsProcessedList();
+        }else {
+            return fallbackOrigin ==null ? null: fallbackOrigin.stream().map(formattor::processPlaceholder).toList();
         }
     }
     private class LanguageNode{
@@ -139,9 +183,17 @@ public class LanguageRegistry {
             return  content == null ? languageMap.get(defaultLocale): content;
         }
     }
+    private interface LanguageContent{
+        public String getAsString();
+        public List<String> getAsStringList();
+        public String getAsColorString();
+        public List<String> getAsColorStringList();
+        public String getAsProcessed();
+        public List<String> getAsProcessedList();
 
-    private class LanguageContent{
-        public LanguageContent(String data){
+    }
+    private class StringLanguageContent implements LanguageContent{
+        public StringLanguageContent(String data){
             this.rawLanguage = data;
             this.legacyColorString = ChatColor.translateAlternateColorCodes('&' ,rawLanguage);
         }
@@ -151,8 +203,19 @@ public class LanguageRegistry {
         public String getAsString(){
             return rawLanguage;
         }
+
+        @Override
+        public List<String> getAsStringList() {
+            throw new UnsupportedOperationException("This Language content is not a list");
+        }
+
         public String getAsColorString(){
             return legacyColorString;
+        }
+
+        @Override
+        public List<String> getAsColorStringList() {
+            throw new UnsupportedOperationException("This Language content is not a list");
         }
 
         public String getAsProcessed(){
@@ -161,7 +224,55 @@ public class LanguageRegistry {
             }
             return processedColorString;
         }
+
+        @Override
+        public List<String> getAsProcessedList() {
+            throw new UnsupportedOperationException("This Language content is not a list");
+        }
     }
+
+    private class StringListLanguageContent implements LanguageContent{
+        public StringListLanguageContent(List<String> data){
+            this.rawLanguage = Collections.unmodifiableList( data);
+            this.legacyColorString = data.stream().map(i-> ChatColor.translateAlternateColorCodes('&' ,i)).toList();
+        }
+        List<String> rawLanguage;
+        List<String> legacyColorString;
+        List<String> processedColorString;
+        public String getAsString(){
+            return rawLanguage.toString();
+        }
+
+        @Override
+        public List<String> getAsStringList() {
+            return rawLanguage;
+        }
+
+        public String getAsColorString(){
+            return legacyColorString.toString();
+        }
+
+        @Override
+        public List<String> getAsColorStringList() {
+            return legacyColorString;
+        }
+
+        public String getAsProcessed(){
+            if(processedColorString == null){
+                processedColorString = rawLanguage.stream().map(formattor::processPlaceholder).toList();
+            }
+            return processedColorString.toString();
+        }
+
+        @Override
+        public List<String> getAsProcessedList() {
+            if(processedColorString == null){
+                processedColorString = rawLanguage.stream().map(formattor::processPlaceholder).toList();
+            }
+            return processedColorString;
+        }
+    }
+
 
     public void deconstruct(){
         if(this.paperRegistry != null){

@@ -8,6 +8,7 @@ import me.matl114.matlib.utils.reflect.classBuild.annotation.RedirectType;
 import me.matl114.matlib.utils.version.Version;
 import org.jetbrains.annotations.Contract;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -15,6 +16,9 @@ import static me.matl114.matlib.nmsMirror.Import.*;
 
 @Descriptive(target = "net.minecraft.nbt.CompoundTag")
 public interface CompoundTagHelper extends TargetDescriptor, TagHelper {
+    @CastCheck(CompoundTag)
+    boolean isCompound(Object nbt);
+
     @ConstructorTarget
     Object newComp();
 
@@ -78,6 +82,7 @@ public interface CompoundTagHelper extends TargetDescriptor, TagHelper {
 
     @MethodTarget
     @Nullable
+    @Note("return null if absent")
     @RedirectType(Tag)
     Object get(Object nbt, String key);
 
@@ -91,47 +96,76 @@ public interface CompoundTagHelper extends TargetDescriptor, TagHelper {
     byte getTagType(Object nbt, String key);
 
     @MethodTarget
+    @Note( extra = {"return 0 when absent"})
     public byte getByte(Object nbt, String key);
 
     @MethodTarget
+    @Note( extra = {"return 0 when absent"})
     public short getShort(Object nbt, String key);
 
     @MethodTarget
+    @Note( extra = {"return 0 when absent"})
     public int getInt(Object nbt, String key);
 
     @MethodTarget
+    @Note( extra = {"return 0 when absent"})
     public long getLong(Object nbt, String key);
 
     @MethodTarget
+    @Note( extra = {"return 0 when absent"})
     public float getFloat(Object nbt, String key);
 
     @MethodTarget
+    @Note( extra = {"return 0 when absent"})
     public double getDouble(Object nbt, String key);
 
     @MethodTarget
+    @Nonnull
+    @Note(extra = {"return empty string when absent"})
     public String getString(Object nbt, String key);
 
     @MethodTarget
-    @Note("may throw crash report")
+    @Nonnull
+    @Note(value = "may throw crash report", extra = {"return new instance when absent"})
     public byte[] getByteArray(Object nbt, String key);
 
     @MethodTarget
-    @Note("may throw crash report")
+    @Nonnull
+    @Note(value = "may throw crash report", extra = {"return new instance when absent"})
     public int[] getIntArray(Object nbt, String key);
 
     @MethodTarget
-    @Note("may throw crash report")
+    @Nonnull
+    @Note(value = "may throw crash report", extra = {"return new instance when absent"})
     public long[] getLongArray(Object nbt, String key);
 
     @MethodTarget
-    @Note("may throw crash report")
+    @Nonnull
+    @Note(value = "may throw crash report", extra = {"return new instance when absent"})
     @RedirectType(CompoundTag)
     public Object getCompound(Object nbt, String key);
+    @Nonnull
+    default Object getOrNewCompound(Object nbt, String key){
+        var nbt0 = get(nbt, key);
+        if(nbt0 == null || !isCompound(nbt0)){
+            nbt0 = newComp();
+            put(nbt, key, nbt0);
+        }
+        return nbt0;
+    }
 
     @MethodTarget
-    @Note("may throw crash report")
+    @Nonnull
+    @Note(value = "may throw crash report", extra = {"return new instance when absent"})
     @RedirectType(ListTag)
     public AbstractList getList(Object nbt, String key, int type);
+
+    @Nonnull
+    default AbstractList getOrNewList(Object nbt, String key, int type){
+        var list = getList(nbt, key, type);
+        put(nbt, key, list);
+        return list;
+    }
 
     @MethodTarget
     public boolean getBoolean(Object nbt, String key);
@@ -164,16 +198,16 @@ public interface CompoundTagHelper extends TargetDescriptor, TagHelper {
         tagsGetter(nbt).clear();
     }
 
-    default Object getOrCreateCompound(Object nbt, String key){
-        Object obj = getCompound(nbt, key);
-        if(obj != null){
-            return obj;
-        }else {
-            obj = newComp();
-            put(nbt, key, obj);
-            return obj;
-        }
-    }
+//    default Object getOrNewCompound(Object nbt, String key){
+//        Object obj = getCompound(nbt, key);
+//        if(obj != null){
+//            return obj;
+//        }else {
+//            obj = newComp();
+//            put(nbt, key, obj);
+//            return obj;
+//        }
+//    }
     //removed
 //    @MethodTarget
 //    @RedirectName("entries")

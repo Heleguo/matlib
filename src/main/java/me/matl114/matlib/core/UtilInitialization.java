@@ -2,7 +2,6 @@ package me.matl114.matlib.core;
 
 import lombok.Getter;
 import me.matl114.matlib.common.lang.annotations.Note;
-import me.matl114.matlib.utils.ConfigLoader;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlibAdaptor.algorithms.interfaces.Initialization;
 import org.bukkit.plugin.Plugin;

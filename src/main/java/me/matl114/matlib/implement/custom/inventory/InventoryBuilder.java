@@ -46,6 +46,11 @@ public interface InventoryBuilder<T>{
     void  visitClose(@Nullable ScreenCloseHandler handler);
 
     /**
+     * set the handler of player click any place outside the fucking inventory slots
+     */
+    void visitScreenClick(InteractHandler handler);
+
+    /**
      * must return the instance passed in the "visitPage()"
      * @return
      */

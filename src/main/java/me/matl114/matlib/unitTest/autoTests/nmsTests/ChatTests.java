@@ -10,6 +10,7 @@ import me.matl114.matlib.unitTest.TestCase;
 import me.matl114.matlib.utils.AddUtils;
 import me.matl114.matlib.utils.CraftUtils;
 import me.matl114.matlib.utils.Debug;
+import me.matl114.matlib.utils.TextUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -28,7 +29,7 @@ public class ChatTests implements TestCase {
         Debug.logger(ChatUtils.deserializeLegacy("114514"));
         for (int i=0; i< 5;++i){
             String rand = StringUtils.randString(7);
-            String colored = AddUtils.colorPseudorandomString(rand);
+            String colored = TextUtils.colorPseudorandomString(rand);
             Debug.logger("testing on string", colored);
             ItemStack stack = ItemUtils.newStack(Material.CHEST, 1);
             ItemMeta meta = stack.getItemMeta();
@@ -42,13 +43,13 @@ public class ChatTests implements TestCase {
         }
         Debug.logger("start serialize test");
         String rand0 = StringUtils.randString(7);
-        String colored0 = AddUtils.colorPseudorandomString(rand0);
+        String colored0 = TextUtils.colorPseudorandomString(rand0);
         Iterable<?> comp = ChatUtils.deserializeLegacy(colored0);
         Debug.logger(comp);
         Debug.logger(ChatUtils.serializeToLegacy(comp));
         for (int i=0; i< 5;++i){
             String rand = StringUtils.randString(7);
-            String colored = AddUtils.colorPseudorandomString(rand);
+            String colored = TextUtils.colorPseudorandomString(rand);
             Debug.logger("testing on string", colored);
             ItemStack stack = ItemUtils.newStack(Material.CHEST, 1);
             ItemMeta meta = stack.getItemMeta();
@@ -61,7 +62,7 @@ public class ChatTests implements TestCase {
         Debug.logger("start plain text test");
         for (int i=0; i< 5;++i){
             String rand = StringUtils.randString(7);
-            String colored = AddUtils.colorPseudorandomString(rand);
+            String colored = TextUtils.colorPseudorandomString(rand);
             Debug.logger("testing on string", colored);
             Iterable<?> comp0 = ChatUtils.deserializeLegacy(colored);
             AssertEq(rand, ChatUtils.getPlainString(comp0));
@@ -90,7 +91,7 @@ public class ChatTests implements TestCase {
     public void test_itemNameAndLoreAPI() throws Throwable{
         ItemStack stack = ItemUtils.newStack(Material.CHEST, 3);
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(AddUtils.resolveColor("&3这是一个物品名字"));
+        meta.setDisplayName(TextUtils.resolveColor("&3这是一个物品名字"));
         meta.setLore(List.of("&6这是第一行lore","&7这是第二行lore","&8&l这是第三行&alore"));
         stack.setItemMeta(meta);
         Object nms = ItemUtils.unwrapHandle(stack);

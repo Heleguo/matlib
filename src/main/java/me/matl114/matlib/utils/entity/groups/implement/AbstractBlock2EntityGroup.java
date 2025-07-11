@@ -1,6 +1,7 @@
 package me.matl114.matlib.utils.entity.groups.implement;
 
 import me.matl114.matlib.utils.AddUtils;
+import me.matl114.matlib.utils.TextUtils;
 import me.matl114.matlib.utils.entity.entityRecords.EntityRecord;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -19,7 +20,7 @@ public abstract class AbstractBlock2EntityGroup<T extends Entity> extends Listed
         return identifierOfBlockPos(blockPos);
     }
     public static String identifierOfBlockPos(Location blockPos) {
-        return "Smp_"+ AddUtils.blockLocationToString(blockPos);
+        return "Smp_"+ TextUtils.blockLocationToString(blockPos);
     }
 
     public boolean autoRemovalOnShutdown() {

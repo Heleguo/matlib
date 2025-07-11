@@ -10,6 +10,7 @@ import me.matl114.matlib.utils.AddUtils;
 import me.matl114.matlib.algorithms.dataStructures.struct.Pair;
 import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.common.lang.enums.Flags;
+import me.matl114.matlib.utils.TextUtils;
 import me.matl114.matlib.utils.inventory.itemStacks.CleanItemStack;
 import me.matl114.matlib.utils.version.VersionedRegistry;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
@@ -172,32 +173,32 @@ public class SlimefunUtils {
         return "&8⇨ &e⚡ &7" + FORMAT.format((double)energy ) + " J 每次合成";
     }
     public static  ItemStack workBenchInfoAdd(ItemStack item,int energyBuffer,int energyConsumption){
-        return AddUtils.addLore(item, LoreBuilder.powerBuffer(energyBuffer), energyPerCraft(energyConsumption));
+        return TextUtils.addLore(item, LoreBuilder.powerBuffer(energyBuffer), energyPerCraft(energyConsumption));
     }
     public static  String tickPerGen(int time){
         return "&8⇨ &7速度: &b每 " + Integer.toString(time) + " 粘液刻生成一次";
     }
 
     public static ItemStack capacitorInfoAdd(ItemStack item,int energyBuffer){
-        return AddUtils.addLore(item, LoreBuilder.powerBuffer(energyBuffer));
+        return TextUtils.addLore(item, LoreBuilder.powerBuffer(energyBuffer));
     }
     public static  ItemStack machineInfoAdd(ItemStack item,int energyBuffer,int energyConsumption){
         return machineInfoAdd(item,energyBuffer,energyConsumption, Flags.UNIT_SEC);
     }
     public static ItemStack machineInfoAdd(ItemStack item, int energyBuffer, int energyConsumption, Flags type){
         if(type== Flags.UNIT_SEC) {
-            return AddUtils.addLore(item, LoreBuilder.powerBuffer(energyBuffer), energyPerSecond(energyConsumption));
+            return TextUtils.addLore(item, LoreBuilder.powerBuffer(energyBuffer), energyPerSecond(energyConsumption));
         }
         else if(type== Flags.UNIT_SFT) {
-            return  AddUtils.addLore( item, LoreBuilder.powerBuffer(energyBuffer), energyPerTick(energyConsumption));
+            return  TextUtils.addLore( item, LoreBuilder.powerBuffer(energyBuffer), energyPerTick(energyConsumption));
         }
         else return null;
     }
     public static ItemStack smgInfoAdd(ItemStack item, int time){
-        return  AddUtils.addLore( item, tickPerGen(time));
+        return  TextUtils.addLore( item, tickPerGen(time));
     }
     public static ItemStack advancedMachineShow(ItemStack stack,int limit){
-        return AddUtils.addLore(stack,"&7机器合成进程数: %s".formatted(limit));
+        return TextUtils.addLore(stack,"&7机器合成进程数: %s".formatted(limit));
     }
     public static void asyncWaitPlayerInput(Player player, Consumer<String> consumer){
         ChatInput.waitForPlayer(

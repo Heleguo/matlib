@@ -8,6 +8,7 @@ import me.matl114.matlib.nmsMirror.impl.Env;
 import me.matl114.matlib.nmsMirror.impl.NMSChat;
 import me.matl114.matlib.nmsMirror.impl.NMSCore;
 import me.matl114.matlib.common.lang.annotations.Note;
+import me.matl114.matlib.nmsMirror.nbt.TagEnum;
 import me.matl114.matlib.utils.reflect.classBuild.annotation.IgnoreFailure;
 import me.matl114.matlib.utils.reflect.descriptor.annotations.*;
 import me.matl114.matlib.utils.reflect.descriptor.buildTools.TargetDescriptor;
@@ -155,8 +156,8 @@ public interface ItemStackHelperDefault extends TargetDescriptor, ItemStackHelpe
     @Internal
     default List<String> getLoreRaw(Object stack){
         Object nbt = getTagElement(stack,DISPLAY);
-        if( nbt != null && NMSCore.COMPOUND_TAG.getTagType(nbt, LORE) == 9){
-            AbstractList<?> list= NMSCore.COMPOUND_TAG.getList(nbt, LORE, 8);
+        if( nbt != null && NMSCore.COMPOUND_TAG.getTagType(nbt, LORE) == TagEnum.TAG_LIST){
+            AbstractList<?> list= NMSCore.COMPOUND_TAG.getList(nbt, LORE, TagEnum.TAG_STRING);
             List<String> newList = new ArrayList<>(list.size());
             for (var entyr: list){
                 newList.add(NMSCore.TAGS.getAsString(entyr));
@@ -177,7 +178,7 @@ public interface ItemStackHelperDefault extends TargetDescriptor, ItemStackHelpe
         Consumer<MappingList<Object, Iterable<?>>> writeback0 = (mplist)->{
             List<Object> originList = mplist.getOrigin();
             Object nbt0 = getOrCreateCustomTag(stack);
-            Object nbt1 = NMSCore.COMPOUND_TAG.getOrCreateCompound(nbt0, DISPLAY);
+            Object nbt1 = NMSCore.COMPOUND_TAG.getOrNewCompound(nbt0, DISPLAY);
             //
             NMSCore.COMPOUND_TAG.put(nbt1, LORE, originList);
         };
@@ -194,8 +195,8 @@ public interface ItemStackHelperDefault extends TargetDescriptor, ItemStackHelpe
                 super.flush();
                 Object nbt = getTagElement(stack,DISPLAY);
                 AbstractList<Object> loreList;
-                if(nbt != null && NMSCore.COMPOUND_TAG.getTagType(nbt, LORE) == 9){
-                    loreList = (AbstractList<Object>) NMSCore.COMPOUND_TAG.getList(nbt, LORE, 8);
+                if(nbt != null && NMSCore.COMPOUND_TAG.getTagType(nbt, LORE) == TagEnum.TAG_LIST){
+                    loreList = (AbstractList<Object>) NMSCore.COMPOUND_TAG.getList(nbt, LORE, TagEnum.TAG_STRING);
                     this.withWriteBack(overrideOnWrite? writeback0 : null);
                 }else {
                     loreList = (AbstractList<Object>) NMSCore.TAGS.listTag();
@@ -299,7 +300,7 @@ public interface ItemStackHelperDefault extends TargetDescriptor, ItemStackHelpe
 
         if(create){
             Object custom = getOrCreateCustomTag(val);
-            return NMSCore.COMPOUND_TAG.getOrCreateCompound(custom, "PublicBukkitValues");
+            return NMSCore.COMPOUND_TAG.getOrNewCompound(custom, "PublicBukkitValues");
         }else {
             Object custom = getCustomTag(val);
             return custom == null ? null: NMSCore.COMPOUND_TAG.get(custom, "PublicBukkitValues");
