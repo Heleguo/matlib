@@ -25,11 +25,11 @@ public enum GamePacket {
 //    CLIENTBOUND_TRANSFER(true, PacketFlow.S2C, "transfer"),
 //    CLIENTBOUND_UPDATE_TAGS(true, PacketFlow.S2C, "update_tags"),
 
-    SERVERBOUND_CLIENT_INFORMATION(true, PacketFlow.C2S, "client_information"),
-    SERVERBOUND_CUSTOM_PAYLOAD(true, PacketFlow.C2S, "custom_payload"),
-    SERVERBOUND_KEEP_ALIVE(true, PacketFlow.C2S, "keep_alive"),
-    SERVERBOUND_PONG(true, PacketFlow.C2S, "pong"),
-    SERVERBOUND_RESOURCE_PACK(true, PacketFlow.C2S, "resource_pack"),
+    SERVERBOUND_CLIENT_INFORMATION(GamePacketHandler.COMMON, PacketFlow.C2S, "client_information"),
+    SERVERBOUND_CUSTOM_PAYLOAD(GamePacketHandler.COMMON, PacketFlow.C2S, "custom_payload"),
+    SERVERBOUND_KEEP_ALIVE(GamePacketHandler.COMMON, PacketFlow.C2S, "keep_alive"),
+    SERVERBOUND_PONG(GamePacketHandler.COMMON, PacketFlow.C2S, "pong"),
+    SERVERBOUND_RESOURCE_PACK(GamePacketHandler.COMMON, PacketFlow.C2S, "resource_pack"),
     
     
     
@@ -259,21 +259,21 @@ public enum GamePacket {
     @Getter
     final boolean validVersion;
     Class<?> lookup;
-    final boolean common;
-    GamePacket(boolean common, PacketFlow flow, String typeName){
-        this(flow, typeName, null,null, common);
+    final GamePacketHandler common;
+    GamePacket(GamePacketHandler handler, PacketFlow flow, String typeName){
+        this(flow, typeName, null,null, handler);
     }
 
     GamePacket(PacketFlow flow, String typeName, Version version){
-        this(flow, typeName, version, null, false);
+        this(flow, typeName, version, null, GamePacketHandler.PLAY);
     }
     GamePacket(PacketFlow flow, String typeName){
-        this(flow, typeName, null, null, false);
+        this(flow, typeName, null, null, GamePacketHandler.PLAY);
     }
     GamePacket(PacketFlow flow, String typeName, Version from, Version toNotInclude){
-        this(flow, typeName, from, toNotInclude, false);
+        this(flow, typeName, from, toNotInclude, GamePacketHandler.PLAY);
     }
-    GamePacket(PacketFlow flow, String typeName, Version from, Version toNotInclude, boolean common){
+    GamePacket(PacketFlow flow, String typeName, Version from, Version toNotInclude,GamePacketHandler common){
         this.flow = flow;
         this.name = typeName;
         this.from = from;
@@ -289,7 +289,7 @@ public enum GamePacket {
         this.validVersion = valid;
 
         if(this.validVersion && this.flow != null){
-            this.lookup = lookupClass(name(), common);
+            this.lookup = lookupClass(name(), common == GamePacketHandler.COMMON);
             if(this.lookup != null){
                 Preconditions.checkArgument(!this.lookup.isInterface());
                 ClassMap.CLASS_TO_TYPE.put(this.lookup, this);
@@ -377,11 +377,16 @@ public enum GamePacket {
         }
         private static void addOptional(String name,GamePacket type){
             try{
-                Class<?> t = lookupClass(name, type.common);
+                Class<?> t = lookupClass(name, type.common == GamePacketHandler.COMMON);
                 CLASS_TO_TYPE.put(t, type);
             }catch (Throwable versionedError){
             }
         }
+    }
+
+    public static enum GamePacketHandler{
+        COMMON,
+        PLAY;
     }
 
 

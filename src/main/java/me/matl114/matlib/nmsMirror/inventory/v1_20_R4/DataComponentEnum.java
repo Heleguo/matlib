@@ -8,12 +8,10 @@ import me.matl114.matlib.common.lang.annotations.Note;
 import me.matl114.matlib.nmsMirror.Utils;
 import me.matl114.matlib.nmsMirror.core.BuiltInRegistryEnum;
 import me.matl114.matlib.nmsMirror.impl.versioned.Env1_20_R4;
-import me.matl114.matlib.utils.Debug;
 import me.matl114.matlib.utils.reflect.internel.ObfManager;
 import me.matl114.matlib.utils.version.DependsOnVersion;
 import me.matl114.matlib.utils.version.Version;
 import me.matl114.matlib.utils.version.VersionAtLeast;
-import org.checkerframework.checker.units.qual.C;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -31,7 +29,9 @@ public class DataComponentEnum {
     public static final Object TOOL;
     public static final Object FOOD;
     public static final Object REPAIR_COST;
+    @DependsOnVersion(lowerThan = Version.v1_21_R4)
     public static final Object HIDE_TOOLTIP;
+    @DependsOnVersion(lowerThan = Version.v1_21_R4)
     public static final Object HIDE_ADDITIONAL_TOOLTIP;
     public static final Object RARITY;
     public static final Object ENCHANTMENTS;
@@ -56,25 +56,25 @@ public class DataComponentEnum {
     public static final Object CHARGED_PROJECTILES;
     public static final Object BUNDLE_CONTENTS;
     public static final Object POTION_CONTENTS;
-    @DependsOnVersion(near = Version.v1_21_R2)
+    @DependsOnVersion(higherThan = Version.v1_21_R2)
     public static final Object ITEM_MODEL;
-    @DependsOnVersion(near = Version.v1_21_R2)
+    @DependsOnVersion(higherThan = Version.v1_21_R2)
     public static final Object ENCHANTABLE;
-    @DependsOnVersion(near = Version.v1_21_R2)
+    @DependsOnVersion(higherThan = Version.v1_21_R2)
     public static final Object CONSUMABLE;
-    @DependsOnVersion(near = Version.v1_21_R2)
+    @DependsOnVersion(higherThan = Version.v1_21_R2)
     public static final Object TOOLTIP_STYLE;
-    @DependsOnVersion(near = Version.v1_21_R2)
+    @DependsOnVersion(higherThan = Version.v1_21_R2)
     public static final Object GLIDER;
-    @DependsOnVersion(near = Version.v1_21_R2)
+    @DependsOnVersion(higherThan = Version.v1_21_R2)
     public static final Object DAMAGE_RESISTANT;
-    @DependsOnVersion(near = Version.v1_21_R2)
+    @DependsOnVersion(higherThan = Version.v1_21_R2)
     public static final Object USE_REMAINDER;
-    @DependsOnVersion(near = Version.v1_21_R2)
+    @DependsOnVersion(higherThan = Version.v1_21_R2)
     public static final Object USE_COOLDOWN;
-    @DependsOnVersion(near = Version.v1_21_R2)
+    @DependsOnVersion(higherThan = Version.v1_21_R2)
     public static final Object EQUIPPABLE;
-    @DependsOnVersion(near = Version.v1_21_R2)
+    @DependsOnVersion(higherThan = Version.v1_21_R2)
     public static final Object JUKEBOX_PLAYABLE;
 
     public static final Set<Object> ALL_DATA_COMPONENTS;
@@ -113,8 +113,8 @@ public class DataComponentEnum {
         TOOL = Utils.matchName(fields, "TOOL");
         FOOD = Utils.matchName(fields, "FOOD");
         REPAIR_COST = Utils.matchName(fields, "REPAIR_COST");
-        HIDE_TOOLTIP = Utils.matchName(fields, "HIDE_TOOLTIP");
-        HIDE_ADDITIONAL_TOOLTIP = Utils.matchName(fields, "HIDE_ADDITIONAL_TOOLTIP");
+        HIDE_TOOLTIP = Utils.matchNull(fields, "HIDE_TOOLTIP");
+        HIDE_ADDITIONAL_TOOLTIP = Utils.matchNull(fields, "HIDE_ADDITIONAL_TOOLTIP");
         RARITY = Utils.matchName(fields, "RARITY");
         CAN_PLACE_ON = Utils.matchName(fields, "CAN_PLACE_ON");
         CAN_BREAK = Utils.matchName(fields, "CAN_BREAK");

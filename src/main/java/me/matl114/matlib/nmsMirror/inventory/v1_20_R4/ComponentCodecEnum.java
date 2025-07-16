@@ -1,20 +1,13 @@
 package me.matl114.matlib.nmsMirror.inventory.v1_20_R4;
 
 import com.mojang.serialization.Codec;
-import it.unimi.dsi.fastutil.Function;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import me.matl114.matlib.common.lang.annotations.CodecLike;
-import me.matl114.matlib.utils.Debug;
-import me.matl114.matlib.utils.reflect.ReflectUtils;
 import me.matl114.matlib.utils.version.DependsOnVersion;
 import me.matl114.matlib.utils.version.Version;
-import org.checkerframework.checker.units.qual.C;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.List;
 
 public class ComponentCodecEnum {
     public static final Codec<Object> CUSTOM_DATA = codec(DataComponentEnum.CUSTOM_DATA);
@@ -37,12 +30,12 @@ public class ComponentCodecEnum {
     public static final Object CAN_BREAK = codec(DataComponentEnum.CAN_BREAK);
     public static final Object ATTRIBUTE_MODIFIERS = codec(DataComponentEnum.ATTRIBUTE_MODIFIERS);
     public static final Object DYED_COLOR = codec(DataComponentEnum.DYED_COLOR);
-    @DependsOnVersion(near = Version.v1_21_R2)
+    @DependsOnVersion(higherThan = Version.v1_21_R2)
     @CodecLike("int")
     public static final Codec<Object> ENCHANTABLE = codec(DataComponentEnum.ENCHANTABLE);
-    @DependsOnVersion(near = Version.v1_21_R2)
+    @DependsOnVersion(higherThan = Version.v1_21_R2)
     public static final Codec<Object> CONSUMABLE = codec(DataComponentEnum.CONSUMABLE);
-    @DependsOnVersion(near = Version.v1_21_R2)
+    @DependsOnVersion(higherThan = Version.v1_21_R2)
     public static final Codec<Object> DAMAGE_RESISTANT = codec(DataComponentEnum.DAMAGE_RESISTANT);
 
     public static final Codec<Object> DATACOMPONENTPATCH = DataComponentEnum.DATACOMPONENTPATCH_CODEC;

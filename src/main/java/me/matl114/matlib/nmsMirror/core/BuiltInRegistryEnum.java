@@ -17,9 +17,9 @@ public class BuiltInRegistryEnum {
     public static final Iterable<?> BLOCK;
     public static final Iterable<?> ATTRIBUTE;
 
-    @DependsOnVersion(near = Version.v1_20_R4)
+    @DependsOnVersion(higherThan = Version.v1_20_R4)
     public static final Iterable<?> DATA_COMPONENT_TYPE;
-    @DependsOnVersion(near = Version.v1_21_R1)
+    @DependsOnVersion(higherThan = Version.v1_21_R1)
     public static final Iterable<?> ENCHANTMENT;
     static{
         Class<?> a= null;
