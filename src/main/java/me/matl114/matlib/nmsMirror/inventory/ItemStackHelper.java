@@ -152,7 +152,7 @@ public interface ItemStackHelper extends PdcCompoundHolder, CustomNbtHolder {
     @Note(value = "Set the passed value at the pdc compound, no copy")
     void setPersistentDataCompound(Object val, Object val2);
 
-//    Object getPersistentDataCompound(Object val, boolean create);
+    Object getPersistentDataCompound(Object val, boolean create);
 //
 //    void setPersistentDataCompound(Object itemStack, Object compound);
 }
