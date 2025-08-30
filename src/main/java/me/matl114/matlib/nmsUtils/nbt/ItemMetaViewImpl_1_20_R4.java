@@ -935,31 +935,48 @@ public boolean hasCustomModelDataComponent() {
 public org.bukkit.inventory.meta.components.CustomModelDataComponent getCustomModelDataComponent() {
     return new org.bukkit.inventory.meta.components.CustomModelDataComponent() {
         private List<Float> floats = new ArrayList<>();
-        
+        private List<org.bukkit.Color> colors = new ArrayList<>(); 
+
         @Override
         public @NotNull List<Float> getFloats() {
             return floats;
         }
-        
+
         @Override
         public void setFloats(@Nullable List<Float> floats) {
             this.floats = floats != null ? new ArrayList<>(floats) : new ArrayList<>();
         }
-        
+
+        @Override
+        public @NotNull List<org.bukkit.Color> getColors() {
+            return colors;
+        }
+
+        @Override
+        public void setColors(@Nullable List<org.bukkit.Color> colors) {
+            this.colors = colors != null ? new ArrayList<>(colors) : new ArrayList<>();
+        }
+
         @Override
         public boolean equals(Object obj) {
-            return this == obj;
+            if (this == obj) return true;
+            if (!(obj instanceof org.bukkit.inventory.meta.components.CustomModelDataComponent)) return false;
+            org.bukkit.inventory.meta.components.CustomModelDataComponent other = 
+                (org.bukkit.inventory.meta.components.CustomModelDataComponent) obj;
+            return Objects.equals(getFloats(), other.getFloats()) && 
+                   Objects.equals(getColors(), other.getColors());
         }
-        
+
         @Override
         public int hashCode() {
-            return System.identityHashCode(this);
+            return Objects.hash(getFloats(), getColors());
         }
     };
 }
 
 @Override
 public void setCustomModelDataComponent(@Nullable org.bukkit.inventory.meta.components.CustomModelDataComponent customModelData) {
+    throw new UnsupportedOperationException("setCustomModelDataComponent is not supported in this implementation");
 }
 
 @Override
@@ -975,6 +992,7 @@ public net.kyori.adventure.text.Component customName() {
 
 @Override
 public void customName(@Nullable net.kyori.adventure.text.Component customName) {
+    throw new UnsupportedOperationException("setCustomModelDataComponent is not supported in this implementation");
 }
 
 }

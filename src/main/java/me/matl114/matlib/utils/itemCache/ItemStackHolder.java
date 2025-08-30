@@ -25,6 +25,18 @@ import java.util.function.UnaryOperator;
 public class ItemStackHolder  extends ItemStack{
 
 
+    private static final boolean HAS_REGISTRY_API;
+    static {
+        boolean hasRegistry = false;
+        try {
+            Class.forName("org.bukkit.Registry");
+            hasRegistry = true;
+        } catch (ClassNotFoundException e) {
+            hasRegistry = false;
+        }
+        HAS_REGISTRY_API = hasRegistry;
+    }
+    
     public ItemStackHolder(ItemStack delegate){
         super();
         this.handle = delegate;
@@ -196,7 +208,14 @@ public class ItemStackHolder  extends ItemStack{
                     String stringKey = entry.getKey().toString();
                     stringKey = Bukkit.getUnsafe().get(Enchantment.class, stringKey);
                     NamespacedKey key = NamespacedKey.fromString(stringKey.toLowerCase(Locale.ROOT));
-                    Enchantment enchantment = Bukkit.getRegistry(Registry.ENCHANTMENT).get(key);
+                    
+                    Enchantment enchantment;
+                    if (HAS_REGISTRY_API) {
+                        enchantment = Registry.ENCHANTMENT.get(key);
+                    } else {
+                        enchantment = Enchantment.getByKey(key);
+                    }
+                    
                     if (enchantment != null && entry.getValue() instanceof Integer) {
                         result.addUnsafeEnchantment(enchantment, (Integer)entry.getValue());
                     }
