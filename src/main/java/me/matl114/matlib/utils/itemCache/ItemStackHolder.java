@@ -196,7 +196,7 @@ public class ItemStackHolder  extends ItemStack{
                     String stringKey = entry.getKey().toString();
                     stringKey = Bukkit.getUnsafe().get(Enchantment.class, stringKey);
                     NamespacedKey key = NamespacedKey.fromString(stringKey.toLowerCase(Locale.ROOT));
-                    Enchantment enchantment = (Enchantment)Bukkit.getUnsafe().get(Registry.ENCHANTMENT, key);
+                    Enchantment enchantment = Bukkit.getRegistry(Registry.ENCHANTMENT).get(key);
                     if (enchantment != null && entry.getValue() instanceof Integer) {
                         result.addUnsafeEnchantment(enchantment, (Integer)entry.getValue());
                     }

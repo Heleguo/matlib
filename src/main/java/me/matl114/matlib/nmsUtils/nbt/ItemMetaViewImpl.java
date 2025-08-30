@@ -22,7 +22,11 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.components.*;
+import org.bukkit.inventory.meta.components.EquippableComponent;
+import org.bukkit.inventory.meta.components.FoodComponent;
+import org.bukkit.inventory.meta.components.JukeboxPlayableComponent;
+import org.bukkit.inventory.meta.components.ToolComponent;
+import org.bukkit.inventory.meta.components.UseCooldownComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -570,6 +574,57 @@ class ItemMetaViewImpl extends AbstractItemMetaView {
     public boolean hasDestroyableKeys() {
         return ITEMSTACK.hasCustomTagKey(itemStack, "CanDestroy");
     }
+@Override
+public boolean hasCustomModelDataComponent() {
+    return false;
+}
 
+@Override
+@NotNull
+public org.bukkit.inventory.meta.components.CustomModelDataComponent getCustomModelDataComponent() {
+    // 返回一个空实现
+    return new org.bukkit.inventory.meta.components.CustomModelDataComponent() {
+        private List<Float> floats = new ArrayList<>();
+        
+        @Override
+        public @NotNull List<Float> getFloats() {
+            return floats;
+        }
+        
+        @Override
+        public void setFloats(@Nullable List<Float> floats) {
+            this.floats = floats != null ? new ArrayList<>(floats) : new ArrayList<>();
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            return this == obj;
+        }
+        
+        @Override
+        public int hashCode() {
+            return System.identityHashCode(this);
+        }
+    };
+}
+
+@Override
+public void setCustomModelDataComponent(@Nullable org.bukkit.inventory.meta.components.CustomModelDataComponent customModelData) {
+}
+
+@Override
+public boolean hasCustomName() {
+    return false;
+}
+
+@Override
+@Nullable
+public net.kyori.adventure.text.Component customName() {
+    return null;
+}
+
+@Override
+public void customName(@Nullable net.kyori.adventure.text.Component customName) {
+}
 
 }
